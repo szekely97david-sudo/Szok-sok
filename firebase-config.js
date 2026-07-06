@@ -15,7 +15,6 @@
    Ezután az appban: Célok → Fiók & szinkron → Bejelentkezés Google-fiókkal.
    ========================================================================= */
 window.FIREBASE_CONFIG = {
- export const firebaseConfig = {
   apiKey: "AIzaSyBz6x1EjELzfhUVjeo-UInBg21TIaoLZIg",
   authDomain: "szokasok-5847c.firebaseapp.com",
   projectId: "szokasok-5847c",
