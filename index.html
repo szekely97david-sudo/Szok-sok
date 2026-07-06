@@ -188,6 +188,9 @@ textarea.input{resize:vertical; min-height:48px;}
 .cl-axis{stroke:var(--line); stroke-width:1;}
 .cl-zero{stroke:var(--muted-2); stroke-width:1; stroke-dasharray:3 3; opacity:.7;}
 .cl-txt{fill:var(--muted); font-family:var(--disp); font-size:9px;}
+.day-pick{display:flex; gap:8px; align-items:center;}
+.day-pick .input{flex:1;}
+input[type=date]{color-scheme:dark;}
 @media (prefers-reduced-motion: reduce){*{transition:none !important; animation:none !important;}}
 </style>
 </head>
@@ -208,11 +211,12 @@ textarea.input{resize:vertical; min-height:48px;}
   <section id="tab-heti" class="hidden"></section>
   <section id="tab-celok" class="hidden"></section>
   <section id="tab-haladas" class="hidden"></section>
+  <section id="tab-fiok" class="hidden"></section>
 </main>
 
 <div class="dayfoot" id="dayfoot">
   <div class="dayfoot-in">
-    <div class="daysum"><span class="lbl">Mai pont</span><span class="val mono" id="dayPts">0</span></div>
+    <div class="daysum"><span class="lbl">Nap pontja</span><span class="val mono" id="dayPts">0</span></div>
     <button class="btn" id="closeDayBtn">Nap zárása</button>
   </div>
 </div>
@@ -222,6 +226,7 @@ textarea.input{resize:vertical; min-height:48px;}
   <button class="tabbtn" data-tab="heti"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>Heti</button>
   <button class="tabbtn" data-tab="celok"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg>Célok</button>
   <button class="tabbtn" data-tab="haladas"><svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16M8 15l3-4 3 3 4-6"/></svg>Haladás</button>
+  <button class="tabbtn" data-tab="fiok"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-1.5 1-5 8-5s8 3.5 8 5"/></svg>Fiók</button>
 </div></nav>
 
 <div id="toast"></div>
@@ -291,6 +296,8 @@ function pretty(d){return d.toLocaleDateString("hu-HU",{weekday:"long",month:"lo
 function weekMonKey(dd){const d=dd?new Date(dd):new Date();const wd=(d.getDay()+6)%7;d.setDate(d.getDate()-wd);return dk(d);}
 function daysBetween(a,b){return Math.round((keyToDate(b)-keyToDate(a))/86400000);}
 const TODAY=todayKey();
+let selDay=TODAY;                 // MA fülön szerkesztett nap (alapból ma)
+function isSelToday(){return selDay===TODAY;}
 
 /* pont / szint */
 function cfg(){return S.settings;}
@@ -308,7 +315,7 @@ function goalDayPoints(gid,dayObj){const g=S.goals.find(x=>x.id===gid);if(!g||!d
   if(!vals.length)return null;return Math.round(vals.reduce((a,b)=>a+b,0)/vals.length);}
 function goalLifetime(gid){let s=0;for(const k in S.days){const p=goalDayPoints(gid,S.days[k]);if(p!=null)s+=p;}return s;}
 
-function dayObj(){if(!S.days[TODAY])S.days[TODAY]={date:TODAY,tartos:{},closed:false};return S.days[TODAY];}
+function dayObj(){if(!S.days[selDay])S.days[selDay]={date:selDay,tartos:{},closed:false};return S.days[selDay];}
 function activeGoals(){return S.goals.filter(g=>g.active!==false);}
 
 function ensureDaily(){if(S.dailyToday.date!==TODAY){const o=S.dailyToday;const sc=o.items.filter(i=>i.score!=null);
@@ -325,6 +332,7 @@ function weekWeight(item,weekMon){const wm=weekMon||S.weekly.weekMon;
   const remaining=daysBetween(item.added,sun)+1;return Math.max(0.15,Math.min(1,remaining/7));}
 
 function todayScore(){let s=dailyPointsToday();const d=S.days[TODAY];if(d)for(const g of activeGoals()){const p=goalDayPoints(g.id,d);if(p!=null)s+=p;}return s;}
+function selDayScore(){let s=isSelToday()?dailyPointsToday():0;const d=S.days[selDay];if(d)for(const g of activeGoals()){const p=goalDayPoints(g.id,d);if(p!=null)s+=p;}return s;}
 function streakCount(){let n=0,d=new Date();if(!(S.days[TODAY]&&S.days[TODAY].closed))d.setDate(d.getDate()-1);
   for(let i=0;i<400;i++){const k=dk(d);if(S.days[k]&&S.days[k].closed){n++;d.setDate(d.getDate()-1);}else break;}return n;}
 
@@ -352,12 +360,16 @@ function scaleBlock(kind,ownerId,metricId,val,rubric){
 let openGoals={};
 function renderMa(){
   ensureDaily();const el=document.getElementById("tab-ma");const dobj=dayObj();
-  let html='<div class="section-title" style="margin-top:8px">'+pretty(new Date())+(dobj.closed?' · lezárva':'')+'</div>';
-  html+='<div class="section-title">Napi célok<span class="sub">holnapra nullázódik</span></div><div class="card" style="padding:14px 16px">';
-  html+='<div class="daily-add"><input class="input" id="dailyInput" placeholder="Mai cél…"/><button class="btn sm" id="dailyAdd">+</button></div>';
-  if(S.dailyToday.items.length===0)html+='<div class="hint">Vegyél fel pár egyszerű célt a mai napra. Este pontozod 1–'+cfg().scaleMax+'-ig.</div>';
-  for(const it of S.dailyToday.items)html+='<div class="di"><div class="di-top"><span class="di-label">'+esc(it.label)+'</span><button class="di-del" data-ddel="'+it.id+'">✕</button></div>'+scaleBlock("daily",it.id,"_",it.score,null)+'</div>';
-  html+='</div>';
+  const closedTxt=(S.days[selDay]&&S.days[selDay].closed)?' · lezárva':'';
+  let html='<div class="section-title" style="margin-top:8px">Nap kiválasztása</div>';
+  html+='<div class="card" style="padding:12px 14px"><div class="day-pick"><input type="date" class="input" id="daySel" value="'+selDay+'" max="'+TODAY+'"/><button class="btn ghost sm" id="dayToday"'+(isSelToday()?' disabled':'')+'>Ma</button></div><div class="hint" style="margin-top:8px">'+pretty(keyToDate(selDay))+closedTxt+(isSelToday()?'':' — korábbi nap szerkesztése')+'</div></div>';
+  if(isSelToday()){
+    html+='<div class="section-title">Napi célok<span class="sub">holnapra nullázódik</span></div><div class="card" style="padding:14px 16px">';
+    html+='<div class="daily-add"><input class="input" id="dailyInput" placeholder="Mai cél…"/><button class="btn sm" id="dailyAdd">+</button></div>';
+    if(S.dailyToday.items.length===0)html+='<div class="hint">Vegyél fel pár egyszerű célt a mai napra. Este pontozod 1–'+cfg().scaleMax+'-ig. A ✨ Segédlettel AI-tól is kérhetsz értékelési támpontot.</div>';
+    for(const it of S.dailyToday.items)html+='<div class="di"><div class="di-top"><span class="di-label">'+esc(it.label)+'</span><button class="rub-toggle" data-airub="daily|'+it.id+'" style="margin-left:auto;padding:2px 4px">✨ Segédlet</button><button class="di-del" data-ddel="'+it.id+'" style="margin-left:6px">✕</button></div>'+scaleBlock("daily",it.id,"_",it.score,it.rubric)+'</div>';
+    html+='</div>';
+  }
   const goals=activeGoals();
   html+='<div class="section-title">Tartós célok<span class="sub">szintet épít</span></div>';
   if(goals.length===0)html+='<div class="empty"><div class="big">Nincs még tartós célod</div>A <b>Célok</b> fülön hozz létre egyet, akár almércékkel.</div>';
@@ -375,22 +387,25 @@ function goalCardMa(g,dobj){
   return '<div class="card'+(isOpen?" open":"")+'" data-card="'+g.id+'"><button class="goalhead" data-toggle="'+g.id+'"><span><span class="g-title">'+esc(g.title)+'</span><span class="g-sub"><span class="lvpill">Lv '+gl.L+'</span>'+(g.metrics.length?g.metrics.length+' mérce':'önálló')+'</span></span><span class="g-pts '+cls+'">'+pts+'</span><span class="chev">›</span></button><div class="g-body">'+body+'</div></div>';
 }
 function bindMa(){
+  const ds=document.getElementById("daySel");if(ds)ds.onchange=()=>{if(ds.value){selDay=ds.value;renderMa();}};
+  const dt=document.getElementById("dayToday");if(dt)dt.onclick=()=>{selDay=TODAY;renderMa();};
   const add=document.getElementById("dailyAdd"),inp=document.getElementById("dailyInput");
   if(add)add.onclick=()=>{const v=inp.value.trim();if(!v)return;S.dailyToday.items.push({id:uid(),label:v,score:null});save();renderMa();};
   if(inp)inp.onkeydown=e=>{if(e.key==="Enter")add.click();};
   document.querySelectorAll("[data-ddel]").forEach(b=>b.onclick=()=>{S.dailyToday.items=S.dailyToday.items.filter(i=>i.id!==b.dataset.ddel);save();renderMa();});
+  document.querySelectorAll("#tab-ma [data-airub]").forEach(b=>b.onclick=()=>{const[k,id]=b.dataset.airub.split("|");aiItemRubric(k,id,b);});
   document.querySelectorAll("[data-toggle]").forEach(b=>b.onclick=()=>{const id=b.dataset.toggle;openGoals[id]=!openGoals[id];b.closest(".card").classList.toggle("open");});
   document.querySelectorAll("[data-note]").forEach(t=>t.oninput=()=>{const gid=t.dataset.note;const d=dayObj();if(!d.tartos[gid])d.tartos[gid]={};d.tartos[gid]._note=t.value;save();});
-  document.querySelectorAll("[data-score]").forEach(b=>b.onclick=()=>onScore(b.dataset.score));
+  document.querySelectorAll("#tab-ma [data-score]").forEach(b=>b.onclick=()=>onScore(b.dataset.score));
 }
 function onScore(data){const[kind,owner,mid,vs]=data.split("|");const v=Number(vs);
   if(kind==="daily"){const it=S.dailyToday.items.find(i=>i.id===owner);if(it)it.score=(it.score===v?null:v);save();renderMa();renderHeader();return;}
   if(kind==="tartos"){const d=dayObj();if(!d.tartos[owner])d.tartos[owner]={};d.tartos[owner][mid]=(d.tartos[owner][mid]===v?null:v);save();
     const card=document.querySelector('[data-card="'+owner+'"]');const g=S.goals.find(x=>x.id===owner);if(card&&g){card.outerHTML=goalCardMa(g,d);bindMa();}updateDayFoot();renderHeader();}
 }
-function updateDayFoot(){const dp=todayScore();const el=document.getElementById("dayPts");el.textContent=(dp>0?"+"+dp:dp);el.className="val mono "+(dp>0?"pos":(dp<0?"neg":""));
-  document.getElementById("closeDayBtn").textContent=(S.days[TODAY]&&S.days[TODAY].closed)?"Nap frissítése":"Nap zárása";}
-function closeDay(){const d=dayObj();d.closed=true;S.dailyToday.closed=true;save();toast("Nap lezárva");renderHeader();renderMa();}
+function updateDayFoot(){const dp=selDayScore();const el=document.getElementById("dayPts");el.textContent=(dp>0?"+"+dp:dp);el.className="val mono "+(dp>0?"pos":(dp<0?"neg":""));
+  document.getElementById("closeDayBtn").textContent=(S.days[selDay]&&S.days[selDay].closed)?"Nap frissítése":"Nap zárása";}
+function closeDay(){const d=dayObj();d.closed=true;if(isSelToday())S.dailyToday.closed=true;save();toast(isSelToday()?"Nap lezárva":"Nap frissítve");renderHeader();renderMa();}
 
 /* ---- HETI ---- */
 function renderHeti(){
@@ -401,13 +416,14 @@ function renderHeti(){
   if(S.weekly.items.length===0)html+='<div class="hint">Még nincs heti célod. Hét közben is felvehetsz — az arányosan ér kevesebbet.</div>';
   for(const it of S.weekly.items){const w=weekWeight(it);const late=it.added&&daysBetween(wm,it.added)>0;
     const badge=late?'<span class="badge warn">×'+w.toFixed(2)+' · '+keyToDate(it.added).toLocaleDateString("hu-HU",{weekday:"short"})+'-tól</span>':'<span class="badge">teljes súly</span>';
-    html+='<div class="di"><div class="di-top"><span class="di-label">'+esc(it.label)+'</span>'+badge+'<button class="di-del" data-wdel="'+it.id+'">✕</button></div>'+scaleBlock("weekly",it.id,"_",it.score,null)+'</div>';}
+    html+='<div class="di"><div class="di-top"><span class="di-label">'+esc(it.label)+'</span>'+badge+'<button class="rub-toggle" data-airub="weekly|'+it.id+'" style="margin-left:auto;padding:2px 4px">✨ Segédlet</button><button class="di-del" data-wdel="'+it.id+'" style="margin-left:6px">✕</button></div>'+scaleBlock("weekly",it.id,"_",it.score,it.rubric)+'</div>';}
   html+='</div>';el.innerHTML=html;
   const add=document.getElementById("weeklyAdd"),inp=document.getElementById("weeklyInput");
   add.onclick=()=>{const v=inp.value.trim();if(!v)return;S.weekly.items.push({id:uid(),label:v,score:null,added:TODAY});save();renderHeti();};
   inp.onkeydown=e=>{if(e.key==="Enter")add.click();};
   document.querySelectorAll("[data-wdel]").forEach(b=>b.onclick=()=>{S.weekly.items=S.weekly.items.filter(i=>i.id!==b.dataset.wdel);save();renderHeti();});
   document.querySelectorAll("#tab-heti [data-score]").forEach(b=>b.onclick=()=>{const[,owner,,vs]=b.dataset.score.split("|");const v=Number(vs);const it=S.weekly.items.find(i=>i.id===owner);if(it)it.score=(it.score===v?null:v);save();renderHeti();});
+  document.querySelectorAll("#tab-heti [data-airub]").forEach(b=>b.onclick=()=>{const[k,id]=b.dataset.airub.split("|");aiItemRubric(k,id,b);});
 }
 
 /* ---- CÉLOK + Beállítások ---- */
@@ -418,39 +434,31 @@ function renderCelok(){
   if(S.goals.length===0)html+='<div class="hint" style="margin-bottom:12px">Fő cél + almércék. Minden almérce saját szintet lép. Ha nincs almérce, magát a célt pontozod.</div>';
   for(const g of S.goals)html+='<div class="card"><div class="goal-manage"><span><span class="g-title">'+esc(g.title)+'</span><span class="g-sub">'+(g.metrics.length?g.metrics.length+' mérce':'önálló')+' · Lv '+progFor(goalLifetime(g.id)).L+'</span></span><span class="acts"><button class="iconbtn" data-edit="'+g.id+'">✎</button><button class="iconbtn del" data-del="'+g.id+'">🗑</button></span></div></div>';
   html+='<div id="goalForm"></div><button class="btn ghost wide" id="newGoalBtn" style="margin-top:6px">+ Új tartós cél</button>';
-
-  /* Fiók / szinkron */
-  html+='<div class="section-title">Fiók & szinkron</div><div class="card" style="padding:16px">';
-  if(window.Cloud&&window.Cloud.configured){
-    if(cloudUser)html+='<div class="hint" style="margin-bottom:10px">Bejelentkezve: <b>'+esc(cloudUser.name)+'</b> — az adataid eszközök közt szinkronizálnak.</div><button class="btn ghost sm" id="signOut">Kijelentkezés</button>';
-    else html+='<div class="hint" style="margin-bottom:10px">Jelentkezz be, hogy az adataid több eszköz közt szinkronizáljanak.</div><button class="btn sm" id="signIn">Bejelentkezés Google-fiókkal</button>';
-  }else html+='<div class="hint">A felhő-szinkron nincs beállítva ehhez a példányhoz. (A fejlesztő tölti ki a firebase-config.js-t.) Enélkül minden helyben, ezen az eszközön működik.</div>';
-  html+='</div>';
-
-  /* Mentés */
-  html+='<div class="section-title">Mentés</div><div class="card" style="padding:16px"><div class="rub-actions"><button class="btn ghost sm" id="expBtn">Exportálás (fájl)</button><button class="btn ghost sm" id="impBtn">Importálás (fájl)</button></div><div class="hint" style="margin-top:8px">Töltsd le biztonsági mentésként, vagy vidd át másik eszközre.</div></div>';
-
-  /* AI */
-  html+='<div class="section-title">AI rubrika</div><div class="card" style="padding:16px"><div class="field"><label>Saját Gemini API-kulcs (ingyenes)</label><input class="input" id="setGemini" placeholder="AIza…" value="'+escA(GKEY)+'"/><div class="hint">Ingyenes kulcs: aistudio.google.com → „Get API key". A kulcs csak ezen az eszközön tárolódik, nem szinkronizál, más nem látja. Enélkül a rubrikát kézzel írod.</div></div><div class="field"><label>Modell</label><input class="input" id="setModel" placeholder="gemini-2.5-flash" value="'+escA(GMODEL)+'"/><div class="hint">Alap: <b>gemini-2.5-flash</b> (ingyenes). Erősebbhez: <b>gemini-2.5-pro</b> (ehhez a kulcsodhoz lehet, hogy számlázás kell). Ha egy modell megszűnik, itt átírhatod — nem kell új kiadás; ha nem elérhető, az app magától visszavált flash-re.</div></div><div class="rub-actions"><button class="btn ghost sm" id="saveGemini">Mentés</button></div></div>';
-
-  /* App / info */
-  html+='<div class="section-title">Alkalmazás</div><div class="card" style="padding:16px">';
-  html+='<div class="rub-actions"><button class="btn ghost sm" id="installBtn">Telepítés a kezdőképernyőre</button></div>';
-  html+='<div class="hint" style="margin-top:10px">Skála: 1–'+cfg().scaleMax+', semleges: '+cfg().neutral+'. iPhone-on: Safari → Megosztás → „Kezdőképernyőhöz adás".</div>';
-  html+='<div class="rub-actions" style="margin-top:12px"><button class="btn ghost sm" id="resetData" style="color:var(--loss)">Összes adat törlése</button></div></div>';
-
   el.innerHTML=html;
   document.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>{editing=b.dataset.edit;startGoalForm();});
   document.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{const g=S.goals.find(x=>x.id===b.dataset.del);if(confirm('Törlöd? „'+g.title+'"')){S.goals=S.goals.filter(x=>x.id!==b.dataset.del);save();renderCelok();}});
   document.getElementById("newGoalBtn").onclick=()=>{editing="__new__";startGoalForm();};
+  if(editing){if(formDraft)renderGoalForm();else startGoalForm();}
+}
+function renderFiok(){
+  const el=document.getElementById("tab-fiok");
+  let html='<div class="section-title" style="margin-top:8px">Fiók & szinkron</div><div class="card" style="padding:16px">';
+  if(window.Cloud&&window.Cloud.configured){
+    if(cloudUser)html+='<div class="hint" style="margin-bottom:10px">Bejelentkezve: <b>'+esc(cloudUser.name)+'</b> — az adataid eszközök közt szinkronizálnak.</div><button class="btn ghost sm" id="signOut">Kijelentkezés</button>';
+    else html+='<div class="hint" style="margin-bottom:10px">Jelentkezz be, hogy az adataid több eszköz közt szinkronizáljanak. Csak te látod őket.</div><button class="btn sm" id="signIn">Bejelentkezés Google-fiókkal</button>';
+  }else html+='<div class="hint">A felhő-szinkron nincs beállítva ehhez a példányhoz. Enélkül minden helyben, ezen az eszközön működik.</div>';
+  html+='</div>';
+  html+='<div class="section-title">Mentés</div><div class="card" style="padding:16px"><div class="rub-actions"><button class="btn ghost sm" id="expBtn">Exportálás (fájl)</button><button class="btn ghost sm" id="impBtn">Importálás (fájl)</button></div><div class="hint" style="margin-top:8px">Töltsd le biztonsági mentésként, vagy vidd át másik eszközre.</div></div>';
+  html+='<div class="section-title">AI rubrika</div><div class="card" style="padding:16px"><div class="field"><label>Saját Gemini API-kulcs (ingyenes)</label><input class="input" id="setGemini" placeholder="AIza…" value="'+escA(GKEY)+'"/><div class="hint">Ingyenes kulcs: aistudio.google.com → „Get API key". A kulcs csak ezen az eszközön tárolódik, nem szinkronizál, más nem látja. Enélkül a rubrikát kézzel írod.</div></div><div class="field"><label>Modell</label><input class="input" id="setModel" placeholder="gemini-2.5-flash" value="'+escA(GMODEL)+'"/><div class="hint">Alap: <b>gemini-2.5-flash</b> (ingyenes). Erősebbhez: <b>gemini-2.5-pro</b> (ehhez a kulcsodhoz lehet, hogy számlázás kell). Ha egy modell megszűnik, itt átírhatod — nem kell új kiadás; ha nem elérhető, az app magától visszavált flash-re.</div></div><div class="rub-actions"><button class="btn ghost sm" id="saveGemini">Mentés</button></div></div>';
+  html+='<div class="section-title">Alkalmazás</div><div class="card" style="padding:16px"><div class="rub-actions"><button class="btn ghost sm" id="installBtn">Telepítés a kezdőképernyőre</button></div><div class="hint" style="margin-top:10px">Skála: 1–'+cfg().scaleMax+', semleges: '+cfg().neutral+'. iPhone-on: Safari → Megosztás → „Kezdőképernyőhöz adás".</div><div class="rub-actions" style="margin-top:12px"><button class="btn ghost sm" id="resetData" style="color:var(--loss)">Összes adat törlése</button></div></div>';
+  el.innerHTML=html;
   const si=document.getElementById("signIn");if(si)si.onclick=()=>{window.Cloud.signIn();};
-  const so=document.getElementById("signOut");if(so)so.onclick=()=>{window.Cloud.signOut();};
+  const so=document.getElementById("signOut");if(so)so.onclick=()=>{if(confirm("Kijelentkezel?"))window.Cloud.signOut();};
   document.getElementById("expBtn").onclick=exportData;
   document.getElementById("impBtn").onclick=()=>document.getElementById("importFile").click();
   document.getElementById("saveGemini").onclick=()=>{GKEY=document.getElementById("setGemini").value.trim();Store.set("gemini_key",GKEY);var _m=document.getElementById("setModel");if(_m){GMODEL=_m.value.trim()||GEMINI_MODEL;Store.set("gemini_model",GMODEL);}toast("Mentve");};
   const ib=document.getElementById("installBtn");ib.onclick=doInstall;
   document.getElementById("resetData").onclick=()=>{if(confirm("Biztos törlöd az ÖSSZES adatot ezen az eszközön? Nem visszavonható.")){S=blank();S.onboarded=true;save();editing=null;switchTab("ma");}};
-  if(editing){if(formDraft)renderGoalForm();else startGoalForm();}
 }
 function startGoalForm(){
   // formDraft-ot CSAK a szerkesztés indításakor inicializáljuk, hogy a
@@ -486,37 +494,58 @@ function saveGoal(){syncForm();const title=document.getElementById("f-title").va
   save();editing=null;formDraft=null;renderCelok();}
 
 /* AI rubrika — SAJÁT Gemini kulccsal, kliensoldalról */
+async function geminiRubric(context,label,max,anchors){
+  if(!GKEY)throw new Error("Adj meg egy Gemini-kulcsot a Fiók fülön");
+  const system="Rövid, önértékelő pontozási rubrikákat írsz magyarul. Kizárólag egy JSON objektummal válaszolsz: kulcsok "+max+"..1 (stringként), értékek rövid magyar leírások (max ~18 szó). A(z) "+max+" a legjobb, 1 a legrosszabb teljesítmény. Konkrét, megfigyelhető, egyértelműen elkülönülő fokozatok.";
+  let user="Kontextus: "+(context||"(nincs)")+"\nMérce, amit pontozok: "+label+"\nAdj rubrikát "+max+"-tól 1-ig.";
+  const given=anchors?Object.keys(anchors).filter(k=>anchors[k]&&(""+anchors[k]).trim()).sort((a,b)=>Number(b)-Number(a)).map(k=>k+" = "+(""+anchors[k]).trim()):[];
+  if(given.length)user+="\nA felhasználó ezeket a fokozatokat MÁR megadta — igazodj a stílusukhoz, hangnemükhöz és részletességükhöz, és NE írd felül őket:\n"+given.join("\n")+"\nA hiányzó fokozatokat töltsd ki ugyanebben a stílusban, konzisztens skálán.";
+  const reqBody=JSON.stringify({systemInstruction:{parts:[{text:system}]},contents:[{role:"user",parts:[{text:user}]}],generationConfig:{temperature:0.4,responseMimeType:"application/json"}});
+  const tries=[...new Set([GMODEL,"gemini-2.5-flash","gemini-2.5-flash-lite"].filter(Boolean))];
+  let data=null,lastErr=null;
+  for(const model of tries){
+    const url="https://generativelanguage.googleapis.com/v1beta/models/"+model+":generateContent?key="+encodeURIComponent(GKEY);
+    const res=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:reqBody});
+    if(res.status===400)throw new Error("hibás kulcs vagy kérés (400)");
+    if(res.status===429)throw new Error("elérted az ingyenes limitet, várj kicsit (429)");
+    if(res.status===404||res.status===403){lastErr=new Error(model+" nem elérhető ("+res.status+")");continue;}
+    if(!res.ok){lastErr=new Error("HTTP "+res.status+" ("+model+")");continue;}
+    data=await res.json();break;
+  }
+  if(!data)throw lastErr||new Error("nem sikerült egyik modellel sem");
+  const parts=(((data.candidates||[])[0]||{}).content||{}).parts||[];
+  let text=parts.map(p=>p.text||"").join("");
+  let obj;try{obj=JSON.parse(text);}catch(e){const a=text.indexOf("{"),b=text.lastIndexOf("}");obj=JSON.parse(text.slice(a,b+1));}
+  return obj;
+}
 async function aiRubric(i,btn){
   syncForm();const label=(formDraft.metrics[i].label||"").trim();
   if(!label){toast("Előbb add meg az almérce nevét","warn");return;}
-  if(!GKEY){toast("Adj meg egy Gemini-kulcsot a Beállításokban","warn");return;}
+  if(!GKEY){toast("Adj meg egy Gemini-kulcsot a Fiók fülön","warn");return;}
   const max=cfg().scaleMax;const orig=btn.innerHTML;btn.disabled=true;btn.innerHTML='<span class="spin"></span> Generálás…';
   try{
-    const system="Rövid, önértékelő pontozási rubrikákat írsz magyarul. Kizárólag egy JSON objektummal válaszolsz: kulcsok "+max+"..1 (stringként), értékek rövid magyar leírások (max ~18 szó). A(z) "+max+" a legjobb, 1 a legrosszabb teljesítmény. Konkrét, megfigyelhető, egyértelműen elkülönülő fokozatok.";
-    const user="Cél: "+(formDraft.title||"(nincs)")+"\nMérce, amit pontozok: "+label+"\nAdj rubrikát "+max+"-tól 1-ig.";
-    const reqBody=JSON.stringify({
-      systemInstruction:{parts:[{text:system}]},contents:[{role:"user",parts:[{text:user}]}],
-      generationConfig:{temperature:0.4,responseMimeType:"application/json"}});
-    // A választott modellt próbáljuk, majd automatikus tartalék (ha kivezették / nem elérhető)
-    const tries=[...new Set([GMODEL,"gemini-2.5-flash","gemini-2.5-flash-lite"].filter(Boolean))];
-    let data=null,lastErr=null;
-    for(const model of tries){
-      const url="https://generativelanguage.googleapis.com/v1beta/models/"+model+":generateContent?key="+encodeURIComponent(GKEY);
-      const res=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:reqBody});
-      if(res.status===400){throw new Error("hibás kulcs vagy kérés (400)");}
-      if(res.status===429){throw new Error("elérted az ingyenes limitet, várj kicsit (429)");}
-      if(res.status===404||res.status===403){lastErr=new Error(model+" nem elérhető ("+res.status+")");continue;}
-      if(!res.ok){lastErr=new Error("HTTP "+res.status+" ("+model+")");continue;}
-      data=await res.json();break;
-    }
-    if(!data)throw lastErr||new Error("nem sikerült egyik modellel sem");
-    const parts=(((data.candidates||[])[0]||{}).content||{}).parts||[];
-    let text=parts.map(p=>p.text||"").join("");
-    let obj;try{obj=JSON.parse(text);}catch(e){const a=text.indexOf("{"),b=text.lastIndexOf("}");obj=JSON.parse(text.slice(a,b+1));}
-    formDraft.metrics[i].rubric=formDraft.metrics[i].rubric||{};
-    for(let s=1;s<=max;s++){if(obj[String(s)])formDraft.metrics[i].rubric[String(s)]=String(obj[String(s)]);}
+    const cur=formDraft.metrics[i].rubric||{};
+    const obj=await geminiRubric(formDraft.title||"(nincs)",label,max,cur);
+    formDraft.metrics[i].rubric=cur;
+    for(let s=1;s<=max;s++){const k=String(s);if(obj[k]&&!(cur[k]&&(""+cur[k]).trim()))formDraft.metrics[i].rubric[k]=String(obj[k]);}
     renderGoalForm();const ed=document.querySelector('[data-rubed="'+i+'"]');if(ed){ed.classList.add("open");ed.scrollIntoView({behavior:"smooth",block:"center"});}
     toast("Rubrika kész ✨");
+  }catch(e){toast("Hiba: "+e.message,"down");btn.disabled=false;btn.innerHTML=orig;}
+}
+async function aiItemRubric(kind,id,btn){
+  const list=kind==="daily"?S.dailyToday.items:S.weekly.items;const it=list.find(x=>x.id===id);if(!it)return;
+  const label=(it.label||"").trim();
+  if(!label){toast("Nincs név","warn");return;}
+  if(!GKEY){toast("Adj meg egy Gemini-kulcsot a Fiók fülön","warn");return;}
+  const max=cfg().scaleMax;const orig=btn.innerHTML;btn.disabled=true;btn.innerHTML='<span class="spin"></span>';
+  try{
+    const ctx=kind==="daily"?"Napi cél (aznap értékeled)":"Heti cél (a hétre)";
+    const cur=it.rubric||{};
+    const obj=await geminiRubric(ctx,label,max,cur);
+    it.rubric=cur;
+    for(let s=1;s<=max;s++){const k=String(s);if(obj[k]&&!(cur[k]&&(""+cur[k]).trim()))it.rubric[k]=String(obj[k]);}
+    save();kind==="daily"?renderMa():renderHeti();
+    toast("Segédlet kész ✨");
   }catch(e){toast("Hiba: "+e.message,"down");btn.disabled=false;btn.innerHTML=orig;}
 }
 
@@ -582,9 +611,9 @@ function renderHaladas(){
 /* ---- NAV ---- */
 let curTab="ma";
 function switchTab(t){curTab=t;document.querySelectorAll(".tabbtn").forEach(b=>b.classList.toggle("active",b.dataset.tab===t));
-  ["ma","heti","celok","haladas"].forEach(x=>document.getElementById("tab-"+x).classList.toggle("hidden",x!==t));
+  ["ma","heti","celok","haladas","fiok"].forEach(x=>document.getElementById("tab-"+x).classList.toggle("hidden",x!==t));
   document.getElementById("dayfoot").style.display=(t==="ma")?"block":"none";
-  if(t==="ma")renderMa();if(t==="heti")renderHeti();if(t==="celok")renderCelok();if(t==="haladas")renderHaladas();window.scrollTo(0,0);}
+  if(t==="ma")renderMa();if(t==="heti")renderHeti();if(t==="celok")renderCelok();if(t==="haladas")renderHaladas();if(t==="fiok")renderFiok();window.scrollTo(0,0);}
 document.querySelectorAll(".tabbtn").forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
 document.getElementById("closeDayBtn").onclick=closeDay;
 
@@ -596,8 +625,8 @@ document.getElementById("onbStart").onclick=()=>{document.getElementById("onb").
 window.SL={
   getState:()=>S,
   applyRemote:(r)=>{try{S=normalize(r);persist();renderHeader();switchTab(curTab);toast("Szinkronizálva");}catch(e){}},
-  onCloudState:(u)=>{cloudUser=u;renderHeader();if(curTab==="celok")renderCelok();},
-  onCloudReady:()=>{if(curTab==="celok")renderCelok();}
+  onCloudState:(u)=>{cloudUser=u;renderHeader();if(curTab==="fiok")renderFiok();},
+  onCloudReady:()=>{if(curTab==="fiok")renderFiok();}
 };
 
 /* ---- indítás ---- */
@@ -613,13 +642,13 @@ try{
   const ok=cfg&&cfg.apiKey&&!/PASTE|xxxx|YOUR_/i.test(cfg.apiKey);
   if(ok){
     const {initializeApp}=await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js");
-    const {getAuth,GoogleAuthProvider,signInWithRedirect,getRedirectResult,onAuthStateChanged,signOut}=await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js");
+    const {getAuth,GoogleAuthProvider,signInWithPopup,signInWithRedirect,getRedirectResult,onAuthStateChanged,signOut}=await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js");
     const {getFirestore,doc,setDoc,getDoc,onSnapshot}=await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js");
     const app=initializeApp(cfg);const auth=getAuth(app);const db=getFirestore(app);const provider=new GoogleAuthProvider();
     let uid=null,unsub=null,pushT=null;
     getRedirectResult(auth).catch(()=>{});
     window.Cloud={configured:true,
-      signIn:()=>signInWithRedirect(auth,provider),
+      signIn:async()=>{try{await signInWithPopup(auth,provider);}catch(e){const c=(e&&e.code)||"";if(c==="auth/popup-blocked"||c==="auth/cancelled-popup-request"||c==="auth/operation-not-supported-in-this-environment"){try{await signInWithRedirect(auth,provider);}catch(e2){alert("Belépési hiba: "+((e2&&e2.code)||(e2&&e2.message)||e2));}}else if(c&&c!=="auth/popup-closed-by-user"){alert("Belépési hiba: "+c);}}},
       signOut:()=>signOut(auth),
       push:(state)=>{if(!uid)return;clearTimeout(pushT);pushT=setTimeout(()=>{setDoc(doc(db,"users",uid),state).catch(()=>{});},1200);}};
     onAuthStateChanged(auth,async(user)=>{
