@@ -15,10 +15,12 @@
    Ezután az appban: Célok → Fiók & szinkron → Bejelentkezés Google-fiókkal.
    ========================================================================= */
 window.FIREBASE_CONFIG = {
-  apiKey: "PASTE_YOUR_API_KEY",
-  authDomain: "PASTE_YOUR_PROJECT.firebaseapp.com",
-  projectId: "PASTE_YOUR_PROJECT_ID",
-  storageBucket: "PASTE_YOUR_PROJECT.appspot.com",
-  messagingSenderId: "PASTE_SENDER_ID",
-  appId: "PASTE_APP_ID"
+ export const firebaseConfig = {
+  apiKey: "AIzaSyBz6x1EjELzfhUVjeo-UInBg21TIaoLZIg",
+  authDomain: "szokasok-5847c.firebaseapp.com",
+  projectId: "szokasok-5847c",
+  storageBucket: "szokasok-5847c.firebasestorage.app",
+  messagingSenderId: "401282754846",
+  appId: "1:401282754846:web:a417fb6859bd4b6c06810f",
+  measurementId: "G-VMKK0RT798"
 };
