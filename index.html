@@ -217,7 +217,7 @@ input[type=date]{color-scheme:dark;}
 #splash .splash-logo{width:132px; height:132px; border-radius:30px; display:block;
   box-shadow:0 12px 34px rgba(30,90,45,.18), 0 0 0 1px rgba(46,139,67,.12);}
 #splash .splash-name{margin-top:22px; font-family:"Space Grotesk",ui-sans-serif,system-ui,sans-serif;
-  font-weight:700; font-size:34px; letter-spacing:.01em; color:#2E7D3A;}
+  font-weight:700; font-size:34px; letter-spacing:.01em; color:#2D6A4F;}
 #splash .splash-tag{margin-top:8px; font-family:"Space Grotesk",ui-sans-serif,system-ui,sans-serif;
   font-weight:500; font-size:15px; letter-spacing:.02em; color:#5C6E60;}
 @keyframes splashIn{from{opacity:0; transform:translateY(8px) scale(.98);} to{opacity:1; transform:none;}}
@@ -262,6 +262,8 @@ body[data-theme="ocean"]{--bg:#0B1220;--surface:#121C2E;--surface-2:#18263C;--li
 body[data-theme="naplemente"]{--bg:#160E14;--surface:#241723;--surface-2:#301E2D;--line:#48304A;--gold:#E5744F;--gold-soft:rgba(229,116,79,.14);--gold-line:rgba(229,116,79,.4);--ink:#F0E7EA;--muted:#B08A9C;--muted-2:#7A5D6E;}
 body[data-theme="papir"]{--bg:#FFFFFF;--surface:#F6F7F8;--surface-2:#EDEFF1;--line:#E1E4E8;--gold:#1B4332;--gold-soft:rgba(27,67,50,.10);--gold-line:rgba(27,67,50,.30);--ink:#212529;--muted:#5C636A;--muted-2:#9AA0A6;--loss:#C0453B;--loss-soft:rgba(192,69,59,.10);--on-gold:#FFFFFF;}
 body[data-theme="papir"] nav{background:rgba(255,255,255,.92);}
+body[data-theme="kert"]{--bg:#FFFFFF;--surface:#F6F8F6;--surface-2:#ECF1ED;--line:#DDE6DF;--gold:#2D6A4F;--gold-soft:rgba(45,106,79,.12);--gold-line:rgba(45,106,79,.32);--ink:#1B2A22;--muted:#5C6B62;--muted-2:#95A29A;--loss:#C0453B;--loss-soft:rgba(192,69,59,.10);--on-gold:#FFFFFF;}
+body[data-theme="kert"] nav{background:rgba(255,255,255,.92);}
 body[data-theme="erdo"],body[data-theme="ocean"],body[data-theme="naplemente"]{background-image:radial-gradient(1200px 500px at 50% -10%, var(--gold-soft), transparent 70%);}
 .theme-grid{display:flex; flex-wrap:wrap; gap:8px;}
 .theme-chip{display:flex; align-items:center; gap:8px; font-family:var(--disp); font-weight:600; font-size:13px; padding:9px 12px; border-radius:999px; background:var(--surface-2); border:1px solid var(--line); color:var(--ink);}
@@ -930,8 +932,8 @@ window.SL={getState:()=>S,
 const APP_VERSION="v7";
 
 /* ---- témák ---- */
-const THEMES=[{id:"papir",name:"Letisztult",sw:"#1B4332"},{id:"arany",name:"Arany éj",sw:"#E5A83B"},{id:"erdo",name:"Erdő",sw:"#5FD08A"},{id:"ocean",name:"Óceán",sw:"#4FB0E5"},{id:"naplemente",name:"Naplemente",sw:"#E5744F"}];
-let curTheme=Store.get("sl_theme")||"papir";
+const THEMES=[{id:"kert",name:"Üvegház",sw:"#2D6A4F"},{id:"papir",name:"Letisztult",sw:"#1B4332"},{id:"arany",name:"Arany éj",sw:"#E5A83B"},{id:"erdo",name:"Erdő",sw:"#5FD08A"},{id:"ocean",name:"Óceán",sw:"#4FB0E5"},{id:"naplemente",name:"Naplemente",sw:"#E5744F"}];
+let curTheme=Store.get("sl_theme")||"kert";
 function applyTheme(t){if(t&&t!=="arany")document.body.setAttribute("data-theme",t);else document.body.removeAttribute("data-theme");}
 function setTheme(t){curTheme=t;Store.set("sl_theme",t);applyTheme(t);if(curTab==="fiok")renderFiok();}
 
