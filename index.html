@@ -1086,7 +1086,36 @@ document.addEventListener("click",e=>{const b=e.target&&e.target.closest&&e.targ
 ensureQuick();renderHeader();
 if(!S.onboarded){showOnboarding();switchTab("ma");}else{switchTab("ma");}
 setTimeout(function(){var sp=document.getElementById("splash");if(sp){sp.style.transition="opacity .45s ease";sp.classList.add("hide");setTimeout(function(){sp.style.display="none";},520);}},350);
-if("serviceWorker" in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("sw.js").catch(()=>{});});}
+/* ---- Service worker + "Frissítés" gomb ---- */
+if("serviceWorker" in navigator){
+  const updBtn=document.getElementById("updateBtn");
+  let reloading=false;
+  // Ha új verzió lép életbe (SKIP_WAITING után), egyszer újratöltünk.
+  navigator.serviceWorker.addEventListener("controllerchange",()=>{
+    if(reloading)return;reloading=true;location.reload();
+  });
+  function showUpdate(worker){
+    if(!updBtn)return;
+    updBtn.hidden=false;
+    updBtn.onclick=()=>{updBtn.disabled=true;if(worker)worker.postMessage("SKIP_WAITING");};
+  }
+  window.addEventListener("load",()=>{
+    navigator.serviceWorker.register("sw.js").then(reg=>{
+      // Már vár egy új verzió (pl. előző látogatáskor töltődött le)?
+      if(reg.waiting&&navigator.serviceWorker.controller)showUpdate(reg.waiting);
+      // Új verzió telepítése közben:
+      reg.addEventListener("updatefound",()=>{
+        const nw=reg.installing;if(!nw)return;
+        nw.addEventListener("statechange",()=>{
+          // "installed" + van már vezérlő = ez FRISSÍTÉS (nem első telepítés).
+          if(nw.state==="installed"&&navigator.serviceWorker.controller)showUpdate(nw);
+        });
+      });
+      // Percenként keresünk frissítést, amíg nyitva az app.
+      setInterval(()=>{reg.update().catch(()=>{});},60000);
+    }).catch(()=>{});
+  });
+}
 </script>
 <!-- Firebase felhő-szinkron modul (csak akkor fut, ha a config ki van töltve) -->
 <script type="module">
