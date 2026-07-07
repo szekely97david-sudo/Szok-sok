@@ -223,14 +223,13 @@ input[type=date]{color-scheme:dark;}
 .role-tag.primary{color:var(--gold); border-color:var(--gold-line); background:var(--gold-soft);}
 .vac{margin-left:auto; font-size:12px; color:var(--muted);}
 .swipe-hint{font-size:11px; color:var(--muted-2); text-align:center; margin:2px 0 6px;}
+.vac-goal{display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); margin:2px 0 10px;}
 </style>
 <header>
   <div class="wrap"><div class="hdr">
     <span class="brand">Szintlépő</span>
     <div class="hdr-right">
       <span class="cloudchip" id="cloudChip" title="Felhő-szinkron">☁</span>
-      <span class="chip zero" id="streakChip">🔥 <span class="mono" id="streakN">0</span></span>
-      <span class="chip">ma <span class="num mono" id="dayChip">0</span></span>
     </div>
   </div></div>
 </header>
@@ -325,7 +324,7 @@ function blank(){return{version:4,onboarded:false,updatedAt:0,settings:{...DEF},
 function normMeas(m){m=m||{};const t=m.type||"scale";
   if(t==="scale")return{type:"scale",scaleMax:SCALE_OPTS.includes(Number(m.scaleMax))?Number(m.scaleMax):10};
   if(t==="quantity")return{type:"quantity",unit:m.unit||"",relation:["atleast","atmost","exactly"].includes(m.relation)?m.relation:"atleast",target:Number(m.target)||0};
-  if(t==="timer")return{type:"timer",unit:"perc",relation:"atleast",target:Number(m.target)||0};
+  if(t==="timer")return{type:"timer",unit:m.unit==="óra"?"óra":"perc",relation:"atleast",target:Number(m.target)||0};
   return{type:"boolean"};}
 function normCad(c){c=c||{};const t=c.type||"daily";
   if(t==="weekdays")return{type:"weekdays",days:(Array.isArray(c.days)&&c.days.length)?c.days.map(Number):[1,2,3,4,5]};
@@ -461,9 +460,20 @@ function ensureQuick(){if(S.quickDaily.date!==TODAY){const o=S.quickDaily;const 
 /* ---- fejléc ---- */
 function anyClosedStreak(){let n=0,d=new Date();if(!(S.days[TODAY]&&S.days[TODAY].closed))d.setDate(d.getDate()-1);
   for(let i=0;i<400;i++){const k=dk(d);if(S.days[k]&&S.days[k].closed){n++;d.setDate(d.getDate()-1);}else break;}return n;}
-function renderHeader(){const sc=anyClosedStreak();document.getElementById("streakN").textContent=sc;document.getElementById("streakChip").classList.toggle("zero",sc===0);
-  const ts=napiPointsOn(TODAY);document.getElementById("dayChip").textContent=(ts>0?"+"+ts:ts);
-  const cc=document.getElementById("cloudChip");cc.classList.toggle("on",!!cloudUser);cc.title=cloudUser?("Szinkron: "+cloudUser.name):"Felhő ki";}
+function renderHeader(){const cc=document.getElementById("cloudChip");if(cc){cc.classList.toggle("on",!!cloudUser);cc.title=cloudUser?("Szinkron: "+cloudUser.name):"Felhő ki";}}
+
+/* ---- streak minden célhoz és almércéhez ---- */
+function findMetric(gid,mid){const g=goalById(gid);return g&&g.metrics.find(m=>m.id===mid);}
+function daySkipsGoal(g,k){const d=S.days[k];if(!d)return false;if(d.vacation)return true;const e=d.entries&&d.entries[g.id];return!!(e&&e._vac);}
+function metricGoodOn(g,metric,k){const d=S.days[k];if(!d)return null;const e=d.entries&&d.entries[g.id];if(!e||e[metric.id]==null)return null;const p=metricPoints(metric,e[metric.id]);return p!=null&&p>0;}
+function metricStreak(gid,mid,refKey){const g=goalById(gid);const m=findMetric(gid,mid);if(!g||!m)return 0;let n=0,d=keyToDate(refKey||TODAY);
+  for(let i=0;i<400;i++){const k=dk(d);if(g.startDate&&k<g.startDate)break;
+    if(daySkipsGoal(g,k)||!cadenceActiveOn(g,k)){d.setDate(d.getDate()-1);continue;}
+    const good=metricGoodOn(g,m,k);if(good===true){n++;d.setDate(d.getDate()-1);}else break;}return n;}
+function goalStreak(gid,refKey){const g=goalById(gid);if(!g)return 0;let n=0,d=keyToDate(refKey||TODAY);
+  for(let i=0;i<400;i++){const k=dk(d);if(g.startDate&&k<g.startDate)break;
+    if(daySkipsGoal(g,k)||!cadenceActiveOn(g,k)){d.setDate(d.getDate()-1);continue;}
+    const p=goalDayPoints(g.id,S.days[k]);if(p!=null&&p>0){n++;d.setDate(d.getDate()-1);}else break;}return n;}
 
 /* ---- mérés-input renderelés ---- */
 function ptsLine(p){if(p==null)return'<div class="m-delta"></div>';const cls=p>0?"pos":(p<0?"neg":"");const t=p>0?"+"+p+" pont":(p<0?p+" pont":"semleges");return'<div class="m-delta '+cls+'">'+t+'</div>';}
@@ -476,12 +486,14 @@ function scaleDots(gid,mid,sm,val,rubric,pol){sm=sm||cfg().scaleMax;const neu=sc
     if(val==null)rub='<div class="m-rub empty">Válassz értéket…</div>';
     else if(txt)rub='<div class="m-rub"><span class="sc">'+val+'</span>'+esc(txt)+'</div>';}
   return dots+rub;}
-function measInput(gid,metric,value){const m=metric.measurement;const mid=metric.id;const pol=metric.polarity;
+function measInput(gid,metric,entry){const m=metric.measurement;const mid=metric.id;const pol=metric.polarity;const value=entry?entry[mid]:null;
   if(m.type==="scale")return scaleDots(gid,mid,m.scaleMax,value,metric.rubric,pol)+ptsLine(metricPoints(metric,value));
   if(m.type==="boolean"){const goodLbl=pol==="negative"?"Tiszta ✓":"Megvolt ✓";const badLbl=pol==="negative"?"Megcsúsztam":"Kimaradt";
     const y=Number(value)===1,n0=(value!=null&&Number(value)===0);
     return'<div class="boolrow"><button class="boolbtn'+(y?" good":"")+'" data-score="G|'+gid+'|'+mid+'|1">'+goodLbl+'</button><button class="boolbtn'+(n0?" bad":"")+'" data-score="G|'+gid+'|'+mid+'|0">'+badLbl+'</button></div>'+ptsLine(metricPoints(metric,value));}
-  const unit=m.type==="timer"?"perc":(m.unit||"");const relTxt={atleast:"legalább",atmost:"legfeljebb",exactly:"pontosan"}[m.relation||"atleast"];
+  if(m.type==="timer"){const unit=m.unit==="óra"?"óra":"perc";const st=entry?(entry[mid+"__s"]||""):"";const en=entry?(entry[mid+"__e"]||""):"";const cur=(value==null||value==="")?"":value;
+    return'<div class="qtyrow"><span class="qtyunit">Kezdés</span><input class="input qtyin" type="time" data-tstart="'+gid+'|'+mid+'" value="'+st+'"/><span class="qtyunit">Vég</span><input class="input qtyin" type="time" data-tend="'+gid+'|'+mid+'" value="'+en+'"/></div><div class="qtyrow" style="margin-top:8px"><input class="input qtyin" type="number" inputmode="decimal" data-qty="'+gid+'|'+mid+'" value="'+cur+'" placeholder="időtartam"/><span class="qtyunit">'+unit+'</span></div><div class="hint">Cél: legalább '+(m.target||0)+' '+unit+'. Megadhatod a kezdést és véget (kiszámolja), vagy beírhatod közvetlenül. Ha mindhármat megadod, ellenőrzöm az egyezést.</div>'+ptsLine(metricPoints(metric,value));}
+  const unit=m.unit||"";const relTxt={atleast:"legalább",atmost:"legfeljebb",exactly:"pontosan"}[m.relation||"atleast"];
   const cur=(value==null||value==="")?"":value;
   return'<div class="qtyrow"><input class="input qtyin" type="number" inputmode="decimal" data-qty="'+gid+'|'+mid+'" value="'+cur+'" placeholder="'+relTxt+' '+(m.target||0)+'"/><span class="qtyunit">'+esc(unit)+'</span></div><div class="hint">Cél: '+relTxt+' '+(m.target||0)+' '+esc(unit)+'</div>'+ptsLine(metricPoints(metric,value));}
 
@@ -535,19 +547,21 @@ function scaleBlockQuick(kind,ownerId,val,rubric){const max=cfg().scaleMax,neu=c
   return dots+rub+'<div class="m-delta '+dc+'">'+dt+'</div>';}
 function goalCardMa(g){const dobj=ensureDay(selDay);const e=(dobj.entries&&dobj.entries[g.id])||{};const isOpen=!!openGoals[g.id];
   const dp=goalDayPoints(g.id,dobj);const cls=dp==null?"":(dp>0?"pos":(dp<0?"neg":""));const pts=dp==null?"–":(dp>0?"+"+dp:dp);
-  const gl=progFor(goalLifetime(g.id));let body="";
-  if(g.cadence.type==="streak"){const sc=streakClean(g,selDay);body+='<div class="streakbig"><span class="num mono">'+sc+'</span><span class="lbl">'+(g.polarity==="negative"?"napja tiszta":"napos széria")+'<br>'+(g.polarity==="negative"?"az utolsó megcsúszás óta":"egymást követő teljesített nap")+'</span></div>';}
-  for(const m of g.metrics){const isP=m.role==="primary";const ml=isP?progFor(metricLifetime(g.id,m.id)):null;
-    body+='<div class="metric"><div class="m-top"><span class="m-label">'+esc(m.label||g.title)+'</span>'+(isP?'<span class="role-tag primary">pontozott</span>':'<span class="role-tag">követett</span>')+(isP?'<span class="m-lv">Lv '+ml.L+'</span>':'')+'</div>'+measInput(g.id,m,e[m.id])+'</div>';}
+  const gl=progFor(goalLifetime(g.id));const gstreak=goalStreak(g.id,selDay);let body="";
+  body+='<label class="vac-goal"><input type="checkbox" data-gvac="'+g.id+'"'+(e._vac?' checked':'')+'/> Szünet ma ehhez a célhoz (nem töri a szériát)</label>';
+  if(g.cadence.type==="streak"){body+='<div class="streakbig"><span class="num mono">'+gstreak+'</span><span class="lbl">'+(g.polarity==="negative"?"napja tiszta":"napos széria")+'<br>'+(g.polarity==="negative"?"az utolsó megcsúszás óta":"egymást követő teljesített nap")+'</span></div>';}
+  for(const m of g.metrics){const isP=m.role==="primary";const ml=isP?progFor(metricLifetime(g.id,m.id)):null;const ms=metricStreak(g.id,m.id,selDay);
+    body+='<div class="metric"><div class="m-top"><span class="m-label">'+esc(m.label||g.title)+'</span>'+(isP?'<span class="role-tag primary">pontozott</span>':'<span class="role-tag">követett</span>')+'<span class="m-lv">🔥'+ms+(isP?' · Lv '+ml.L:'')+'</span></div>'+measInput(g.id,m,e)+'</div>';}
   body+='<textarea class="reflect" data-note="'+g.id+'" placeholder="Jegyzet (opcionális)…">'+esc(e._note||"")+'</textarea>';
   const sub=cadenceLabel(g)+' · '+(g.polarity==="negative"?"elhagyni":"építeni");
-  return'<div class="card'+(isOpen?" open":"")+'" data-card="'+g.id+'"><button class="goalhead" data-toggle="'+g.id+'"><span><span class="g-title">'+esc(g.title)+'</span><span class="g-sub"><span class="lvpill">Lv '+gl.L+'</span>'+esc(sub)+'</span></span><span class="g-pts '+cls+'">'+pts+'</span><span class="chev">›</span></button><div class="g-body">'+body+'</div></div>';}
+  return'<div class="card'+(isOpen?" open":"")+'" data-card="'+g.id+'"><button class="goalhead" data-toggle="'+g.id+'"><span><span class="g-title">'+esc(g.title)+'</span><span class="g-sub"><span class="lvpill">Lv '+gl.L+'</span><span class="lvpill" style="color:var(--gold)">🔥'+gstreak+'</span>'+esc(sub)+'</span></span><span class="g-pts '+cls+'">'+pts+'</span><span class="chev">›</span></button><div class="g-body">'+body+'</div></div>';}
 function goalCardHeti(g){const isOpen=!!openGoals[g.id];const fp=flexProgress(g,selDay);const gl=progFor(goalLifetime(g.id));
   const dobj=ensureDay(selDay);const e=(dobj.entries&&dobj.entries[g.id])||{};
   const dp=goalDayPoints(g.id,dobj);const cls=dp==null?"":(dp>0?"pos":(dp<0?"neg":""));const pts=dp==null?"–":(dp>0?"+"+dp:dp);
-  let body='<div class="flexbar"><div class="fb"><i style="width:'+(fp.pct*100).toFixed(0)+'%"></i></div><div class="flexmeta"><span>'+fp.done+' / '+fp.target+' '+(g.cadence.period==="month"?"ebben a hónapban":(g.cadence.rolling?"az elmúlt 7 napban":"ezen a héten"))+'</span><span>'+Math.round(fp.pct*100)+'%</span></div></div>';
+  let body='<label class="vac-goal"><input type="checkbox" data-gvac="'+g.id+'"'+(e._vac?' checked':'')+'/> Szünet ma ehhez a célhoz (nem töri a szériát)</label>';
+  body+='<div class="flexbar"><div class="fb"><i style="width:'+(fp.pct*100).toFixed(0)+'%"></i></div><div class="flexmeta"><span>'+fp.done+' / '+fp.target+' '+(g.cadence.period==="month"?"ebben a hónapban":(g.cadence.rolling?"az elmúlt 7 napban":"ezen a héten"))+'</span><span>'+Math.round(fp.pct*100)+'%</span></div></div>';
   body+='<div class="hint" style="margin-bottom:6px">Jelöld be a napokat, amikor teljesítetted. Részleges kredit: '+fp.done+'/'+fp.target+' = '+Math.round(fp.pct*100)+'% (nem bukás).</div>';
-  for(const m of g.metrics){const isP=m.role==="primary";body+='<div class="metric"><div class="m-top"><span class="m-label">'+esc(m.label||g.title)+' — '+shortDate(selDay)+'</span>'+(isP?'<span class="role-tag primary">pontozott</span>':'<span class="role-tag">követett</span>')+'</div>'+measInput(g.id,m,e[m.id])+'</div>';}
+  for(const m of g.metrics){const isP=m.role==="primary";const ms=metricStreak(g.id,m.id,selDay);body+='<div class="metric"><div class="m-top"><span class="m-label">'+esc(m.label||g.title)+' — '+shortDate(selDay)+'</span>'+(isP?'<span class="role-tag primary">pontozott</span>':'<span class="role-tag">követett</span>')+'<span class="m-lv">🔥'+ms+'</span></div>'+measInput(g.id,m,e)+'</div>';}
   body+='<textarea class="reflect" data-note="'+g.id+'" placeholder="Jegyzet (opcionális)…">'+esc(e._note||"")+'</textarea>';
   return'<div class="card'+(isOpen?" open":"")+'" data-card="'+g.id+'"><button class="goalhead" data-toggle="'+g.id+'"><span><span class="g-title">'+esc(g.title)+'</span><span class="g-sub"><span class="lvpill">Lv '+gl.L+'</span>'+cadenceLabel(g)+'</span></span><span class="g-pts '+cls+'">'+pts+'</span><span class="chev">›</span></button><div class="g-body">'+body+'</div></div>';}
 function cadenceLabel(g){const c=g.cadence;if(c.type==="daily")return"napi";if(c.type==="streak")return"streak";
@@ -573,8 +587,23 @@ function bindMa(){
   document.querySelectorAll("#tab-ma [data-note]").forEach(t=>t.oninput=()=>{const gid=t.dataset.note;const d=ensureDay(selDay);if(!d.entries[gid])d.entries[gid]={};d.entries[gid]._note=t.value;save();});
   document.querySelectorAll("#tab-ma [data-score]").forEach(b=>b.onclick=()=>onScoreG(b.dataset.score));
   document.querySelectorAll("#tab-ma [data-qscore]").forEach(b=>b.onclick=()=>onQuickScore(b.dataset.qscore));
-  document.querySelectorAll("#tab-ma [data-qty]").forEach(inp=>{inp.onchange=()=>{const[gid,mid]=inp.dataset.qty.split("|");const d=ensureDay(selDay);if(!d.entries[gid])d.entries[gid]={};const v=inp.value.trim();if(v==="")delete d.entries[gid][mid];else d.entries[gid][mid]=Number(v);save();renderMa();renderHeader();};});
+  document.querySelectorAll("#tab-ma [data-qty]").forEach(inp=>{inp.onchange=()=>{const[gid,mid]=inp.dataset.qty.split("|");const m=findMetric(gid,mid);if(m&&m.measurement.type==="timer"){recomputeTimer(gid,mid);return;}const d=ensureDay(selDay);if(!d.entries[gid])d.entries[gid]={};const v=inp.value.trim();if(v==="")delete d.entries[gid][mid];else d.entries[gid][mid]=Number(v);save();renderMa();renderHeader();};});
+  document.querySelectorAll("#tab-ma [data-tstart]").forEach(inp=>inp.onchange=()=>{const[g,m]=inp.dataset.tstart.split("|");recomputeTimer(g,m);});
+  document.querySelectorAll("#tab-ma [data-tend]").forEach(inp=>inp.onchange=()=>{const[g,m]=inp.dataset.tend.split("|");recomputeTimer(g,m);});
+  document.querySelectorAll("#tab-ma [data-gvac]").forEach(cb=>cb.onchange=()=>{const gid=cb.dataset.gvac;const d=ensureDay(selDay);if(!d.entries[gid])d.entries[gid]={};d.entries[gid]._vac=cb.checked;save();renderMa();renderHeader();});
   bindSwipe();}
+function timeToMin(t){if(!t)return null;const p=t.split(":");const h=Number(p[0]),m=Number(p[1]);if(isNaN(h)||isNaN(m))return null;return h*60+m;}
+function recomputeTimer(gid,mid){const m=findMetric(gid,mid);if(!m)return;const d=ensureDay(selDay);if(!d.entries[gid])d.entries[gid]={};const e=d.entries[gid];
+  const sEl=document.querySelector('[data-tstart="'+gid+'|'+mid+'"]'),eEl=document.querySelector('[data-tend="'+gid+'|'+mid+'"]'),qEl=document.querySelector('[data-qty="'+gid+'|'+mid+'"]');
+  const st=sEl?sEl.value:"",en=eEl?eEl.value:"",qv=(qEl&&qEl.value.trim()!=="")?Number(qEl.value):null;
+  const unit=m.measurement.unit==="óra"?"óra":"perc";const sm=timeToMin(st),em=timeToMin(en);let dur=null;
+  if(sm!=null&&em!=null){let diff=em-sm;if(diff<0)diff+=1440;dur=unit==="óra"?Math.round(diff/6)/10:diff;}
+  if(dur!=null&&qv!=null){const tol=unit==="óra"?0.1:1;if(Math.abs(qv-dur)>tol)toast("A beírt időtartam ("+qv+") nem egyezik a kezdés–vég különbségével ("+dur+" "+unit+")","warn");}
+  const val=dur!=null?dur:qv;
+  if(st)e[mid+"__s"]=st;else delete e[mid+"__s"];
+  if(en)e[mid+"__e"]=en;else delete e[mid+"__e"];
+  if(val==null||val==="")delete e[mid];else e[mid]=val;
+  save();renderMa();renderHeader();}
 function onScoreG(data){const[,gid,mid,vs]=data.split("|");const v=Number(vs);const d=ensureDay(selDay);if(!d.entries[gid])d.entries[gid]={};
   const cur=d.entries[gid][mid];if(cur===v)delete d.entries[gid][mid];else d.entries[gid][mid]=v;save();renderMa();renderHeader();}
 function onQuickScore(data){const[kind,owner,vs]=data.split("|");const v=Number(vs);
@@ -613,10 +642,10 @@ function renderGoalForm(){const wrap=document.getElementById("goalForm");if(!edi
   let html='<div class="card" style="padding:16px; margin-top:6px">';
   html+='<div class="field"><label>Cél neve</label><input class="input" id="f-title" placeholder="pl. Reggeli mozgás" value="'+escA(g.title)+'"/></div>';
   html+='<div class="field"><label>Szándék (opcionális)</label><textarea class="input" id="f-note" placeholder="Miért fontos ez?">'+esc(g.note||"")+'</textarea></div>';
-  html+='<div class="field"><label>Irány</label><div class="opt-grid"><button type="button" class="opt'+(pol==="positive"?" active":"")+'" data-pol="positive">Építeni 👍</button><button type="button" class="opt'+(pol==="negative"?" active":"")+'" data-pol="negative">Elhagyni 🚫</button></div><div class="hint">Építeni: minél többször/jobban, annál jobb. Elhagyni: a kihagyás/kevesebb a jó.</div></div>';
+  html+='<div class="field"><label>Alap irány (a cél magáé)</label><div class="opt-grid"><button type="button" class="opt'+(pol==="positive"?" active":"")+'" data-pol="positive">Építeni 👍</button><button type="button" class="opt'+(pol==="negative"?" active":"")+'" data-pol="negative">Elhagyni 🚫</button></div><div class="hint">Építeni: minél többször/jobban, annál jobb. Elhagyni: a kihagyás/kevesebb a jó. Almércénként külön is beállítható lentebb.</div></div>';
   html+='<div class="field"><label>Ütemezés</label><div class="opt-grid"><button type="button" class="opt'+(c.type==="daily"?" active":"")+'" data-cad="daily">Napi</button><button type="button" class="opt'+(c.type==="weekdays"?" active":"")+'" data-cad="weekdays">Hét napjai</button><button type="button" class="opt'+(c.type==="flexible"?" active":"")+'" data-cad="flexible">Rugalmas (N×)</button><button type="button" class="opt'+(c.type==="streak"?" active":"")+'" data-cad="streak">Streak</button></div>'+cadenceSub(c)+'</div>';
   html+='<div class="field"><label>Kezdés dátuma (opcionális, jövő is lehet)</label><input type="date" class="input" id="f-start" value="'+(g.startDate||"")+'"/></div>';
-  html+='<div class="field"><label>Mércék — az elsőt pontozzuk, a többi csak-követett</label><div id="f-metrics">'+mrows+'</div><button class="btn ghost wide sm" id="addMetric">+ Mérce</button><div class="hint">Egy fő (pontozott) mérce kötelező; a többit csak követed (nem számít pontba).</div></div>';
+  html+='<div class="field"><label>Mérés — a cél maga + tetszőleges almércék</label><div id="f-metrics">'+mrows+'</div><button class="btn ghost wide sm" id="addMetric">+ Almérce</button><div class="hint">Az első blokk maga a cél — hagyd üresen a nevét, ha csak a célt követed. Almércét is felvehetsz, mindegyik saját mérési móddal, iránnyal (építeni/elhagyni) és pontozott/csak-követett szereppel. Legalább egy pontozott mérce kell.</div></div>';
   html+='<div style="display:flex; gap:10px; margin-top:4px"><button class="btn ghost" id="cancelGoal" style="flex:1">Mégse</button><button class="btn" id="saveGoal" style="flex:2">Mentés</button></div></div>';
   wrap.innerHTML=html;bindGoalForm();wrap.scrollIntoView({behavior:"smooth",block:"start"});}
 function cadenceSub(c){if(c.type==="weekdays"){const nm=["H","K","Sze","Cs","P","Szo","V"];const map=[1,2,3,4,5,6,0];let h='<div class="subfields"><div class="opt-grid">';
@@ -624,8 +653,9 @@ function cadenceSub(c){if(c.type==="weekdays"){const nm=["H","K","Sze","Cs","P",
   if(c.type==="flexible")return'<div class="subfields"><div class="qtyrow"><span class="qtyunit">Alkalom:</span><input class="input qtyin" type="number" id="f-times" value="'+(c.times||3)+'" min="1"/><span class="qtyunit">/</span><button type="button" class="opt'+(c.period!=="month"?" active":"")+'" data-per="week">hét</button><button type="button" class="opt'+(c.period==="month"?" active":"")+'" data-per="month">hónap</button></div><label style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12.5px;color:var(--muted)"><input type="checkbox" id="f-rolling" '+(c.rolling?"checked":"")+'/> Gördülő 7 napos ablak (fix naptári hét helyett)</label></div>';
   if(c.type==="streak")return'<div class="hint">Streak: naponta „tiszta / megcsúsztam" — a számláló az utolsó megcsúszás óta telt napokat mutatja. Fő mércéje automatikusan igen/nem.</div>';
   return'';}
-function metricEditor(m,i){const t=m.measurement.type;const isFirst=i===0;
-  let h='<div class="mblock"><div class="mb-top"><input class="input" data-mlabel="'+i+'" placeholder="'+(isFirst?"Fő mérce neve (pl. időtartam)":"Mérce "+(i+1))+'" value="'+escA(m.label)+'"/>'+(isFirst?'<span class="role-tag primary" style="align-self:center">pontozott</span>':'<button class="iconbtn del" data-mdel="'+i+'">−</button>')+'</div>';
+function metricEditor(m,i){const t=m.measurement.type;const isFirst=i===0;const pol=m.polarity||"positive";const role=m.role||(isFirst?"primary":"secondary");
+  let h='<div class="mblock"><div class="mb-top"><input class="input" data-mlabel="'+i+'" placeholder="'+(isFirst?"A cél maga (hagyhatod üresen)":"Almérce "+(i+1))+'" value="'+escA(m.label)+'"/>'+(isFirst?'':'<button class="iconbtn del" data-mdel="'+i+'">−</button>')+'</div>';
+  h+='<div class="opt-grid" style="margin-top:8px"><button type="button" class="opt'+(role==="primary"?" active":"")+'" data-mrole="'+i+'|primary">Pontozott</button><button type="button" class="opt'+(role==="secondary"?" active":"")+'" data-mrole="'+i+'|secondary">Csak követett</button><button type="button" class="opt'+(pol==="positive"?" active":"")+'" data-mpol="'+i+'|positive">Építeni</button><button type="button" class="opt'+(pol==="negative"?" active":"")+'" data-mpol="'+i+'|negative">Elhagyni</button></div>';
   h+='<div class="opt-grid" style="margin-top:8px"><button type="button" class="opt'+(t==="boolean"?" active":"")+'" data-mtype="'+i+'|boolean">Igen/Nem</button><button type="button" class="opt'+(t==="scale"?" active":"")+'" data-mtype="'+i+'|scale">Skála</button><button type="button" class="opt'+(t==="quantity"?" active":"")+'" data-mtype="'+i+'|quantity">Mennyiség</button><button type="button" class="opt'+(t==="timer"?" active":"")+'" data-mtype="'+i+'|timer">Idő</button></div>';
   h+=measSub(m,i);
   if(t==="scale"){const max=m.measurement.scaleMax||10;let rows="";for(let s=max;s>=1;s--)rows+='<div class="rub-row"><span class="sc">'+s+'</span><input class="input" data-rub="'+i+"|"+s+'" placeholder="Mit jelent a(z) '+s+'?" value="'+escA(m.rubric?m.rubric[String(s)]||"":"")+'"/></div>';
@@ -635,10 +665,13 @@ function measSub(m,i){const t=m.measurement.type;
   if(t==="scale"){const sm=m.measurement.scaleMax||10;let h='<div class="subfields"><div class="opt-grid">';
     SCALE_OPTS.forEach(o=>{h+='<button type="button" class="opt'+(sm===o?" active":"")+'" data-smax="'+i+'|'+o+'">1–'+o+'</button>';});return h+'</div></div>';}
   if(t==="quantity"){const rel=m.measurement.relation||"atleast";return'<div class="subfields"><div class="qtyrow"><button type="button" class="opt'+(rel==="atleast"?" active":"")+'" data-rel="'+i+'|atleast">legalább</button><button type="button" class="opt'+(rel==="exactly"?" active":"")+'" data-rel="'+i+'|exactly">pontosan</button><button type="button" class="opt'+(rel==="atmost"?" active":"")+'" data-rel="'+i+'|atmost">legfeljebb</button></div><div class="qtyrow" style="margin-top:8px"><input class="input qtyin" type="number" data-target="'+i+'" placeholder="cél érték" value="'+(m.measurement.target||"")+'"/><input class="input qtyin" data-unit="'+i+'" placeholder="egység (pl. db, km)" value="'+escA(m.measurement.unit||"")+'"/></div></div>';}
-  if(t==="timer")return'<div class="subfields"><div class="qtyrow"><span class="qtyunit">Cél:</span><input class="input qtyin" type="number" data-target="'+i+'" placeholder="perc" value="'+(m.measurement.target||"")+'"/><span class="qtyunit">perc</span></div></div>';
+  if(t==="timer"){const u=m.measurement.unit==="óra"?"óra":"perc";return'<div class="subfields"><div class="qtyrow"><span class="qtyunit">Cél:</span><input class="input qtyin" type="number" data-target="'+i+'" placeholder="mennyi" value="'+(m.measurement.target||"")+'"/><button type="button" class="opt'+(u==="perc"?" active":"")+'" data-tunit="'+i+'|perc">perc</button><button type="button" class="opt'+(u==="óra"?" active":"")+'" data-tunit="'+i+'|óra">óra</button></div></div>';}
   return'';}
 function bindGoalForm(){
-  document.querySelectorAll("[data-pol]").forEach(b=>b.onclick=()=>{syncForm();formDraft.polarity=b.dataset.pol;formDraft.metrics.forEach(m=>m.polarity=b.dataset.pol);renderGoalForm();});
+  document.querySelectorAll("[data-pol]").forEach(b=>b.onclick=()=>{syncForm();formDraft.polarity=b.dataset.pol;if(formDraft.metrics[0])formDraft.metrics[0].polarity=b.dataset.pol;renderGoalForm();});
+  document.querySelectorAll("[data-mpol]").forEach(b=>b.onclick=()=>{syncForm();const[i,p]=b.dataset.mpol.split("|");if(formDraft.metrics[i]){formDraft.metrics[i].polarity=p;if(Number(i)===0)formDraft.polarity=p;}renderGoalForm();});
+  document.querySelectorAll("[data-mrole]").forEach(b=>b.onclick=()=>{syncForm();const[i,r]=b.dataset.mrole.split("|");if(formDraft.metrics[i])formDraft.metrics[i].role=r;renderGoalForm();});
+  document.querySelectorAll("[data-tunit]").forEach(b=>b.onclick=()=>{syncForm();const[i,u]=b.dataset.tunit.split("|");if(formDraft.metrics[i])formDraft.metrics[i].measurement.unit=u;renderGoalForm();});
   document.querySelectorAll("[data-cad]").forEach(b=>b.onclick=()=>{syncForm();formDraft.cadence=normCad({type:b.dataset.cad,days:formDraft.cadence.days,times:formDraft.cadence.times,period:formDraft.cadence.period,rolling:formDraft.cadence.rolling});
     if(b.dataset.cad==="streak"){formDraft.metrics[0].measurement={type:"boolean"};}renderGoalForm();});
   document.querySelectorAll("[data-wd]").forEach(b=>b.onclick=()=>{syncForm();const d=Number(b.dataset.wd);const arr=formDraft.cadence.days||[];formDraft.cadence.days=arr.includes(d)?arr.filter(x=>x!==d):arr.concat(d);renderGoalForm();});
@@ -661,10 +694,11 @@ function syncForm(){const _t=document.getElementById("f-title");if(_t)formDraft.
   document.querySelectorAll("[data-unit]").forEach(inp=>{const i=Number(inp.dataset.unit);if(formDraft.metrics[i])formDraft.metrics[i].measurement.unit=inp.value;});
   document.querySelectorAll("[data-rub]").forEach(inp=>{const[i,s]=inp.dataset.rub.split("|");if(formDraft.metrics[i]){formDraft.metrics[i].rubric=formDraft.metrics[i].rubric||{};formDraft.metrics[i].rubric[s]=inp.value;}});}
 function saveGoal(){syncForm();const title=(formDraft.title||"").trim();if(!title){alert("Adj nevet a célnak.");return;}
-  formDraft.metrics.forEach((m,i)=>{m.role=i===0?"primary":"secondary";});
+  if(!formDraft.metrics.some(m=>m.role==="primary"))formDraft.metrics[0].role="primary";
   const metrics=formDraft.metrics.map(m=>{const rub={};for(const k in(m.rubric||{})){if((m.rubric[k]||"").trim())rub[k]=m.rubric[k].trim();}
-    return{id:m.id,label:(m.label||"").trim(),role:m.role,measurement:normMeas(m.measurement),polarity:formDraft.polarity,rubric:rub};});
-  const g=normGoal({id:formDraft.id,title,note:(formDraft.note||"").trim(),active:true,polarity:formDraft.polarity,cadence:formDraft.cadence,startDate:formDraft.startDate,metrics},S.settings);
+    return{id:m.id,label:(m.label||"").trim(),role:m.role==="secondary"?"secondary":"primary",measurement:normMeas(m.measurement),polarity:m.polarity||"positive",rubric:rub};});
+  const goalPol=(metrics.find(m=>m.role==="primary")||metrics[0]).polarity;
+  const g=normGoal({id:formDraft.id,title,note:(formDraft.note||"").trim(),active:true,polarity:goalPol,cadence:formDraft.cadence,startDate:formDraft.startDate,metrics},S.settings);
   if(editing==="__new__"){g.id=uid();S.goals.push(g);}else{const idx=S.goals.findIndex(x=>x.id===editing);g.id=editing;S.goals[idx]=g;}
   save();editing=null;formDraft=null;renderCelok();toast("Cél mentve ✓");}
 
@@ -686,7 +720,12 @@ function renderFiok(){const el=document.getElementById("tab-fiok");
   document.getElementById("impBtn").onclick=()=>document.getElementById("importFile").click();
   document.getElementById("saveGemini").onclick=()=>{GKEY=document.getElementById("setGemini").value.trim();Store.set("gemini_key",GKEY);const _m=document.getElementById("setModel");if(_m){GMODEL=_m.value.trim()||GEMINI_MODEL;Store.set("gemini_model",GMODEL);}toast("Mentve");};
   document.getElementById("installBtn").onclick=doInstall;
-  document.getElementById("resetData").onclick=()=>{if(confirm("Biztos törlöd az ÖSSZES adatot ezen az eszközön? Nem visszavonható.")){S=blank();S.onboarded=true;save();editing=null;switchTab("ma");}};}
+  document.getElementById("resetData").onclick=()=>{if(confirm("Biztos törlöd az ÖSSZES adatot ezen az eszközön? Nem visszavonható.")){
+    S=blank();S.onboarded=true;S.updatedAt=Date.now();
+    Store.set("szintlepo3",JSON.stringify(S));Store.set("szintlepo2","");Store.set("szintlepo","");Store.set("maSeg","napi");
+    maSeg="napi";selDay=TODAY;openGoals={};chartSel={};editing=null;formDraft=null;
+    if(cloudUser&&window.Cloud&&window.Cloud.push)window.Cloud.push(cloudCopy());
+    renderHeader();switchTab("ma");toast("Minden adat törölve");}};}
 
 /* ---- AI rubrika: soros queue + backoff + barátságos üzenet ---- */
 let GQ=Promise.resolve();let gLimitedUntil=0;
@@ -779,7 +818,8 @@ function renderHaladas(){const el=document.getElementById("tab-haladas");let htm
   if(goals.length===0)html+='<div class="hint">Előbb hozz létre célt — a szintek onnan jönnek.</div>';
   for(const g of goals){const gl=progFor(goalLifetime(g.id));const pm=primaryMetrics(g)[0];const isBool=pm&&(pm.measurement.type==="boolean"||g.cadence.type==="streak");
     html+='<div class="lvlcard"><div class="lh"><span class="big mono">'+gl.L+'</span><span><div class="t">'+esc(g.title)+'</div><div class="p">össz: '+goalLifetime(g.id)+' pont · '+cadenceLabel(g)+'</div></span></div><div class="bar"><i style="width:'+(gl.pct*100).toFixed(1)+'%"></i></div><div class="barmeta"><span>'+gl.into+' / '+gl.span+'</span><span>szintig: '+(gl.hi-goalLifetime(g.id))+'</span></div>';
-    if(g.cadence.type==="streak"){html+='<div class="streakbig" style="padding-top:12px"><span class="num mono">'+streakClean(g,TODAY)+'</span><span class="lbl">napja tiszta<br>jelenlegi széria</span></div>';}
+    html+='<div class="chart-cap" style="margin-top:10px">🔥 '+goalStreak(g.id,TODAY)+' napos streak (a célra)</div>';
+    if(g.cadence.type==="streak"){html+='<div class="streakbig" style="padding-top:6px"><span class="num mono">'+goalStreak(g.id,TODAY)+'</span><span class="lbl">napja tiszta<br>jelenlegi széria</span></div>';}
     if(isBool){html+='<div class="chart-cap" style="margin-top:12px">Időrendi napló (mikor sikerült / hol hibáztál):</div><div style="max-height:180px;overflow:auto;margin-top:6px">'+boolHistory(g.id)+'</div>';}
     else{const sel=chartSel[g.id]||"goal";html+='<div class="chart-tabs"><button class="ctab'+(sel==="goal"?" active":"")+'" data-series="'+g.id+'|goal">Cél (össz.)</button>';
       for(const m of g.metrics){if(m.measurement.type!=="scale")continue;html+='<button class="ctab'+(sel===m.id?" active":"")+'" data-series="'+g.id+'|'+m.id+'">'+esc(m.label||"mérce")+'</button>';}
@@ -788,7 +828,7 @@ function renderHaladas(){const el=document.getElementById("tab-haladas");let htm
       else{const m=g.metrics.find(x=>x.id===sel);html+='<div class="chart-box">'+svgLine(metricSeriesData(g.id,sel),{fixed:true,min:1,max:(m.measurement.scaleMax||cfg().scaleMax)})+'</div><div class="chart-cap">„'+(m?esc(m.label):"mérce")+'" napi értéke.</div>';}}
     html+='</div>';}
   const closed=Object.values(S.days).filter(d=>d.closed).length;
-  html+='<div class="stats"><div class="stat"><div class="n mono">'+anyClosedStreak()+'</div><div class="l">széria</div></div><div class="stat"><div class="n mono">'+closed+'</div><div class="l">lezárt nap</div></div><div class="stat"><div class="n mono" style="color:var(--gold)">'+goals.reduce((a,g)=>a+goalLifetime(g.id),0)+'</div><div class="l">össz pont</div></div></div>';
+  html+='<div class="stats"><div class="stat"><div class="n mono">'+goals.length+'</div><div class="l">aktív cél</div></div><div class="stat"><div class="n mono">'+closed+'</div><div class="l">lezárt nap</div></div><div class="stat"><div class="n mono" style="color:var(--gold)">'+goals.reduce((a,g)=>a+goalLifetime(g.id),0)+'</div><div class="l">össz pont</div></div></div>';
   el.innerHTML=html;
   document.querySelectorAll("#tab-haladas [data-series]").forEach(b=>b.onclick=()=>{const[gid,key]=b.dataset.series.split("|");chartSel[gid]=key;renderHaladas();});}
 
