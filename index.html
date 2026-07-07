@@ -5,10 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>Trellis</title>
 <link rel="manifest" href="manifest.webmanifest" />
-<meta name="theme-color" content="#0E1015" />
+<meta name="theme-color" content="#FFFFFF" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
 <meta name="apple-mobile-web-app-title" content="Trellis" />
+<link rel="icon" href="favicon.ico" sizes="any" />
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png" />
 <link rel="apple-touch-icon" href="icon-180.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -19,7 +21,7 @@
   --ink:#ECEAE3; --muted:#8A8F9C; --muted-2:#5D6472;
   --gold:#E5A83B; --gold-soft:rgba(229,168,59,.14); --gold-line:rgba(229,168,59,.4);
   --loss:#D2544B; --loss-soft:rgba(210,84,75,.14);
-  --r:16px; --r-sm:10px;
+  --r:16px; --r-sm:10px; --on-gold:#0E1015;
   --disp:"Space Grotesk", ui-sans-serif, system-ui, sans-serif;
   --body:ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
@@ -37,6 +39,8 @@ header{position:sticky; top:0; z-index:20; background:linear-gradient(180deg,var
   padding-top:calc(env(safe-area-inset-top) + 14px);}
 .hdr{display:flex; align-items:center; gap:10px; padding:0 4px 12px;}
 .brand{font-family:var(--disp); font-size:13px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); font-weight:500;}
+.brand-mark{width:26px; height:26px; border-radius:7px; display:block; flex:none; box-shadow:0 0 0 1px var(--line);}
+.onb-logo{width:64px; height:64px; border-radius:16px; display:block; margin-bottom:16px; box-shadow:0 0 0 1px var(--line);}
 .hdr-right{margin-left:auto; display:flex; align-items:center; gap:8px;}
 .chip{font-family:var(--disp); font-weight:600; font-size:13px; background:var(--surface); border:1px solid var(--line);
   border-radius:999px; padding:6px 11px; display:flex; align-items:center; gap:5px;}
@@ -53,6 +57,7 @@ nav{position:fixed; left:0; right:0; bottom:0; z-index:30; background:rgba(14,16
 .tabbtn.active{color:var(--gold);}
 
 main{padding-top:4px;}
+#tab-ma{padding-bottom:80px;}
 .section-title{font-family:var(--disp); font-size:12px; letter-spacing:.13em; text-transform:uppercase; color:var(--muted); margin:22px 4px 10px; display:flex; align-items:center; gap:8px;}
 .section-title .sub{margin-left:auto; letter-spacing:0; text-transform:none; color:var(--muted-2); font-weight:400; font-size:11px;}
 .card{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); margin-bottom:12px; overflow:hidden;}
@@ -77,7 +82,7 @@ main{padding-top:4px;}
 .dot{flex:0 0 calc(20% - 5px); height:40px; border-radius:var(--r-sm); background:var(--surface-2); border:1px solid var(--line);
   font-family:var(--disp); font-weight:600; font-size:14px; color:var(--muted); display:flex; align-items:center; justify-content:center;}
 .dot:active{transform:scale(.94);}
-.dot.sel{color:#0E1015; border-color:transparent;}
+.dot.sel{color:var(--on-gold); border-color:transparent;}
 .dot.sel.lo{background:var(--loss);} .dot.sel.mid{background:var(--muted);} .dot.sel.hi{background:var(--gold);}
 .m-rub{margin-top:9px; font-size:13px; line-height:1.5; color:var(--ink); background:var(--surface-2); border:1px solid var(--line); border-radius:var(--r-sm); padding:9px 11px; min-height:16px;}
 .m-rub.empty{color:var(--muted-2); font-style:italic;}
@@ -104,7 +109,7 @@ main{padding-top:4px;}
 .daysum .lbl{font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted);}
 .daysum .val{font-family:var(--disp); font-weight:700; font-size:20px; margin-left:auto; color:var(--muted-2);}
 .daysum .val.pos{color:var(--gold);} .daysum .val.neg{color:var(--loss);}
-.btn{background:var(--gold); color:#0E1015; border:0; border-radius:var(--r); font-family:var(--disp); font-weight:700; font-size:15px; padding:13px 16px;}
+.btn{background:var(--gold); color:var(--on-gold); border:0; border-radius:var(--r); font-family:var(--disp); font-weight:700; font-size:15px; padding:13px 16px;}
 .btn.ghost{background:var(--surface); color:var(--ink); border:1px solid var(--line);}
 .btn.sm{font-size:13px; padding:10px 12px;}
 .btn:active{transform:translateY(1px);}
@@ -160,7 +165,7 @@ textarea.input{resize:vertical; min-height:48px;}
 .empty .big{font-family:var(--disp); font-size:16px; color:var(--ink); margin-bottom:8px;}
 .hidden{display:none !important;}
 #toast{position:fixed; left:50%; bottom:calc(150px + env(safe-area-inset-bottom)); transform:translateX(-50%) translateY(20px);
-  background:var(--gold); color:#0E1015; font-family:var(--disp); font-weight:700; font-size:14px; padding:12px 18px;
+  background:var(--gold); color:var(--on-gold); font-family:var(--disp); font-weight:700; font-size:14px; padding:12px 18px;
   border-radius:999px; opacity:0; transition:.35s; z-index:60; pointer-events:none; max-width:88%; text-align:center;}
 #toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
 #toast.down{background:var(--loss); color:#fff;} #toast.warn{background:var(--surface-2); color:var(--ink); border:1px solid var(--line);}
@@ -195,15 +200,42 @@ input[type=date]{color-scheme:dark;}
 </style>
 </head>
 <body>
+<div id="splash" aria-hidden="true">
+  <div class="splash-inner">
+    <img src="icon-192.png" alt="Trellis" class="splash-logo" width="132" height="132" />
+    <div class="splash-name">Trellis</div>
+    <div class="splash-tag">Structure Your Growth</div>
+  </div>
+</div>
 <style>
+/* Betöltő / splash képernyő */
+#splash{position:fixed; inset:0; z-index:200; display:flex; align-items:center; justify-content:center;
+  background:#F1F6EE; padding:24px; transition:opacity .5s ease;}
+#splash.hide{opacity:0; pointer-events:none;}
+#splash .splash-inner{display:flex; flex-direction:column; align-items:center; text-align:center;
+  animation:splashIn .6s ease both;}
+#splash .splash-logo{width:132px; height:132px; border-radius:30px; display:block;
+  box-shadow:0 12px 34px rgba(30,90,45,.18), 0 0 0 1px rgba(46,139,67,.12);}
+#splash .splash-name{margin-top:22px; font-family:"Space Grotesk",ui-sans-serif,system-ui,sans-serif;
+  font-weight:700; font-size:34px; letter-spacing:.01em; color:#2E7D3A;}
+#splash .splash-tag{margin-top:8px; font-family:"Space Grotesk",ui-sans-serif,system-ui,sans-serif;
+  font-weight:500; font-size:15px; letter-spacing:.02em; color:#5C6E60;}
+@keyframes splashIn{from{opacity:0; transform:translateY(8px) scale(.98);} to{opacity:1; transform:none;}}
+/* Frissítés-ikon a fejlécben */
+.updbtn{display:inline-flex; align-items:center; gap:6px; font-family:var(--disp); font-weight:600;
+  font-size:12.5px; line-height:1; color:#fff; background:var(--gold); border:0; border-radius:999px;
+  padding:7px 11px; box-shadow:0 3px 12px var(--gold-soft); animation:updPulse 2.2s ease-in-out infinite;}
+.updbtn[hidden]{display:none;}
+.updbtn svg{display:block;}
+@keyframes updPulse{0%,100%{transform:scale(1);} 50%{transform:scale(1.06);}}
 /* v4 kiegészítő stílusok */
 .seg{display:flex; gap:6px; background:var(--surface-2); border:1px solid var(--line); border-radius:999px; padding:4px; margin:10px 0;}
 .seg button{flex:1; background:none; border:0; border-radius:999px; padding:9px 0; font-family:var(--disp); font-weight:600; font-size:13px; color:var(--muted);}
-.seg button.active{background:var(--gold); color:#0E1015;}
+.seg button.active{background:var(--gold); color:var(--on-gold);}
 .seg .segpts{font-weight:700; margin-left:6px;}
 .boolrow{display:flex; gap:8px;}
 .boolbtn{flex:1; background:var(--surface-2); border:1px solid var(--line); border-radius:var(--r-sm); padding:12px 8px; font-family:var(--disp); font-weight:600; font-size:14px; color:var(--muted);}
-.boolbtn.good{background:var(--gold); color:#0E1015; border-color:transparent;}
+.boolbtn.good{background:var(--gold); color:var(--on-gold); border-color:transparent;}
 .boolbtn.bad{background:var(--loss); color:#fff; border-color:transparent;}
 .qtyrow{display:flex; gap:8px; align-items:center;}
 .qtyin{flex:1;}
@@ -228,7 +260,8 @@ input[type=date]{color-scheme:dark;}
 body[data-theme="erdo"]{--bg:#0C1410;--surface:#12201A;--surface-2:#183026;--line:#24473A;--gold:#5FD08A;--gold-soft:rgba(95,208,138,.14);--gold-line:rgba(95,208,138,.4);--ink:#E8F0EA;--muted:#8FA89A;--muted-2:#5E7568;}
 body[data-theme="ocean"]{--bg:#0B1220;--surface:#121C2E;--surface-2:#18263C;--line:#26405F;--gold:#4FB0E5;--gold-soft:rgba(79,176,229,.14);--gold-line:rgba(79,176,229,.4);--ink:#E6EEF6;--muted:#8A9CB0;--muted-2:#5D6E82;}
 body[data-theme="naplemente"]{--bg:#160E14;--surface:#241723;--surface-2:#301E2D;--line:#48304A;--gold:#E5744F;--gold-soft:rgba(229,116,79,.14);--gold-line:rgba(229,116,79,.4);--ink:#F0E7EA;--muted:#B08A9C;--muted-2:#7A5D6E;}
-body[data-theme="papir"]{--bg:#F3EFE7;--surface:#FBF8F2;--surface-2:#EDE7DB;--line:#D8CFBE;--gold:#B5852B;--gold-soft:rgba(181,133,43,.16);--gold-line:rgba(181,133,43,.45);--ink:#22201B;--muted:#6B6455;--muted-2:#948B78;--loss:#C0453B;--loss-soft:rgba(192,69,59,.12);}
+body[data-theme="papir"]{--bg:#FFFFFF;--surface:#F6F7F8;--surface-2:#EDEFF1;--line:#E1E4E8;--gold:#1B4332;--gold-soft:rgba(27,67,50,.10);--gold-line:rgba(27,67,50,.30);--ink:#212529;--muted:#5C636A;--muted-2:#9AA0A6;--loss:#C0453B;--loss-soft:rgba(192,69,59,.10);--on-gold:#FFFFFF;}
+body[data-theme="papir"] nav{background:rgba(255,255,255,.92);}
 body[data-theme="erdo"],body[data-theme="ocean"],body[data-theme="naplemente"]{background-image:radial-gradient(1200px 500px at 50% -10%, var(--gold-soft), transparent 70%);}
 .theme-grid{display:flex; flex-wrap:wrap; gap:8px;}
 .theme-chip{display:flex; align-items:center; gap:8px; font-family:var(--disp); font-weight:600; font-size:13px; padding:9px 12px; border-radius:999px; background:var(--surface-2); border:1px solid var(--line); color:var(--ink);}
@@ -268,7 +301,7 @@ body[data-theme="erdo"],body[data-theme="ocean"],body[data-theme="naplemente"]{b
 .tut-banner .tx{flex:1;}
 
 /* ===== ünneplés ===== */
-#toast.win{background:var(--gold); color:#0E1015;}
+#toast.win{background:var(--gold); color:var(--on-gold);}
 @keyframes pop{0%{transform:translateX(-50%) scale(.6); opacity:0;}50%{transform:translateX(-50%) scale(1.06); opacity:1;}100%{transform:translateX(-50%) scale(1); opacity:1;}}
 .celebrate{position:fixed; left:50%; top:38%; transform:translateX(-50%); z-index:95; font-size:52px; pointer-events:none; animation:pop .5s ease; }
 .narr{font-size:12.5px; color:var(--muted); line-height:1.5; margin:6px 2px 0;}
@@ -279,8 +312,13 @@ body[data-theme="erdo"],body[data-theme="ocean"],body[data-theme="naplemente"]{b
 </style>
 <header>
   <div class="wrap"><div class="hdr">
+    <img class="brand-mark" src="icon-192.png" alt="" width="26" height="26" />
     <span class="brand">Trellis</span>
     <div class="hdr-right">
+      <button id="updateBtn" class="updbtn" hidden title="Frissítés elérhető — kattints">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+        <span>Frissítés</span>
+      </button>
       <span class="cloudchip" id="cloudChip" title="Felhő-szinkron">☁</span>
     </div>
   </div></div>
@@ -311,6 +349,7 @@ body[data-theme="erdo"],body[data-theme="ocean"],body[data-theme="naplemente"]{b
 <input type="file" id="importFile" accept="application/json" class="hidden"/>
 
 <div id="onb" class="hidden">
+  <img class="onb-logo" src="icon-192.png" alt="" width="64" height="64" />
   <div class="o-brand">Trellis</div>
   <h2>Célok, amiket tényleg mérni tudsz.</h2>
   <div class="o-lead">Célt tűzöl ki, kiválasztod hogyan méred (igen/nem, skála, mennyiség vagy idő) és milyen ütemben, nap végén értékeled magad, és ahogy haladsz, szintet lépsz — mint egy játékban, csak valódi.</div>
@@ -553,7 +592,7 @@ function measInput(gid,metric,entry){const m=metric.measurement;const mid=metric
 
 /* ---- MA ---- */
 let openGoals={};let maSeg=Store.get("maSeg")||"napi";
-function renderMa(){ensureQuick();const el=document.getElementById("tab-ma");
+function renderMa(){const _sy=window.scrollY;ensureQuick();const el=document.getElementById("tab-ma");
   const isToday=isSelToday(),isFuture=selDay>TODAY;
   const closedTxt=(S.days[selDay]&&S.days[selDay].closed)?' · lezárva':'';
   const vac=S.days[selDay]&&S.days[selDay].vacation;
@@ -566,7 +605,7 @@ function renderMa(){ensureQuick();const el=document.getElementById("tab-ma");
   const napiP=napiPointsOn(selDay),hetiP=hetiPointsFor(selDay);
   html+='<div class="seg"><button data-seg="napi" class="'+(maSeg==="napi"?"active":"")+'">Napi <span class="segpts">'+(napiP>0?"+"+napiP:napiP)+'</span></button><button data-seg="heti" class="'+(maSeg==="heti"?"active":"")+'">Heti <span class="segpts">'+(hetiP>0?"+"+hetiP:hetiP)+'</span></button></div>';
   if(maSeg==="napi")html+=renderNapiSeg(isToday);else html+=renderHetiSeg();
-  el.innerHTML=html;bindMa();updateDayFoot();}
+  el.innerHTML=html;bindMa();updateDayFoot();window.scrollTo(0,_sy);}
 function renderNapiSeg(isToday){let html='';
   if(isToday){html+='<div class="section-title">Gyors napi célok<span class="sub">1 tap · holnapra nullázódik</span></div><div class="card" style="padding:14px 16px">';
     html+='<div class="daily-add"><input class="input" id="dailyInput" placeholder="Mai gyors cél…"/><button class="btn sm" id="dailyAdd">+</button></div>';
@@ -891,8 +930,8 @@ window.SL={getState:()=>S,
 const APP_VERSION="v7";
 
 /* ---- témák ---- */
-const THEMES=[{id:"arany",name:"Arany éj",sw:"#E5A83B"},{id:"erdo",name:"Erdő",sw:"#5FD08A"},{id:"ocean",name:"Óceán",sw:"#4FB0E5"},{id:"naplemente",name:"Naplemente",sw:"#E5744F"},{id:"papir",name:"Papír",sw:"#B5852B"}];
-let curTheme=Store.get("sl_theme")||"arany";
+const THEMES=[{id:"papir",name:"Letisztult",sw:"#1B4332"},{id:"arany",name:"Arany éj",sw:"#E5A83B"},{id:"erdo",name:"Erdő",sw:"#5FD08A"},{id:"ocean",name:"Óceán",sw:"#4FB0E5"},{id:"naplemente",name:"Naplemente",sw:"#E5744F"}];
+let curTheme=Store.get("sl_theme")||"papir";
 function applyTheme(t){if(t&&t!=="arany")document.body.setAttribute("data-theme",t);else document.body.removeAttribute("data-theme");}
 function setTheme(t){curTheme=t;Store.set("sl_theme",t);applyTheme(t);if(curTab==="fiok")renderFiok();}
 
@@ -1046,6 +1085,7 @@ applyTheme(curTheme);
 document.addEventListener("click",e=>{const b=e.target&&e.target.closest&&e.target.closest("[data-info]");if(b){e.preventDefault();e.stopPropagation();showInfo(b.dataset.info);}});
 ensureQuick();renderHeader();
 if(!S.onboarded){showOnboarding();switchTab("ma");}else{switchTab("ma");}
+setTimeout(function(){var sp=document.getElementById("splash");if(sp){sp.style.transition="opacity .45s ease";sp.classList.add("hide");setTimeout(function(){sp.style.display="none";},520);}},350);
 if("serviceWorker" in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("sw.js").catch(()=>{});});}
 </script>
 <!-- Firebase felhő-szinkron modul (csak akkor fut, ha a config ki van töltve) -->
@@ -1064,7 +1104,7 @@ try{
       sendFeedback:(data)=>addDoc(collection(db,"feedback"),data),
       signIn:async()=>{try{await signInWithPopup(auth,provider);}catch(e){const c=(e&&e.code)||"";if(c==="auth/popup-blocked"||c==="auth/cancelled-popup-request"||c==="auth/operation-not-supported-in-this-environment"){try{await signInWithRedirect(auth,provider);}catch(e2){alert("Belépési hiba: "+((e2&&e2.code)||(e2&&e2.message)||e2));}}else if(c&&c!=="auth/popup-closed-by-user"){alert("Belépési hiba: "+c);}}},
       signOut:()=>signOut(auth),
-      push:(state)=>{if(!uid)return;clearTimeout(pushT);pushT=setTimeout(()=>{setDoc(doc(db,"users",uid),state).catch(()=>{});},1200);}};
+      push:(state)=>{if(!uid)return;clearTimeout(pushT);pushT=setTimeout(()=>{setDoc(doc(db,"users",uid),state).catch(()=>{});},1200);}},
     onAuthStateChanged(auth,async(user)=>{
       uid=user?user.uid:null;
       window.SL.onCloudState(user?{name:user.displayName||user.email||"fiók",uid:user.uid}:null);
