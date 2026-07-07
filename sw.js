@@ -1,5 +1,5 @@
 /* Szintlépő service worker — app-shell cache offline használathoz. */
-const CACHE = "szintlepo-v7";
+const CACHE = "szintlepo-v8";
 const CORE = ["./","./index.html","./manifest.webmanifest","./firebase-config.js",
   "./icon-192.png","./icon-512.png","./icon-maskable-512.png"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE)).then(()=>self.skipWaiting())); });

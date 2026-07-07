@@ -1,7 +1,7 @@
 {
-  "name": "Szintlépő",
-  "short_name": "Szintlépő",
-  "description": "Célok, beágyazott mércék, 1–5 pontozás és szintlépés — magadnak.",
+  "name": "Trellis",
+  "short_name": "Trellis",
+  "description": "Célok, mércék, pontozás és szintlépés — magadnak.",
   "start_url": ".",
   "scope": ".",
   "display": "standalone",

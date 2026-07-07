@@ -1,34 +1,49 @@
-# Szintlépő — 1. RÉTEG (v4)
+# Trellis (korábban Szintlépő) — kiadási jegyzet
 
-Egyfájlos PWA, egységes cél-modell. A `szintlepo3` localStorage-kulcs és a domain változatlan — nincs adatvesztés. sw cache: **v7**.
+Egyfájlos PWA. A `szintlepo3` localStorage-kulcs és a domain **változatlan** — nincs adatvesztés. Az átnevezés csak megjelenés. sw cache: **v8**.
 
-## Egységes cél-modell (v3 → v4 migrációval)
-- **Mérési mód:** igen/nem · skála (1–3 / 1–5 / 1–10) · mennyiség (érték + egység + reláció: legalább/pontosan/legfeljebb) · idő.
-- **Ütemezés:** napi · hét kijelölt napjai · rugalmas (hetente/havonta N×, opc. gördülő 7 napos ablak) · streak.
-- **Irány:** építeni / elhagyni. Bármelyik mérési mód bármelyik ütemezéssel párosítható.
-- **Metrikák:** a cél maga + tetszőleges almércék; mércénként pontozott/csak-követett szerep, legalább egy pontozott.
-- Rugalmas kiértékelés részleges kredittel; jövőbeli dátumok; kézi és AI-s cél-megadás; Gemini queue+backoff barátságos üzenettel.
+## Átnevezés
+Az app neve mostantól **Trellis** (cím, fejléc, onboarding, manifest). Az adat-kulcs és a repo/URL nem változott, így a meglévő adatok megmaradnak.
 
-## 1.1 finomítások
-- **Almércénkénti irány** (építeni/elhagyni) — egy célon belül vegyesen is; az „Alap irány" a cél magáé.
-- **Almércénkénti szerep** (pontozott / csak-követett).
-- **Csak a célt is lehet követni** — az első blokk maga a cél, üresen hagyható; „+ Mérce" → „+ Almérce".
-- **Idő-cél kezdő/vég időponttal:** perc VAGY óra; kezdés+vég → automatikus időtartam, vagy közvetlen érték; mindhárom megadva ellenőrzi az egyezést.
-- **Streak minden célhoz ÉS almércéhez külön** (🔥, Ma + Haladás); a fejléc láng- és „ma pont"-chipjei eltűntek.
-- **Per-cél szünet/vakáció** a napszintű mellett — nem töri a streaket.
-- **Robusztus „Összes adat törlése"** — a napok, lezárások, streak és (belépve) a felhő-másolat is nullázódik.
-- **Haladás:** a félreérthető globális „széria" helyett „aktív cél".
-
-*(A 10-es skálán a „mi bukás / mi győzelem" küszöb a 2. körbe kerül, megbeszélés szerint.)*
+## 2. RÉTEG — mi új
+- **5 téma** (Arany éj, Erdő, Óceán, Naplemente, Papír) — Fiók → Megjelenés, azonnal vált, eltárolódik.
+- **Részletes, kereshető súgó** — Fiók → „📖 Súgó megnyitása": tartalomjegyzék + kereső + ~17 részletes szekció (kezdéstől a Gemini-kulcsig, telepítésig, adatvédelemig).
+- **Infó-buborékok** — „i" ikonok a lényeges helyeken (irány, ütemezés, mérési mód, szerep, rubrika, küszöb, streak, vakáció, Gemini-kulcs…); kattintásra rövid magyarázat + „Részletes súgó".
+- **Első-cél tutorial** — az onboarding után lépésről lépésre végigvezet, és az első cél űrlapján bátorító sáv segít.
+- **Miértek (indok-gyűjtés)** — pontozott mércén **bukáskor** rákérdez „mi akadályozott?", **győzelemkor** „mi segített?"; gyűjti és visszamutatja a korábbi okokat. Mindig kihagyható.
+- **Skálás bukás/győzelem küszöb** — a cél szerkesztésénél állítható (pl. 4 alatt bukás, 7 felett győzelem); ez vezérli a miért-kérdéseket.
+- **Barátságosabb érzet** — ünneplő visszajelzés teljesítéskor és **szintlépéskor** (⭐), megbocsátó szövegezés, 1-tap naplózás megmarad.
+- **Narratív haladás + leghosszabb streak** — „Az elmúlt N releváns napból M-szer teljesítetted", és 🏆 leghosszabb streak minden célnál.
+- **Fejlesztői visszajelzés** — Fiók → Visszajelzés: hosszú üzenet + opcionális elérhetőség → Firestore `feedback` kollekció (+ opcionális ingyenes e-mail webhook).
 
 ## Cserélhető fájlok
-`index.html`, `sw.js` (teljes). A `firebase-config.js`, `firestore.rules`, `manifest.webmanifest`, ikonok változatlanok.
+`index.html`, `sw.js`, `firestore.rules`, `firebase-config.js`, `manifest.webmanifest` (teljes). Ikonok változatlanok.
+
+## Beállítás a visszajelzéshez (egyszeri, ingyenes)
+1. **Firestore szabály:** Firebase konzol → Firestore → Rules → másold be a `firestore.rules` tartalmát → **Publish**. (Ez engedélyezi a `feedback` létrehozását, az olvasást tiltja.)
+2. **E-mail értesítés (opcionális, billing nélkül) — Google Apps Script:**
+   - Nyisd meg: script.google.com → Új projekt.
+   - Illeszd be:
+     ```
+     function doPost(e){
+       var d = JSON.parse(e.postData.contents || "{}");
+       MailApp.sendEmail("szekely.97.david@gmail.com",
+         "Trellis visszajelzés",
+         "Üzenet:\n" + (d.text||"") + "\n\nKontakt: " + (d.contact||"-") +
+         "\nApp: " + (d.app||"") + "\nUID: " + (d.uid||"") +
+         "\nIdő: " + new Date(d.ts||Date.now()));
+       return ContentService.createTextOutput("ok");
+     }
+     ```
+   - Deploy → New deployment → **Web app** → Execute as: **Me**, Who has access: **Anyone** → Deploy → másold ki a Web app URL-t.
+   - Illeszd be a `firebase-config.js` alján: `window.FEEDBACK_WEBHOOK = "…az URL…";` → töltsd fel.
+   - Ezután a visszajelzés e-mailben is megérkezik (a Firestore mellett).
 
 ## Feltöltés után
-Frissíts az appban **kétszer** (vagy indítsd újra), hogy a service worker a v7 shellt töltse be.
+Frissíts az appban **kétszer** (vagy indítsd újra), hogy a service worker a **v8** shellt töltse be.
 
 ## Teszt
-`node --check` + három headless (jsdom) füstteszt: migráció, pontozó motor (minden mérési mód), cadence (streak, rugalmas), teljes DOM-folyamat, valamint az 1.1 funkciók (almércénkénti polaritás/szerep, timer perc/óra + kezdő/vég számítás, streak+vakáció, robusztus reset). **70/70 assertion zöld.**
+`node --check` + négy headless (jsdom) füstteszt: migráció, pontozó motor, cadence, teljes DOM-folyamat, 1.1 funkciók, valamint a 2. réteg (témák, súgó+kereső, infó-modál, küszöb+indok-gyűjtés, visszajelzés, leghosszabb streak/narratíva, tutorial). **100/100 assertion zöld.**
 
-## Következik — 2. RÉTEG
-Design-témák, in-app info-buborékok, Gemini-kulcs útmutató, barátságos szövegezés + ünneplő visszajelzés, „miért sikerült/bukott" indok-gyűjtés (skálás bukás/győzelem-küszöbökkel), narratív haladás, fejlesztői visszajelzés-űrlap (Firestore + ingyenes email-továbbítás).
+## Következő ötletek (ha kell)
+Saját Trellis-logó/ikon (a Figma connectorból), heti/havi összegző e-mail, emlékeztető értesítések, több nyelv.

@@ -5,5 +5,13 @@ service cloud.firestore {
     match /users/{uid} {
       allow read, write: if request.auth != null && request.auth.uid == uid;
     }
+    // Visszajelzés: bárki LÉTREHOZHAT (belépés nélkül is), de senki nem olvashatja/listázhatja
+    // az appból — csak a Firebase konzolból. Rövid hosszkorlát spam ellen.
+    match /feedback/{doc} {
+      allow create: if request.resource.data.text is string
+                    && request.resource.data.text.size() > 0
+                    && request.resource.data.text.size() < 6000;
+      allow read, list, update, delete: if false;
+    }
   }
 }
