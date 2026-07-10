@@ -26,7 +26,10 @@
   --body:ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
-html,body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--body);}
+/* overscroll-behavior-y:contain = nincs "lehúzás felülről = újratöltés" (pull-to-refresh),
+   így a splash videó nem indul újra véletlen húzásra. A normál görgetés érintetlen. */
+html,body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--body);
+  overscroll-behavior-y:contain;}
 body{min-height:100dvh; padding-bottom:calc(78px + env(safe-area-inset-bottom));}
 .wrap{max-width:600px; margin:0 auto; padding:0 16px;}
 button{font-family:inherit; color:inherit; cursor:pointer;}
@@ -1168,7 +1171,8 @@ if("serviceWorker" in navigator){
     updBtn.onclick=()=>{updBtn.disabled=true;if(worker)worker.postMessage("SKIP_WAITING");};
   }
   window.addEventListener("load",()=>{
-    navigator.serviceWorker.register("sw.js").then(reg=>{
+    // updateViaCache:"none" — az sw.js-t sose a HTTP-cache-bol vegye (GitHub Pages 10 percig cache-el).
+    navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(reg=>{
       // Már vár egy új verzió (pl. előző látogatáskor töltődött le)?
       if(reg.waiting&&navigator.serviceWorker.controller)showUpdate(reg.waiting);
       // Új verzió telepítése közben:
@@ -1179,8 +1183,22 @@ if("serviceWorker" in navigator){
           if(nw.state==="installed"&&navigator.serviceWorker.controller)showUpdate(nw);
         });
       });
-      // Percenként keresünk frissítést, amíg nyitva az app.
+      // Frissites-kereses induláskor, plusz percenként, amíg nyitva az app.
+      reg.update().catch(()=>{});
       setInterval(()=>{reg.update().catch(()=>{});},60000);
+      /* Telepitett appnal a legtobb megnyitas NEM ujratoltes: a rendszer csak elohozza a
+         hatterbol, ilyenkor a fenti setInterval is alszik. Ezert minden elotérbe kerüléskor
+         (es bfcache-bol visszateréskor) explicit frissitest keresunk — enelkul a gomb
+         sosem jelenne meg annak, aki csak nyitogatja az appot. */
+      function checkNow(){
+        if(document.visibilityState!=="visible")return;
+        reg.update().then(()=>{
+          if(reg.waiting&&navigator.serviceWorker.controller)showUpdate(reg.waiting);
+        }).catch(()=>{});
+      }
+      document.addEventListener("visibilitychange",checkNow);
+      window.addEventListener("pageshow",checkNow);
+      window.addEventListener("focus",checkNow);
     }).catch(()=>{});
   });
 }
