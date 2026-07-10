@@ -4,14 +4,14 @@
    - statikus fájlok -> STALE-WHILE-REVALIDATE (azonnal cache-ből, közben frissít háttérben)
    - Firebase/Google -> sose cache, mindig hálózat
    A cache-verziót MINDEN kiadásnál léptesd (v12 -> v13 ...), így az app-shell frissül. */
-const VERSION = "v21";
+const VERSION = "v22";
 const CACHE = "trellis-" + VERSION;
 
 const CORE = [
   "./", "./index.html", "./manifest.webmanifest", "./firebase-config.js",
   "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png", "./icon-180.png",
   "./favicon.ico", "./favicon-32.png",
-  "./splash.mp4"
+  "./splash.mp4", "./splash-poster.jpg"
 ];
 
 // Telepítés: app-shell előtöltése. NEM hívunk skipWaiting-et automatikusan —

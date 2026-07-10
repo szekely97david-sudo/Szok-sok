@@ -205,12 +205,12 @@ input[type=date]{color-scheme:dark;}
    FONTOS: ezek a szabályok a <head>-ben vannak, hogy a splash már az első festéskor
    a helyén legyen. Ha a markup után állnának, egy pillanatra stílus nélkül villanna be. */
 #splash{position:fixed; inset:0; z-index:200; display:flex; align-items:center; justify-content:center;
-  background:#3C332A; overflow:hidden; transition:opacity .5s ease;}
+  background:#D5CFC8; overflow:hidden; transition:opacity .5s ease;}
 #splash.hide{opacity:0; pointer-events:none;}
-/* A teljes négyzetes kép látszik (contain), az ágak nem vágódnak le.
-   A háttér-gradiens a videó felső/alsó szélszínét folytatja, így nincs látható sáv-határ. */
+/* A videó kitölti a képernyőt (cover). A háttér a videó első kockájának cream színe,
+   így nincs sötét villanás a videó megjelenése előtt. */
 #splash .splash-vid{position:absolute; inset:0; width:100%; height:100%;
-  object-fit:cover; object-position:center; background:#3C332A;}
+  object-fit:cover; object-position:center; background:#D5CFC8;}
 /* Statikus tartalék: a régi világoszöld háttéren */
 #splash.novid{background:#F1F6EE;}
 #splash.novid .splash-vid{display:none;}
@@ -238,7 +238,7 @@ input[type=date]{color-scheme:dark;}
 <div id="splash" aria-hidden="true">
   <!-- Induláskor azonnal a videó, teljes képernyőn. Nincs poszter és nincs statikus splash,
        hogy semmi ne villanjon fel a videó előtt. Az 5 mp-es animáció NEM ugorható át. -->
-  <video id="splashVid" class="splash-vid" src="splash.mp4"
+  <video id="splashVid" class="splash-vid" src="splash.mp4" poster="splash-poster.jpg"
          muted autoplay playsinline preload="auto" disablepictureinpicture></video>
 </div>
 <style>
@@ -356,6 +356,12 @@ nav .nav-in .tabbtn svg{width:20px; height:20px;}
   background:var(--surface-2); border:1px solid var(--line); border-radius:999px; padding:4px 6px; max-width:110px;}
 .lnk{background:none; border:0; padding:0; font-family:var(--disp); font-weight:600; font-size:13px; color:var(--gold); cursor:pointer; text-decoration:underline;}
 .lnk.danger{color:#c0492f;}
+.todo-actionbar{position:sticky; bottom:74px; z-index:5; display:flex; align-items:center; gap:10px; margin:10px 0 0;
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--r-sm); padding:10px 12px; box-shadow:0 6px 20px rgba(0,0,0,.10);}
+.todo-actionbar .cnt{font-family:var(--disp); font-weight:700; font-size:13px; color:var(--muted); flex:none;}
+.todo-restore{flex:none; margin-left:auto; background:var(--surface-2); border:1px solid var(--line); border-radius:999px;
+  padding:5px 10px; font-family:var(--disp); font-weight:600; font-size:12px; color:var(--gold); cursor:pointer;}
+.todo-box.sel{background:var(--gold); border-color:transparent; color:var(--on-gold);}
 
 </style>
 <header>
@@ -478,7 +484,7 @@ function normCad(c){c=c||{};const t=c.type||"daily";
   return{type:"daily"};}
 function normGoal(g,settings){const sm=(settings&&settings.scaleMax)||10;
   const metrics=(g.metrics||[]).map(m=>({id:m.id||uid(),label:m.label||"",role:m.role==="secondary"?"secondary":"primary",
-    measurement:normMeas(m.measurement),polarity:m.polarity||g.polarity||"positive",rubric:m.rubric||{}}));
+    measurement:normMeas(m.measurement),polarity:m.polarity||g.polarity||"positive",askReasons:m.askReasons!==false,rubric:m.rubric||{}}));
   if(!metrics.length)metrics.push({id:uid(),label:"",role:"primary",measurement:{type:"scale",scaleMax:sm},polarity:g.polarity||"positive",rubric:{}});
   if(!metrics.some(m=>m.role==="primary"))metrics[0].role="primary";
   return{id:g.id||uid(),title:g.title||"",note:g.note||"",active:g.active!==false,
@@ -797,7 +803,9 @@ let editing=null,formDraft=null;
 function renderCelok(){const el=document.getElementById("tab-celok");
   let html='<div class="section-title" style="margin-top:8px">Céljaid</div>';
   if(S.goals.length===0)html+='<div class="hint" style="margin-bottom:12px">Hozz létre célt: válaszd ki a mérési módot, az ütemezést és az irányt. Egy fő pontozott mérce mellé csak-követett mércék is jöhetnek.</div>';
-  for(const g of S.goals)html+='<div class="card"><div class="goal-manage"><span><span class="g-title">'+esc(g.title)+'</span><span class="g-sub">'+cadenceLabel(g)+' · '+measLabel(primaryMetrics(g)[0])+' · Lv '+progFor(goalLifetime(g.id)).L+'</span></span><span class="acts"><button class="iconbtn" data-edit="'+g.id+'">✎</button><button class="iconbtn del" data-del="'+g.id+'">🗑</button></span></div></div>';
+  for(const g of S.goals){const gl=progFor(goalLifetime(g.id));const lt=goalLifetime(g.id);
+    html+='<div class="card"><div class="goal-manage"><span><span class="g-title">'+esc(g.title)+'</span><span class="g-sub">'+cadenceLabel(g)+' · '+measLabel(primaryMetrics(g)[0])+'</span></span><span class="acts"><span class="lvpill">Lv '+gl.L+'</span><button class="iconbtn" data-edit="'+g.id+'">✎</button><button class="iconbtn del" data-del="'+g.id+'">🗑</button></span></div>'
+      +'<div class="bar" style="margin-top:10px"><i style="width:'+(gl.pct*100).toFixed(1)+'%"></i></div><div class="barmeta"><span>'+lt+' pont</span><span>következő szintig: '+(gl.hi-lt)+'</span></div></div>';}
   html+='<div id="goalForm"></div><button class="btn ghost wide" id="newGoalBtn" style="margin-top:6px">+ Új cél</button>';
   el.innerHTML=html;
   document.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>{editing=b.dataset.edit;startGoalForm();});
@@ -832,6 +840,9 @@ function metricEditor(m,i){const t=m.measurement.type;const isFirst=i===0;const 
   h+='<div class="opt-grid" style="margin-top:8px"><button type="button" class="opt'+(role==="primary"?" active":"")+'" data-mrole="'+i+'|primary">Pontozott</button><button type="button" class="opt'+(role==="secondary"?" active":"")+'" data-mrole="'+i+'|secondary">Csak követett</button><button type="button" class="opt'+(pol==="positive"?" active":"")+'" data-mpol="'+i+'|positive">Építeni</button><button type="button" class="opt'+(pol==="negative"?" active":"")+'" data-mpol="'+i+'|negative">Elhagyni</button></div>';
   h+='<div class="opt-grid" style="margin-top:8px"><button type="button" class="opt'+(t==="boolean"?" active":"")+'" data-mtype="'+i+'|boolean">Igen/Nem</button><button type="button" class="opt'+(t==="scale"?" active":"")+'" data-mtype="'+i+'|scale">Skála</button><button type="button" class="opt'+(t==="quantity"?" active":"")+'" data-mtype="'+i+'|quantity">Mennyiség</button><button type="button" class="opt'+(t==="timer"?" active":"")+'" data-mtype="'+i+'|timer">Idő</button></div>';
   h+=measSub(m,i);
+  // Per-almérce „miértek" kapcsoló — csak pontozott almércénél (a fő cél a cél-szintű kapcsolóval megy)
+  if(role==="primary"&&!isFirst){const ar=m.askReasons!==false;
+    h+='<div class="subfields"><div class="hint" style="margin-top:10px">Rákérdezés a miértekre (ennél az almércénél)</div><div class="opt-grid"><button type="button" class="opt'+(ar?" active":"")+'" data-maskr="'+i+'|1">Igen</button><button type="button" class="opt'+(!ar?" active":"")+'" data-maskr="'+i+'|0">Nem</button></div></div>';}
   if(t==="scale"){const max=m.measurement.scaleMax||10;let rows="";for(let s=max;s>=1;s--)rows+='<div class="rub-row"><span class="sc">'+s+'</span><input class="input" data-rub="'+i+"|"+s+'" placeholder="Mit jelent a(z) '+s+'?" value="'+escA(m.rubric?m.rubric[String(s)]||"":"")+'"/></div>';
     h+='<button class="rub-toggle" data-rubtoggle="'+i+'">▸ Rubrika (1–'+max+') fokozatonként</button><div class="rub-editor" data-rubed="'+i+'"><div class="rub-actions"><button class="btn sm" data-aigen="'+i+'">✨ Generáld AI-val</button></div>'+rows+'</div>';
     const _neu=scaleNeutral(max),_df=Math.max(1,_neu-1),_dw=Math.min(max,_neu+1);
@@ -848,6 +859,7 @@ function bindGoalForm(){
   document.querySelectorAll("[data-pol]").forEach(b=>b.onclick=()=>{syncForm();formDraft.polarity=b.dataset.pol;if(formDraft.metrics[0])formDraft.metrics[0].polarity=b.dataset.pol;renderGoalForm();});
   document.querySelectorAll("[data-mpol]").forEach(b=>b.onclick=()=>{syncForm();const[i,p]=b.dataset.mpol.split("|");if(formDraft.metrics[i]){formDraft.metrics[i].polarity=p;if(Number(i)===0)formDraft.polarity=p;}renderGoalForm();});
   document.querySelectorAll("[data-mrole]").forEach(b=>b.onclick=()=>{syncForm();const[i,r]=b.dataset.mrole.split("|");if(formDraft.metrics[i])formDraft.metrics[i].role=r;renderGoalForm();});
+  document.querySelectorAll("[data-maskr]").forEach(b=>b.onclick=()=>{syncForm();const[i,v]=b.dataset.maskr.split("|");if(formDraft.metrics[i])formDraft.metrics[i].askReasons=v==="1";renderGoalForm();});
   document.querySelectorAll("[data-tunit]").forEach(b=>b.onclick=()=>{syncForm();const[i,u]=b.dataset.tunit.split("|");if(formDraft.metrics[i])formDraft.metrics[i].measurement.unit=u;renderGoalForm();});
   document.querySelectorAll("[data-cad]").forEach(b=>b.onclick=()=>{syncForm();formDraft.cadence=normCad({type:b.dataset.cad,days:formDraft.cadence.days,times:formDraft.cadence.times,period:formDraft.cadence.period,rolling:formDraft.cadence.rolling});
     if(b.dataset.cad==="streak"){formDraft.metrics[0].measurement={type:"boolean"};}renderGoalForm();});
@@ -989,14 +1001,18 @@ function renderHaladas(){const el=document.getElementById("tab-haladas");let htm
 
 /* ---- TEENDŐK (különálló to-do lista) ---- */
 let showDoneTodos=false;
-let curTodoFolder=null; // null = "Összes" nézet
+let curTodoFolder=null;      // null = "Összes" nézet
+let todoSel=new Set();       // kijelölt (még nem elvégzett) teendők id-jei — efemer
 function todoFolderName(id){const f=(S.todoFolders||[]).find(x=>x.id===id);return f?f.name:null;}
 function renderTeendok(){const el=document.getElementById("tab-teendok");
   const todos=S.todos||[];const folders=S.todoFolders||[];
   if(curTodoFolder&&!folders.some(f=>f.id===curTodoFolder))curTodoFolder=null; // törölt mappa
   const openAll=todos.filter(t=>!t.done);
+  // csak létező, nyitott teendők maradjanak kijelölve
+  todoSel.forEach(id=>{if(!openAll.some(t=>t.id===id))todoSel.delete(id);});
   const open=curTodoFolder?openAll.filter(t=>t.folder===curTodoFolder):openAll;
-  const done=todos.filter(t=>t.done);
+  const doneAll=todos.filter(t=>t.done);
+  const done=curTodoFolder?doneAll.filter(t=>t.folder===curTodoFolder):doneAll; // az elvégzettek is a mappára szűrve
   let html='<div class="section-title" style="margin-top:8px">Teendők<span class="sub">'+openAll.length+' nyitott</span></div>';
   // Mappa-csipek (szűrő) — vízszintesen görgethető
   html+='<div class="folderbar"><button class="fchip'+(curTodoFolder===null?' active':'')+'" data-fsel="__all">Összes</button>';
@@ -1005,18 +1021,22 @@ function renderTeendok(){const el=document.getElementById("tab-teendok");
   if(curTodoFolder)html+='<div class="hint" style="display:flex;gap:12px;align-items:center;margin:0 2px 8px">📁 '+esc(todoFolderName(curTodoFolder))+'<button class="lnk" id="folderRename">átnevez</button><button class="lnk danger" id="folderDel">töröl</button></div>';
   // Hozzáadás
   html+='<div class="card" style="padding:14px 16px"><div class="daily-add"><input class="input" id="todoInput" placeholder="Új teendő'+(curTodoFolder?' – '+esc(todoFolderName(curTodoFolder)):'')+'…"/><button class="btn sm" id="todoAdd">+</button></div>';
-  if(open.length===0){html+='<div class="hint">'+(curTodoFolder?'Ez a mappa üres. Írj be egy teendőt fent.':'Nincs nyitott teendő. Írj be egyet fent — a napi/heti céloktól függetlenül itt marad, amíg ki nem pipálod. Minden elvégzett teendő pontot ad az össz-haladásnak.')+'</div>';}
-  else if(curTodoFolder===null&&folders.length){
-    // "Összes" nézet: mappánként csoportosítva, végén az Egyéb
-    for(const f of folders){const items=openAll.filter(t=>t.folder===f.id);if(!items.length)continue;
-      html+='<div class="todo-group">📁 '+esc(f.name)+'</div>';for(const t of items)html+=todoRow(t,false);}
-    const nof=openAll.filter(t=>!t.folder);
-    if(nof.length){html+='<div class="todo-group">Egyéb</div>';for(const t of nof)html+=todoRow(t,false);}
-  }else{for(const t of open)html+=todoRow(t,false);}
+  if(open.length===0){html+='<div class="hint">'+(curTodoFolder?'Ez a mappa üres. Írj be egy teendőt fent.':'Nincs nyitott teendő. Írj be egyet fent — a napi/heti céloktól függetlenül itt marad, amíg ki nem jelölöd késznek. Koppints a sorra a kijelöléshez, majd nyomd meg az „Elvégezve” gombot. Minden elvégzett teendő pontot ad az össz-haladásnak.')+'</div>';}
+  else{html+='<div class="hint" style="margin:0 2px 6px">Koppints a sorokra a kijelöléshez, majd „Elvégezve".</div>';
+    if(curTodoFolder===null&&folders.length){
+      // "Összes" nézet: mappánként csoportosítva, végén az Egyéb
+      for(const f of folders){const items=openAll.filter(t=>t.folder===f.id);if(!items.length)continue;
+        html+='<div class="todo-group">📁 '+esc(f.name)+'</div>';for(const t of items)html+=todoRow(t,false);}
+      const nof=openAll.filter(t=>!t.folder);
+      if(nof.length){html+='<div class="todo-group">Egyéb</div>';for(const t of nof)html+=todoRow(t,false);}
+    }else{for(const t of open)html+=todoRow(t,false);}
+  }
   html+='</div>';
-  html+='<button class="btn ghost wide sm" id="todoDoneToggle" style="margin-top:4px">'+(showDoneTodos?"▾":"▸")+' Elvégzett feladatok ('+done.length+')</button>';
+  // Kijelölés-akciósáv
+  if(todoSel.size>0)html+='<div class="todo-actionbar"><span class="cnt">'+todoSel.size+' kijelölve</span><button class="btn ghost sm" id="todoSelClear">Mégse</button><button class="btn sm" id="todoDoBtn" style="margin-left:auto">✓ Elvégezve</button></div>';
+  html+='<button class="btn ghost wide sm" id="todoDoneToggle" style="margin-top:8px">'+(showDoneTodos?"▾":"▸")+' Elvégzett feladatok ('+done.length+')</button>';
   if(showDoneTodos){html+='<div class="card" style="padding:14px 16px;margin-top:8px">';
-    if(done.length===0)html+='<div class="hint">Még nincs elvégzett teendő.</div>';
+    if(done.length===0)html+='<div class="hint">Még nincs elvégzett teendő'+(curTodoFolder?' ebben a mappában':'')+'.</div>';
     else for(const t of done.slice().sort((a,b)=>(b.doneAt||0)-(a.doneAt||0)))html+=todoRow(t,true);
     html+='</div>';}
   el.innerHTML=html;
@@ -1028,24 +1048,36 @@ function renderTeendok(){const el=document.getElementById("tab-teendok");
   const fr=document.getElementById("folderRename");if(fr)fr.onclick=()=>{const f=(S.todoFolders||[]).find(x=>x.id===curTodoFolder);if(!f)return;const n=prompt("Mappa új neve:",f.name);if(n&&n.trim()){f.name=n.trim().slice(0,40);save();renderTeendok();}};
   const fd=document.getElementById("folderDel");if(fd)fd.onclick=()=>{if(!confirm("Mappa törlése? A benne lévő teendők megmaradnak, csak mappa nélkül."))return;S.todos=(S.todos||[]).map(t=>t.folder===curTodoFolder?{...t,folder:null}:t);S.todoFolders=(S.todoFolders||[]).filter(x=>x.id!==curTodoFolder);curTodoFolder=null;save();renderTeendok();};
   el.querySelectorAll("[data-todomove]").forEach(sel=>sel.onchange=()=>{const t=(S.todos||[]).find(x=>x.id===sel.dataset.todomove);if(t){t.folder=sel.value||null;save();renderTeendok();}});
-  el.querySelectorAll("[data-todocheck]").forEach(b=>b.onclick=()=>toggleTodo(b.dataset.todocheck));
-  el.querySelectorAll("[data-tododel]").forEach(b=>b.onclick=(e)=>{e.stopPropagation();S.todos=(S.todos||[]).filter(x=>x.id!==b.dataset.tododel);save();renderTeendok();});}
+  el.querySelectorAll("[data-todosel]").forEach(b=>b.onclick=()=>{const id=b.dataset.todosel;if(todoSel.has(id))todoSel.delete(id);else todoSel.add(id);renderTeendok();});
+  el.querySelectorAll("[data-todorestore]").forEach(b=>b.onclick=(e)=>{e.stopPropagation();const t=(S.todos||[]).find(x=>x.id===b.dataset.todorestore);if(t){t.done=false;t.doneAt=null;save();renderTeendok();renderHeader();}});
+  el.querySelectorAll("[data-tododel]").forEach(b=>b.onclick=(e)=>{e.stopPropagation();todoSel.delete(b.dataset.tododel);S.todos=(S.todos||[]).filter(x=>x.id!==b.dataset.tododel);save();renderTeendok();renderHeader();});
+  const sc=document.getElementById("todoSelClear");if(sc)sc.onclick=()=>{todoSel.clear();renderTeendok();};
+  const db=document.getElementById("todoDoBtn");if(db)db.onclick=completeSelectedTodos;
+  const dt=document.getElementById("todoDoneToggle");if(dt)dt.onclick=()=>{showDoneTodos=!showDoneTodos;renderTeendok();};}
 function todoRow(t,isDone){
+  if(isDone){
+    return '<div class="di"><div class="di-top" style="cursor:default">'
+      +'<span class="todo-box on">✓</span>'
+      +'<span class="di-label todo-strk">'+esc(t.text)+'</span>'
+      +'<button class="todo-restore" data-todorestore="'+t.id+'">↩︎ Vissza</button>'
+      +'<button class="di-del" data-tododel="'+t.id+'" style="margin-left:6px">✕</button></div></div>';
+  }
+  const sel=todoSel.has(t.id);
   let mv='';
-  if(!isDone&&(S.todoFolders||[]).length){
+  if((S.todoFolders||[]).length){
     mv='<select class="todo-move" data-todomove="'+t.id+'" onclick="event.stopPropagation()"><option value=""'+(!t.folder?' selected':'')+'>📁 —</option>';
     for(const f of S.todoFolders)mv+='<option value="'+f.id+'"'+(t.folder===f.id?' selected':'')+'>'+esc(f.name)+'</option>';
     mv+='</select>';
   }
-  const delMargin=(!isDone&&(S.todoFolders||[]).length)?'6px':'auto';
-  return '<div class="di"><div class="di-top" data-todocheck="'+t.id+'" style="cursor:pointer">'
-    +'<span class="todo-box'+(isDone?" on":"")+'">'+(isDone?"✓":"")+'</span>'
-    +'<span class="di-label'+(isDone?" todo-strk":"")+'">'+esc(t.text)+'</span>'
+  return '<div class="di"><div class="di-top" data-todosel="'+t.id+'" style="cursor:pointer">'
+    +'<span class="todo-box'+(sel?" sel":"")+'">'+(sel?"✓":"")+'</span>'
+    +'<span class="di-label">'+esc(t.text)+'</span>'
     +mv
-    +'<button class="di-del" data-tododel="'+t.id+'" style="margin-left:'+delMargin+'">✕</button></div></div>';}
-function toggleTodo(id){const t=(S.todos||[]).find(x=>x.id===id);if(!t)return;
-  t.done=!t.done;t.doneAt=t.done?Date.now():null;save();
-  if(t.done)celebrate("✅","Kész — +"+(cfg().todoMeta||3)+" az össz-haladáshoz");
+    +'<button class="di-del" data-tododel="'+t.id+'" style="margin-left:6px">✕</button></div></div>';}
+function completeSelectedTodos(){if(todoSel.size===0)return;let n=0;
+  for(const id of todoSel){const t=(S.todos||[]).find(x=>x.id===id);if(t&&!t.done){t.done=true;t.doneAt=Date.now();n++;}}
+  todoSel.clear();save();
+  if(n>0)celebrate("✅",n+" kész — +"+(n*(cfg().todoMeta||3))+" az össz-haladáshoz");
   checkMetaLevel();renderTeendok();renderHeader();}
 
 /* ---- JUTALMAK / KÜLDETÉSEK (placeholder) ---- */
@@ -1151,7 +1183,7 @@ function outcomeFor(metric,value){if(value==null||value==="")return null;const m
 function pastReasons(gid,mid,kind){const a=(S.reasons[gid]&&S.reasons[gid][mid])||[];return a.filter(r=>r.kind===kind);}
 function reasonAnsweredOn(gid,mid,day){const a=(S.reasons[gid]&&S.reasons[gid][mid])||[];return a.some(r=>r.date===day);}
 function addReason(gid,mid,kind,text){S.reasons[gid]=S.reasons[gid]||{};S.reasons[gid][mid]=S.reasons[gid][mid]||[];S.reasons[gid][mid].push({date:selDay,kind,text});save();}
-function maybeAskReason(gid,mid){const g=goalById(gid);const m=g&&g.metrics.find(x=>x.id===mid);if(!m||m.role!=="primary")return;if(g.askReasons===false)return;
+function maybeAskReason(gid,mid){const g=goalById(gid);const m=g&&g.metrics.find(x=>x.id===mid);if(!m||m.role!=="primary")return;if(g.askReasons===false)return;if(m.askReasons===false)return;
   const d=S.days[selDay];const e=d&&d.entries&&d.entries[gid];const v=e?e[mid]:null;const oc=outcomeFor(m,v);
   if(oc!=="win"&&oc!=="miss")return;if(reasonAnsweredOn(gid,mid,selDay))return;
   const past=pastReasons(gid,mid,oc);const title=oc==="miss"?"Mi akadályozott ma?":"Mi segített, hogy sikerüljön?";
@@ -1264,7 +1296,7 @@ if(!S.onboarded){showOnboarding();switchTab("ma");}else{switchTab("ma");}
   /* A telefon státuszsávja (theme-color) a splash hátterét vegye fel, majd álljon vissza. */
   var meta=document.querySelector('meta[name="theme-color"]');
   var themeBefore=meta?meta.getAttribute("content"):null;
-  if(meta) meta.setAttribute("content","#3C332A");
+  if(meta) meta.setAttribute("content","#D5CFC8");
   function hide(){ if(done)return; done=true;
     if(killT){clearTimeout(killT);killT=null;}
     if(vid){try{vid.pause();}catch(e){}}
