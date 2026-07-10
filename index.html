@@ -197,25 +197,14 @@ textarea.input{resize:vertical; min-height:48px;}
 .day-pick .input{flex:1;}
 input[type=date]{color-scheme:dark;}
 @media (prefers-reduced-motion: reduce){*{transition:none !important; animation:none !important;}}
-</style>
-</head>
-<body>
-<div id="splash" aria-hidden="true">
-  <video id="splashVid" class="splash-vid" src="splash.mp4" poster="splash-poster.jpg"
-         muted autoplay playsinline preload="auto" disablepictureinpicture></video>
-  <div class="splash-inner">
-    <img src="icon-192.png" alt="Trellis" class="splash-logo" width="132" height="132" />
-    <div class="splash-name">Trellis</div>
-    <div class="splash-tag">Structure Your Growth</div>
-  </div>
-  <button id="splashSkip" class="splash-skip" type="button">Kihagyás &rsaquo;</button>
-</div>
-<style>
-/* Betöltő / splash képernyő */
+
+/* ---- Betöltő / splash képernyő ----
+   FONTOS: ezek a szabályok a <head>-ben vannak, hogy a splash már az első festéskor
+   a helyén legyen. Ha a markup után állnának, egy pillanatra stílus nélkül villanna be. */
 #splash{position:fixed; inset:0; z-index:200; display:flex; align-items:center; justify-content:center;
   background:linear-gradient(180deg,#D0CAC3 0%,#C2C2C5 100%); overflow:hidden; transition:opacity .5s ease;}
 #splash.hide{opacity:0; pointer-events:none;}
-/* Videós splash: a teljes négyzetes kép látszik (contain), az ágak nem vágódnak le.
+/* A teljes négyzetes kép látszik (contain), az ágak nem vágódnak le.
    A háttér-gradiens a videó felső/alsó szélszínét folytatja, így nincs látható sáv-határ. */
 #splash .splash-vid{position:absolute; inset:0; width:100%; height:100%;
   object-fit:contain; object-position:center; background:transparent;}
@@ -228,7 +217,7 @@ input[type=date]{color-scheme:dark;}
   color:#2D6A4F; background:rgba(255,255,255,.72); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px);
   border:0; border-radius:999px; padding:8px 14px; cursor:pointer;
   box-shadow:0 4px 14px rgba(30,90,45,.14);}
-/* Statikus tartalék: csak akkor látszik, ha a videó nem tud lejátszani (.novid) */
+/* Statikus tartalék tartalma: csak akkor látszik, ha a videó nem tud lejátszani (.novid) */
 #splash .splash-inner{position:relative; z-index:1; display:none; flex-direction:column; align-items:center; text-align:center;
   animation:splashIn .6s ease both;}
 #splash.novid .splash-inner{display:flex;}
@@ -240,6 +229,22 @@ input[type=date]{color-scheme:dark;}
 #splash .splash-tag{margin-top:8px; font-family:"Space Grotesk",ui-sans-serif,system-ui,sans-serif;
   font-weight:500; font-size:15px; letter-spacing:.02em; color:#5C6E60;}
 @keyframes splashIn{from{opacity:0; transform:translateY(8px) scale(.98);} to{opacity:1; transform:none;}}
+</style>
+</head>
+<body>
+<div id="splash" aria-hidden="true">
+  <!-- Nincs poster: a poszter a videó VÉGÁLLAPOTA volt, így a kész logót villantotta fel
+       az animáció előtt. Amíg az első képkocka megjön, a splash gradiens háttere látszik. -->
+  <video id="splashVid" class="splash-vid" src="splash.mp4"
+         muted autoplay playsinline preload="auto" disablepictureinpicture></video>
+  <div class="splash-inner">
+    <img src="icon-192.png" alt="Trellis" class="splash-logo" width="132" height="132" />
+    <div class="splash-name">Trellis</div>
+    <div class="splash-tag">Structure Your Growth</div>
+  </div>
+  <button id="splashSkip" class="splash-skip" type="button">Kihagyás &rsaquo;</button>
+</div>
+<style>
 /* Frissítés-ikon a fejlécben */
 .updbtn{display:inline-flex; align-items:center; gap:6px; font-family:var(--disp); font-weight:600;
   font-size:12.5px; line-height:1; color:#fff; background:var(--gold); border:0; border-radius:999px;
@@ -1114,18 +1119,37 @@ if(!S.onboarded){showOnboarding();switchTab("ma");}else{switchTab("ma");}
   var vid=document.getElementById("splashVid");
   var skip=document.getElementById("splashSkip");
   var done=false;
+  /* A videó utolsó ~0,4 mp-e feketébe fade-el. Itt lépünk ki, MIELŐTT sötétedni kezdene,
+     így a kész logó a teljes fényerején fagy meg, és arról úszunk át az appra. */
+  var CUT=5.5;
+  /* A telefon státuszsávja (theme-color) a splash hátterét vegye fel, majd álljon vissza. */
+  var meta=document.querySelector('meta[name="theme-color"]');
+  var themeBefore=meta?meta.getAttribute("content"):null;
+  function setTheme(c){ if(meta) meta.setAttribute("content",c); }
+  setTheme("#D0CAC3");
+  function restoreTheme(){ if(meta&&themeBefore!==null) meta.setAttribute("content",themeBefore); }
+  /* Tartalek splash: vilagoszold hatter -> a statuszsav is azt vegye fel. */
+  function fallbackTheme(){ setTheme("#F1F6EE"); }
   function hide(){ if(done)return; done=true;
+    /* Elobb allitjuk meg a videot, csak utana fade-elunk: igy a fade alatt nem sotetedik tovabb. */
+    if(vid){try{vid.pause();}catch(e){}}
+    restoreTheme();
     sp.style.transition="opacity .45s ease"; sp.classList.add("hide");
-    setTimeout(function(){ sp.style.display="none"; if(vid){try{vid.pause();}catch(e){}} },520);
+    setTimeout(function(){ sp.style.display="none"; },520);
   }
   sp.addEventListener("click",hide);
   if(skip) skip.addEventListener("click",function(e){e.stopPropagation();hide();});
   if(vid){
-    vid.addEventListener("ended",hide);
-    vid.addEventListener("error",function(){ sp.classList.add("novid"); setTimeout(hide,800); });
-    setTimeout(hide,6600); /* biztonsagi idokorlat, ha az 'ended' nem erkezne meg */
+    /* A 'timeupdate' ritkan tuzel (~4/mp), ezert rAF-fel figyeljuk a vagasi pontot. */
+    (function watch(){ if(done) return;
+      if(vid.currentTime>=CUT){ hide(); return; }
+      requestAnimationFrame(watch);
+    })();
+    vid.addEventListener("ended",hide);   /* tartalek, ha a rAF-et felfuggesztene a rendszer */
+    vid.addEventListener("error",function(){ sp.classList.add("novid"); fallbackTheme(); setTimeout(hide,800); });
+    setTimeout(hide,6600); /* biztonsagi idokorlat, ha semmi nem erkezne meg */
     var p=vid.play();
-    if(p&&p.catch){ p.catch(function(){ sp.classList.add("novid"); setTimeout(hide,1000); }); }
+    if(p&&p.catch){ p.catch(function(){ sp.classList.add("novid"); fallbackTheme(); setTimeout(hide,1000); }); }
   } else {
     setTimeout(hide,350);
   }
