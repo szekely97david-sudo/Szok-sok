@@ -201,19 +201,38 @@ input[type=date]{color-scheme:dark;}
 </head>
 <body>
 <div id="splash" aria-hidden="true">
+  <video id="splashVid" class="splash-vid" src="splash.mp4" poster="splash-poster.jpg"
+         muted autoplay playsinline preload="auto" disablepictureinpicture></video>
   <div class="splash-inner">
     <img src="icon-192.png" alt="Trellis" class="splash-logo" width="132" height="132" />
     <div class="splash-name">Trellis</div>
     <div class="splash-tag">Structure Your Growth</div>
   </div>
+  <button id="splashSkip" class="splash-skip" type="button">Kihagyás &rsaquo;</button>
 </div>
 <style>
 /* Betöltő / splash képernyő */
 #splash{position:fixed; inset:0; z-index:200; display:flex; align-items:center; justify-content:center;
-  background:#F1F6EE; padding:24px; transition:opacity .5s ease;}
+  background:linear-gradient(180deg,#D0CAC3 0%,#C2C2C5 100%); overflow:hidden; transition:opacity .5s ease;}
 #splash.hide{opacity:0; pointer-events:none;}
-#splash .splash-inner{display:flex; flex-direction:column; align-items:center; text-align:center;
+/* Videós splash: a teljes négyzetes kép látszik (contain), az ágak nem vágódnak le.
+   A háttér-gradiens a videó felső/alsó szélszínét folytatja, így nincs látható sáv-határ. */
+#splash .splash-vid{position:absolute; inset:0; width:100%; height:100%;
+  object-fit:contain; object-position:center; background:transparent;}
+/* Statikus tartalék: a régi világoszöld háttéren */
+#splash.novid{background:#F1F6EE;}
+#splash.novid .splash-vid{display:none;}
+/* Kihagyás gomb (jobb alsó sarok) */
+#splash .splash-skip{position:absolute; right:16px; bottom:16px; z-index:2;
+  font-family:"Space Grotesk",ui-sans-serif,system-ui,sans-serif; font-weight:600; font-size:13px;
+  color:#2D6A4F; background:rgba(255,255,255,.72); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px);
+  border:0; border-radius:999px; padding:8px 14px; cursor:pointer;
+  box-shadow:0 4px 14px rgba(30,90,45,.14);}
+/* Statikus tartalék: csak akkor látszik, ha a videó nem tud lejátszani (.novid) */
+#splash .splash-inner{position:relative; z-index:1; display:none; flex-direction:column; align-items:center; text-align:center;
   animation:splashIn .6s ease both;}
+#splash.novid .splash-inner{display:flex;}
+#splash.novid .splash-skip{display:none;}
 #splash .splash-logo{width:132px; height:132px; border-radius:30px; display:block;
   box-shadow:0 12px 34px rgba(30,90,45,.18), 0 0 0 1px rgba(46,139,67,.12);}
 #splash .splash-name{margin-top:22px; font-family:"Space Grotesk",ui-sans-serif,system-ui,sans-serif;
@@ -1089,7 +1108,28 @@ applyTheme(curTheme);
 document.addEventListener("click",e=>{const b=e.target&&e.target.closest&&e.target.closest("[data-info]");if(b){e.preventDefault();e.stopPropagation();showInfo(b.dataset.info);}});
 ensureQuick();renderHeader();
 if(!S.onboarded){showOnboarding();switchTab("ma");}else{switchTab("ma");}
-setTimeout(function(){var sp=document.getElementById("splash");if(sp){sp.style.transition="opacity .45s ease";sp.classList.add("hide");setTimeout(function(){sp.style.display="none";},520);}},350);
+/* ---- splash: videó lejátszása, majd elrejtés (koppintás bárhol = kihagyás) ---- */
+(function(){
+  var sp=document.getElementById("splash"); if(!sp) return;
+  var vid=document.getElementById("splashVid");
+  var skip=document.getElementById("splashSkip");
+  var done=false;
+  function hide(){ if(done)return; done=true;
+    sp.style.transition="opacity .45s ease"; sp.classList.add("hide");
+    setTimeout(function(){ sp.style.display="none"; if(vid){try{vid.pause();}catch(e){}} },520);
+  }
+  sp.addEventListener("click",hide);
+  if(skip) skip.addEventListener("click",function(e){e.stopPropagation();hide();});
+  if(vid){
+    vid.addEventListener("ended",hide);
+    vid.addEventListener("error",function(){ sp.classList.add("novid"); setTimeout(hide,800); });
+    setTimeout(hide,6600); /* biztonsagi idokorlat, ha az 'ended' nem erkezne meg */
+    var p=vid.play();
+    if(p&&p.catch){ p.catch(function(){ sp.classList.add("novid"); setTimeout(hide,1000); }); }
+  } else {
+    setTimeout(hide,350);
+  }
+})();
 /* ---- Service worker + "Frissítés" gomb ---- */
 if("serviceWorker" in navigator){
   const updBtn=document.getElementById("updateBtn");

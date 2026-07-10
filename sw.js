@@ -1,16 +1,17 @@
-/* Trellis service worker — v12
+/* Trellis service worker — v15
    Stratégia:
    - HTML/navigáció  -> NETWORK FIRST (mindig a friss oldalt kéri, offline-ra cache tartalék)
    - statikus fájlok -> STALE-WHILE-REVALIDATE (azonnal cache-ből, közben frissít háttérben)
    - Firebase/Google -> sose cache, mindig hálózat
    A cache-verziót MINDEN kiadásnál léptesd (v12 -> v13 ...), így az app-shell frissül. */
-const VERSION = "v14";
+const VERSION = "v15";
 const CACHE = "trellis-" + VERSION;
 
 const CORE = [
   "./", "./index.html", "./manifest.webmanifest", "./firebase-config.js",
   "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png", "./icon-180.png",
-  "./favicon.ico", "./favicon-32.png"
+  "./favicon.ico", "./favicon-32.png",
+  "./splash.mp4", "./splash-poster.jpg"
 ];
 
 // Telepítés: app-shell előtöltése. NEM hívunk skipWaiting-et automatikusan —
