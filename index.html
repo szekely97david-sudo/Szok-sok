@@ -291,6 +291,30 @@ select.input{appearance:none;-webkit-appearance:none;background-image:linear-gra
 .detail-back{display:flex;align-items:center;gap:10px;margin:4px 2px 6px;}
 .detail-back button{background:none;border:0;color:var(--gold);font-family:var(--disp);font-weight:600;font-size:15px;display:flex;align-items:center;gap:4px;padding:6px 2px;}
 .avoid-counter{font-family:var(--disp);font-weight:700;font-size:30px;color:var(--gold);font-variant-numeric:tabular-nums;text-align:center;padding:6px 0 14px;letter-spacing:.02em;}
+/* Cél-űrlap: haladó beállítások (C1) */
+details.advanced{margin-top:12px;border-top:1px solid var(--line);padding-top:4px;}
+details.advanced>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:var(--disp);font-weight:600;font-size:12.5px;color:var(--muted);padding:8px 2px;user-select:none;-webkit-user-select:none;}
+details.advanced>summary::-webkit-details-marker{display:none;}
+details.advanced>summary .chev{margin-left:auto;color:var(--muted-2);font-size:18px;transition:transform .2s;flex:none;}
+details.advanced[open]>summary .chev{transform:rotate(90deg);}
+details.advanced .adv-body{padding-top:2px;}
+/* Teendők: kompakt dátum-gomb (C2) */
+.datebtn{position:relative;flex:none;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--surface-2);display:inline-flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;overflow:hidden;line-height:1;}
+.datebtn input[type=date]{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:0;padding:0;margin:0;cursor:pointer;-webkit-appearance:none;appearance:none;}
+.datebtn.has-date{border-color:#3f9d5b;background:rgba(63,157,91,.14);}
+.todo-date-chip{font-family:var(--disp);font-weight:600;font-size:11.5px;color:#3f9d5b;background:rgba(63,157,91,.12);border:1px solid rgba(63,157,91,.35);border-radius:999px;padding:3px 8px;flex:none;white-space:nowrap;margin-left:auto;}
+.todo-date-chip + .datebtn{margin-left:6px;}
+/* Fix alsó vissza-sáv (A1) */
+.dayfoot .btn{width:100%;}
+/* Össz-haladás áttekintő rács (D) */
+.ovgrid{border-collapse:collapse;font-size:11px;}
+.ovgrid th{font-weight:600;color:var(--muted-2);font-size:10px;padding:2px 3px;text-align:center;font-family:var(--disp);white-space:nowrap;}
+.ovgrid td.gn{color:var(--muted-2);text-align:left;padding:3px 8px 3px 2px;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11.5px;}
+.ovcell{width:18px;height:18px;border-radius:5px;margin:1px auto;font-size:11px;line-height:18px;text-align:center;}
+.ovcell.ok{background:rgba(63,157,91,.22);color:#3f9d5b;}
+.ovcell.miss{background:var(--loss-soft);color:var(--loss);}
+.ovcell.na{background:var(--surface-2);color:var(--muted-2);}
+.ovcol-miss{color:var(--loss);font-weight:700;}
 </style>
 </head>
 <body>
@@ -445,10 +469,9 @@ nav .nav-in .tabbtn svg{width:20px; height:20px;}
   <section id="tab-fiok" class="hidden"></section>
 </main>
 
-<div class="dayfoot" id="dayfoot">
+<div class="dayfoot" id="dayfoot" hidden>
   <div class="dayfoot-in">
-    <div class="daysum"><span class="lbl" id="dayPtsLbl">Napi pont</span><span class="val mono" id="dayPts">0</span></div>
-    <button class="btn" id="closeDayBtn">Nap zárása</button>
+    <button class="btn ghost" id="footBack">‹ Vissza</button>
   </div>
 </div>
 
@@ -720,9 +743,9 @@ function checkMetaLevel(){const L=metaProgFor(metaPoints()).L;
     if(L>=2&&prev<2){playMetaLevelVideo();}else{celebrate("🌱","Össz-haladás — "+L+". szint!");}}}
 function metaCardHtml(){const mp=metaPoints();const g=metaProgFor(mp);const unlocked=(S.metaLevelSeen||1)>=2;
   const icon=unlocked?'<div class="lvicon" id="metaLvIcon"><img src="data:image/jpeg;base64,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" alt="szint ikon"/></div>':'';
-  return '<div class="lvlcard" style="margin-top:8px;background:linear-gradient(135deg,var(--gold-soft),var(--surface));position:relative">'
+  return '<div class="lvlcard" id="metaCard" style="margin-top:8px;background:linear-gradient(135deg,var(--gold-soft),var(--surface));position:relative;cursor:pointer">'
     +icon
-    +'<div class="lh"><span class="big mono">'+g.L+'</span><span><div class="t">Össz-haladás</div><div class="p">'+mp+' pont · minél sikeresebben teljesíted a céljaid és teendőid, annál több pontot kapsz</div></span></div>'
+    +'<div class="lh"><span class="big mono">'+g.L+'</span><span><div class="t">Össz-haladás <span style="color:var(--muted-2);font-family:var(--disp);font-weight:600;font-size:12px">› áttekintés</span></div><div class="p">'+mp+' pont · minél sikeresebben teljesíted a céljaid és teendőid, annál több pontot kapsz</div></span></div>'
     +'<div class="bar"><i style="width:'+(g.pct*100).toFixed(1)+'%"></i></div>'
     +'<div class="barmeta'+(unlocked?' with-icon':'')+'"><span>'+g.into+' / '+g.span+'</span><span>köv. szintig: '+Math.max(0,(g.hi-mp))+'</span></div></div>';}
 
@@ -874,6 +897,7 @@ function bindMaHome(){
   const dt=document.getElementById("dayToday");if(dt)dt.onclick=()=>{selDay=TODAY;renderMa();};
   const vc=document.getElementById("vacDay");if(vc)vc.onchange=()=>{const d=ensureDay(selDay);d.vacation=vc.checked;save();renderMa();renderHeader();};
   document.querySelectorAll("#tab-ma [data-maview]").forEach(b=>b.onclick=()=>{maView=b.dataset.maview;Store.set("maView",maView);renderMa();});
+  const mc=document.getElementById("metaCard");if(mc)mc.onclick=showOverview;
   bindSwipe();}
 function renderMaPanel(){const p=document.getElementById("maPanel");if(!p)return;
   if(maView==="teendok"){renderTeendok();return;}
@@ -881,7 +905,7 @@ function renderMaPanel(){const p=document.getElementById("maPanel");if(!p)return
   if(goals.length===0){p.innerHTML='<div class="empty"><div class="big">Nincs erre a napra ütemezett célod</div>A <b>Célok</b> fülön hozz létre egyet.</div>';return;}
   let html='';for(const g of goals)html+=goalTile(g);
   p.innerHTML=html;
-  p.querySelectorAll("[data-enter]").forEach(b=>b.onclick=()=>{maGoal=b.dataset.enter;window.scrollTo(0,0);renderMa();});
+  p.querySelectorAll("[data-enter]").forEach(b=>b.onclick=()=>{maGoal=b.dataset.enter;pushScreen();window.scrollTo(0,0);renderMa();updateDayFoot();});
   tickAvoid();}
 function goalTile(g){const gl=progFor(goalLifetime(g.id));const lt=goalLifetime(g.id);
   const vis=g.metrics.filter(m=>m.active!==false&&goalStartOk(m,selDay));
@@ -929,7 +953,7 @@ function avoidDetailBlock(g,m,e){const since=avoidSince(g.id,m.id);const streak=
     +'<div class="hint" style="margin-top:8px">Alapból fut a számláló. Ha megcsúsztál, nyomd meg — nullázódik és újraindul. Egy napon többször is rögzítheted.</div></div>';}
 function bindGoalDetail(gid){
   const t0=document.getElementById("tab-ma");if(t0){t0.ontouchstart=null;t0.ontouchend=null;}
-  const bk=document.querySelector("#tab-ma [data-back]");if(bk)bk.onclick=()=>{maGoal=null;window.scrollTo(0,0);renderMa();};
+  const bk=document.querySelector("#tab-ma [data-back]");if(bk)bk.onclick=()=>closeScreen();
   const ds=document.getElementById("dDaySel");if(ds)ds.onchange=()=>{if(ds.value){selDay=ds.value;renderMa();}};
   const dp=document.getElementById("dDayPrev");if(dp)dp.onclick=()=>{selDay=addDaysKey(selDay,-1);renderMa();};
   const dn=document.getElementById("dDayNext");if(dn)dn.onclick=()=>{selDay=addDaysKey(selDay,1);renderMa();};
@@ -1075,29 +1099,35 @@ function bindSwipe(){const el=document.getElementById("tab-ma");if(!el)return;
   el.ontouchstart=e=>{if(e.touches.length!==1)return;swipeX=e.touches[0].clientX;swipeY=e.touches[0].clientY;};
   el.ontouchend=e=>{if(swipeX==null)return;const t=e.changedTouches[0];const dx=t.clientX-swipeX,dy=t.clientY-swipeY;swipeX=null;
     if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.6){selDay=addDaysKey(selDay,dx<0?1:-1);renderMa();}};}
-function updateDayFoot(){const todoP=(S.todos||[]).filter(t=>t.done&&t.doneAt&&dk(new Date(t.doneAt))===selDay).reduce((a,t)=>a+todoPoints(t),0);
-  const dp=napiPointsOn(selDay)+todoP;const el=document.getElementById("dayPts");
-  el.textContent=(dp>0?"+"+dp:dp);el.className="val mono "+(dp>0?"pos":(dp<0?"neg":""));
-  document.getElementById("dayPtsLbl").textContent="Napi pont";
-  document.getElementById("closeDayBtn").textContent=(S.days[selDay]&&S.days[selDay].closed)?"Nap frissítése":"Nap zárása";}
-function closeDay(){const d=ensureDay(selDay);d.closed=true;save();toast(isSelToday()?"Nap lezárva 🎉":"Nap frissítve");renderHeader();renderMa();}
+/* A fix alsó sáv már csak a részletes nézetek "Vissza" gombját tartja
+   (a napi pont és a nap-zárás kivezetve — D feladat). */
+function updateDayFoot(){const foot=document.getElementById("dayfoot");if(!foot)return;
+  const show=(curTab==="ma"&&!!maGoal)||(curTab==="celok"&&!!editing);
+  foot.hidden=!show;foot.style.display=show?"block":"none";}
 
 /* ---- CÉLOK + űrlap ---- */
 let editing=null,formDraft=null;
 function renderCelok(){const el=document.getElementById("tab-celok");
+  if(editing){ // szerkesztés / új cél KÜLÖN képernyőként nyílik (A3), nem lenyíló űrlapként
+    el.innerHTML='<div class="detail-back"><button data-celback>‹ Vissza</button></div>'
+      +'<div class="section-title" style="margin-top:2px">'+(editing==="__new__"?"Új cél":"Cél szerkesztése")+'</div>'
+      +'<div id="goalForm"></div>';
+    const cb=el.querySelector("[data-celback]");if(cb)cb.onclick=()=>closeScreen();
+    if(formDraft)renderGoalForm();else startGoalForm();
+    updateDayFoot();return;}
   let html='<div class="section-title" style="margin-top:8px">Céljaid</div>';
   if(S.goals.length===0)html+='<div class="hint" style="margin-bottom:12px">Hozz létre célt: minden alcél önállóan kap mérési módot, ütemezést és irányt — egy cél alatt akár több, egymástól teljesen független alcél is elférhet.</div>';
   for(const g of S.goals){const gl=progFor(goalLifetime(g.id));const lt=goalLifetime(g.id);
     const activeM=g.metrics.filter(m=>m.active!==false);const offN=g.metrics.length-activeM.length;
     const sub=(activeM.length===1?(cadenceLabel(activeM[0])+' · '+measLabel(activeM[0])):(activeM.length+' alcél'))+(offN>0?' · '+offN+' kikapcsolva':'');
     html+='<div class="card"><div class="goal-manage"><span><span class="g-title">'+esc(g.title)+'</span><span class="g-sub">'+sub+'</span></span><span class="acts"><span class="lvpill">Lv '+gl.L+'</span><button class="iconbtn" data-edit="'+g.id+'">✎</button><button class="iconbtn del" data-del="'+g.id+'">🗑</button></span></div>'
-      +'<div class="bar" style="margin-top:10px"><i style="width:'+(gl.pct*100).toFixed(1)+'%"></i></div><div class="barmeta"><span>'+lt+' pont</span><span>következő szintig: '+(gl.hi-lt)+'</span></div></div>';}
-  html+='<div id="goalForm"></div><button class="btn ghost wide" id="newGoalBtn" style="margin-top:6px">+ Új cél</button>';
+      +'<div style="padding:0 16px 14px"><div class="bar" style="margin-top:10px"><i style="width:'+(gl.pct*100).toFixed(1)+'%"></i></div><div class="barmeta"><span>'+lt+' pont</span><span>következő szintig: '+(gl.hi-lt)+'</span></div></div></div>';}
+  html+='<button class="btn ghost wide" id="newGoalBtn" style="margin-top:6px">+ Új cél</button>';
   el.innerHTML=html;
-  document.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>{editing=b.dataset.edit;startGoalForm();});
+  document.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>{editing=b.dataset.edit;formDraft=null;pushScreen();renderCelok();});
   document.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{const g=goalById(b.dataset.del);if(confirm('Törlöd? „'+g.title+'"')){S.goals=S.goals.filter(x=>x.id!==b.dataset.del);save();renderCelok();}});
-  document.getElementById("newGoalBtn").onclick=()=>{editing="__new__";startGoalForm();};
-  if(editing){if(formDraft)renderGoalForm();else startGoalForm();}}
+  document.getElementById("newGoalBtn").onclick=()=>{editing="__new__";formDraft=null;pushScreen();renderCelok();};
+  updateDayFoot();}
 function measLabel(m){if(!m)return"—";const t=m.measurement.type;if(t==="scale")return"1–"+m.measurement.scaleMax+" skála";if(t==="boolean")return"igen/nem";if(t==="timer")return"idő";return"mennyiség";}
 const CAD_LIST=[
  {v:"daily",t:"Napi",s:"Minden aktív nap elvárt."},
@@ -1109,6 +1139,11 @@ const CAD_LIST=[
 ];
 const DT_LIST=[{v:"boolean",t:"Igen / Nem"},{v:"scale",t:"Skála (1–N)"},{v:"quantity",t:"Mennyiség"},{v:"timer",t:"Idő"}];
 let formAcc={1:true,2:true};
+/* Haladó beállítások (küszöb/progresszió) nyitva-állapota metrika-id szerint (C1).
+   Alapból csukva; meglévő célnál, ahol már ki van töltve, nyitva. */
+let advOpen={};
+function metricHasAdvanced(m){const meas=m.measurement||{};return (meas.failAt!=null)||(meas.winAt!=null)||!!(m.progression&&m.progression.enabled);}
+function advIsOpen(m){return (m.id in advOpen)?!!advOpen[m.id]:false;}
 function newMetricDraft(){return{id:uid(),label:"",cadence:{type:"daily"},startDate:null,measurement:{type:"boolean"},polarity:"positive",progression:null,rubric:{},active:true};}
 function startGoalForm(){formDraft=editing==="__new__"
   ?{id:null,title:"",note:"",tags:[],askReasons:true,metrics:[newMetricDraft()]}
@@ -1116,6 +1151,8 @@ function startGoalForm(){formDraft=editing==="__new__"
   if(!Array.isArray(formDraft.tags))formDraft.tags=[];
   formDraft.metrics.forEach(m=>{if(!("progression"in m))m.progression=null;if(!m.cadence)m.cadence={type:"daily"};if(!("startDate"in m))m.startDate=null;if(!("active"in m))m.active=true;});
   formAcc={1:true,2:true};
+  advOpen={};const _isNew=editing==="__new__";
+  formDraft.metrics.forEach(m=>{advOpen[m.id]=(!_isNew)&&metricHasAdvanced(m);});
   renderGoalForm(true);}
 function renderGoalForm(scroll){const wrap=document.getElementById("goalForm");if(!editing||!formDraft){wrap.innerHTML="";return;}const g=formDraft;
   let mrows="";g.metrics.forEach((m,i)=>{mrows+=metricEditor(m,i);});
@@ -1166,17 +1203,18 @@ function measSub(m,i){const t=m.measurement.type;
     let rows="";for(let s=sm;s>=1;s--)rows+='<div class="rub-row"><span class="sc">'+s+'</span><input class="input" data-rub="'+i+"|"+s+'" placeholder="Mit jelent a(z) '+s+'?" value="'+escA(m.rubric?m.rubric[String(s)]||"":"")+'"/></div>';
     h+='<button class="rub-toggle" type="button" data-rubtoggle="'+i+'">▸ Rubrika (1–'+sm+') fokozatonként</button><div class="rub-editor" data-rubed="'+i+'"><div class="rub-actions"><button class="btn sm" type="button" data-aigen="'+i+'">✨ Generáld AI-val</button></div>'+rows+'</div>';
     const _neu=scaleNeutral(sm),_df=Math.max(1,_neu-1),_dw=Math.min(sm,_neu+1);
-    h+='<div class="subfields"><div class="hint" style="margin-top:10px">Mi számít bukásnak / győzelemnek '+ibtn('threshold')+'</div><div class="qtyrow"><span class="qtyunit">Bukás ≤</span><select class="input qtyin" data-fail="'+i+'">'+optNums(sm,m.measurement.failAt,_df)+'</select><span class="qtyunit">Győzelem ≥</span><select class="input qtyin" data-win="'+i+'">'+optNums(sm,m.measurement.winAt,_dw)+'</select></div></div>';
+    h+='<details class="advanced" data-adv="'+i+'"'+(advIsOpen(m)?' open':'')+'><summary>⚙️ Haladó beállítások<span class="chev">›</span></summary><div class="adv-body"><div class="subfields"><div class="hint" style="margin-top:2px">Mi számít bukásnak / győzelemnek '+ibtn('threshold')+'</div><div class="qtyrow"><span class="qtyunit">Bukás ≤</span><select class="input qtyin" data-fail="'+i+'">'+optNums(sm,m.measurement.failAt,_df)+'</select><span class="qtyunit">Győzelem ≥</span><select class="input qtyin" data-win="'+i+'">'+optNums(sm,m.measurement.winAt,_dw)+'</select></div></div></div></details>';
     return h+'</div>';}
   if(t==="quantity"){const rel=m.measurement.relation||"atleast";return'<div class="subfields"><div class="opt-grid"><button type="button" class="opt'+(rel==="atleast"?" active":"")+'" data-rel="'+i+'|atleast">legalább</button><button type="button" class="opt'+(rel==="exactly"?" active":"")+'" data-rel="'+i+'|exactly">pontosan</button><button type="button" class="opt'+(rel==="atmost"?" active":"")+'" data-rel="'+i+'|atmost">legfeljebb</button></div><div class="qtyrow" style="margin-top:8px"><input class="input qtyin" type="number" data-target="'+i+'" placeholder="cél érték" value="'+(m.measurement.target||"")+'"/><input class="input qtyin" type="text" data-unit="'+i+'" placeholder="mértékegység (kg, liter, db)" value="'+escA(m.measurement.unit||"")+'"/></div>'+progUI(m,i)+'</div>';}
   if(t==="timer"){const u=m.measurement.unit==="óra"?"óra":"perc";return'<div class="subfields"><div class="qtyrow"><span class="qtyunit">Cél:</span><input class="input qtyin" type="number" data-target="'+i+'" placeholder="mennyi" value="'+(m.measurement.target||"")+'"/><button type="button" class="opt'+(u==="perc"?" active":"")+'" data-tunit="'+i+'|perc">perc</button><button type="button" class="opt'+(u==="óra"?" active":"")+'" data-tunit="'+i+'|óra">óra</button></div>'+progUI(m,i)+'</div>';}
   return'';}
 function progUI(m,i){const p=m.progression;const on=!!(p&&p.enabled);
-  let h='<label class="check-row" style="margin-top:10px"><input type="checkbox" data-progtog="'+i+'" '+(on?"checked":"")+'/> Dinamikus cél — a célérték idővel automatikusan nő</label>';
-  if(on){h+='<div class="qtyrow" style="margin-top:8px"><span class="qtyunit">+</span><input class="input qtyin" type="number" data-pamount="'+i+'" placeholder="mennyivel" value="'+(p.amount||"")+'"/><button type="button" class="opt'+(p.every!=="month"?" active":"")+'" data-pevery="'+i+'|week">hetente</button><button type="button" class="opt'+(p.every==="month"?" active":"")+'" data-pevery="'+i+'|month">havonta</button></div><div class="qtyrow" style="margin-top:8px"><span class="qtyunit">Plafon (opc.):</span><input class="input qtyin" type="number" data-pcap="'+i+'" placeholder="max" value="'+(p.cap==null?"":p.cap)+'"/></div>';}
-  return h;}
+  let inner='<label class="check-row" style="margin-top:2px"><input type="checkbox" data-progtog="'+i+'" '+(on?"checked":"")+'/> Dinamikus cél — a célérték idővel automatikusan nő</label>';
+  if(on){inner+='<div class="qtyrow" style="margin-top:8px"><span class="qtyunit">+</span><input class="input qtyin" type="number" data-pamount="'+i+'" placeholder="mennyivel" value="'+(p.amount||"")+'"/><button type="button" class="opt'+(p.every!=="month"?" active":"")+'" data-pevery="'+i+'|week">hetente</button><button type="button" class="opt'+(p.every==="month"?" active":"")+'" data-pevery="'+i+'|month">havonta</button></div><div class="qtyrow" style="margin-top:8px"><span class="qtyunit">Plafon (opc.):</span><input class="input qtyin" type="number" data-pcap="'+i+'" placeholder="max" value="'+(p.cap==null?"":p.cap)+'"/></div>';}
+  return '<details class="advanced" data-adv="'+i+'"'+(advIsOpen(m)?' open':'')+'><summary>⚙️ Haladó beállítások<span class="chev">›</span></summary><div class="adv-body">'+inner+'</div></details>';}
 function bindGoalForm(){
   document.querySelectorAll('#goalForm details.acc').forEach(d=>{d.addEventListener('toggle',()=>{formAcc[d.dataset.acc]=d.open;});});
+  document.querySelectorAll('#goalForm details.advanced').forEach(d=>{d.addEventListener('toggle',()=>{const i=Number(d.dataset.adv);const m=formDraft.metrics[i];if(m)advOpen[m.id]=d.open;});});
   const addTag=()=>{syncForm();const inp=document.getElementById('f-tag');const v=(inp?inp.value:'').trim();if(v&&!formDraft.tags.includes(v))formDraft.tags.push(v);renderGoalForm();const ni=document.getElementById('f-tag');if(ni)ni.focus();};
   const tgb=document.getElementById('addTag');if(tgb)tgb.onclick=addTag;
   const tgi=document.getElementById('f-tag');if(tgi)tgi.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();addTag();}};
@@ -1204,7 +1242,7 @@ function bindGoalForm(){
   const am=document.getElementById('addMetric');if(am)am.onclick=()=>{syncForm();formDraft.metrics.push(newMetricDraft());renderGoalForm();};
   document.querySelectorAll('[data-mdel]').forEach(b=>b.onclick=()=>{syncForm();formDraft.metrics.splice(Number(b.dataset.mdel),1);if(!formDraft.metrics.length)formDraft.metrics.push(newMetricDraft());if(formDraft.metrics.length===1)formDraft.metrics[0].active=true;renderGoalForm();});
   document.querySelectorAll('[data-askr]').forEach(b=>b.onclick=()=>{syncForm();formDraft.askReasons=b.dataset.askr==='1';renderGoalForm();});
-  const cg=document.getElementById('cancelGoal');if(cg)cg.onclick=()=>{editing=null;formDraft=null;renderCelok();};
+  const cg=document.getElementById('cancelGoal');if(cg)cg.onclick=()=>closeScreen();
   const sg=document.getElementById('saveGoal');if(sg)sg.onclick=saveGoal;}
 function syncForm(){const _t=document.getElementById("f-title");if(_t)formDraft.title=_t.value;const _n=document.getElementById("f-note");if(_n)formDraft.note=_n.value;
   document.querySelectorAll("[data-mlabel]").forEach(inp=>{const i=Number(inp.dataset.mlabel);if(formDraft.metrics[i])formDraft.metrics[i].label=inp.value;});
@@ -1225,7 +1263,7 @@ function saveGoal(){syncForm();const title=(formDraft.title||"").trim();if(!titl
     return{id:m.id,label:(m.label||"").trim(),measurement:normMeas(m.measurement),polarity:m.polarity||"positive",active:m.active!==false,cadence:normCad(m.cadence),startDate:m.startDate||null,progression:m.progression||null,askReasons:m.askReasons!==false,rubric:rub};});
   const g=normGoal({id:formDraft.id,title,note:(formDraft.note||"").trim(),tags:formDraft.tags,active:true,askReasons:formDraft.askReasons!==false,metrics},S.settings);
   if(editing==="__new__"){g.id=uid();S.goals.push(g);}else{const idx=S.goals.findIndex(x=>x.id===editing);g.id=editing;S.goals[idx]=g;}
-  save();editing=null;formDraft=null;renderCelok();toast("Cél mentve ✓");}
+  save();toast("Cél mentve ✓");closeScreen();}
 
 /* ---- FIÓK ---- */
 /* ---- AI rubrika: soros queue + backoff + barátságos üzenet ---- */
@@ -1349,6 +1387,7 @@ function renderHaladas(){const el=document.getElementById("tab-haladas");let htm
 let showDoneTodos=false;
 let curTodoFolder=null;      // null = "Összes" nézet
 let todoAddWeight="kozepes"; // teendő súly-választó (Kicsi/Közepes/Nagy) a hozzáadó űrlapon
+let todoAddDue=null;         // hozzáadó sor kiválasztott esedékessége (kompakt 📅 gomb, C2)
 function weightPickHtml(sel,attr){const L=[["kicsi","Kicsi +3"],["kozepes","Közepes +6"],["nagy","Nagy +9"]];
   let h='<div class="daily-add" style="margin-top:8px;gap:6px">';
   for(const[v,t]of L)h+='<button type="button" class="opt'+(sel===v?" active":"")+'" data-'+attr+'="'+v+'">'+t+'</button>';
@@ -1371,7 +1410,7 @@ function renderTeendok(){const el=document.getElementById("maPanel");if(!el)retu
   html+='<button class="fchip add" id="folderAdd">+ Mappa</button></div>';
   if(curTodoFolder)html+='<div class="hint" style="display:flex;gap:12px;align-items:center;margin:0 2px 8px">📁 '+esc(todoFolderName(curTodoFolder))+'<button class="lnk" id="folderRename">átnevez</button><button class="lnk danger" id="folderDel">töröl</button></div>';
   // Hozzáadás
-  html+='<div class="card" style="padding:14px 16px"><div class="daily-add"><input class="input" id="todoInput" placeholder="Új teendő'+(curTodoFolder?' – '+esc(todoFolderName(curTodoFolder)):'')+'…"/><input type="date" class="todo-date" id="todoDueInput" title="Esedékesség (opcionális)"/><button class="btn sm" id="todoAdd">+</button></div>'+weightPickHtml(todoAddWeight,"tw");
+  html+='<div class="card" style="padding:14px 16px"><div class="daily-add"><input class="input" id="todoInput" placeholder="Új teendő'+(curTodoFolder?' – '+esc(todoFolderName(curTodoFolder)):'')+'…"/><label class="datebtn'+(todoAddDue?' has-date':'')+'" title="Esedékesség (opcionális)">📅<input type="date" id="todoDueInput" value="'+(todoAddDue||"")+'"/></label><button class="btn sm" id="todoAdd">+</button></div>'+(todoAddDue?'<div class="hint" style="margin:6px 2px 0">Esedékesség: '+shortDate(todoAddDue)+' <button class="lnk" id="todoDueClear">töröl</button></div>':'')+weightPickHtml(todoAddWeight,"tw");
   if(open.length===0){html+='<div class="hint">'+(curTodoFolder?'Ez a mappa üres. Írj be egy teendőt fent.':'Nincs nyitott teendő. Írj be egyet fent — a napi/heti céloktól függetlenül itt marad, amíg ki nem jelölöd késznek. Koppints a sorra a kijelöléshez, majd nyomd meg az „Elvégezve” gombot. Minden elvégzett teendő pontot ad az össz-haladásnak.')+'</div>';}
   else{html+='<div class="hint" style="margin:0 2px 6px">Koppints a sorokra a kijelöléshez, majd „Elvégezve".</div>';
     if(curTodoFolder===null&&folders.length){
@@ -1392,7 +1431,9 @@ function renderTeendok(){const el=document.getElementById("maPanel");if(!el)retu
     html+='</div>';}
   el.innerHTML=html;
   const add=document.getElementById("todoAdd"),inp=document.getElementById("todoInput");
-  if(add)add.onclick=()=>{const v=inp.value.trim();if(!v)return;const due=(document.getElementById("todoDueInput")||{}).value||null;S.todos=S.todos||[];S.todos.push({id:uid(),text:v,done:false,createdAt:Date.now(),doneAt:null,folder:curTodoFolder||null,due,weight:todoAddWeight,frozenPts:null});save();renderTeendok();};
+  if(add)add.onclick=()=>{const v=inp.value.trim();if(!v)return;const due=todoAddDue||null;S.todos=S.todos||[];S.todos.push({id:uid(),text:v,done:false,createdAt:Date.now(),doneAt:null,folder:curTodoFolder||null,due,weight:todoAddWeight,frozenPts:null});todoAddDue=null;save();renderTeendok();};
+  const dueInp=document.getElementById("todoDueInput");if(dueInp)dueInp.onchange=()=>{todoAddDue=dueInp.value||null;renderTeendok();};
+  const dueClr=document.getElementById("todoDueClear");if(dueClr)dueClr.onclick=()=>{todoAddDue=null;renderTeendok();};
   el.querySelectorAll("[data-tw]").forEach(b=>b.onclick=()=>{todoAddWeight=b.dataset.tw;renderTeendok();});
   if(inp)inp.onkeydown=e=>{if(e.key==="Enter")add.click();};
   el.querySelectorAll("[data-tduedit]").forEach(d=>d.onchange=()=>{const t=(S.todos||[]).find(x=>x.id===d.dataset.tduedit);if(t){t.due=d.value||null;save();renderTeendok();}});
@@ -1432,7 +1473,8 @@ function todoRow(t,isDone){
     +'<span class="todo-box'+(sel?" sel":"")+'">'+(sel?"✓":"")+'</span>'
     +'<span class="di-label">'+esc(t.text)+'</span>'
     +mv+wsel
-    +'<input type="date" class="todo-date" data-tduedit="'+t.id+'" value="'+(t.due||"")+'" onclick="event.stopPropagation()" title="Esedékesség"/>'
+    +(t.due?'<span class="todo-date-chip">'+shortDate(t.due)+'</span>':'')
+    +'<label class="datebtn'+(t.due?' has-date':'')+'"'+(t.due?'':' style="margin-left:auto"')+' onclick="event.stopPropagation()" title="Esedékesség">📅<input type="date" data-tduedit="'+t.id+'" value="'+(t.due||"")+'"/></label>'
     +'<button class="di-del" data-tododel="'+t.id+'" style="margin-left:6px">✕</button></div></div>';}
 function completeSelectedTodos(){if(todoSel.size===0)return;let n=0,pts=0;
   for(const id of todoSel){const t=(S.todos||[]).find(x=>x.id===id);if(t&&!t.done){t.done=true;t.doneAt=Date.now();t.frozenPts=null;n++;pts+=todoPoints(t);}}
@@ -1451,13 +1493,36 @@ function renderKuldetesek(){const el=document.getElementById("tab-kuldetesek");
 
 /* ---- NAV ---- */
 let curTab="ma";
-function switchTab(t){curTab=t;if(t!=="ma")maGoal=null;document.querySelectorAll(".tabbtn").forEach(b=>b.classList.toggle("active",b.dataset.tab===t));
+function switchTab(t){curTab=t;if(t!=="ma")maGoal=null;if(t!=="celok"){editing=null;formDraft=null;}document.querySelectorAll(".tabbtn").forEach(b=>b.classList.toggle("active",b.dataset.tab===t));
   if(t!=="ma"){gateActive=false;gateDismissedThisSession=false;}
   ["ma","celok","kuldetesek","fiok"].forEach(x=>{const s=document.getElementById("tab-"+x);if(s)s.classList.toggle("hidden",x!==t);});
-  document.getElementById("dayfoot").style.display=(t==="ma")?"block":"none";
-  if(t==="ma")renderMa();if(t==="celok")renderCelok();if(t==="kuldetesek")renderKuldetesek();if(t==="fiok")renderFiok();window.scrollTo(0,0);}
+  if(t==="ma")renderMa();if(t==="celok")renderCelok();if(t==="kuldetesek")renderKuldetesek();if(t==="fiok")renderFiok();updateDayFoot();window.scrollTo(0,0);}
 document.querySelectorAll(".tabbtn").forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
-document.getElementById("closeDayBtn").onclick=closeDay;
+
+/* ---- Vissza-navigáció: fix alsó gomb + telefonos vissza-gesztus (A) ----
+   Minden "alnézet" (Ma cél-részlet, Célok szerkesztés, súgó, modal) megnyitáskor
+   betol egy history-bejegyzést. A telefon vissza-gesztusa/gombja így az appon
+   BELÜL lép vissza egyet (popstate), nem lép ki az egész appból. */
+let _screenDepth=0;
+function pushScreen(){_screenDepth++;try{history.pushState({trellis:_screenDepth},"");}catch(e){}}
+function anyScreenOpen(){
+  return !document.getElementById("help").classList.contains("hidden")
+    || !document.getElementById("modal").classList.contains("hidden")
+    || (curTab==="ma"&&!!maGoal)
+    || (curTab==="celok"&&!!editing);}
+function goBack(){
+  // a legfelső nyitott alnézetet zárja; igazat ad, ha kezelt valamit
+  if(!document.getElementById("help").classList.contains("hidden")){document.getElementById("help").classList.add("hidden");return true;}
+  if(!document.getElementById("modal").classList.contains("hidden")){closeModal();return true;}
+  if(curTab==="ma"&&maGoal){maGoal=null;window.scrollTo(0,0);renderMa();updateDayFoot();return true;}
+  if(curTab==="celok"&&editing){editing=null;formDraft=null;renderCelok();updateDayFoot();return true;}
+  return false;}
+/* Egységes záró útvonal: ha van history-buffer, azon keresztül lép (a gesztussal
+   szinkronban marad); különben közvetlenül zár. */
+function closeScreen(){if(_screenDepth>0)history.back();else goBack();}
+/* Fix alsó "Vissza" gomb */
+document.getElementById("footBack").onclick=()=>{if(anyScreenOpen())closeScreen();};
+window.addEventListener("popstate",()=>{if(_screenDepth>0)_screenDepth--;goBack();});
 
 /* ---- Onboarding ---- */
 function showOnboarding(){document.getElementById("onb").classList.remove("hidden");}
@@ -1481,8 +1546,48 @@ function applyTheme(t){if(t&&t!=="arany")document.body.setAttribute("data-theme"
 function setTheme(t){curTheme=t;Store.set("sl_theme",t);applyTheme(t);if(curTab==="fiok")renderFiok();}
 
 /* ---- általános modál ---- */
-function openModal(html){const s=document.getElementById("modalSheet");s.innerHTML=html;document.getElementById("modal").classList.remove("hidden");const c=document.getElementById("mClose");if(c)c.onclick=closeModal;}
+function openModal(html){const s=document.getElementById("modalSheet");s.innerHTML=html;document.getElementById("modal").classList.remove("hidden");pushScreen();const c=document.getElementById("mClose");if(c)c.onclick=()=>closeScreen();}
 function closeModal(){document.getElementById("modal").classList.add("hidden");}
+/* Össz-haladás áttekintő: napi-pont trend + cél×nap rács (D) */
+function showOverview(){
+  const goals=activeGoals();
+  const dayTot=(k)=>{let s=dailyGoalPointsOn(k);const tp=(S.todos||[]).filter(t=>t.done&&t.doneAt&&dk(new Date(t.doneAt))===k).reduce((a,t)=>a+todoPoints(t),0);return s+tp;};
+  const series=[];for(let i=29;i>=0;i--){const k=addDaysKey(TODAY,-i);series.push({k,v:dayTot(k)});}
+  const hasData=series.some(p=>p.v!==0);
+  const N=14,days=[];for(let i=N-1;i>=0;i--)days.push(addDaysKey(TODAY,-i));
+  const WD=["V","H","K","Sze","Cs","P","Szo"];
+  let grid;
+  if(!goals.length)grid='<div class="hint">Még nincs aktív célod.</div>';
+  else{
+    grid='<div style="overflow-x:auto;margin-top:6px"><table class="ovgrid"><thead><tr><th></th>';
+    for(const k of days){const d=keyToDate(k);grid+='<th>'+WD[d.getDay()]+'<br>'+d.getDate()+'</th>';}
+    grid+='</tr></thead><tbody>';
+    const colMiss=days.map(()=>0);
+    for(const g of goals){
+      grid+='<tr><td class="gn" title="'+escA(g.title)+'">'+esc(g.title)+'</td>';
+      days.forEach((k,ci)=>{const sched=g.metrics.some(m=>m.active!==false&&cadenceActiveOn(m,k));
+        let cls='na',ch='·';
+        if(daySkipsGoal(g,k)){cls='na';ch='—';}
+        else if(!sched){cls='na';ch='·';}
+        else if(goalDayComplete(g,k)){cls='ok';ch='✓';}
+        else{cls='miss';ch='✗';colMiss[ci]++;}
+        grid+='<td><div class="ovcell '+cls+'">'+ch+'</div></td>';});
+      grid+='</tr>';
+    }
+    grid+='<tr><td class="gn" style="color:var(--muted-2)">kihagyás</td>';
+    colMiss.forEach(c=>{grid+='<td style="text-align:center">'+(c>0?'<span class="'+(c>=2?'ovcol-miss':'')+'">'+c+'</span>':'<span style="color:var(--muted-2)">·</span>')+'</td>';});
+    grid+='</tr></tbody></table></div>';
+    grid+='<div class="hint" style="margin-top:6px">✓ teljesítve · ✗ kihagyva · — szünet · „·” nincs ütemezve. A piros számú oszlopok (2+ kihagyás egy napon) azt jelzik, mely napokon csúszik együtt több cél.</div>';
+  }
+  const mp=metaPoints(),ml=metaProgFor(mp).L;
+  const best=series.reduce((a,p)=>p.v>a?p.v:a,0);
+  const chart=hasData?('<div class="chart-box">'+svgLine(series,{fixed:false})+'</div><div class="chart-cap">Napi összpont (célok + teendők) az elmúlt 30 napban.</div>'):'<div class="hint">Még nincs elég adat a napi pont trendhez — pontozz be pár napot, és itt megjelenik.</div>';
+  const html='<button class="close-x" id="mClose">✕</button>'
+    +'<h3>Össz-haladás — áttekintés</h3>'
+    +'<div class="stats" style="margin-top:10px"><div class="stat"><div class="n mono" style="color:var(--gold)">'+ml+'</div><div class="l">szint</div></div><div class="stat"><div class="n mono">'+mp+'</div><div class="l">össz pont</div></div><div class="stat"><div class="n mono">'+best+'</div><div class="l">legjobb nap</div></div></div>'
+    +'<div class="section-title" style="margin-top:14px">Napi pont — trend</div>'+chart
+    +'<div class="section-title" style="margin-top:16px">Célok napi teljesítése</div>'+grid;
+  openModal(html);}
 
 /* ---- infó-buborékok ---- */
 const INFO={
@@ -1523,7 +1628,7 @@ const HELP=[
   {id:"vissza",title:"Visszajelzés a fejlesztőnek",keywords:"visszajelzés feedback hiba ötlet fejlesztő üzenet",html:'<p>A <b>Fiók → Visszajelzés</b> alatt küldhetsz üzenetet a fejlesztőnek (opcionálisan elérhetőséggel). Hosszabb üzenet is mehet. A visszajelzés a fejlesztőhöz jut; a tartalmadat rajta kívül más nem olvassa.</p>'},
   {id:"privacy",title:"Adatok és adatvédelem",keywords:"adat adatvédelem privát biztonság hol tárolódik",html:'<p>Az adataid alapból a saját eszközödön (böngésző tárhely) maradnak. Belépve a saját, privát felhő-dokumentumodba szinkronizálnak — más felhasználó nem fér hozzá. A Gemini-kulcs sosem szinkronizál. Bármikor exportálhatsz és törölhetsz.</p>'}
 ];
-function openHelp(anchor){renderHelp("");document.getElementById("help").classList.remove("hidden");if(anchor){setTimeout(()=>{const el=document.getElementById("help-"+anchor);if(el)el.scrollIntoView({behavior:"smooth",block:"start"});},80);}}
+function openHelp(anchor){renderHelp("");document.getElementById("help").classList.remove("hidden");pushScreen();if(anchor){setTimeout(()=>{const el=document.getElementById("help-"+anchor);if(el)el.scrollIntoView({behavior:"smooth",block:"start"});},80);}}
 function renderHelp(q){const sheet=document.getElementById("helpSheet");q=(q||"").toLowerCase().trim();
   const toc=HELP.map(s=>'<a href="#" data-hgo="'+s.id+'">'+esc(s.title)+'</a>').join("");
   const secs=HELP.map(s=>{const hay=(s.title+" "+(s.keywords||"")+" "+s.html).toLowerCase();const hide=q&&!hay.includes(q);
@@ -1531,7 +1636,7 @@ function renderHelp(q){const sheet=document.getElementById("helpSheet");q=(q||""
   const none=q&&HELP.every(s=>!(s.title+" "+(s.keywords||"")+" "+s.html).toLowerCase().includes(q));
   sheet.innerHTML='<button class="close-x" id="helpClose">✕</button><h3>Súgó</h3><p class="hint">Görgess, vagy keress rá egy szóra. A tartalomjegyzékből is ugorhatsz.</p><input class="help-search" id="helpSearch" placeholder="Keresés a súgóban… (pl. gemini, streak, telepítés)" value="'+escA(q)+'"/>'+(q?'':'<div class="toc">'+toc+'</div>')+(none?'<p class="hint" style="margin-top:12px">Nincs találat erre: „'+esc(q)+'". Próbálj más szót (pl. „kulcs", „szünet", „téma").</p>':'')+secs;
   const si=document.getElementById("helpSearch");si.oninput=()=>{const v=si.value;renderHelp(v);const n=document.getElementById("helpSearch");if(n){n.focus();try{n.setSelectionRange(v.length,v.length);}catch(e){}}};
-  document.getElementById("helpClose").onclick=()=>document.getElementById("help").classList.add("hidden");
+  document.getElementById("helpClose").onclick=()=>closeScreen();
   sheet.querySelectorAll("[data-hgo]").forEach(a=>a.onclick=(e)=>{e.preventDefault();const el=document.getElementById("help-"+a.dataset.hgo);if(el)el.scrollIntoView({behavior:"smooth",block:"start"});});}
 
 /* ---- indok-gyűjtés (miértek) + küszöbök ---- */
