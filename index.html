@@ -545,6 +545,9 @@ nav .nav-in .tabbtn svg{width:20px; height:20px;}
 .bible-slider input[type=range]::-moz-range-thumb{width:24px; height:24px; border-radius:50%; background:var(--gold); border:0; cursor:pointer;}
 .bs-step{width:36px; height:36px; flex:0 0 36px; border-radius:50%; background:var(--surface-2); border:1px solid var(--line); color:var(--ink); font-size:18px; line-height:1; font-weight:600;}
 .bs-step:disabled{opacity:.35;}
+.bs-num{flex:1; min-width:0; text-align:center; font-family:var(--disp); font-weight:700; font-size:18px; padding:9px 6px;}
+.bs-unit{font-size:13px; color:var(--muted); flex:0 0 auto;}
+.bible-slider .bs-row{margin-bottom:9px;}
 .bible-readout{background:var(--surface-2); border:1px solid var(--line); border-radius:var(--r-sm); padding:12px 14px; margin-top:12px; font-size:13px; line-height:1.7;}
 .bible-readout b{font-family:var(--disp);}
 .bible-bar{height:12px; border-radius:999px; background:var(--surface-2); border:1px solid var(--line); overflow:hidden; position:relative; margin:10px 0 8px;}
@@ -2267,8 +2270,8 @@ function renderKuldetesek(){const el=document.getElementById("tab-kuldetesek");
    kerülnek S-be és nem szinkronizálnak — app-shell részei.
    ========================================================================= */
 const BIBLE_MONTH_DAYS=30.44;
-const BIBLE_MONTHS=[1,3,6,9,12,18,24];
-const BIBLE_MINUTES=[5,10,15,20,30,45,60];
+const BIBLE_MIN_MIN=1,   BIBLE_MIN_MAX=180;   /* napi olvasás: 1 perc … 3 óra */
+const BIBLE_MON_MIN=1,   BIBLE_MON_MAX=120;   /* céltávlat: 1 hónap … 10 év */
 const BIBLE_CALIB_ID="PSA.1";           /* a kalibráló minta: 1. zsoltár */
 
 let BMETA=null,BBOOKS=null,BMAP=null,BBOOKMAP=null,_bibleLoading=null,_bibleErr=false;
@@ -2420,7 +2423,7 @@ function bibleMaHtml(){
   h+='</div>';
   h+='<div class="section-title">Haladás</div><div class="card" style="padding:16px">'+bibleProgressHtml(pr)+'</div>';
   h+='<div class="section-title">Terv</div><div class="card" style="padding:16px">'+
-     '<div class="hint" style="line-height:1.7">'+esc(bibleScopeName(p.scope))+' · napi ≈ <b>'+Math.round(pr.c.dailyMinutes)+' perc</b> ('+pr.c.avgChaptersDay.toFixed(1).replace(".",",")+' fejezet) · '+
+     '<div class="hint" style="line-height:1.7">'+esc(bibleScopeName(p.scope))+' · napi ≈ <b>'+bibleMinLabel(pr.c.dailyMinutes)+'</b> ('+pr.c.avgChaptersDay.toFixed(1).replace(".",",")+' fejezet) · '+
      'olvasási sebesség <b>'+Math.round(pr.c.wpm)+'</b> szó/perc'+(S.bible.calib.wpm?' (kalibrált)':'')+'<br>Indulás: '+esc(p.startDate)+'</div>'+
      '<div class="rub-actions" style="margin-top:12px"><button class="btn ghost sm" id="bEditPlan">Terv módosítása</button><button class="btn ghost sm" id="bCalib">⏱ Olvasási idő kalibrálása</button></div></div>';
   return h;}
@@ -2561,24 +2564,54 @@ function renderBiblePlanner(){
   el.innerHTML=h;
   bibleBindPlanner(el);}
 
+/* A csúszkák szerkezetét EGYSZER rajzoljuk ki; utána már csak az értékeket
+   frissítjük (bibleSyncSliders), így gépelés közben nem veszik el a fókusz. */
 function bibleSlidersHtml(){
-  const d=biblePlanDraft,c=computeBiblePlan(d);
-  const mi=BIBLE_MINUTES.reduce(function(best,v,i){return Math.abs(v-c.dailyMinutes)<Math.abs(BIBLE_MINUTES[best]-c.dailyMinutes)?i:best;},0);
-  const mo=BIBLE_MONTHS.reduce(function(best,v,i){return Math.abs(v-c.targetMonths)<Math.abs(BIBLE_MONTHS[best]-c.targetMonths)?i:best;},0);
-  let h='';
-  h+='<div class="bible-slider"><div class="bs-top"><span class="bs-lab">Napi olvasás</span><span class="bs-val">'+Math.round(c.dailyMinutes)+' perc</span></div>'+
-     '<div class="bs-row"><button class="bs-step" data-bstep="min:-1">–</button>'+
-     '<input type="range" id="bMinR" min="0" max="'+(BIBLE_MINUTES.length-1)+'" step="1" value="'+mi+'"/>'+
-     '<button class="bs-step" data-bstep="min:1">+</button></div></div>';
-  h+='<div class="bible-slider"><div class="bs-top"><span class="bs-lab">Hány hónap alatt?</span><span class="bs-val">'+bibleMonthsLabel(c.targetMonths)+'</span></div>'+
-     '<div class="bs-row"><button class="bs-step" data-bstep="mon:-1">–</button>'+
-     '<input type="range" id="bMonR" min="0" max="'+(BIBLE_MONTHS.length-1)+'" step="1" value="'+mo+'"/>'+
-     '<button class="bs-step" data-bstep="mon:1">+</button></div></div>';
-  h+='<div class="bible-readout">'+
-     '≈ napi <b>'+Math.round(c.dailyMinutes)+' perc</b> · ≈ <b>'+c.avgChaptersDay.toFixed(1).replace(".",",")+' fejezet</b> átlagosan<br>'+
-     'Ezzel a tempóval <b>'+bibleMonthsLabel(c.targetMonths)+'</b> alatt végzel ('+Math.round(c.plannedDays)+' nap).<br>'+
-     '<span style="color:var(--muted)">'+bibleScopeName(d.scope)+': '+c.list.length+' fejezet, '+c.totalW.toLocaleString("hu-HU")+' szó · '+Math.round(c.dailyWordBudget)+' szó/nap</span></div>';
-  return h;}
+  return ''+
+  '<div class="bible-slider"><div class="bs-top"><span class="bs-lab">Napi olvasás</span><span class="bs-val" id="bMinV"></span></div>'+
+    '<div class="bs-row"><button class="bs-step" data-bstep="min:-1">–</button>'+
+      '<input class="input bs-num" id="bMinN" type="text" inputmode="decimal" autocomplete="off"/>'+
+      '<span class="bs-unit">perc</span>'+
+      '<button class="bs-step" data-bstep="min:1">+</button></div>'+
+    '<input type="range" id="bMinR" min="'+BIBLE_MIN_MIN+'" max="'+BIBLE_MIN_MAX+'" step="1"/></div>'+
+  '<div class="bible-slider"><div class="bs-top"><span class="bs-lab">Hány hónap alatt?</span><span class="bs-val" id="bMonV"></span></div>'+
+    '<div class="bs-row"><button class="bs-step" data-bstep="mon:-1">–</button>'+
+      '<input class="input bs-num" id="bMonN" type="text" inputmode="decimal" autocomplete="off"/>'+
+      '<span class="bs-unit">hónap</span>'+
+      '<button class="bs-step" data-bstep="mon:1">+</button></div>'+
+    '<input type="range" id="bMonR" min="'+BIBLE_MON_MIN+'" max="'+BIBLE_MON_MAX+'" step="1"/></div>'+
+  '<div class="bible-readout" id="bReadout"></div>';}
+
+function bibleMinLabel(m){
+  m=Math.round(m*10)/10;
+  if(m<60)return String(m).replace(".",",")+" perc";
+  const h=Math.floor(m/60),r=Math.round(m-h*60);
+  return r===0?(h+" óra"):(h+" ó "+r+" p");}
+
+/* "12,5" és "12.5" is elfogadott (magyar tizedesvessző) */
+function bibleNum(v){const n=parseFloat(String(v==null?"":v).replace(",","."));return isFinite(n)?n:null;}
+function bibleClamp(v,lo,hi){return Math.max(lo,Math.min(hi,v));}
+
+function bibleReadoutHtml(c,d){
+  return '≈ napi <b>'+bibleMinLabel(c.dailyMinutes)+'</b> · ≈ <b>'+c.avgChaptersDay.toFixed(1).replace(".",",")+' fejezet</b> átlagosan<br>'+
+    'Ezzel a tempóval <b>'+bibleMonthsLabel(c.targetMonths)+'</b> alatt végzel ('+Math.round(c.plannedDays)+' nap).<br>'+
+    '<span style="color:var(--muted)">'+bibleScopeName(d.scope)+': '+c.list.length+' fejezet, '+c.totalW.toLocaleString("hu-HU")+' szó · '+Math.round(c.dailyWordBudget)+' szó/nap</span>';}
+
+/* skip = annak a mezőnek az id-je, amibe a felhasználó ÉPPEN gépel (azt nem írjuk felül) */
+function bibleSyncSliders(skip){
+  const d=biblePlanDraft;if(!d)return;
+  const c=computeBiblePlan(d);
+  const minv=Math.round(c.dailyMinutes*10)/10, monv=Math.round(c.targetMonths*10)/10;
+  function set(id,val){const e=document.getElementById(id);if(e&&id!==skip)e.value=val;}
+  /* a beírható mezőkbe magyar alakban (tizedesvesszővel) kerül vissza az érték */
+  function setNum(id,val){set(id,String(Math.round(val*10)/10).replace(".",","));}
+  setNum("bMinN",minv);
+  set("bMinR",bibleClamp(Math.round(minv),BIBLE_MIN_MIN,BIBLE_MIN_MAX));
+  setNum("bMonN",monv);
+  set("bMonR",bibleClamp(Math.round(monv),BIBLE_MON_MIN,BIBLE_MON_MAX));
+  const mv=document.getElementById("bMinV");if(mv)mv.textContent=bibleMinLabel(c.dailyMinutes);
+  const ov=document.getElementById("bMonV");if(ov)ov.textContent=bibleMonthsLabel(c.targetMonths);
+  const r=document.getElementById("bReadout");if(r)r.innerHTML=bibleReadoutHtml(c,d);}
 function bibleMonthsLabel(m){
   if(m<1)return Math.max(1,Math.round(m*BIBLE_MONTH_DAYS))+" nap";
   if(m<12)return (Math.round(m*10)/10).toString().replace(".",",")+" hónap";
@@ -2588,24 +2621,31 @@ function bibleMonthsLabel(m){
 function bibleBindPlanner(el){
   const d=biblePlanDraft;
   el.querySelectorAll("[data-bscope]").forEach(function(b){b.onclick=function(){d.scope=b.dataset.bscope;renderBiblePlanner();};});
-  function refresh(){const s=document.getElementById("bSliders");if(s)s.innerHTML=bibleSlidersHtml();bibleBindSliders();}
-  function bibleBindSliders(){
+  const refresh=bibleSyncSliders;
+  (function bindSliders(){
     const mr=document.getElementById("bMinR"),or=document.getElementById("bMonR");
-    if(mr)mr.oninput=function(){d.pin="time";d.dailyMinutes=BIBLE_MINUTES[Number(mr.value)];refresh();};
-    if(or)or.oninput=function(){d.pin="months";d.targetMonths=BIBLE_MONTHS[Number(or.value)];refresh();};
+    const mn=document.getElementById("bMinN"),on=document.getElementById("bMonN");
+    if(mr)mr.oninput=function(){d.pin="time";d.dailyMinutes=Number(mr.value);bibleSyncSliders("bMinR");};
+    if(or)or.oninput=function(){d.pin="months";d.targetMonths=Number(or.value);bibleSyncSliders("bMonR");};
+    /* gépelés közben: csak ha értelmes szám — a mezőt magát nem írjuk felül */
+    if(mn)mn.oninput=function(){const v=bibleNum(mn.value);if(v==null||v<=0)return;
+      d.pin="time";d.dailyMinutes=bibleClamp(v,BIBLE_MIN_MIN,BIBLE_MIN_MAX);bibleSyncSliders("bMinN");};
+    if(on)on.oninput=function(){const v=bibleNum(on.value);if(v==null||v<=0)return;
+      d.pin="months";d.targetMonths=bibleClamp(v,0.25,BIBLE_MON_MAX);bibleSyncSliders("bMonN");};
+    /* kilépéskor rendbe tesszük (üres/hibás bevitel -> vissza az érvényes értékre) */
+    if(mn)mn.onblur=function(){const v=bibleNum(mn.value);
+      d.pin="time";d.dailyMinutes=bibleClamp(v||15,BIBLE_MIN_MIN,BIBLE_MIN_MAX);bibleSyncSliders();};
+    if(on)on.onblur=function(){const v=bibleNum(on.value);
+      d.pin="months";d.targetMonths=bibleClamp(v||12,0.25,BIBLE_MON_MAX);bibleSyncSliders();};
+    /* –/+ : pontosan EGY perccel, illetve EGY hónappal lép */
     el.querySelectorAll("[data-bstep]").forEach(function(b){b.onclick=function(){
       const parts=b.dataset.bstep.split(":"),dir=Number(parts[1]);
       const c=computeBiblePlan(d);
-      if(parts[0]==="min"){
-        let i=BIBLE_MINUTES.reduce(function(best,v,k){return Math.abs(v-c.dailyMinutes)<Math.abs(BIBLE_MINUTES[best]-c.dailyMinutes)?k:best;},0);
-        i=Math.max(0,Math.min(BIBLE_MINUTES.length-1,i+dir));
-        d.pin="time";d.dailyMinutes=BIBLE_MINUTES[i];
-      }else{
-        let i=BIBLE_MONTHS.reduce(function(best,v,k){return Math.abs(v-c.targetMonths)<Math.abs(BIBLE_MONTHS[best]-c.targetMonths)?k:best;},0);
-        i=Math.max(0,Math.min(BIBLE_MONTHS.length-1,i+dir));
-        d.pin="months";d.targetMonths=BIBLE_MONTHS[i];}
-      refresh();};});}
-  bibleBindSliders();
+      if(parts[0]==="min"){d.pin="time";d.dailyMinutes=bibleClamp(Math.round(c.dailyMinutes)+dir,BIBLE_MIN_MIN,BIBLE_MIN_MAX);}
+      else{d.pin="months";d.targetMonths=bibleClamp(Math.round(c.targetMonths)+dir,BIBLE_MON_MIN,BIBLE_MON_MAX);}
+      bibleSyncSliders();};});
+    bibleSyncSliders();
+  })();
   const w=document.getElementById("bWpm");
   if(w)w.onchange=function(){d.wpm=Math.max(30,Math.min(1500,Number(w.value)||200));refresh();};
   const cb=document.getElementById("bCalib");if(cb)cb.onclick=openBibleCalib;
