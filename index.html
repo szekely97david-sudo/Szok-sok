@@ -829,8 +829,7 @@ function metricDayPoints(gid,mid,dayObj){const g=goalById(gid);const m=g&&g.metr
   if(m.noScore)return null;   /* tiszta kapcsoló-kapu: rögzítjük, de nem pontozzuk */
   const fz=dayObj.frozen&&dayObj.frozen[gid];if(fz&&Object.prototype.hasOwnProperty.call(fz,mid))return fz[mid];
   let p=(m.cadence.type==="tally")?tallyDayPoints(Number(e[mid])||0,m):metricPoints(m,e[mid]);
-  /* Bepótlás: az utólag rögzített alkalom a pont 75%-át éri (a veszteség nem csökken). */
-  if(p!=null&&p>0&&isMakeup(dayObj,gid,mid))p=Math.round(p*MAKEUP_FACTOR);
+  /* Az utólag rögzített alkalom TELJES értékű — nincs bepótlás-levonás. */
   return p;}
 function goalDayPoints(gid,dayObj){const g=goalById(gid);if(!g||!dayObj)return null;
   let vals=[];for(const m of g.metrics){if(m.active===false)continue;const p=metricDayPoints(gid,m.id,dayObj);if(p!=null)vals.push(p);}
@@ -863,14 +862,16 @@ function metaProgFor(t){const L=metaLevelFromPts(t),lo=metaFloorFor(L),hi=metaFl
 function checkMetaLevel(){const L=metaProgFor(metaPoints()).L;
   if(S.metaLevelSeen==null){S.metaLevelSeen=L;persist();return;}
   if(L>S.metaLevelSeen){const prev=S.metaLevelSeen;S.metaLevelSeen=L;persist();
-    if(L>=2&&prev<2){playMetaLevelVideo();}else{celebrate("🌱","Össz-haladás — "+L+". szint!");}}}
+    /* A 2. szint videója egyelőre KI van kapcsolva (playMetaLevelVideo megmarad,
+       csak nem hívjuk) — minden szintlépés az egységes ünneplést kapja. */
+    celebrate("🌱","Össz-haladás — "+L+". szint!");}}
 function metaCardHtml(){const mp=metaPoints();const g=metaProgFor(mp);const unlocked=(S.metaLevelSeen||1)>=2;
-  const icon=unlocked?'<div class="lvicon" id="metaLvIcon"><img src="data:image/jpeg;base64,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" alt="szint ikon"/></div>':'';
+  const icon='';   /* a 2. szintes videó zárókép-ikonja egyelőre nincs kirakva */
   return '<div class="lvlcard" id="metaCard" style="margin-top:8px;background:linear-gradient(135deg,var(--gold-soft),var(--surface));position:relative;cursor:pointer">'
     +icon
     +'<div class="lh"><span class="big mono">'+g.L+'</span><span><div class="t">Össz-haladás <span style="color:var(--muted-2);font-family:var(--disp);font-weight:600;font-size:12px">› áttekintés</span></div><div class="p">'+mp+' pont · minél sikeresebben teljesíted a céljaid és teendőid, annál több pontot kapsz</div></span></div>'
     +'<div class="bar"><i style="width:'+(g.pct*100).toFixed(1)+'%"></i></div>'
-    +'<div class="barmeta'+(unlocked?' with-icon':'')+'"><span>'+g.into+' / '+g.span+'</span><span>köv. szintig: '+Math.max(0,(g.hi-mp))+'</span></div></div>';}
+    +'<div class="barmeta"><span>'+g.into+' / '+g.span+'</span><span>köv. szintig: '+Math.max(0,(g.hi-mp))+'</span></div></div>';}
 
 /* ---- cadence (mérce-szintű: minden alcél saját cadence/startDate-et hordoz) ---- */
 function goalStartOk(m,k){return!m.startDate||k>=m.startDate;}
@@ -899,11 +900,10 @@ function flexBudget(gid,mid,refKey){const fp=flexProgress(gid,mid,refKey||selDay
 /* ---- ÜTEMEZÉS-TISZTASÁG + BEPÓTLÁS (2026-07-19, 2. kör) --------------------
    · esedékes nap  = ütemezve van ÉS napi rögzítést kér ÉS nem szünet ÉS a kapu engedi
    · lefedés       = nem ütemezett napon rögzítettél, és azt mondtad: „ezzel letudtam a kijelölt napot"
-   · bepótlás      = elmúlt esedékes napra utólag rögzítesz; az alkalom a pont 75%-át éri,
-                     a széria nem törik, de az adaton ott marad a jelölő
-   · kihagyás      = esedékes nap, se rögzítés, se lefedés: 1 joker ingyen, utána
-                     egymás után növekvő levonás (nem visszamenőleg — csak S.missFrom óta) */
-const MAKEUP_FACTOR=0.75;                 // a bepótolt alkalom ennyit ér
+   · bepótlás      = elmúlt napra utólag rögzítesz; TELJES értékű (nincs levonás, nincs
+                     határidő); a day.makeup adat megmarad, de a felületen nem jelöljük
+   · kihagyás      = esedékes nap, se rögzítés, se lefedés: megtöri a szériát, és
+                     1 joker után egymás után növekvő levonás (csak S.missFrom óta) */
 const MISS_STEP=3, MISS_CAP=15;           // a 2. egymás utáni kihagyástól −3, −6, −9 … max −15
 function metricScheduledOn(m,k){return m.active!==false&&goalStartOk(m,k)&&cadenceActiveOn(m,k);}
 function goalScheduledOn(g,k){return g.metrics.some(m=>metricScheduledOn(m,k));}
@@ -914,13 +914,10 @@ function coverKeyOf(gid,mid,k){for(let i=-7;i<=7;i++){if(i===0)continue;const kk
     if(d&&d.covers&&d.covers[gid]&&d.covers[gid][mid]===k)return kk;}return null;}
 function isCovered(gid,mid,k){return !!coverKeyOf(gid,mid,k);}
 function metricSettledOn(gid,mid,k){return hasEntry(gid,mid,k)||isCovered(gid,mid,k);}
-/* „Időben rendezve": a bepótlás CSAK másnap érvényes. A később pótolt nap pontot még ad
-   (75%), de a kihagyás levonását és a széria-szakadást már nem tünteti el. */
-function settledInTime(gid,mid,k){if(isCovered(gid,mid,k))return true;
-  if(!hasEntry(gid,mid,k))return false;
-  const d=S.days[k];const mk=d.makeup&&d.makeup[gid]&&d.makeup[gid][mid];
-  return !mk||mk<=addDaysKey(k,1);}
-function isLateMakeup(gid,mid,k){return hasEntry(gid,mid,k)&&!settledInTime(gid,mid,k);}
+/* „Rendezve": a nap le van zárva — mindegy, mikor rögzítetted. Bármikor pótolható,
+   teljes értékben; ami tényleg kimaradt, az viszont megtöri a szériát. */
+function settledInTime(gid,mid,k){return metricSettledOn(gid,mid,k);}
+function isLateMakeup(){return false;}
 /* A lefedendő nap: a legközelebbi ütemezett, még nem rendezett nap (holtversenynél a jövőbeli). */
 function coverTargetFor(g,m,fromKey){let best=null,bd=99;
   for(let i=1;i<=6;i++){for(const s of[i,-i]){const k=addDaysKey(fromKey,s);
@@ -1070,7 +1067,15 @@ function mainAchievedOn(g,k){const main=mainMetricOf(g);if(!main)return null;
   const d=S.days[k];const e=d&&d.entries&&d.entries[g.id];if(!e||e[main.id]==null)return null;
   if(main.cadence&&main.cadence.type==="avoid")return !avoidSlipped(g,main,k);
   const p=metricPoints(main,e[main.id]);return p!=null&&p>0;}
-function metricRequiredOn(g,m,k){if(!m.dependsOnMain)return true;if(m===mainMetricOf(g))return true;return mainAchievedOn(g,k)===true;}
+/* „Elhagyni" jellegű mérce: fordított naplózás (avoid), VAGY sima ütemezés negatív
+   polaritással (pl. napi igen/nem „dopamin detox" — a „Tiszta ✓" a siker). Mindkettőnél
+   a teljesítés azt jelenti, hogy nem csináltad a dolgot. */
+function isAvoidStyle(m){return !!m&&(((m.cadence&&m.cadence.type)==="avoid")||(m.polarity||"positive")==="negative");}
+function metricRequiredOn(g,m,k){if(!m.dependsOnMain)return true;const main=mainMetricOf(g);if(m===main)return true;
+  /* Elhagyni-típusú fő célnál nincs mit részletezni: tiszta napon az alcélok is nyilván
+     tiszták, megcsúszáskor pedig nem nyaggatunk értük. Soha nem kérjük számon őket. */
+  if(isAvoidStyle(main))return false;
+  return mainAchievedOn(g,k)===true;}
 /* ---- CÉL-FORMA (struktúra) --------------------------------------------------
    A cél „formája" nem külön tárolt mező, hanem a meglévő kapcsolókból SZÁRMAZTATOTT:
      · metrics.length===1                → Egyszerű  (nincs alcél)
@@ -1139,7 +1144,7 @@ function gateInfo(){const out=[];const keys=Object.keys(S.days);if(!keys.length)
   return out;}
 function showGateModal(days){
   let html='<button class="close-x" id="mClose">✕</button><h3>⏳ Van lezáratlan célod</h3>'
-    +'<p class="hint">A tegnapi napod még nincs lezárva — bepótolni ma tudod (az alkalom '+Math.round(MAKEUP_FACTOR*100)+'%-ot ér, a széria nem törik). A fordított naplózású (magától tiszta) és a rugalmas (heti Nx) célok nem kérnek napi lezárást, ezeket nem soroljuk ide.</p>';
+    +'<p class="hint">A tegnapi napod még nincs lezárva — utólag is rögzítheted, teljes értékben. A fordított naplózású (magától tiszta) és a rugalmas (heti Nx) célok nem kérnek napi lezárást, ezeket nem soroljuk ide.</p>';
   for(const d of days){html+='<div class="card" style="padding:10px 12px;margin-top:8px">'
     +'<div style="display:flex;align-items:center;gap:8px"><b>'+esc(pretty(keyToDate(d.k)))+'</b>'
     +'<button class="btn ghost sm" style="margin-left:auto" data-gatejump="'+d.k+'">Ugrás</button></div>'
@@ -1156,7 +1161,6 @@ function metricStreak(gid,mid,refKey){const g=goalById(gid);const m=findMetric(g
   for(let i=0;i<400;i++){const k=dk(d);if(m.startDate&&k<m.startDate)break;
     if(daySkipsGoal(g,k)||!cadenceActiveOn(m,k)){d.setDate(d.getDate()-1);continue;}
     if(isCovered(gid,mid,k)){n++;d.setDate(d.getDate()-1);continue;}   /* más napon letudott kijelölt nap */
-    if(isLateMakeup(gid,mid,k))break;                                  /* későn pótolt: a széria már megszakadt */
     const good=metricGoodOn(g,m,k);if(good===true){n++;d.setDate(d.getDate()-1);}else break;}return n;}
 /* ---- avoid (fordított naplózás): a nap alapból tiszta; a széria csak megcsúszáskor szakad ---- */
 function avoidSlipped(g,m,k){const d=S.days[k];const e=d&&d.entries&&d.entries[g.id];return !!(e&&Number(e[m.id])===0);}
@@ -1172,10 +1176,7 @@ function tallyLifetime(gid,mid){let s=0;for(const k in S.days)s+=tallyCount(gid,
 /* Kijelzett pont: a „csak kapcsoló” mércénél nincs pont, ne is írjunk ki semmit.
    (A metricPoints maga változatlan marad — a kapu-logika abból dönti el, teljesült-e.) */
 function dispPoints(metric,value,gid){if(metric&&metric.noScore)return null;
-  let p=metricPoints(metric,value);
-  /* bepótolt alkalomnál a kijelzett pont is a 75%-ot mutassa — ne legyen eltérés a valósághoz képest */
-  if(p!=null&&p>0&&gid&&isMakeup(S.days[selDay],gid,metric.id))p=Math.round(p*MAKEUP_FACTOR);
-  return p;}
+  return metricPoints(metric,value);}
 function ptsLine(p){if(p==null)return'<div class="m-delta"></div>';const cls=p>0?"pos":(p<0?"neg":"");const t=p>0?"+"+p+" pont":(p<0?p+" pont":"semleges");return'<div class="m-delta '+cls+'">'+t+'</div>';}
 function scaleDots(gid,mid,sm,val,rubric,pol){sm=sm||cfg().scaleMax;const neu=scaleNeutral(sm);let dots='<div class="scale">';
   for(let i=1;i<=sm;i++){const sel=Number(val)===i;const good=pol==="negative"?(i<neu):(i>neu);const bad=pol==="negative"?(i>neu):(i<neu);
@@ -1305,8 +1306,7 @@ function dayBanner(g){let h='';
   if(!goalScheduledOn(g,selDay)){
     h+='<div class="daybanner off">📅 <b>Ma nem esedékes.</b> Nyugodtan rögzíthetsz — utána megkérdezem, letudtad-e vele a kijelölt napot, vagy ez csak egy plusz.</div>';
   }else if(selDay<TODAY&&unsettled.length){
-    if(selDay===yest)h+='<div class="daybanner makeup">⏳ <b>Bepótlod?</b> Rögzítsd most: az alkalom a pont '+Math.round(MAKEUP_FACTOR*100)+'%-át éri, és a széria nem törik meg.</div>';
-    else h+='<div class="daybanner late">🔒 <b>Ez a nap már nem pótolható</b> — bepótolni csak másnap lehet. Rögzítheted a napló kedvéért ('+Math.round(MAKEUP_FACTOR*100)+'% pont), de a kihagyás levonása megmarad.</div>';
+    h+='<div class="daybanner makeup">⏳ <b>Bepótlod?</b> Rögzítsd nyugodtan — az utólagos rögzítés teljes értékű, levonás nélkül.</div>';
   }
   const warns=g.metrics.map(m=>({m,w:missWarn(g,m)})).filter(x=>x.w);
   if(warns.length&&selDay===TODAY){const w=warns.reduce((a,b)=>b.w.run>a.w.run?b:a);
@@ -1353,11 +1353,16 @@ function goalDetailHtml(g){const dobj=ensureDay(selDay);const e=(dobj.entries&&d
   const wrapCard=(m,cls)=>'<div class="card'+(cls||'')+'" style="margin-top:10px"><div class="g-body" style="display:block;border-top:0">'
       +scoreTag(m)+(m.cadence.type==="avoid"?avoidDetailBlock(g,m,e):metricBlock(g,m,dobj,e))+'</div></div>';
   if(shape==="gate"&&mainM){
-    html+='<div class="shape-note">🚪 <b>Kapu cél.</b> Előbb a fő kérdés — ha nem, az alcélok ma nem esedékesek (nem bukás).</div>';
+    const avoidMain=isAvoidStyle(mainM);
+    html+=avoidMain
+      ?'<div class="shape-note">🚪 <b>Kapu cél — elhagyni.</b> Ha a fő cél tiszta, az alcélok is azok; az alcélok soha nem kötelezők, csak ha külön naplózni akarod őket.</div>'
+      :'<div class="shape-note">🚪 <b>Kapu cél.</b> Előbb a fő kérdés — ha nem, az alcélok ma nem esedékesek (nem bukás).</div>';
     html+=wrapCard(mainM,'');
-    const ach=mainAchievedOn(g,selDay);
+    const ach=avoidMain?null:mainAchievedOn(g,selDay);
     const gated=subs.filter(m=>m.dependsOnMain),free=subs.filter(m=>!m.dependsOnMain);
-    if(ach===false){
+    if(avoidMain){
+      for(const m of gated)html+=wrapCard(m,' nested');
+    }else if(ach===false){
       html+='<div class="gated-off">Ma nem esedékes — a fő cél nem teljesült. '+gated.length+' alcél kihagyva, ez nem számít bukásnak.</div>';
     }else{
       if(ach==null&&gated.length)html+='<div class="hint" style="margin:10px 2px 0">Válaszolj előbb a fő kérdésre — utána élesednek az alcélok.</div>';
@@ -1441,9 +1446,9 @@ function metricBlock(g,m,dobj,e){const isTally=m.cadence.type==="tally",isAvoid=
   const lv=progFor(metricLifetime(g.id,m.id));
   const fireTxt=isTally?('Σ'+tallyLifetime(g.id,m.id)):('🔥'+metricStreak(g.id,m.id,selDay));
   const lvTxt=' · Lv '+lv.L;
-  /* Jelölők: bepótolt alkalom, illetve más napon letudott kijelölt nap. */
+  /* Jelölő: más napon letudott kijelölt nap. (Az utólagos rögzítés teljes értékű, ezért
+     nem jelöljük külön — a day.makeup adat megmarad, csak nem jelenik meg.) */
   let marks='';
-  if(isMakeup(dobj,g.id,m.id))marks+='<div class="mk-tag'+(isLateMakeup(g.id,m.id,selDay)?' late':'')+'">⏳ bepótolt alkalom — '+Math.round(MAKEUP_FACTOR*100)+'% pont'+(isLateMakeup(g.id,m.id,selDay)?' · későn pótolva, a kihagyás levonása megmarad':' · a széria nem tört meg')+'</div>';
   const cov=coverKeyOf(g.id,m.id,selDay);
   if(cov)marks+='<div class="mk-tag cover">✓ ezt a kijelölt napot a(z) '+shortDate(cov)+' napi alkalom letudta</div>';
   return'<div class="metric"><div class="m-top"><span class="m-label">'+esc(m.label||g.title)+'</span><span class="m-lv">'+fireTxt+lvTxt+'</span></div>'+marks+ctrl+'</div>';}
@@ -1547,7 +1552,7 @@ function afterRecord(gid,mid,had){
   if(!metricNeedsDailyRecord(m))return false;             /* számláló / rugalmas / fordított: nincs napi esedékesség */
   if(selDay<TODAY&&metricDueOn(g,m,selDay)){
     markMakeup(d,gid,mid);persist();
-    toast("Bepótolva — az alkalom "+Math.round(MAKEUP_FACTOR*100)+"%-ot ér, a széria nem törik ✓");
+    toast("Bepótolva — teljes értékű, levonás nélkül ✓");
     return false;}
   if(!cadenceActiveOn(m,selDay)&&goalStartOk(m,selDay)&&!daySkipsGoal(g,selDay))return askCover(g,m,selDay);
   return false;}
