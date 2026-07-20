@@ -577,6 +577,25 @@ nav .nav-in .tabbtn svg{width:20px; height:20px;}
 .bible-stats .bst .bsl{font-size:11px; color:var(--muted); margin-top:2px;}
 .bible-calib{font-family:var(--disp); font-weight:700; font-size:44px; text-align:center; letter-spacing:1px; margin:6px 0 2px;}
 .bible-calibtext{max-height:46vh; overflow:auto; background:var(--surface-2); border:1px solid var(--line); border-radius:var(--r-sm); padding:13px 14px; margin:10px 0; font-size:16px; line-height:1.85;}
+/* ---- Biblia kvíz ---- */
+.quiz-set{margin-top:12px;}
+.quiz-set-lab{font-size:12px; color:var(--muted); margin-bottom:6px;}
+.seg.sm.quiz-seg button{padding:8px 0; font-size:13px;}
+.quiz-loading{margin-top:14px; font-size:15px; color:var(--muted); display:flex; align-items:center; gap:9px;}
+.quiz-top{display:flex; align-items:center; justify-content:space-between; gap:8px; margin:2px 0 12px; font-size:12px; color:var(--muted);}
+.quiz-diff{font-size:11px; padding:3px 10px; border-radius:999px; border:1px solid var(--gold-line); background:var(--gold-soft); color:var(--gold);}
+.quiz-diff.vh{border-color:var(--loss); background:rgba(220,80,80,.10); color:var(--loss);}
+.quiz-q{font-family:var(--disp); font-weight:700; font-size:19px; line-height:1.5; margin:4px 0 15px;}
+.quiz-opts{display:flex; flex-direction:column; gap:9px;}
+.quiz-opt{text-align:left; padding:14px 15px; border-radius:var(--r-sm); background:var(--surface-2); border:1px solid var(--line); color:var(--ink); font-size:15px; line-height:1.45;}
+.quiz-opt:disabled{opacity:1;}
+.quiz-opt.correct{background:var(--gold-soft); border-color:var(--gold); color:var(--ink); font-weight:600;}
+.quiz-opt.wrong{background:rgba(220,80,80,.12); border-color:var(--loss);}
+.quiz-reveal{margin-top:14px; padding:11px 13px; border-radius:var(--r-sm); font-size:14px; line-height:1.6;}
+.quiz-reveal.ok{background:var(--gold-soft); border:1px solid var(--gold-line);}
+.quiz-reveal.no{background:rgba(220,80,80,.10); border:1px solid var(--loss);}
+.quiz-actions{display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;}
+.quiz-score{font-family:var(--disp); font-weight:700; font-size:46px; text-align:center; color:var(--gold); margin:12px 0 0; letter-spacing:1px;}
 </style>
 <header>
   <div class="wrap"><div class="hdr">
@@ -734,6 +753,15 @@ function migrateGoalV3(g,settings){const sm=(settings&&settings.scaleMax)||10;
 /* ---- Biblia modul állapot-normalizálás (v9) ----
    A modul a felhasználói adat része (S.bible) -> a meglévő úton szinkronizál.
    Kikapcsolva semmi nem változik; hiányzó mezőknél alapérték. */
+function normBibleQuiz(q){q=(q&&typeof q==="object")?q:{};
+  const st=(q.settings&&typeof q.settings==="object")?q.settings:{};
+  const total=[5,10,15,20].indexOf(Number(st.total))>=0?Number(st.total):10;
+  let review=[0,3,5].indexOf(Number(st.review))>=0?Number(st.review):3;
+  if(review>=total)review=Math.max(0,total-1);
+  const seen=(q.seen&&typeof q.seen==="object")?q.seen:{};
+  const wrong={};
+  if(q.wrong&&typeof q.wrong==="object")for(const k in q.wrong){const w=q.wrong[k];if(w&&typeof w==="object")wrong[k]={count:Number(w.count)||1,lastDate:String(w.lastDate||""),q:(w.q&&typeof w.q==="object")?w.q:null};}
+  return{enabled:q.enabled!==false,settings:{total:total,review:review},seen:seen,wrong:wrong,history:Array.isArray(q.history)?q.history.slice(-200):[]};}
 function normBible(b){b=b||{};
   const o={enabled:!!b.enabled,plan:null,calib:{wpm:null,runs:[]},updatedAt:Number(b.updatedAt)||0};
   if(b.calib&&typeof b.calib==="object"){
@@ -753,7 +781,7 @@ function normBible(b){b=b||{};
       cursor:p.cursor||"GEN.1",
       read:(p.read&&typeof p.read==="object")?p.read:{},
       bankDays:Number(p.bankDays)||0,
-      quiz:(p.quiz&&typeof p.quiz==="object")?{enabled:p.quiz.enabled!==false,history:Array.isArray(p.quiz.history)?p.quiz.history:[]}:{enabled:true,history:[]}};}
+      quiz:normBibleQuiz(p.quiz)};}
   return o;}
 
 function normalize(s){const b=blank();if(!s)return b;
@@ -1972,10 +2000,11 @@ function saveGoal(){if(commitDraft()){toast("Cél mentve ✓");closeScreen();}}
 let GQ=Promise.resolve();let gLimitedUntil=0;
 function friendlyLimitMsg(){const mins=Math.max(1,Math.ceil((gLimitedUntil-Date.now())/60000));return"Elérted a Gemini ingyenes percenkénti limitjét. Amit beírtál, elmentve marad — próbáld újra kb. "+mins+" perc múlva.";}
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
-async function geminiCall(system,user){
+async function geminiCall(system,user,gen){
   if(!GKEY)throw new Error("Adj meg egy Gemini-kulcsot a Fiók fülön");
   if(Date.now()<gLimitedUntil)throw new Error(friendlyLimitMsg());
-  const reqBody=JSON.stringify({systemInstruction:{parts:[{text:system}]},contents:[{role:"user",parts:[{text:user}]}],generationConfig:{temperature:0.4,responseMimeType:"application/json"}});
+  const generationConfig=Object.assign({temperature:0.4,responseMimeType:"application/json"},gen||{});
+  const reqBody=JSON.stringify({systemInstruction:{parts:[{text:system}]},contents:[{role:"user",parts:[{text:user}]}],generationConfig:generationConfig});
   const tries=[...new Set([GMODEL,"gemini-2.5-flash","gemini-2.5-flash-lite"].filter(Boolean))];
   let lastErr=null;
   for(const model of tries){
@@ -2421,6 +2450,7 @@ function bibleMaHtml(){
     if(todayRead)h+='<div class="hint" style="margin-top:9px">Ma már <b>'+todayRead+'</b> fejezetet rögzítettél. Nyugodtan olvashatsz előre.</div>';
   }
   h+='</div>';
+  h+=bibleQuizCardHtml();
   h+='<div class="section-title">Haladás</div><div class="card" style="padding:16px">'+bibleProgressHtml(pr)+'</div>';
   h+='<div class="section-title">Terv</div><div class="card" style="padding:16px">'+
      '<div class="hint" style="line-height:1.7">'+esc(bibleScopeName(p.scope))+' · napi ≈ <b>'+bibleMinLabel(pr.c.dailyMinutes)+'</b> ('+pr.c.avgChaptersDay.toFixed(1).replace(".",",")+' fejezet) · '+
@@ -2683,6 +2713,11 @@ function bibleBind(el){
   if(ep)ep.onclick=function(){bibleStartDraft();renderBiblePlanner();window.scrollTo(0,0);};
   const cb=document.getElementById("bCalib");if(cb)cb.onclick=openBibleCalib;
   const c=computeBiblePlan(p);
+  const qs=document.getElementById("bQuizStart");if(qs)qs.onclick=bibleQuizStart;
+  el.querySelectorAll(".quiz-seg [data-qv]").forEach(function(b){b.onclick=function(){
+    const key=b.parentElement.dataset.qset,v=Number(b.dataset.qv),st=S.bible.plan.quiz.settings;
+    st[key]=v;if(st.review>=st.total)st.review=Math.max(0,st.total-1);
+    S.bible.updatedAt=Date.now();save();renderBiblia();};});
   const prev=document.getElementById("bPrev");
   if(prev)prev.onclick=function(){const i=c.pos[p.cursor];if(i>0){p.cursor=c.list[i-1].id;save();renderBiblia();}};
   const next=document.getElementById("bNext");
@@ -2800,6 +2835,329 @@ function openBibleCalib(){
   });}
 
 
+/* =================== BIBLIA KVÍZ (2. fázis) ===================
+   Közösségi kérdésbank: a user SAJÁT Gemini-kulcsával generál (mohón, de kímélve),
+   a kérdések a Firestore `quizbank` KÖZÖS kollekciójába kerülnek (azonnal megosztott).
+   Merítés: bundle (quiz-bank.json, reviewelt) + Firestore-bank; hiánynál generál.
+   A bundle reviewelt kérdései belépett usernél a közös bankba is felkerülnek (seed).
+   Ismétlés-tiltás + spaced repetition (seen / wrong). Csak hard / veryhard. */
+const QUIZ_GEN_CAP_MAX=20;
+const QUIZ_DAILY_GEN_BUDGET=8;   /* max generáló hívás / nap — mohó, de nem maxolja ki a kulcsot */
+function quizGenCap(verses){return Math.max(6,Math.min(QUIZ_GEN_CAP_MAX,Math.round((Number(verses)||10)*1.2)));}
+function quizNorm(s){return (s==null?"":String(s)).toLowerCase().normalize("NFD").replace(/[^a-z0-9]+/g," ").trim();}
+function quizHash(q){const s=quizNorm(q);let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return "q"+(h>>>0).toString(36);}
+
+const _quizBank={};              /* session-cache: chapterId -> [kérdés] (bundle+felhő+generált) */
+let _quizBundle=null,_quizBundleP=null;
+let _quizGenDay=null,_quizGenCount=0;
+function quizGenBudgetLeft(){if(_quizGenDay!==TODAY){_quizGenDay=TODAY;_quizGenCount=0;}return QUIZ_DAILY_GEN_BUDGET-_quizGenCount;}
+
+function loadQuizBundle(){
+  if(_quizBundle)return Promise.resolve(_quizBundle);
+  if(_quizBundleP)return _quizBundleP;
+  _quizBundleP=bibleJSON("quiz-bank.json").then(function(j){_quizBundle=(j&&typeof j==="object")?j:{};return _quizBundle;}).catch(function(){_quizBundle={};return _quizBundle;});
+  return _quizBundleP;}
+
+function quizCloudOn(){return !!(window.Cloud&&window.Cloud.configured&&window.Cloud.quizBankGet);}
+function quizCanWrite(){return !!(cloudUser&&window.Cloud&&window.Cloud.quizBankPut);}
+
+/* egy kérdés struktúra-érvényessége (2 vagy 4 opció: az offline bankban van Igaz/Hamis is) */
+function quizValidQ(x){
+  if(!x||typeof x!=="object")return false;
+  if(typeof x.q!=="string"||!x.q.trim()||x.q.length>=400)return false;
+  if(!Array.isArray(x.opts)||!(x.opts.length===2||x.opts.length===4))return false;
+  if(x.opts.some(function(o){return typeof o!=="string"||!o.trim();}))return false;
+  if(!(x.diff==="hard"||x.diff==="veryhard"))return false;
+  const c=Number(x.correct);if(!(c>=0&&c<=3&&c<x.opts.length)||c!==Math.floor(c))return false;
+  if(typeof x.ref!=="string"||!x.ref.trim()||x.ref.length>=60)return false;
+  return true;}
+
+/* kliens-oldali józansági szűrő generált kérdésre: a helyes opció kulcsszava szerepeljen a fejezetben */
+function quizSane(x,chapterText){
+  if(!chapterText)return true;
+  const hay=quizNorm(chapterText);
+  const opt=quizNorm(x.opts[x.correct]);
+  if(!opt)return false;
+  if(opt==="igaz"||opt==="hamis")return true;                 /* T/F: nincs értelmes tartalmi szűrés */
+  const words=opt.split(" ").filter(function(w){return w.length>=4;});
+  if(!words.length)return true;
+  return words.some(function(w){return hay.indexOf(w)>=0;});}
+
+function quizItem(x,chapterId){
+  const qid=x.id||quizHash(x.q);
+  const opts=x.opts.slice(0,4);
+  return {id:qid,diff:x.diff,q:x.q,opts:opts,correct:Number(x.correct),ref:x.ref,chapterId:chapterId,hash:qid};}
+
+/* betölti és összefésüli egy fejezet bankját (bundle + Firestore), session-cache-be */
+function quizLoadChapter(chapterId){
+  if(_quizBank[chapterId])return Promise.resolve(_quizBank[chapterId]);
+  return loadQuizBundle().then(function(bundle){
+    const byId={};
+    const bItems=(bundle[chapterId]||[]);
+    bItems.forEach(function(x){if(quizValidQ(x)){const it=quizItem(x,chapterId);byId[it.id]=it;}});
+    const readP=quizCloudOn()?window.Cloud.quizBankGet(chapterId).catch(function(){return [];}):Promise.resolve([]);
+    return readP.then(function(remote){
+      (remote||[]).forEach(function(x){if(quizValidQ(x)){const it=quizItem(x,chapterId);if(!byId[it.id])byId[it.id]=it;}});
+      const list=Object.keys(byId).map(function(k){return byId[k];});
+      _quizBank[chapterId]=list;
+      quizSeedFromBundle(chapterId,bItems,remote);
+      return list;});
+  });}
+
+/* a bundle reviewelt kérdéseit, amik még nincsenek a felhőben, belépett usernél feltöltjük */
+function quizSeedFromBundle(chapterId,bItems,remote){
+  if(!quizCanWrite()||!bItems||!bItems.length)return;
+  const have={};(remote||[]).forEach(function(x){have[(x.id||quizHash(x.q))]=1;});
+  bItems.forEach(function(x){if(!quizValidQ(x))return;const it=quizItem(x,chapterId);if(have[it.id])return;quizWriteBank(chapterId,it);});}
+
+function quizWriteBank(chapterId,it){
+  if(!quizCanWrite())return Promise.resolve(false);
+  const payload={diff:it.diff,q:it.q,opts:it.opts.slice(0,4),correct:it.correct,ref:it.ref,chapterId:chapterId,hash:it.id};
+  return window.Cloud.quizBankPut(chapterId,it.id,payload).then(function(){return true;}).catch(function(){return false;});}
+
+function quizChapterText(chapterId){
+  const ch=BMAP[chapterId];if(!ch)return Promise.resolve("");
+  return bibleLoadText(ch.book).then(function(t){
+    const vs=((t.chapters[String(ch.ch)]||{}).verses)||{};
+    return Object.keys(vs).sort(function(a,b){return Number(a)-Number(b);}).map(function(n){return n+". "+vs[n];}).join("\n");
+  }).catch(function(){return "";});}
+
+function quizGenPrompt(bookName,ch,text,n){
+  const system="Bibliai szövegértési kvíz-kérdéseket készítesz egy magyar olvasás-követő apphoz. A forrás a Károli-fordítás EGY adott fejezete. KIZÁRÓLAG a megadott fejezet szövegéből dolgozol. Csak a séma szerinti JSON tömböt adod vissza, semmi mást.";
+  const user="BEMENET — "+bookName+" "+ch+". fejezet:\n\"\"\"\n"+text+"\n\"\"\"\n\n"+
+    "KÖVETELMÉNYEK:\n"+
+    "1. Készíts LEGFELJEBB "+n+" feleletválasztós kérdést. Ha a fejezet nem bír el ennyi KÜLÖNBÖZŐ kérdést, adj kevesebbet — ismétléssel vagy hígítással feltölteni TILOS.\n"+
+    "2. Nehézség KIZÁRÓLAG \"hard\" vagy \"veryhard\". Easy/medium TILOS. hard: figyelmes olvasást kíván (egyszer említett konkrét tény: név, cselekvés, sorrend, egyedi szám). veryhard: apró részlet (nemzetségi szám, pontos mennyiség/mérték, mellékszereplő neve, listába ágyazott adat, pontos megfogalmazás).\n"+
+    "3. Minden kérdés KIZÁRÓLAG ebből a fejezetből legyen megválaszolható. Tilos más fejezet, háttértudás vagy teológiai értelmezés. Csak szó szerinti szövegértés.\n"+
+    "4. A helyes válasz ténylegesen szerepeljen a szövegben. NE találj ki adatot. Ha bizonytalan vagy egy tényben, inkább ne tedd fel a kérdést.\n"+
+    "5. Pontosan 4 opció, közülük PONTOSAN 1 helyes. A 3 rossz opció ugyanabból a kategóriából jöjjön (más számok / más nevek), de egyértelműen rossz — ne legyen második védhető válasz.\n"+
+    "6. Kerüld a kétértelmű kérdést és a \"melyik NEM...\" csavart.\n"+
+    "7. Magyar nyelv, modern, világos megfogalmazás (a Károli archaikus, a kérdés ne legyen az).\n"+
+    "8. \"ref\": a helyes válasz vershivatkozása magyar rövidítéssel (pl. \"1Móz 1,16-19\", \"Zsolt 119,105\", \"Mát 5,3\").\n\n"+
+    "KIMENET: KIZÁRÓLAG a séma szerinti JSON tömb.";
+  return {system:system,user:user};}
+
+/* egy Gemini-hívás: a hiányzó darabszámra, a fejezet cap-jáig. A generált kérdéseket
+   validálja + józansági szűri, a bankba és (belépve) a közös Firestore-bankba írja. */
+async function quizGenerate(chapterId){
+  if(!GKEY||Date.now()<gLimitedUntil)return [];
+  if(quizGenBudgetLeft()<=0)return [];
+  const ch=BMAP[chapterId];if(!ch)return [];
+  const cap=quizGenCap(ch.verses);
+  const existing=(_quizBank[chapterId]||[]).length;
+  let n=cap-existing;
+  if(n<=0)return [];
+  n=Math.max(1,Math.min(QUIZ_GEN_CAP_MAX,n));
+  const text=await quizChapterText(chapterId);
+  if(!text)return [];
+  const pr=quizGenPrompt(bibleBookName(ch.book),ch.ch,text,n);
+  const schema={type:"ARRAY",items:{type:"OBJECT",properties:{
+    diff:{type:"STRING",enum:["hard","veryhard"]},
+    q:{type:"STRING"},
+    opts:{type:"ARRAY",items:{type:"STRING"}},
+    correct:{type:"INTEGER"},
+    ref:{type:"STRING"}},required:["diff","q","opts","correct","ref"]}};
+  let arr;
+  try{_quizGenCount++;arr=await queueGemini(function(){return geminiCall(pr.system,pr.user,{temperature:0.25,responseSchema:schema});});}
+  catch(e){return [];}
+  if(!Array.isArray(arr))arr=(arr&&Array.isArray(arr.questions))?arr.questions:[];
+  const bank=_quizBank[chapterId]||(_quizBank[chapterId]=[]);
+  const out=[];
+  arr.forEach(function(x){
+    if(!x||!Array.isArray(x.opts)||x.opts.length!==4)return;     /* generált: pontosan 4 opció */
+    if(!quizValidQ(x))return;
+    if(!quizSane(x,text))return;
+    const it=quizItem(x,chapterId);
+    if(bank.some(function(b){return b.id===it.id;}))return;      /* dedup a bankon belül */
+    bank.push(it);out.push(it);
+    quizWriteBank(chapterId,it);
+  });
+  return out;}
+
+function quizShuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function quizPoolFrom(ids,seen,used){
+  const pool=[];
+  ids.forEach(function(id){(_quizBank[id]||[]).forEach(function(x){if(!used[x.id]&&!seen[x.id])pool.push(x);});});
+  return pool;}
+/* opció-keverés + correct újratérképezés (csak 4-opciósnál; a T/F marad Igaz–Hamis sorrendben) */
+function quizShuffleOpts(x){
+  if(x.opts.length!==4)return {id:x.id,diff:x.diff,q:x.q,opts:x.opts.slice(),correct:x.correct,ref:x.ref,chapterId:x.chapterId};
+  const idx=[0,1,2,3];quizShuffle(idx);
+  return {id:x.id,diff:x.diff,q:x.q,opts:idx.map(function(i){return x.opts[i];}),correct:idx.indexOf(x.correct),ref:x.ref,chapterId:x.chapterId};}
+
+/* KVÍZ-SZETT összeállítása: review (SR/wrong + korábbi) + mai szelet, hiánynál generálás,
+   kis fejezetnél előre/hátra bővítés, ismétlés-tiltással. */
+async function quizBuildSet(targetIds,settings){
+  const Q=S.bible.plan.quiz,seen=Q.seen||{},wrong=Q.wrong||{};
+  const total=Math.max(1,settings.total);
+  const reviewWant=Math.min(settings.review,Math.max(0,total-1));
+  const used={},set=[];
+  for(let a=0;a<targetIds.length;a++){await quizLoadChapter(targetIds[a]);}
+  /* 1) REVIEW — wrong SR-sor (bármely fejezet), legrégebbi lastDate előre */
+  const wl=Object.keys(wrong).map(function(k){return wrong[k];}).filter(function(w){return w&&w.q&&quizValidQ(w.q);})
+    .sort(function(a,b){return String(a.lastDate).localeCompare(String(b.lastDate));});
+  for(let i=0;i<wl.length&&set.length<reviewWant;i++){const x=quizItem(wl[i].q,wl[i].q.chapterId||"");if(used[x.id])continue;used[x.id]=1;set.push(x);}
+  /* 1b) review kiegészítés korábbi (nem mai) olvasott fejezetekből */
+  if(set.length<reviewWant){
+    const todaySet={};targetIds.forEach(function(id){todaySet[id]=1;});
+    const readIds=Object.keys(S.bible.plan.read).filter(function(id){return !todaySet[id];});
+    quizShuffle(readIds);
+    for(let i=0;i<readIds.length&&set.length<reviewWant;i++){
+      await quizLoadChapter(readIds[i]);
+      const pool=quizShuffle(quizPoolFrom([readIds[i]],seen,used));
+      for(let j=0;j<pool.length&&set.length<reviewWant;j++){used[pool[j].id]=1;set.push(pool[j]);}}
+  }
+  const reviewGot=set.length;
+  /* 2) MAI szelet a meglévő bankból */
+  let need=total-set.length;
+  let pool=quizShuffle(quizPoolFrom(targetIds,seen,used));
+  for(let i=0;i<pool.length&&need>0;i++){used[pool[i].id]=1;set.push(pool[i]);need--;}
+  /* 3) ha kevés: GENERÁLÁS a mai fejezetekre */
+  if(need>0&&GKEY){
+    for(let a=0;a<targetIds.length&&need>0;a++){
+      const gen=await quizGenerate(targetIds[a]);
+      if(gen.length){const np=quizShuffle(quizPoolFrom([targetIds[a]],seen,used));
+        for(let j=0;j<np.length&&need>0;j++){used[np[j].id]=1;set.push(np[j]);need--;}}}
+  }
+  /* 4) ha még mindig kevés: BŐVÍTÉS előre/hátra a szomszédos fejezetekre (kis fejezet eset) */
+  if(need>0){
+    const c=computeBiblePlan(S.bible.plan);
+    let anchor=c.pos[targetIds[targetIds.length-1]];
+    if(anchor==null)anchor=c.pos[targetIds[0]];
+    if(anchor!=null){
+      const order=[];
+      for(let d=1;d<=10&&order.length<20;d++){if(anchor+d<c.list.length)order.push(c.list[anchor+d].id);if(anchor-d>=0)order.push(c.list[anchor-d].id);}
+      for(let a=0;a<order.length&&need>0;a++){
+        await quizLoadChapter(order[a]);
+        let np=quizShuffle(quizPoolFrom([order[a]],seen,used));
+        if(np.length<need&&GKEY){await quizGenerate(order[a]);np=quizShuffle(quizPoolFrom([order[a]],seen,used));}
+        for(let j=0;j<np.length&&need>0;j++){used[np[j].id]=1;set.push(np[j]);need--;}}
+    }
+  }
+  /* 5) végső tartalék: a mai fejezetekből a már látottak is (hogy legyen mit kérdezni) */
+  if(need>0){
+    const sp=[];targetIds.forEach(function(id){(_quizBank[id]||[]).forEach(function(x){if(!used[x.id])sp.push(x);});});
+    quizShuffle(sp);
+    for(let i=0;i<sp.length&&need>0;i++){used[sp[i].id]=1;set.push(sp[i]);need--;}}
+  const final=set.map(function(x){return quizShuffleOpts(x);});
+  return {questions:final,reviewCount:Math.min(reviewGot,final.length)};}
+
+/* ---- KVÍZ lefolyás (modal) ---- */
+let quizS=null;
+function quizFmtSecs(s){const m=Math.floor(s/60);return m?(m+" p "+(s%60)+" mp"):(s+" mp");}
+function quizPraise(sc,tot){const r=tot?sc/tot:0;return r>=1?"Hibátlan! 🏆":(r>=0.8?"Nagyszerű 🌟":(r>=0.5?"Szép munka":"Gyakorolj még — menni fog!"));}
+
+function bibleQuizStart(){
+  const p=S.bible.plan;if(!p)return;
+  const d=buildDailyReading(p);
+  let ids=d.ids.slice();
+  if(!ids.length){const rk=Object.keys(p.read);ids=rk.length?rk.slice(-3):[p.cursor];}
+  const settings=p.quiz.settings;
+  openModal('<button class="close-x" id="mClose">✕</button><h3>📖 Mai kvíz</h3><div class="quiz-loading"><span class="spin"></span> Kérdések előkészítése…</div><div class="hint" style="margin-top:8px">Ha új kérdéseket generál a kulcsoddal, ez eltarthat pár másodpercig.</div>');
+  const c=document.getElementById("mClose");if(c)c.onclick=function(){quizAbort();};
+  quizBuildSet(ids,settings).then(function(res){
+    if(!res.questions.length){quizAbort();toast("Ehhez a szakaszhoz még nincs kérdés — próbáld később.","warn");return;}
+    quizS={queue:res.questions,idx:0,score:0,startT:Date.now(),chapterIds:ids,answered:false,picked:null};
+    quizRender();
+  }).catch(function(e){quizAbort();toast("Kvíz hiba: "+((e&&e.message)||e),"down");});}
+
+function quizSheet(html){const s=document.getElementById("modalSheet");if(s)s.innerHTML=html;}
+
+function quizRender(){
+  if(!quizS)return;
+  const q=quizS.queue[quizS.idx],n=quizS.queue.length;
+  let h='<button class="close-x" id="mClose">✕</button>';
+  h+='<div class="quiz-top"><span>'+(quizS.idx+1)+' / '+n+' kérdés</span><span class="quiz-diff'+(q.diff==="veryhard"?" vh":"")+'">'+(q.diff==="veryhard"?"nagyon nehéz":"nehéz")+'</span></div>';
+  h+='<div class="quiz-q">'+esc(q.q)+'</div>';
+  h+='<div class="quiz-opts">';
+  q.opts.forEach(function(o,i){
+    let cls="quiz-opt";
+    if(quizS.answered){if(i===q.correct)cls+=" correct";else if(i===quizS.picked)cls+=" wrong";}
+    h+='<button class="'+cls+'" data-qo="'+i+'"'+(quizS.answered?" disabled":"")+'>'+esc(o)+'</button>';});
+  h+='</div>';
+  if(quizS.answered){
+    const ok=quizS.picked===q.correct;
+    h+='<div class="quiz-reveal '+(ok?"ok":"no")+'">'+(ok?"✓ Helyes":"✗ Nem talált")+' — <b>'+esc(q.ref)+'</b></div>';
+    h+='<div class="quiz-actions"><button class="btn ghost sm" id="qCtx">📖 Mutasd a kontextust</button><button class="btn ghost sm" id="qReport">⚑ Hibás kérdés</button></div>';
+    h+='<button class="btn wide" id="qNext" style="margin-top:12px">'+(quizS.idx<n-1?"Következő ›":"Befejezés")+'</button>';
+  }else{
+    h+='<div class="quiz-actions" style="margin-top:12px"><button class="btn ghost sm" id="qReport">⚑ Hibás kérdés</button></div>';
+  }
+  quizSheet(h);
+  const c=document.getElementById("mClose");if(c)c.onclick=function(){quizAbort();};
+  document.querySelectorAll("#modalSheet [data-qo]").forEach(function(b){b.onclick=function(){quizAnswer(Number(b.dataset.qo));};});
+  const nx=document.getElementById("qNext");if(nx)nx.onclick=quizNext;
+  const rp=document.getElementById("qReport");if(rp)rp.onclick=function(){quizReport(q,rp);};
+  const cx=document.getElementById("qCtx");if(cx)cx.onclick=function(){quizShowContext(q);};}
+
+function quizAnswer(i){
+  if(!quizS||quizS.answered)return;
+  quizS.answered=true;quizS.picked=i;
+  const q=quizS.queue[quizS.idx],Q=S.bible.plan.quiz;
+  if(i===q.correct){quizS.score++;Q.seen[q.id]=TODAY;if(Q.wrong[q.id])delete Q.wrong[q.id];}
+  else{const prev=Q.wrong[q.id];
+    Q.wrong[q.id]={count:((prev&&prev.count)||0)+1,lastDate:TODAY,
+      q:{id:q.id,diff:q.diff,q:q.q,opts:q.opts.slice(),correct:q.correct,ref:q.ref,chapterId:q.chapterId}};
+    if(Q.seen[q.id])delete Q.seen[q.id];}
+  S.bible.updatedAt=Date.now();save();
+  quizRender();}
+
+function quizNext(){
+  if(!quizS)return;
+  if(quizS.idx<quizS.queue.length-1){quizS.idx++;quizS.answered=false;quizS.picked=null;quizRender();}
+  else quizFinish();}
+
+function quizFinish(){
+  if(!quizS)return;
+  const Q=S.bible.plan.quiz,secs=Math.round((Date.now()-quizS.startT)/1000);
+  Q.history.push({date:TODAY,chapterIds:quizS.chapterIds.slice(),score:quizS.score,total:quizS.queue.length,secs:secs});
+  if(Q.history.length>200)Q.history=Q.history.slice(-200);
+  S.bible.updatedAt=Date.now();save();
+  const sc=quizS.score,tot=quizS.queue.length;
+  let h='<button class="close-x" id="mClose">✕</button><h3>Kvíz kész</h3>';
+  h+='<div class="quiz-score">'+sc+' / '+tot+'</div>';
+  h+='<div class="hint" style="text-align:center;margin-top:2px">'+quizPraise(sc,tot)+' · '+quizFmtSecs(secs)+'</div>';
+  h+='<button class="btn wide" id="qAgain" style="margin-top:18px">Új kvíz</button>';
+  h+='<div class="rub-actions" style="margin-top:10px"><button class="btn ghost sm" id="qClose2">Bezárás</button></div>';
+  quizSheet(h);
+  const c=document.getElementById("mClose");if(c)c.onclick=function(){quizAbort();};
+  const cl=document.getElementById("qClose2");if(cl)cl.onclick=function(){quizAbort();};
+  const ag=document.getElementById("qAgain");if(ag)ag.onclick=function(){quizS=null;bibleQuizStart();};}
+
+function quizAbort(){quizS=null;closeScreen();if(curTab==="biblia")renderBiblia();}
+
+function quizShowContext(q){
+  const id=q.chapterId;if(!id||!BMAP[id]){toast("Nincs kontextus ehhez a kérdéshez","warn");return;}
+  quizS=null;
+  S.bible.plan.cursor=id;bibleTab="olvaso";bibleBookOpen=null;S.bible.updatedAt=Date.now();save();
+  closeScreen();
+  if(curTab==="biblia")renderBiblia();else switchTab("biblia");
+  toast("Kontextus: "+bibleChLabel(id));}
+
+function quizReport(q,btn){
+  if(!quizCanWrite()){toast("A hibás kérdés jelentéséhez lépj be a Fiók fülön.","warn");return;}
+  if(btn){btn.disabled=true;btn.textContent="⚑ Jelentve";}
+  window.Cloud.quizReport({qid:q.id,chapterId:q.chapterId||""}).then(function(){toast("Köszönjük, megnézzük.");})
+    .catch(function(){toast("Nem sikerült elküldeni","down");if(btn){btn.disabled=false;btn.textContent="⚑ Hibás kérdés";}});}
+
+/* ---- Kvíz-kártya a Biblia „Ma” nézetben ---- */
+function bibleQuizCardHtml(){
+  const q=S.bible.plan.quiz;if(!q||!q.enabled)return "";
+  const st=q.settings,last=q.history.length?q.history[q.history.length-1]:null;
+  let h='<div class="section-title">Kvíz '+ibtn('quiz')+'</div><div class="card" style="padding:16px">';
+  h+='<div class="hint" style="line-height:1.7">Teszteld, mennyi maradt meg a mai olvasmányból — <b>kőkemény</b> kérdésekkel. A válasz után megkapod a helyes megoldást és a pontos igehelyet.</div>';
+  h+='<div class="quiz-set"><div class="quiz-set-lab">Kvíz hossza</div><div class="seg sm quiz-seg" data-qset="total">';
+  [5,10,15,20].forEach(function(v){h+='<button data-qv="'+v+'" class="'+(st.total===v?"active":"")+'">'+v+'</button>';});
+  h+='</div></div>';
+  h+='<div class="quiz-set"><div class="quiz-set-lab">Ebből korábbi olvasmányból '+ibtn('quizrev')+'</div><div class="seg sm quiz-seg" data-qset="review">';
+  [0,3,5].forEach(function(v){h+='<button data-qv="'+v+'" class="'+(st.review===v?"active":"")+'">'+v+'</button>';});
+  h+='</div></div>';
+  h+='<button class="btn wide" id="bQuizStart" style="margin-top:14px">📖 Mai kvíz</button>';
+  if(!GKEY)h+='<div class="hint" style="margin-top:8px;color:var(--muted-2)">Nincs Gemini-kulcsod — a meglévő közös bankból kapsz kérdéseket. Saját kulccsal (Fiók fül) új kérdések is generálódnak.</div>';
+  if(last)h+='<div class="hint" style="margin-top:8px">Legutóbb: <b>'+last.score+'/'+last.total+'</b> · '+esc(last.date)+'</div>';
+  h+='</div>';
+  return h;}
+
 /* ---- NAV ---- */
 let curTab="ma";
 function switchTab(t){curTab=t;if(t!=="biblia"){bibleBookOpen=null;}if(t!=="ma"){maGoal=null;maMetric=null;}if(t!=="celok"){editing=null;formDraft=null;formMetricIdx=null;}if(t!=="haladas"){statGoal=null;statMetric=null;}document.querySelectorAll(".tabbtn").forEach(b=>b.classList.toggle("active",b.dataset.tab===t));
@@ -2904,6 +3262,8 @@ function showOverview(){
 
 /* ---- infó-buborékok ---- */
 const INFO={
+  quiz:{t:"Bibliai kvíz",d:"Kőkemény, szövegértési kérdések a mai olvasmányból. A kérdéseket a közösség építi: aki megadta a saját <b>Gemini-kulcsát</b> (Fiók fül), annak az appja új kérdéseket generál a frissen olvasott fejezetből, és egy közös bankba menti — így mindenki gazdagabb kvízt kap. Mivel AI készíti, néha tévedhet: minden kérdésnél ott a <b>⚑ jelentés</b>, és a válasz után látod a helyes megoldást és a pontos igehelyet."},
+  quizrev:{t:"Korábbi olvasmányból",d:"A kvíz egy részét a már elolvasott, korábbi fejezetekből meríti — így ismételsz. Amit egyszer elrontottál, addig tér vissza, amíg helyesen meg nem válaszolod."},
   pol:{t:"Irány",d:"Az <b>építeni</b> célnál minél többször/jobban teljesíted, annál jobb. Az <b>elhagyni</b> célnál a kihagyás vagy a kevesebb a jó (pl. cukor, dohányzás). Az irány dönti el, mi számít pozitív pontnak. Almércénként külön is állítható."},
   cad:{t:"Ütemezés",d:"<b>Napi</b>: minden nap. <b>Hét napjai</b>: csak a kijelölt napokon. <b>Rugalmas</b>: hetente/havonta N alkalom, tetszőleges napokon — részleges kredittel. <b>Streak</b>: az utolsó „megcsúszás” óta eltelt napokat számolja."},
   meas:{t:"Mérési mód",d:"<b>Igen/Nem</b>: megvolt vagy sem (a legegyszerűbb, 1 tap). <b>Skála</b>: 1–3 / 1–5 / 1–10 fokozat, rubrikával. <b>Mennyiség</b>: szám + egység + reláció (legalább/pontosan/legfeljebb). <b>Idő</b>: időtartam percben vagy órában, akár kezdő–vég időpontból számolva."},
@@ -2923,6 +3283,7 @@ function showInfo(key){const i=INFO[key];if(!i)return;openModal('<button class="
 
 /* ---- SÚGÓ tartalom ---- */
 const HELP=[
+  {id:"kviz",title:"Bibliai kvíz",keywords:"kvíz kviz kérdés teszt vetélkedő biblia gemini bank riport jelentés igehely",html:'<p>A Biblia fül <b>Ma</b> nézetében a <b>📖 Mai kvíz</b> gombbal kőkemény, szövegértési kérdéseket kapsz a mai olvasmányból.</p><ul><li><b>Honnan jönnek?</b> Egy közös, közösségi bankból. Aki megadta a saját <b>Gemini-kulcsát</b> (Fiók fül), annak az appja AI-val új kérdéseket generál a frissen olvasott fejezetből, és a közös bankba menti — így a bank folyamatosan bővül. Kulcs nélkül is kvízezhetsz a meglévő kérdésekből.</li><li><b>Miért lehet néha pontatlan?</b> A kérdéseket mesterséges intelligencia írja a Károli-szövegből. A rendszer ellenőrzi, de tévedhet. Ezért minden kérdésnél ott a <b>⚑ Hibás kérdés</b> gomb — egy koppintás jelenti nekünk.</li><li><b>Helyes válasz és igehely:</b> minden kérdés megválaszolása után látod a helyes megoldást és a pontos vershivatkozást, a <b>📖 Mutasd a kontextust</b> gombbal pedig odaugorhatsz az olvasóban.</li><li><b>Ismétlés:</b> amit jól megválaszolsz, nem tér vissza; amit elrontasz, addig visszajön, amíg meg nem tanulod. A kvíz hosszát és a korábbi olvasmányok arányát a kvíz-kártyán állíthatod.</li></ul>'},
   {id:"alap",title:"Mi ez az egész?",keywords:"kezdés alap áttekintés hogyan működik",html:'<p>A Trellis egy szokás- és célkövető. Célokat tűzöl ki, minden nap értékeled magad, és ahogy haladsz, <b>szintet lépsz</b> — mint egy játékban. Minden a saját eszközödön tárolódik; belépve több eszköz közt szinkronizál.</p><ul><li><b>Ma</b>: itt naplózol nap mint nap.</li><li><b>Célok</b>: itt hozol létre és szerkesztesz célokat.</li><li><b>Haladás</b>: szintek, streakek, grafikonok, napló.</li><li><b>Fiók</b>: belépés, téma, mentés, Gemini-kulcs, súgó, visszajelzés.</li></ul>'},
   {id:"celletre",title:"Cél létrehozása lépésről lépésre",keywords:"új cél létrehozás szokás felvétel hogyan",html:'<p>A <b>Célok</b> fülön nyomd meg a <b>+ Új cél</b> gombot, majd:</p><ul><li><b>1. Név</b> — pl. „Reggeli mozgás".</li><li><b>2. Alcélok</b> — legalább egy; mindegyiknek saját <b>ütemezése</b>, <b>kezdő dátuma</b>, <b>mérési módja</b> (igen/nem, skála, mennyiség, idő) és <b>iránya</b> (építeni/elhagyni) van.</li><li><b>3. Ha több alcélod van</b>, a cél kártyaként fogja őket össze — mindegyik önállóan pontozódik és szintezik.</li><li><b>4. Mentés.</b></li></ul><p>Nincs szükség AI-ra: mindent kézzel megadhatsz. Az AI csak a skálás rubrikákhoz opció.</p>'},
   {id:"meres",title:"Mérési módok",keywords:"igen nem skála mennyiség idő timer mérés típus",html:'<p><b>Igen/Nem</b> — a legegyszerűbb: megvolt vagy sem, 1 tap.<br><b>Skála</b> — 1–3, 1–5 vagy 1–10; fokozatonként rubrikát is adhatsz.<br><b>Mennyiség</b> — szám + egység (pl. 30 db) + reláció: legalább / pontosan / legfeljebb.<br><b>Idő</b> — időtartam percben vagy órában. Megadhatod közvetlenül, vagy beírod a <b>kezdő és vég időpontot</b>, és az app kiszámolja. Ha mindhármat megadod, ellenőrzi az egyezést.</p>'},
@@ -3185,12 +3546,15 @@ try{
   if(ok){
     const {initializeApp}=await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js");
     const {getAuth,GoogleAuthProvider,signInWithPopup,signInWithRedirect,getRedirectResult,onAuthStateChanged,signOut}=await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js");
-    const {getFirestore,doc,setDoc,getDoc,onSnapshot,collection,addDoc}=await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js");
+    const {getFirestore,doc,setDoc,getDoc,onSnapshot,collection,addDoc,getDocs,serverTimestamp}=await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js");
     const app=initializeApp(cfg);const auth=getAuth(app);const db=getFirestore(app);const provider=new GoogleAuthProvider();
     let uid=null,unsub=null,pushT=null;
     getRedirectResult(auth).catch(()=>{});
     window.Cloud={configured:true,
       sendFeedback:(data)=>addDoc(collection(db,"feedback"),data),
+      quizBankGet:(chapterId)=>getDocs(collection(db,"quizbank",chapterId,"questions")).then(s=>{const a=[];s.forEach(d=>a.push(Object.assign({id:d.id},d.data())));return a;}),
+      quizBankPut:(chapterId,qid,data)=>uid?setDoc(doc(db,"quizbank",chapterId,"questions",qid),Object.assign({},data,{createdBy:uid,createdAt:serverTimestamp()})):Promise.reject(new Error("no-auth")),
+      quizReport:(data)=>uid?addDoc(collection(db,"quizreports"),Object.assign({},data,{uid:uid,ts:serverTimestamp()})):Promise.reject(new Error("no-auth")),
       signIn:async()=>{try{await signInWithPopup(auth,provider);}catch(e){const c=(e&&e.code)||"";if(c==="auth/popup-blocked"||c==="auth/cancelled-popup-request"||c==="auth/operation-not-supported-in-this-environment"){try{await signInWithRedirect(auth,provider);}catch(e2){alert("Belépési hiba: "+((e2&&e2.code)||(e2&&e2.message)||e2));}}else if(c&&c!=="auth/popup-closed-by-user"){alert("Belépési hiba: "+c);}}},
       signOut:()=>signOut(auth),
       push:(state)=>{if(!uid)return;clearTimeout(pushT);pushT=setTimeout(()=>{setDoc(doc(db,"users",uid),state).catch(()=>{});},1200);}},

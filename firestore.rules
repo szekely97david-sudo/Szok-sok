@@ -13,5 +13,32 @@ service cloud.firestore {
                     && request.resource.data.text.size() < 6000;
       allow read, list, update, delete: if false;
     }
+    // Közös kvíz-bank: bárki OLVASHATJA (belépés nélkül is); létrehozni csak bejelentkezve,
+    // séma-validációval lehet. Módosítás/törlés kliensről TILOS — a dedup azonos dokumentum-
+    // id-re (kérdés-hash) írással történik. Opts: 2 (Igaz/Hamis) vagy 4 (feleletválasztós).
+    match /quizbank/{chapterId}/questions/{qid} {
+      allow read: if true;
+      allow create: if request.auth != null
+        && request.resource.data.q is string
+        && request.resource.data.q.size() > 0
+        && request.resource.data.q.size() < 400
+        && request.resource.data.opts is list
+        && (request.resource.data.opts.size() == 2 || request.resource.data.opts.size() == 4)
+        && request.resource.data.correct is int
+        && request.resource.data.correct >= 0
+        && request.resource.data.correct <= 3
+        && request.resource.data.diff in ['hard','veryhard']
+        && request.resource.data.ref is string
+        && request.resource.data.ref.size() < 60;
+      allow update, delete: if false;
+    }
+    // Kérdés-riport: bárki (belépve) LÉTREHOZHAT; olvasni/listázni nem lehet (konzolos moderálás).
+    match /quizreports/{doc} {
+      allow create: if request.auth != null
+        && request.resource.data.qid is string
+        && request.resource.data.qid.size() > 0
+        && request.resource.data.qid.size() < 200;
+      allow read, list, update, delete: if false;
+    }
   }
 }

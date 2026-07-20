@@ -1,0 +1,4214 @@
+{
+  "GEN.1": [
+    {
+      "id": "GEN.1.q1",
+      "diff": "veryhard",
+      "q": "Hányadik napon teremtette Isten a két nagy világító testet és a csillagokat?",
+      "opts": [
+        "A második napon",
+        "A harmadik napon",
+        "A negyedik napon",
+        "Az ötödik napon"
+      ],
+      "correct": 2,
+      "ref": "1Móz 1,16-19"
+    },
+    {
+      "id": "GEN.1.q2",
+      "diff": "veryhard",
+      "q": "Minek nevezte Isten a mennyezetet (a vizeket elválasztó boltozatot)?",
+      "opts": [
+        "Világosságnak",
+        "Égnek",
+        "Tengernek",
+        "Földnek"
+      ],
+      "correct": 1,
+      "ref": "1Móz 1,8"
+    },
+    {
+      "id": "GEN.1.q3",
+      "diff": "veryhard",
+      "q": "Milyen élőlényeket teremtett Isten az ötödik napon?",
+      "opts": [
+        "Szárazföldi állatokat és az embert",
+        "Vízi állatokat és madarakat",
+        "Csúszó-mászókat és barmokat",
+        "Növényeket és fákat"
+      ],
+      "correct": 1,
+      "ref": "1Móz 1,20-23"
+    },
+    {
+      "id": "GEN.1.q4",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? Isten előbb teremtette a növényeket, mint a Napot, a Holdat és a csillagokat.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 0,
+      "ref": "1Móz 1,11-19"
+    },
+    {
+      "id": "GEN.1.q5",
+      "diff": "veryhard",
+      "q": "Milyen táplálékot rendelt Isten az embernek az 1. részben?",
+      "opts": [
+        "Minden állat húsát",
+        "Minden maghozó fűvet és gyümölcsöt",
+        "Halat és madarat",
+        "Kenyeret és bort"
+      ],
+      "correct": 1,
+      "ref": "1Móz 1,29"
+    },
+    {
+      "id": "GEN.1.q6",
+      "diff": "veryhard",
+      "q": "Mi lebegett a vizek felett a teremtés kezdetén, mielőtt Isten megteremtette a világosságot?",
+      "opts": [
+        "A sötétség",
+        "Isten Lelke",
+        "A mennyezet",
+        "A nagy vizek"
+      ],
+      "correct": 1,
+      "ref": "1Móz 1,2"
+    },
+    {
+      "id": "GEN.1.q7",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? A madarakat Isten a szárazföldi állatokkal együtt, a hatodik napon teremtette.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 1,
+      "ref": "1Móz 1,20-25"
+    },
+    {
+      "id": "GEN.1.q8",
+      "diff": "hard",
+      "q": "Mely napon teremtette Isten az embert?",
+      "opts": [
+        "A negyedik napon",
+        "Az ötödik napon",
+        "A hatodik napon",
+        "A hetedik napon"
+      ],
+      "correct": 2,
+      "ref": "1Móz 1,26-31"
+    },
+    {
+      "id": "GEN.1.q9",
+      "diff": "hard",
+      "q": "Igaz vagy hamis? Isten az embert a saját képére és hasonlatosságára teremtette.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 0,
+      "ref": "1Móz 1,27"
+    },
+    {
+      "id": "GEN.1.q10",
+      "diff": "hard",
+      "q": "Hogyan teremtette Isten az embert az 1. rész szerint?",
+      "opts": [
+        "Csak férfinak",
+        "Férfivá és asszonnyá",
+        "Angyalok által",
+        "A föld porából"
+      ],
+      "correct": 1,
+      "ref": "1Móz 1,27"
+    }
+  ],
+  "GEN.2": [
+    {
+      "id": "GEN.2.q1",
+      "diff": "veryhard",
+      "q": "Miből formálta Isten az embert?",
+      "opts": [
+        "A föld porából",
+        "Vízből és tűzből",
+        "Egy fából",
+        "A saját leheletéből"
+      ],
+      "correct": 0,
+      "ref": "1Móz 2,7"
+    },
+    {
+      "id": "GEN.2.q2",
+      "diff": "veryhard",
+      "q": "Az Édenből kifolyó folyó négy ágra szakadt. Melyik ág kerülte meg Havilah földjét, ahol arany van?",
+      "opts": [
+        "Gihon",
+        "Pison",
+        "Hiddekel",
+        "Eufrátes"
+      ],
+      "correct": 1,
+      "ref": "1Móz 2,11"
+    },
+    {
+      "id": "GEN.2.q3",
+      "diff": "veryhard",
+      "q": "Melyik folyó folyt Assiria felé?",
+      "opts": [
+        "Pison",
+        "Gihon",
+        "Hiddekel",
+        "Eufrátes"
+      ],
+      "correct": 2,
+      "ref": "1Móz 2,14"
+    },
+    {
+      "id": "GEN.2.q4",
+      "diff": "veryhard",
+      "q": "Melyik égtáj felől ültette Isten a kertet Édenben?",
+      "opts": [
+        "Napnyugat felől",
+        "Napkelet felől",
+        "Észak felől",
+        "Dél felől"
+      ],
+      "correct": 1,
+      "ref": "1Móz 2,8"
+    },
+    {
+      "id": "GEN.2.q5",
+      "diff": "veryhard",
+      "q": "Melyik két fát nevezi meg külön a szöveg a kert közepén?",
+      "opts": [
+        "A cédrust és a pálmát",
+        "Az élet fáját és a jó és gonosz tudásának fáját",
+        "A fügét és a szőlőt",
+        "A tudás fáját és a bölcsesség fáját"
+      ],
+      "correct": 1,
+      "ref": "1Móz 2,9"
+    },
+    {
+      "id": "GEN.2.q6",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? Isten a mezei vadakat és az égi madarakat is a földből formálta, és Ádám elé vitte, hogy nevet adjon nekik.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 0,
+      "ref": "1Móz 2,19"
+    },
+    {
+      "id": "GEN.2.q7",
+      "diff": "veryhard",
+      "q": "Mit mondott Isten, hogy nem jó?",
+      "opts": [
+        "Hogy az ember egyedül legyen",
+        "Hogy az ember a kertben dolgozzon",
+        "Hogy az ember mezítelen legyen",
+        "Hogy az ember a fákról egyék"
+      ],
+      "correct": 0,
+      "ref": "1Móz 2,18"
+    },
+    {
+      "id": "GEN.2.q8",
+      "diff": "hard",
+      "q": "Miből alkotta Isten az asszonyt?",
+      "opts": [
+        "Ádám egyik oldalbordájából",
+        "A föld porából",
+        "Ádám leheletéből",
+        "Egy fából"
+      ],
+      "correct": 0,
+      "ref": "1Móz 2,21-22"
+    },
+    {
+      "id": "GEN.2.q9",
+      "diff": "hard",
+      "q": "Igaz vagy hamis? Isten a hetedik napon megnyugodott, és megáldotta és megszentelte azt a napot.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 0,
+      "ref": "1Móz 2,2-3"
+    },
+    {
+      "id": "GEN.2.q10",
+      "diff": "hard",
+      "q": "Igaz vagy hamis? Isten megengedte, hogy az ember a kert minden fájáról egyék, kivéve a jó és gonosz tudásának fáját.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 0,
+      "ref": "1Móz 2,16-17"
+    }
+  ],
+  "GEN.3": [
+    {
+      "id": "GEN.3.q1",
+      "diff": "veryhard",
+      "q": "Mit varrtak magukra Ádám és Éva, miután megnyílt a szemük?",
+      "opts": [
+        "Szőlőlevelet",
+        "Fügefa leveleket",
+        "Bőr ruhát",
+        "Pálmaágakat"
+      ],
+      "correct": 1,
+      "ref": "1Móz 3,7"
+    },
+    {
+      "id": "GEN.3.q2",
+      "diff": "veryhard",
+      "q": "Mit ígért a kígyó, mivé lesznek, ha esznek a fáról?",
+      "opts": [
+        "Halhatatlanná",
+        "Olyanná, mint az Isten, akik tudják a jót és gonoszt",
+        "Angyalokká",
+        "Királyokká"
+      ],
+      "correct": 1,
+      "ref": "1Móz 3,5"
+    },
+    {
+      "id": "GEN.3.q3",
+      "diff": "veryhard",
+      "q": "Mi volt a kígyóra kimondott átok?",
+      "opts": [
+        "Hogy elveszítse a hangját",
+        "Hogy hasán járjon és port egyék",
+        "Hogy vízben éljen",
+        "Hogy soha ne aludjon"
+      ],
+      "correct": 1,
+      "ref": "1Móz 3,14"
+    },
+    {
+      "id": "GEN.3.q4",
+      "diff": "veryhard",
+      "q": "Mit helyezett Isten az Éden kertje elé, hogy őrizze az élet fájához vezető utat?",
+      "opts": [
+        "Egy nagy követ",
+        "Kérubokat és villogó pallost",
+        "Egy tüzes folyót",
+        "Egy magas falat"
+      ],
+      "correct": 1,
+      "ref": "1Móz 3,24"
+    },
+    {
+      "id": "GEN.3.q5",
+      "diff": "veryhard",
+      "q": "Milyen ruhát készített Isten Ádámnak és feleségének?",
+      "opts": [
+        "Fügefalevélből",
+        "Bőrből",
+        "Gyapjúból",
+        "Lenvászonból"
+      ],
+      "correct": 1,
+      "ref": "1Móz 3,21"
+    },
+    {
+      "id": "GEN.3.q6",
+      "diff": "veryhard",
+      "q": "Milyen napszakban hallották az Úr hangját a kertben járni?",
+      "opts": [
+        "Hajnalban",
+        "Délben",
+        "Hűvös alkonyatkor",
+        "Éjfélkor"
+      ],
+      "correct": 2,
+      "ref": "1Móz 3,8"
+    },
+    {
+      "id": "GEN.3.q7",
+      "diff": "veryhard",
+      "q": "Miért nevezte Ádám a feleségét Évának?",
+      "opts": [
+        "Mert a bordájából lett",
+        "Mert ő volt minden élő anyja",
+        "Mert ő adta neki a gyümölcsöt",
+        "Mert szép volt"
+      ],
+      "correct": 1,
+      "ref": "1Móz 3,20"
+    },
+    {
+      "id": "GEN.3.q8",
+      "diff": "hard",
+      "q": "Igaz vagy hamis? A kígyó ravaszabb volt minden mezei vadnál.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 0,
+      "ref": "1Móz 3,1"
+    },
+    {
+      "id": "GEN.3.q9",
+      "diff": "hard",
+      "q": "Kire hárította Ádám a felelősséget, amikor Isten számonkérte?",
+      "opts": [
+        "A kígyóra",
+        "Az asszonyra",
+        "Önmagára",
+        "Senkire"
+      ],
+      "correct": 1,
+      "ref": "1Móz 3,12"
+    },
+    {
+      "id": "GEN.3.q10",
+      "diff": "hard",
+      "q": "Mit mondott Isten Ádámnak a föld megműveléséről és a haláláról?",
+      "opts": [
+        "Orcád verítékével eszed a kenyeret, mert porból lettél és porrá leszel",
+        "Örökké fogsz élni a kertben",
+        "A föld magától terem majd neked",
+        "Sohasem kell dolgoznod"
+      ],
+      "correct": 0,
+      "ref": "1Móz 3,19"
+    }
+  ],
+  "GEN.4": [
+    {
+      "id": "GEN.4.q1",
+      "diff": "veryhard",
+      "q": "Ki volt az, akit a szöveg úgy nevez: „atyja minden lantosnak és síposnak”?",
+      "opts": [
+        "Jábál",
+        "Jubál",
+        "Tubálkain",
+        "Énós"
+      ],
+      "correct": 1,
+      "ref": "1Móz 4,21"
+    },
+    {
+      "id": "GEN.4.q2",
+      "diff": "veryhard",
+      "q": "Mi volt Tubálkain mestersége?",
+      "opts": [
+        "Sátorkészítő",
+        "Lantos és sípos",
+        "Réz- és vasszerszámok kovácsa",
+        "Juhpásztor"
+      ],
+      "correct": 2,
+      "ref": "1Móz 4,22"
+    },
+    {
+      "id": "GEN.4.q3",
+      "diff": "veryhard",
+      "q": "Mi volt Lámekh két feleségének a neve?",
+      "opts": [
+        "Háda és Czilla",
+        "Éva és Nahama",
+        "Sára és Hágár",
+        "Lea és Ráhel"
+      ],
+      "correct": 0,
+      "ref": "1Móz 4,19"
+    },
+    {
+      "id": "GEN.4.q4",
+      "diff": "veryhard",
+      "q": "Hová telepedett le Kain, miután elment az Úr színe elől?",
+      "opts": [
+        "Nód földén, Édentől keletre",
+        "Ararát hegyén",
+        "Édenben",
+        "Egyiptom földjén"
+      ],
+      "correct": 0,
+      "ref": "1Móz 4,16"
+    },
+    {
+      "id": "GEN.4.q5",
+      "diff": "veryhard",
+      "q": "Kain nemzetségében ki nemzette Methusáelt?",
+      "opts": [
+        "Irád",
+        "Mekhujáel",
+        "Lámekh",
+        "Hánókh"
+      ],
+      "correct": 1,
+      "ref": "1Móz 4,18"
+    },
+    {
+      "id": "GEN.4.q6",
+      "diff": "veryhard",
+      "q": "Az Úr szava szerint mi „leselkedik az ajtó előtt”, ha Kain nem jól cselekszik?",
+      "opts": [
+        "A bűn",
+        "A halál",
+        "A kígyó",
+        "Az átok"
+      ],
+      "correct": 0,
+      "ref": "1Móz 4,7"
+    },
+    {
+      "id": "GEN.4.q7",
+      "diff": "veryhard",
+      "q": "Egészítsd ki Lámekh mondását: „Ha hétszeres a bosszú Kainért, ___ az Lámekhért.”",
+      "opts": [
+        "hetvenhétszeres",
+        "hetvenszeres",
+        "hétszeres",
+        "tizennégyszeres"
+      ],
+      "correct": 0,
+      "ref": "1Móz 4,24"
+    },
+    {
+      "id": "GEN.4.q8",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? Ábel volt a földmíves, Kain pedig a juhok pásztora.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 1,
+      "ref": "1Móz 4,2"
+    },
+    {
+      "id": "GEN.4.q9",
+      "diff": "hard",
+      "q": "Hol ölte meg Kain Ábelt?",
+      "opts": [
+        "A mezőn",
+        "A bárkában",
+        "Egy városban",
+        "Az oltárnál"
+      ],
+      "correct": 0,
+      "ref": "1Móz 4,8"
+    },
+    {
+      "id": "GEN.4.q10",
+      "diff": "hard",
+      "q": "Kit szült Éva Ábel helyett, akit Kain megölt?",
+      "opts": [
+        "Séthet",
+        "Énóst",
+        "Hánókhot",
+        "Kénánt"
+      ],
+      "correct": 0,
+      "ref": "1Móz 4,25"
+    }
+  ],
+  "GEN.5": [
+    {
+      "id": "GEN.5.q1",
+      "diff": "veryhard",
+      "q": "A felsorolt ősatyák közül ki élt a legtovább (969 évet)?",
+      "opts": [
+        "Ádám",
+        "Járed",
+        "Methusélah",
+        "Noé"
+      ],
+      "correct": 2,
+      "ref": "1Móz 5,27"
+    },
+    {
+      "id": "GEN.5.q2",
+      "diff": "veryhard",
+      "q": "Hány évet élt összesen Ádám?",
+      "opts": [
+        "912 évet",
+        "930 évet",
+        "905 évet",
+        "969 évet"
+      ],
+      "correct": 1,
+      "ref": "1Móz 5,5"
+    },
+    {
+      "id": "GEN.5.q3",
+      "diff": "veryhard",
+      "q": "Melyik ősatya „járt Istennel”, és nem halt meg, hanem „Isten magához vevé”?",
+      "opts": [
+        "Énós",
+        "Énókh",
+        "Methusélah",
+        "Járed"
+      ],
+      "correct": 1,
+      "ref": "1Móz 5,24"
+    },
+    {
+      "id": "GEN.5.q4",
+      "diff": "veryhard",
+      "q": "Hány éves volt Énókh, amikor Isten magához vette?",
+      "opts": [
+        "300 éves",
+        "365 éves",
+        "430 éves",
+        "500 éves"
+      ],
+      "correct": 1,
+      "ref": "1Móz 5,23"
+    },
+    {
+      "id": "GEN.5.q5",
+      "diff": "veryhard",
+      "q": "Mivel indokolta Lámekh, hogy a fiát Noénak nevezte?",
+      "opts": [
+        "Ez vigasztal meg minket a munkában és a megátkozott föld fáradozásában",
+        "Mert békét hozott a családba",
+        "Mert Isten képére született",
+        "Mert ő volt a legidősebb fia"
+      ],
+      "correct": 0,
+      "ref": "1Móz 5,29"
+    },
+    {
+      "id": "GEN.5.q6",
+      "diff": "veryhard",
+      "q": "Hány éves volt Lámekh (Noé apja), amikor Noét nemzette?",
+      "opts": [
+        "162 éves",
+        "182 éves",
+        "187 éves",
+        "130 éves"
+      ],
+      "correct": 1,
+      "ref": "1Móz 5,28"
+    },
+    {
+      "id": "GEN.5.q7",
+      "diff": "veryhard",
+      "q": "Hány éves volt Noé, amikor Sémet, Khámot és Jáfetet nemzette?",
+      "opts": [
+        "500 éves",
+        "600 éves",
+        "365 éves",
+        "130 éves"
+      ],
+      "correct": 0,
+      "ref": "1Móz 5,32"
+    },
+    {
+      "id": "GEN.5.q8",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? Énókh volt a leghosszabb életű ember a felsorolásban.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 1,
+      "ref": "1Móz 5,23-27"
+    },
+    {
+      "id": "GEN.5.q9",
+      "diff": "hard",
+      "q": "Kik voltak Noé fiai?",
+      "opts": [
+        "Sém, Khám és Jáfet",
+        "Kain, Ábel és Séth",
+        "Irád, Jábál és Jubál",
+        "Énós, Kénán és Járed"
+      ],
+      "correct": 0,
+      "ref": "1Móz 5,32"
+    },
+    {
+      "id": "GEN.5.q10",
+      "diff": "hard",
+      "q": "Kinek volt a fia Noé?",
+      "opts": [
+        "Methusélahé",
+        "Lámekhé",
+        "Járedé",
+        "Énókhé"
+      ],
+      "correct": 1,
+      "ref": "1Móz 5,28-29"
+    }
+  ],
+  "GEN.6": [
+    {
+      "id": "GEN.6.q1",
+      "diff": "veryhard",
+      "q": "Milyen fából kellett Noénak megépítenie a bárkát?",
+      "opts": [
+        "Cédrusfából",
+        "Gófer fából",
+        "Akáciafából",
+        "Olajfából"
+      ],
+      "correct": 1,
+      "ref": "1Móz 6,14"
+    },
+    {
+      "id": "GEN.6.q2",
+      "diff": "veryhard",
+      "q": "Mekkora legyen a bárka hossza?",
+      "opts": [
+        "300 sing",
+        "50 sing",
+        "30 sing",
+        "150 sing"
+      ],
+      "correct": 0,
+      "ref": "1Móz 6,15"
+    },
+    {
+      "id": "GEN.6.q3",
+      "diff": "veryhard",
+      "q": "Mekkora legyen a bárka szélessége?",
+      "opts": [
+        "30 sing",
+        "50 sing",
+        "300 sing",
+        "15 sing"
+      ],
+      "correct": 1,
+      "ref": "1Móz 6,15"
+    },
+    {
+      "id": "GEN.6.q4",
+      "diff": "veryhard",
+      "q": "Hány szintűre (padlásúvá) kellett építeni a bárkát?",
+      "opts": [
+        "Kettőre",
+        "Háromra",
+        "Négyre",
+        "Ötre"
+      ],
+      "correct": 1,
+      "ref": "1Móz 6,16"
+    },
+    {
+      "id": "GEN.6.q5",
+      "diff": "veryhard",
+      "q": "Egészítsd ki: „legyen életének ideje ___ esztendő” — mennyiben korlátozta Isten az ember napjait?",
+      "opts": [
+        "100 esztendő",
+        "120 esztendő",
+        "150 esztendő",
+        "40 esztendő"
+      ],
+      "correct": 1,
+      "ref": "1Móz 6,3"
+    },
+    {
+      "id": "GEN.6.q6",
+      "diff": "veryhard",
+      "q": "A szöveg szerint kik valának a földön abban az időben, „a híres-neves hatalmasok”?",
+      "opts": [
+        "Az óriások",
+        "A királyok",
+        "A próféták",
+        "Az angyalok"
+      ],
+      "correct": 0,
+      "ref": "1Móz 6,4"
+    },
+    {
+      "id": "GEN.6.q7",
+      "diff": "veryhard",
+      "q": "Hogyan jellemzi a szöveg Noét?",
+      "opts": [
+        "Igaz, tökéletes férfiú, aki Istennel járt",
+        "Erős vadász az Úr előtt",
+        "Bölcs és gazdag király",
+        "Fáradt öreg földmíves"
+      ],
+      "correct": 0,
+      "ref": "1Móz 6,9"
+    },
+    {
+      "id": "GEN.6.q8",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? Isten megparancsolta, hogy Noé szurkozza meg a bárkát belül és kívül szurokkal.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 0,
+      "ref": "1Móz 6,14"
+    },
+    {
+      "id": "GEN.6.q9",
+      "diff": "hard",
+      "q": "Kik voltak Noé fiai?",
+      "opts": [
+        "Sém, Khám és Jáfet",
+        "Kain és Ábel",
+        "Séth és Énós",
+        "Jábál és Jubál"
+      ],
+      "correct": 0,
+      "ref": "1Móz 6,10"
+    },
+    {
+      "id": "GEN.6.q10",
+      "diff": "hard",
+      "q": "Igaz vagy hamis? Noé kegyelmet talált az Úr előtt.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 0,
+      "ref": "1Móz 6,8"
+    }
+  ],
+  "GEN.7": [
+    {
+      "id": "GEN.7.q1",
+      "diff": "veryhard",
+      "q": "Hány TISZTA állatot kellett Noénak bevinnie fajtánként?",
+      "opts": [
+        "Kettőt-kettőt",
+        "Hetet-hetet",
+        "Hármat-hármat",
+        "Tízet-tízet"
+      ],
+      "correct": 1,
+      "ref": "1Móz 7,2"
+    },
+    {
+      "id": "GEN.7.q2",
+      "diff": "veryhard",
+      "q": "Hány TISZTÁTALAN állatot kellett bevinnie fajtánként?",
+      "opts": [
+        "Hetet-hetet",
+        "Kettőt-kettőt",
+        "Hármat-hármat",
+        "Egyet-egyet"
+      ],
+      "correct": 1,
+      "ref": "1Móz 7,2"
+    },
+    {
+      "id": "GEN.7.q3",
+      "diff": "veryhard",
+      "q": "Hány éves volt Noé, amikor az özönvíz eljött?",
+      "opts": [
+        "500 éves",
+        "600 éves",
+        "601 éves",
+        "950 éves"
+      ],
+      "correct": 1,
+      "ref": "1Móz 7,6"
+    },
+    {
+      "id": "GEN.7.q4",
+      "diff": "veryhard",
+      "q": "Melyik hónapban és napon fakadtak fel „a nagy mélység minden forrásai”?",
+      "opts": [
+        "A második hónap 17. napján",
+        "A hetedik hónap 17. napján",
+        "Az első hónap 1. napján",
+        "A második hónap 27. napján"
+      ],
+      "correct": 0,
+      "ref": "1Móz 7,11"
+    },
+    {
+      "id": "GEN.7.q5",
+      "diff": "veryhard",
+      "q": "Meddig esett az eső a földre?",
+      "opts": [
+        "40 nap és 40 éjjel",
+        "150 napig",
+        "7 napig",
+        "Egy teljes évig"
+      ],
+      "correct": 0,
+      "ref": "1Móz 7,12"
+    },
+    {
+      "id": "GEN.7.q6",
+      "diff": "veryhard",
+      "q": "Hány singgel emelkedtek a vizek a hegyek fölé?",
+      "opts": [
+        "15 singgel",
+        "30 singgel",
+        "50 singgel",
+        "300 singgel"
+      ],
+      "correct": 0,
+      "ref": "1Móz 7,20"
+    },
+    {
+      "id": "GEN.7.q7",
+      "diff": "veryhard",
+      "q": "Meddig „vettek erőt” a vizek a földön?",
+      "opts": [
+        "40 napig",
+        "150 napig",
+        "7 napig",
+        "365 napig"
+      ],
+      "correct": 1,
+      "ref": "1Móz 7,24"
+    },
+    {
+      "id": "GEN.7.q8",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? Noé minden állatból pontosan kettőt-kettőt vitt be, tisztából és tisztátalanból egyaránt.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 1,
+      "ref": "1Móz 7,2"
+    },
+    {
+      "id": "GEN.7.q9",
+      "diff": "hard",
+      "q": "Ki zárta be az ajtót a bárka után?",
+      "opts": [
+        "Noé",
+        "Az Úr",
+        "Sém",
+        "Senki"
+      ],
+      "correct": 1,
+      "ref": "1Móz 7,16"
+    },
+    {
+      "id": "GEN.7.q10",
+      "diff": "hard",
+      "q": "Igaz vagy hamis? Az özönvíz a legmagasabb hegyeket is elborította.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 0,
+      "ref": "1Móz 7,19-20"
+    }
+  ],
+  "GEN.8": [
+    {
+      "id": "GEN.8.q1",
+      "diff": "veryhard",
+      "q": "Melyik hegyen feneklett meg a bárka?",
+      "opts": [
+        "Ararát hegyén",
+        "Sínai hegyén",
+        "Hóreb hegyén",
+        "Nébó hegyén"
+      ],
+      "correct": 0,
+      "ref": "1Móz 8,4"
+    },
+    {
+      "id": "GEN.8.q2",
+      "diff": "veryhard",
+      "q": "Melyik hónapban és napon feneklett meg a bárka?",
+      "opts": [
+        "A hetedik hónap 17. napján",
+        "A második hónap 17. napján",
+        "A tizedik hónap 1. napján",
+        "Az első hónap 1. napján"
+      ],
+      "correct": 0,
+      "ref": "1Móz 8,4"
+    },
+    {
+      "id": "GEN.8.q3",
+      "diff": "veryhard",
+      "q": "Melyik madarat bocsátotta ki Noé ELŐSZÖR?",
+      "opts": [
+        "A galambot",
+        "A hollót",
+        "A sast",
+        "A varjút"
+      ],
+      "correct": 1,
+      "ref": "1Móz 8,7"
+    },
+    {
+      "id": "GEN.8.q4",
+      "diff": "veryhard",
+      "q": "Mit hozott a galamb a második kibocsátáskor a szájában?",
+      "opts": [
+        "Leszakasztott olajfalevelet",
+        "Fügefalevelet",
+        "Egy zöld gallyat",
+        "Semmit"
+      ],
+      "correct": 0,
+      "ref": "1Móz 8,11"
+    },
+    {
+      "id": "GEN.8.q5",
+      "diff": "veryhard",
+      "q": "Hányszor bocsátotta ki Noé összesen a galambot?",
+      "opts": [
+        "Kétszer",
+        "Háromszor",
+        "Négyszer",
+        "Egyszer"
+      ],
+      "correct": 1,
+      "ref": "1Móz 8,8-12"
+    },
+    {
+      "id": "GEN.8.q6",
+      "diff": "veryhard",
+      "q": "Hány napot várt Noé a galamb egyes kibocsátásai között?",
+      "opts": [
+        "Hét napot",
+        "Negyven napot",
+        "Három napot",
+        "Tíz napot"
+      ],
+      "correct": 0,
+      "ref": "1Móz 8,10"
+    },
+    {
+      "id": "GEN.8.q7",
+      "diff": "veryhard",
+      "q": "Mit fogadott meg az Úr magában az áldozat kedves illata után?",
+      "opts": [
+        "Nem átkozza meg többé a földet az emberért",
+        "Új törvényt ad az embereknek",
+        "Kiirtja a gonoszokat a földről",
+        "Új bárkát építtet Noéval"
+      ],
+      "correct": 0,
+      "ref": "1Móz 8,21"
+    },
+    {
+      "id": "GEN.8.q8",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? Noé először a galambot bocsátotta ki, és az rögtön olajágat hozott.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 1,
+      "ref": "1Móz 8,7-11"
+    },
+    {
+      "id": "GEN.8.q9",
+      "diff": "hard",
+      "q": "Melyik madár hozott végül olajfalevelet?",
+      "opts": [
+        "A galamb",
+        "A holló",
+        "A sas",
+        "A gólya"
+      ],
+      "correct": 0,
+      "ref": "1Móz 8,11"
+    },
+    {
+      "id": "GEN.8.q10",
+      "diff": "hard",
+      "q": "Igaz vagy hamis? Az áradás után Noé oltárt épített és áldozatot mutatott be az Úrnak.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 0,
+      "ref": "1Móz 8,20"
+    }
+  ],
+  "GEN.9": [
+    {
+      "id": "GEN.9.q1",
+      "diff": "veryhard",
+      "q": "Mi lett a szövetség jele Isten és a föld között?",
+      "opts": [
+        "Az ív (szivárvány) a felhőkben",
+        "A galamb",
+        "Az oltár",
+        "A bárka"
+      ],
+      "correct": 0,
+      "ref": "1Móz 9,13"
+    },
+    {
+      "id": "GEN.9.q2",
+      "diff": "veryhard",
+      "q": "Melyik fia látta meg Noé mezítelenségét, és adta hírül a testvéreinek?",
+      "opts": [
+        "Sém",
+        "Khám",
+        "Jáfet",
+        "Kanaán"
+      ],
+      "correct": 1,
+      "ref": "1Móz 9,22"
+    },
+    {
+      "id": "GEN.9.q3",
+      "diff": "veryhard",
+      "q": "Kire mondta Noé, hogy „Szolgák szolgája legyen atyjafiai közt”?",
+      "opts": [
+        "Khámra",
+        "Kanaánra",
+        "Jáfetre",
+        "Sémre"
+      ],
+      "correct": 1,
+      "ref": "1Móz 9,25"
+    },
+    {
+      "id": "GEN.9.q4",
+      "diff": "veryhard",
+      "q": "Khám kinek volt az atyja?",
+      "opts": [
+        "Kanaánnak",
+        "Sémnek",
+        "Nimródnak",
+        "Jáfetnek"
+      ],
+      "correct": 0,
+      "ref": "1Móz 9,18"
+    },
+    {
+      "id": "GEN.9.q5",
+      "diff": "veryhard",
+      "q": "Hogyan takarták be Sém és Jáfet az atyjuk mezítelenségét?",
+      "opts": [
+        "Háttal menve, ruhát a vállukra vetve",
+        "Szemüket lehunyva, tapogatózva",
+        "Egy takarót dobtak rá kívülről",
+        "Elküldték a szolgákat, hogy tegyék meg"
+      ],
+      "correct": 0,
+      "ref": "1Móz 9,23"
+    },
+    {
+      "id": "GEN.9.q6",
+      "diff": "veryhard",
+      "q": "Mit engedett meg most Isten étkezésre, amit korábban nem?",
+      "opts": [
+        "Minden élő állatot (húst), de a vért nem",
+        "Csak a tiszta állatokat",
+        "Csak a zöld növényeket",
+        "Csak a halakat"
+      ],
+      "correct": 0,
+      "ref": "1Móz 9,3-4"
+    },
+    {
+      "id": "GEN.9.q7",
+      "diff": "veryhard",
+      "q": "Hány évet élt Noé az özönvíz UTÁN?",
+      "opts": [
+        "350 évet",
+        "500 évet",
+        "600 évet",
+        "950 évet"
+      ],
+      "correct": 0,
+      "ref": "1Móz 9,28"
+    },
+    {
+      "id": "GEN.9.q8",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? Noé közvetlenül Khámot átkozta meg, amiért meglátta a mezítelenségét.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 1,
+      "ref": "1Móz 9,24-25"
+    },
+    {
+      "id": "GEN.9.q9",
+      "diff": "hard",
+      "q": "Mit ültetett Noé, amelynek borától megrészegedett?",
+      "opts": [
+        "Szőlőt",
+        "Búzát",
+        "Olajfát",
+        "Fügét"
+      ],
+      "correct": 0,
+      "ref": "1Móz 9,20"
+    },
+    {
+      "id": "GEN.9.q10",
+      "diff": "hard",
+      "q": "Igaz vagy hamis? Isten megígérte, hogy soha többé nem pusztítja el özönvízzel a földet.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 0,
+      "ref": "1Móz 9,11"
+    }
+  ],
+  "GEN.10": [
+    {
+      "id": "GEN.10.q1",
+      "diff": "veryhard",
+      "q": "Kinek volt a fia Nimród?",
+      "opts": [
+        "Khúsnak",
+        "Kanaánnak",
+        "Miczráimnak",
+        "Sémnek"
+      ],
+      "correct": 0,
+      "ref": "1Móz 10,8"
+    },
+    {
+      "id": "GEN.10.q2",
+      "diff": "veryhard",
+      "q": "Hogyan emlegeti a szöveg Nimródot?",
+      "opts": [
+        "Hatalmas vadász az Úr előtt",
+        "Bölcs és igaz király",
+        "Az első juhpásztor",
+        "Nagy próféta"
+      ],
+      "correct": 0,
+      "ref": "1Móz 10,9"
+    },
+    {
+      "id": "GEN.10.q3",
+      "diff": "veryhard",
+      "q": "Melyik földön volt Nimród birodalmának kezdete (Bábel, Erekh, Akkád, Kálnéh)?",
+      "opts": [
+        "Sineár földén",
+        "Assiriában",
+        "Kanaán földén",
+        "Egyiptomban"
+      ],
+      "correct": 0,
+      "ref": "1Móz 10,10"
+    },
+    {
+      "id": "GEN.10.q4",
+      "diff": "veryhard",
+      "q": "A szöveg szerint kiktől származtak a Filiszteusok?",
+      "opts": [
+        "Kaszlukhimtól",
+        "Kanaántól",
+        "Nimródtól",
+        "Jávántól"
+      ],
+      "correct": 0,
+      "ref": "1Móz 10,14"
+    },
+    {
+      "id": "GEN.10.q5",
+      "diff": "veryhard",
+      "q": "Ki volt Kanaán elsőszülöttje?",
+      "opts": [
+        "Czídon",
+        "Khét",
+        "Nimród",
+        "Jebuzeus"
+      ],
+      "correct": 0,
+      "ref": "1Móz 10,15"
+    },
+    {
+      "id": "GEN.10.q6",
+      "diff": "veryhard",
+      "q": "Miért nevezték Héber egyik fiát Pélegnek?",
+      "opts": [
+        "Mert az ő idejében osztatott el a föld",
+        "Mert ő volt a legerősebb",
+        "Mert vadász volt",
+        "Mert várost épített"
+      ],
+      "correct": 0,
+      "ref": "1Móz 10,25"
+    },
+    {
+      "id": "GEN.10.q7",
+      "diff": "veryhard",
+      "q": "Az alábbiak közül ki volt Jáfet fia?",
+      "opts": [
+        "Mágog",
+        "Khús",
+        "Kanaán",
+        "Arpaksád"
+      ],
+      "correct": 0,
+      "ref": "1Móz 10,2"
+    },
+    {
+      "id": "GEN.10.q8",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? Nimród Sém leszármazottja volt.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 1,
+      "ref": "1Móz 10,6-8"
+    },
+    {
+      "id": "GEN.10.q9",
+      "diff": "hard",
+      "q": "Noé mely három fiától szaporodtak el a népek az özönvíz után?",
+      "opts": [
+        "Sém, Khám és Jáfet",
+        "Kain, Ábel és Séth",
+        "Ábrám, Nákhor és Hárán",
+        "Élám, Assur és Arám"
+      ],
+      "correct": 0,
+      "ref": "1Móz 10,1"
+    },
+    {
+      "id": "GEN.10.q10",
+      "diff": "hard",
+      "q": "Igaz vagy hamis? Nimród a Sineár földjéről Assiriába ment, és megépítette Ninivét.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 0,
+      "ref": "1Móz 10,11"
+    }
+  ],
+  "GEN.11": [
+    {
+      "id": "GEN.11.q1",
+      "diff": "veryhard",
+      "q": "Mit használtak a torony építői kő helyett és habarcs (ragasztó) helyett?",
+      "opts": [
+        "Téglát és szurkot",
+        "Követ és agyagot",
+        "Fát és gyantát",
+        "Vályogot és meszet"
+      ],
+      "correct": 0,
+      "ref": "1Móz 11,3"
+    },
+    {
+      "id": "GEN.11.q2",
+      "diff": "veryhard",
+      "q": "Miért akartak várost és tornyot építeni?",
+      "opts": [
+        "Hogy nevet szerezzenek, és el ne széledjenek a föld színén",
+        "Hogy megvédjék magukat az özönvíztől",
+        "Hogy közelebb kerüljenek az Úrhoz",
+        "Hogy Nimródnak palotát emeljenek"
+      ],
+      "correct": 0,
+      "ref": "1Móz 11,4"
+    },
+    {
+      "id": "GEN.11.q3",
+      "diff": "veryhard",
+      "q": "Miért kapta a hely a Bábel nevet?",
+      "opts": [
+        "Mert ott zavarta össze az Úr az egész föld nyelvét",
+        "Mert ott épült az első város",
+        "Mert Nimród ott uralkodott",
+        "Mert ott szállt le az Úr a mennyből"
+      ],
+      "correct": 0,
+      "ref": "1Móz 11,9"
+    },
+    {
+      "id": "GEN.11.q4",
+      "diff": "veryhard",
+      "q": "Melyik földön (síkságon) építették a tornyot?",
+      "opts": [
+        "Sineár",
+        "Ararát",
+        "Kanaán",
+        "Nód"
+      ],
+      "correct": 0,
+      "ref": "1Móz 11,2"
+    },
+    {
+      "id": "GEN.11.q5",
+      "diff": "veryhard",
+      "q": "Kik voltak Tháré fiai?",
+      "opts": [
+        "Ábrám, Nákhor és Hárán",
+        "Sém, Khám és Jáfet",
+        "Lót, Milkhah és Jiszkáh",
+        "Ábrám, Lót és Eliézer"
+      ],
+      "correct": 0,
+      "ref": "1Móz 11,26-27"
+    },
+    {
+      "id": "GEN.11.q6",
+      "diff": "veryhard",
+      "q": "Ki volt Lót apja (tehát kinek volt Ábrám a nagybátyja)?",
+      "opts": [
+        "Hárán",
+        "Nákhor",
+        "Tháré",
+        "Ábrám"
+      ],
+      "correct": 0,
+      "ref": "1Móz 11,27"
+    },
+    {
+      "id": "GEN.11.q7",
+      "diff": "veryhard",
+      "q": "Hol halt meg Hárán, az atyja szemei előtt?",
+      "opts": [
+        "Úr-Kaszdimban",
+        "Háránban",
+        "Kanaánban",
+        "Bábelben"
+      ],
+      "correct": 0,
+      "ref": "1Móz 11,28"
+    },
+    {
+      "id": "GEN.11.q8",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? Ábrám felesége, Szárai, kezdettől magtalan volt.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 0,
+      "ref": "1Móz 11,30"
+    },
+    {
+      "id": "GEN.11.q9",
+      "diff": "hard",
+      "q": "Hány nyelve volt kezdetben az egész földnek?",
+      "opts": [
+        "Egy",
+        "Kettő",
+        "Hét",
+        "Hetven"
+      ],
+      "correct": 0,
+      "ref": "1Móz 11,1"
+    },
+    {
+      "id": "GEN.11.q10",
+      "diff": "hard",
+      "q": "Igaz vagy hamis? Tháré Úr-Kaszdimból indult el, de Háránban telepedett le és ott halt meg.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 0,
+      "ref": "1Móz 11,31-32"
+    }
+  ],
+  "GEN.12": [
+    {
+      "id": "GEN.12.q1",
+      "diff": "veryhard",
+      "q": "Hány éves volt Ábrám, amikor kiment Háránból?",
+      "opts": [
+        "75 éves",
+        "70 éves",
+        "86 éves",
+        "100 éves"
+      ],
+      "correct": 0,
+      "ref": "1Móz 12,4"
+    },
+    {
+      "id": "GEN.12.q2",
+      "diff": "veryhard",
+      "q": "Mit mondott az Úr azokról, akik Ábrámot áldják, illetve átkozzák?",
+      "opts": [
+        "Megáldja az áldóit, és megátkozza az átkozóit",
+        "Mindenkit megáld, aki Ábrám közelében él",
+        "Csak a rokonait áldja meg",
+        "Nem szól róluk semmit"
+      ],
+      "correct": 0,
+      "ref": "1Móz 12,3"
+    },
+    {
+      "id": "GEN.12.q3",
+      "diff": "veryhard",
+      "q": "Hol épített Ábrám először oltárt Kanaánban (Móréh tölgyesénél)?",
+      "opts": [
+        "Sikhemnél",
+        "Béthelnél",
+        "Hebronban",
+        "Egyiptomban"
+      ],
+      "correct": 0,
+      "ref": "1Móz 12,6-7"
+    },
+    {
+      "id": "GEN.12.q4",
+      "diff": "veryhard",
+      "q": "Miért ment Ábrám Egyiptomba?",
+      "opts": [
+        "Mert nagy éhség volt az országban",
+        "Mert háború tört ki",
+        "Mert az Úr odaparancsolta",
+        "Hogy kereskedjen"
+      ],
+      "correct": 0,
+      "ref": "1Móz 12,10"
+    },
+    {
+      "id": "GEN.12.q5",
+      "diff": "veryhard",
+      "q": "Mit kért Ábrám, hogy Szárai mondjon magáról Egyiptomban?",
+      "opts": [
+        "Hogy a húga",
+        "Hogy néma",
+        "Hogy szolgálója",
+        "Hogy özvegy"
+      ],
+      "correct": 0,
+      "ref": "1Móz 12,13"
+    },
+    {
+      "id": "GEN.12.q6",
+      "diff": "veryhard",
+      "q": "Hová vitték Szárait Egyiptomban?",
+      "opts": [
+        "A Faraó udvarába",
+        "Egy templomba",
+        "Abimélek házába",
+        "A rabszolgapiacra"
+      ],
+      "correct": 0,
+      "ref": "1Móz 12,15"
+    },
+    {
+      "id": "GEN.12.q7",
+      "diff": "veryhard",
+      "q": "Hogyan büntette az Úr a Faraót Száraiért?",
+      "opts": [
+        "Nagy csapásokkal verte meg őt és a házát",
+        "Elvette a trónját",
+        "Aszályt bocsátott Egyiptomra",
+        "Álmot küldött rá"
+      ],
+      "correct": 0,
+      "ref": "1Móz 12,17"
+    },
+    {
+      "id": "GEN.12.q8",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? Ábrám azt mondta Egyiptomban, hogy Szárai a felesége.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 1,
+      "ref": "1Móz 12,13"
+    },
+    {
+      "id": "GEN.12.q9",
+      "diff": "hard",
+      "q": "Ki tartott Ábrámmal, amikor kiment Háránból?",
+      "opts": [
+        "Lót",
+        "Nákhor",
+        "Tháré",
+        "Eliézer"
+      ],
+      "correct": 0,
+      "ref": "1Móz 12,4"
+    },
+    {
+      "id": "GEN.12.q10",
+      "diff": "hard",
+      "q": "Igaz vagy hamis? Az Úr azt ígérte Ábrámnak, hogy nagy nemzetté teszi.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 0,
+      "ref": "1Móz 12,2"
+    }
+  ],
+  "GEN.13": [
+    {
+      "id": "GEN.13.q1",
+      "diff": "veryhard",
+      "q": "Miben volt Ábrám igen gazdag?",
+      "opts": [
+        "Barmokban, ezüstben és aranyban",
+        "Gabonában és olajban",
+        "Szolgákban és fegyverekben",
+        "Földekben és házakban"
+      ],
+      "correct": 0,
+      "ref": "1Móz 13,2"
+    },
+    {
+      "id": "GEN.13.q2",
+      "diff": "veryhard",
+      "q": "Miért kellett Ábrámnak és Lótnak elválnia?",
+      "opts": [
+        "Mert a föld nem bírta el őket együtt, és versengés támadt a pásztoraik között",
+        "Mert összevesztek egy örökségen",
+        "Mert az Úr így parancsolta",
+        "Mert Lót Egyiptomba vágyott"
+      ],
+      "correct": 0,
+      "ref": "1Móz 13,6-7"
+    },
+    {
+      "id": "GEN.13.q3",
+      "diff": "veryhard",
+      "q": "Melyik területet választotta magának Lót?",
+      "opts": [
+        "A Jordán egész mellékét",
+        "A hegyvidéket",
+        "Egyiptom földjét",
+        "Hebron környékét"
+      ],
+      "correct": 0,
+      "ref": "1Móz 13,11"
+    },
+    {
+      "id": "GEN.13.q4",
+      "diff": "veryhard",
+      "q": "Mihez hasonlította a szöveg a Jordán mellékét, amit Lót látott?",
+      "opts": [
+        "Az Úr kertjéhez, Egyiptom földjéhez",
+        "Az Éden folyóihoz",
+        "A tenger fövenyéhez",
+        "Egy kietlen pusztához"
+      ],
+      "correct": 0,
+      "ref": "1Móz 13,10"
+    },
+    {
+      "id": "GEN.13.q5",
+      "diff": "veryhard",
+      "q": "Melyik város felé sátorozott Lót, miután elvált Ábrámtól?",
+      "opts": [
+        "Sodomáig",
+        "Hebronig",
+        "Sikhemig",
+        "Béthelig"
+      ],
+      "correct": 0,
+      "ref": "1Móz 13,12"
+    },
+    {
+      "id": "GEN.13.q6",
+      "diff": "veryhard",
+      "q": "Hogyan jellemzi a szöveg Sodoma lakosait?",
+      "opts": [
+        "Nagyon gonoszok és bűnösök az Úr előtt",
+        "Gazdagok és békeszeretők",
+        "Bálványimádók, de vendégszeretők",
+        "Egyszerű földmívesek"
+      ],
+      "correct": 0,
+      "ref": "1Móz 13,13"
+    },
+    {
+      "id": "GEN.13.q7",
+      "diff": "veryhard",
+      "q": "Hová költözött és hol épített oltárt Ábrám a fejezet végén?",
+      "opts": [
+        "Mamré tölgyesébe, Hebronban",
+        "Sikhembe",
+        "A Jordán mellékére",
+        "Vissza Háránba"
+      ],
+      "correct": 0,
+      "ref": "1Móz 13,18"
+    },
+    {
+      "id": "GEN.13.q8",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? Ábrám választotta ki magának előbb a legjobb földet, a Jordán mellékét.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 1,
+      "ref": "1Móz 13,9-11"
+    },
+    {
+      "id": "GEN.13.q9",
+      "diff": "hard",
+      "q": "Mely népek laktak akkor azon a földön, ahol a versengés támadt?",
+      "opts": [
+        "A Kananeusok és a Perizeusok",
+        "A Filiszteusok és az Emoreusok",
+        "A Refeusok és a Zuzeusok",
+        "Az Amálekiták és a Hittheusok"
+      ],
+      "correct": 0,
+      "ref": "1Móz 13,7"
+    },
+    {
+      "id": "GEN.13.q10",
+      "diff": "hard",
+      "q": "Igaz vagy hamis? Ábrám hagyta, hogy Lót válasszon először a föld között.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 0,
+      "ref": "1Móz 13,9"
+    }
+  ],
+  "GEN.14": [
+    {
+      "id": "GEN.14.q1",
+      "diff": "veryhard",
+      "q": "A csata leírása szerint hány király harcolt hány ellen?",
+      "opts": [
+        "Négy király öt ellen",
+        "Öt király négy ellen",
+        "Három király négy ellen",
+        "Két király öt ellen"
+      ],
+      "correct": 0,
+      "ref": "1Móz 14,9"
+    },
+    {
+      "id": "GEN.14.q2",
+      "diff": "veryhard",
+      "q": "Hány évig szolgálták a városok Khédorlaomert, mielőtt fellázadtak?",
+      "opts": [
+        "Tizenkét évig",
+        "Tizenhárom évig",
+        "Tizennégy évig",
+        "Hét évig"
+      ],
+      "correct": 0,
+      "ref": "1Móz 14,4"
+    },
+    {
+      "id": "GEN.14.q3",
+      "diff": "veryhard",
+      "q": "Melyik völgyben egyesültek a királyok, és mi az a szöveg szerint?",
+      "opts": [
+        "A Sziddim völgyében, azaz a Sóstengernél",
+        "A Sáve völgyében",
+        "A Jordán völgyében",
+        "Móréh tölgyesénél"
+      ],
+      "correct": 0,
+      "ref": "1Móz 14,3"
+    },
+    {
+      "id": "GEN.14.q4",
+      "diff": "veryhard",
+      "q": "Hány „próbált legényt” fegyverzett fel Ábrám Lót kiszabadítására?",
+      "opts": [
+        "318-at",
+        "300-at",
+        "400-at",
+        "218-at"
+      ],
+      "correct": 0,
+      "ref": "1Móz 14,14"
+    },
+    {
+      "id": "GEN.14.q5",
+      "diff": "veryhard",
+      "q": "Meddig üldözte Ábrám az elrablókat?",
+      "opts": [
+        "Dánig",
+        "Egyiptomig",
+        "Sodomáig",
+        "Ninivéig"
+      ],
+      "correct": 0,
+      "ref": "1Móz 14,14"
+    },
+    {
+      "id": "GEN.14.q6",
+      "diff": "veryhard",
+      "q": "Ki volt Melkhisédek, aki kenyeret és bort hozott Ábrámnak?",
+      "opts": [
+        "Sálem királya, a Magasságos Isten papja",
+        "Sodoma királya",
+        "Élám királya",
+        "Ábrám egyik szolgája"
+      ],
+      "correct": 0,
+      "ref": "1Móz 14,18"
+    },
+    {
+      "id": "GEN.14.q7",
+      "diff": "veryhard",
+      "q": "Mit adott Ábrám Melkhisédeknek?",
+      "opts": [
+        "Tizedet mindenből",
+        "A fél jószágot",
+        "Egy oltárt",
+        "Semmit"
+      ],
+      "correct": 0,
+      "ref": "1Móz 14,20"
+    },
+    {
+      "id": "GEN.14.q8",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? Ábrám elfogadta Sodoma királyától a jószágot jutalmul.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 1,
+      "ref": "1Móz 14,22-23"
+    },
+    {
+      "id": "GEN.14.q9",
+      "diff": "hard",
+      "q": "Miért vitték el Lótot a győztes királyok?",
+      "opts": [
+        "Mert Sodomában lakott",
+        "Mert Ábrám ellensége volt",
+        "Mert katona volt",
+        "Mert kincse volt"
+      ],
+      "correct": 0,
+      "ref": "1Móz 14,12"
+    },
+    {
+      "id": "GEN.14.q10",
+      "diff": "hard",
+      "q": "Igaz vagy hamis? Melkhisédek Sálem királya és a Magasságos Isten papja volt.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 0,
+      "ref": "1Móz 14,18"
+    }
+  ],
+  "GEN.15": [
+    {
+      "id": "GEN.15.q1",
+      "diff": "veryhard",
+      "q": "Kit nevezett meg Ábrám lehetséges örököseként, mielőtt Isten fiat ígért neki?",
+      "opts": [
+        "A Damaskusbeli Eliézert",
+        "Lótot",
+        "Izmáelt",
+        "Nákhort"
+      ],
+      "correct": 0,
+      "ref": "1Móz 15,2"
+    },
+    {
+      "id": "GEN.15.q2",
+      "diff": "veryhard",
+      "q": "Mihez hasonlította az Úr Ábrám leendő utódait, amikor kivitte az éjszakába?",
+      "opts": [
+        "A csillagokhoz",
+        "A föld porához",
+        "A tenger fövenyéhez",
+        "A fák leveleihez"
+      ],
+      "correct": 0,
+      "ref": "1Móz 15,5"
+    },
+    {
+      "id": "GEN.15.q3",
+      "diff": "veryhard",
+      "q": "Mi történt, miután Ábrám hitt az Úrnak?",
+      "opts": [
+        "Igazságul tulajdoníttatott neki",
+        "Fiat nemzett még aznap",
+        "Oltárt épített",
+        "Nevet kapott: Ábrahám"
+      ],
+      "correct": 0,
+      "ref": "1Móz 15,6"
+    },
+    {
+      "id": "GEN.15.q4",
+      "diff": "veryhard",
+      "q": "Hány éves állatokat kellett Ábrámnak hoznia a szövetségkötéshez?",
+      "opts": [
+        "Három esztendőseket",
+        "Egy esztendőseket",
+        "Öt esztendőseket",
+        "Hét esztendőseket"
+      ],
+      "correct": 0,
+      "ref": "1Móz 15,9"
+    },
+    {
+      "id": "GEN.15.q5",
+      "diff": "veryhard",
+      "q": "Mit NEM hasított kétfelé Ábrám az áldozati állatok közül?",
+      "opts": [
+        "A madarakat",
+        "Az üszőt",
+        "A kecskét",
+        "A kost"
+      ],
+      "correct": 0,
+      "ref": "1Móz 15,10"
+    },
+    {
+      "id": "GEN.15.q6",
+      "diff": "veryhard",
+      "q": "Az Úr szava szerint hány évig lesz Ábrám magva jövevény és nyomorgatott idegen földön?",
+      "opts": [
+        "Négyszáz évig",
+        "Háromszáz évig",
+        "Négyszázharminc évig",
+        "Százhúsz évig"
+      ],
+      "correct": 0,
+      "ref": "1Móz 15,13"
+    },
+    {
+      "id": "GEN.15.q7",
+      "diff": "veryhard",
+      "q": "Mi ment át a húsdarabok között napnyugtakor, a sötétségben?",
+      "opts": [
+        "Egy füstölgő kemence és tüzes fáklya",
+        "Egy fényes angyal",
+        "Az Úr hangja",
+        "Egy tüzes szekér"
+      ],
+      "correct": 0,
+      "ref": "1Móz 15,17"
+    },
+    {
+      "id": "GEN.15.q8",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? Az Úr Ábrám utódait a tenger fövenyéhez hasonlította, amikor kivitte az éjszakába.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 1,
+      "ref": "1Móz 15,5"
+    },
+    {
+      "id": "GEN.15.q9",
+      "diff": "hard",
+      "q": "Mit mondott az Úr Ábrámnak a látomás elején?",
+      "opts": [
+        "„Ne félj Ábrám: én paizsod vagyok tenéked”",
+        "„Kelj fel és menj Egyiptomba”",
+        "„Építs nekem oltárt”",
+        "„Áldott vagy minden nép között”"
+      ],
+      "correct": 0,
+      "ref": "1Móz 15,1"
+    },
+    {
+      "id": "GEN.15.q10",
+      "diff": "hard",
+      "q": "Igaz vagy hamis? Ábrám panasza az volt, hogy nincs gyermeke.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 0,
+      "ref": "1Móz 15,2-3"
+    }
+  ],
+  "ROM.1": [
+    {
+      "id": "ROM.1.q1",
+      "diff": "veryhard",
+      "q": "Hogyan nevezi magát Pál a levél legelső versében?",
+      "opts": [
+        "Jézus Krisztus szolgája, elhívott apostol",
+        "A római gyülekezet véne",
+        "Krisztus testvére",
+        "Az Úr prófétája"
+      ],
+      "correct": 0,
+      "ref": "Róm 1,1"
+    },
+    {
+      "id": "ROM.1.q2",
+      "diff": "veryhard",
+      "q": "Kinek a magvából lett „test szerint” az Isten Fia?",
+      "opts": [
+        "Dávid",
+        "Ábrahám",
+        "Júda",
+        "Lévi"
+      ],
+      "correct": 0,
+      "ref": "Róm 1,3"
+    },
+    {
+      "id": "ROM.1.q3",
+      "diff": "veryhard",
+      "q": "Mi által „bizonyíttatott meg hatalmasan”, hogy Jézus az Isten Fia?",
+      "opts": [
+        "A halálból való feltámadás által",
+        "A csodatételei által",
+        "A keresztsége által",
+        "A törvény betöltése által"
+      ],
+      "correct": 0,
+      "ref": "Róm 1,4"
+    },
+    {
+      "id": "ROM.1.q4",
+      "diff": "veryhard",
+      "q": "Kiknek címezi Pál a levelet a 7. versben?",
+      "opts": [
+        "A Rómában lévőknek, Isten szerelmeseinek, hivatalos szenteknek",
+        "A jeruzsálemi gyülekezetnek",
+        "A galáciai pogányoknak",
+        "A tizenkét törzsnek"
+      ],
+      "correct": 0,
+      "ref": "Róm 1,7"
+    },
+    {
+      "id": "ROM.1.q5",
+      "diff": "veryhard",
+      "q": "A 16. vers szerint miért nem szégyelli Pál a Krisztus evangéliumát?",
+      "opts": [
+        "Mert Istennek hatalma az minden hívő üdvösségére",
+        "Mert ő apostol",
+        "Mert a törvény ezt kívánja",
+        "Mert a császár is hívő"
+      ],
+      "correct": 0,
+      "ref": "Róm 1,16"
+    },
+    {
+      "id": "ROM.1.q6",
+      "diff": "veryhard",
+      "q": "A 16. vers szerint kinek szól az üdvösség „először”?",
+      "opts": [
+        "A zsidónak először, majd a görögnek",
+        "A görögnek először",
+        "Csak a zsidóknak",
+        "A pogányoknak először"
+      ],
+      "correct": 0,
+      "ref": "Róm 1,16"
+    },
+    {
+      "id": "ROM.1.q7",
+      "diff": "veryhard",
+      "q": "Melyik idézettel zárul a 17. vers?",
+      "opts": [
+        "„Az igaz ember pedig hitből él”",
+        "„Szeresd felebarátodat, mint magadat”",
+        "„Az Úr az én pásztorom”",
+        "„A bűn zsoldja a halál”"
+      ],
+      "correct": 0,
+      "ref": "Róm 1,17"
+    },
+    {
+      "id": "ROM.1.q8",
+      "diff": "veryhard",
+      "q": "Mire cserélték fel az emberek az örökkévaló Isten dicsőségét (23. vers)?",
+      "opts": [
+        "Mulandó ember, madár, négylábú és csúszó-mászó állat képmására",
+        "Aranyból öntött borjúra",
+        "A nap és a hold tiszteletére",
+        "Pénzre és földi hatalomra"
+      ],
+      "correct": 0,
+      "ref": "Róm 1,23"
+    },
+    {
+      "id": "ROM.1.q9",
+      "diff": "hard",
+      "q": "Miért ad hálát Pál mindjárt az elején a rómaiakért (8. vers)?",
+      "opts": [
+        "Mert hitüknek az egész világon híre van",
+        "Mert bőven adakoztak",
+        "Mert ők építették a gyülekezetet",
+        "Mert megszabadultak az üldözéstől"
+      ],
+      "correct": 0,
+      "ref": "Róm 1,8"
+    },
+    {
+      "id": "ROM.1.q10",
+      "diff": "hard",
+      "q": "Igaz vagy hamis? Pál azt írja, hogy szégyelli a Krisztus evangéliumát.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 1,
+      "ref": "Róm 1,16"
+    }
+  ],
+  "GEN.16": [
+    {
+      "id": "GEN.16.q1",
+      "diff": "veryhard",
+      "q": "Honnan származott Hágár, Szárai szolgálója?",
+      "opts": [
+        "Égyiptomból",
+        "Kanaánból",
+        "Mezopotámiából",
+        "Úrból"
+      ],
+      "correct": 0,
+      "ref": "1Móz 16,1"
+    },
+    {
+      "id": "GEN.16.q2",
+      "diff": "veryhard",
+      "q": "Hány esztendővel azután adta Szárai Hágárt Ábrámnak feleségül, hogy Ábrám a Kanaán földjén letelepedett?",
+      "opts": [
+        "Öt esztendővel",
+        "Hét esztendővel",
+        "Tíz esztendővel",
+        "Tizenkét esztendővel"
+      ],
+      "correct": 2,
+      "ref": "1Móz 16,3"
+    },
+    {
+      "id": "GEN.16.q3",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? Miután Hágár látta, hogy terhes, megnőtt Szárai becsülete a szemében.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 1,
+      "ref": "1Móz 16,4"
+    },
+    {
+      "id": "GEN.16.q4",
+      "diff": "veryhard",
+      "q": "Kinek mondta Szárai: „Bántódásom van miattad. Én adtam öledbe szolgálómat, és mivelhogy látja, hogy teherbe esett, nincsen előtte becsületem”?",
+      "opts": [
+        "Az Úrnak",
+        "Hágárnak",
+        "Ábrámnak",
+        "A fáraónak"
+      ],
+      "correct": 2,
+      "ref": "1Móz 16,5"
+    },
+    {
+      "id": "GEN.16.q5",
+      "diff": "veryhard",
+      "q": "Az Úr angyala hol találta meg Hágárt, miután elfutott Szárai elől?",
+      "opts": [
+        "Egy forrásnál a pusztában, a Súrba menő úton",
+        "Egy kútnál Kanaán földjén, Béred közelében",
+        "Egy oázisnál Égyiptom határán, Kádes és Béred között",
+        "Egy barlangban a hegyek között, a Lakhai Rói forrásánál"
+      ],
+      "correct": 0,
+      "ref": "1Móz 16,7"
+    },
+    {
+      "id": "GEN.16.q6",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? Az Úr angyala azt parancsolta Hágárnak, hogy térjen meg asszonyához, és alázza meg magát az ő kezei alatt.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 0,
+      "ref": "1Móz 16,9"
+    },
+    {
+      "id": "GEN.16.q7",
+      "diff": "veryhard",
+      "q": "Miért kellett a születendő fiúnak az Ismáel nevet adni?",
+      "opts": [
+        "Mert Isten látta Ábrám hűségét",
+        "Mert Isten meghallotta Hágár nyomorúságát",
+        "Mert Isten megígérte, hogy sok nemzetség atyja lesz",
+        "Mert Isten megáldotta Szárait"
+      ],
+      "correct": 1,
+      "ref": "1Móz 16,11"
+    },
+    {
+      "id": "GEN.16.q8",
+      "diff": "veryhard",
+      "q": "Milyen névvel illette Hágár az Urat, aki vele szólt, miután a forrásnál találkoztak?",
+      "opts": [
+        "A Hatalmas Isten",
+        "A Látomás Istene",
+        "A Megváltó Isten",
+        "Az Örökkévaló Isten"
+      ],
+      "correct": 1,
+      "ref": "1Móz 16,13"
+    },
+    {
+      "id": "GEN.16.q9",
+      "diff": "hard",
+      "q": "Ki volt Hágár?",
+      "opts": [
+        "Ábrám felesége",
+        "Szárai szolgálója",
+        "Egy prófétanő",
+        "Egy kanaáni asszony"
+      ],
+      "correct": 1,
+      "ref": "1Móz 16,1"
+    },
+    {
+      "id": "GEN.16.q10",
+      "diff": "hard",
+      "q": "Hány éves volt Ábrám, amikor Hágár Ismáelt szülte?",
+      "opts": [
+        "Hetvenöt esztendős",
+        "Nyolczvanhat esztendős",
+        "Kilencvenkilencz esztendős",
+        "Száz esztendős"
+      ],
+      "correct": 1,
+      "ref": "1Móz 16,16"
+    }
+  ],
+  "GEN.17": [
+    {
+      "id": "GEN.17.q1",
+      "diff": "hard",
+      "q": "Miért változtatta meg Isten Ábrám nevét Ábrahámra?",
+      "opts": [
+        "Mert népek sokaságának atyjává tette",
+        "Mert így tisztelte meg hűségéért",
+        "Mert egy királyi nemzetség alapítója lett",
+        "Mert új földet ígért neki"
+      ],
+      "correct": 0,
+      "ref": "1Móz 17,5"
+    },
+    {
+      "id": "GEN.17.q2",
+      "diff": "hard",
+      "q": "Igaz vagy hamis? A szövetség jele, melyet Ábrahámnak és utódainak meg kellett tartaniuk, a körülmetélés volt.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 0,
+      "ref": "1Móz 17,10-11"
+    },
+    {
+      "id": "GEN.17.q3",
+      "diff": "veryhard",
+      "q": "Hány éves volt Ábrám, amikor az Úr először megjelent neki ebben a fejezetben?",
+      "opts": [
+        "Kilencvenkilenc",
+        "Kilencven",
+        "Száz",
+        "Nyolczvankilencz"
+      ],
+      "correct": 0,
+      "ref": "1Móz 17,1"
+    },
+    {
+      "id": "GEN.17.q4",
+      "diff": "veryhard",
+      "q": "Milyen néven mutatkozott be az Úr Ábrámnak, amikor megjelent neki?",
+      "opts": [
+        "Én a mindenható Isten vagyok",
+        "Én vagyok az Úr, a te Istened",
+        "Én vagyok a magasságos Isten",
+        "Én vagyok a szövetség Istene"
+      ],
+      "correct": 0,
+      "ref": "1Móz 17,1"
+    },
+    {
+      "id": "GEN.17.q5",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? Ábrahám arcára borult, nevetett, majd azt gondolta: vajon száz esztendős embernek lesz-e gyermeke, és Sára kilencven évesen szülhet-e?",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 0,
+      "ref": "1Móz 17,17"
+    },
+    {
+      "id": "GEN.17.q6",
+      "diff": "veryhard",
+      "q": "Hány napos korában kellett körülmetélni a férfigyermekeket a szövetség szerint?",
+      "opts": [
+        "Nyolcznapos korában",
+        "Hétnapos korában",
+        "Tíz napos korában",
+        "Harmincz napos korában"
+      ],
+      "correct": 0,
+      "ref": "1Móz 17,12"
+    },
+    {
+      "id": "GEN.17.q7",
+      "diff": "veryhard",
+      "q": "Mi történik azzal a körülmetéletlen férfival, aki nem metélteti körül férfitestének bőrét?",
+      "opts": [
+        "Kivágattatik az ő népe közűl",
+        "Kizáratik a gyülekezetből",
+        "Megbetegszik és meghal",
+        "Elveszíti örökségét"
+      ],
+      "correct": 0,
+      "ref": "1Móz 17,14"
+    },
+    {
+      "id": "GEN.17.q8",
+      "diff": "veryhard",
+      "q": "Hány fejedelmet ígért Isten, hogy származik Ismáeltől?",
+      "opts": [
+        "Tizenkét fejedelmet",
+        "Hét fejedelmet",
+        "Tíz fejedelmet",
+        "Tizenöt fejedelmet"
+      ],
+      "correct": 0,
+      "ref": "1Móz 17,20"
+    },
+    {
+      "id": "GEN.17.q9",
+      "diff": "veryhard",
+      "q": "Hány éves volt Ismáel, amikor körülmetélték férfitestének bőrét?",
+      "opts": [
+        "Tizenhárom esztendős",
+        "Kilencvenkilencz esztendős",
+        "Nyolcz esztendős",
+        "Tizenkét esztendős"
+      ],
+      "correct": 0,
+      "ref": "1Móz 17,25"
+    },
+    {
+      "id": "GEN.17.q10",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? Isten azt mondta Ábrahámnak, hogy a szövetségét Ismáellel erősíti meg, akit Sára szül a következő esztendőben.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 1,
+      "ref": "1Móz 17,19; 1Móz 17,21"
+    }
+  ],
+  "GEN.18": [
+    {
+      "id": "GEN.18.q1",
+      "diff": "veryhard",
+      "q": "Hol ült Ábrahám, amikor az Úr megjelent neki, és milyen napszak volt?",
+      "opts": [
+        "A sátor ajtajában, a hűvös reggelen",
+        "A Mamré tölgyesében, a déli hőségben",
+        "A sátor ajtajában, a hő napon",
+        "A fa alatt, a kora reggelen"
+      ],
+      "correct": 2,
+      "ref": "1Móz 18,1"
+    },
+    {
+      "id": "GEN.18.q2",
+      "diff": "veryhard",
+      "q": "Mi volt az első dolog, amit Ábrahám felajánlott a három férfiúnak érkezésükkor?",
+      "opts": [
+        "Egy falat kenyeret",
+        "Egy gyenge, kövér borjút",
+        "Vizet a lábuk megmosására",
+        "Helyet a sátorban"
+      ],
+      "correct": 2,
+      "ref": "1Móz 18,4"
+    },
+    {
+      "id": "GEN.18.q3",
+      "diff": "veryhard",
+      "q": "Hány mérték lisztlángot kellett Sárának meggyúrnia a pogácsához?",
+      "opts": [
+        "Kettőt",
+        "Hármat",
+        "Négyet",
+        "Ötöt"
+      ],
+      "correct": 1,
+      "ref": "1Móz 18,6"
+    },
+    {
+      "id": "GEN.18.q4",
+      "diff": "veryhard",
+      "q": "Milyen ételeket tett Ábrahám a vendégek elé, miután elkészültek?",
+      "opts": [
+        "Vajat, tejet és a borjút",
+        "Kenyérpogácsát és a borjút",
+        "Vajat, tejet és kenyeret",
+        "Csak a borjút és kenyeret"
+      ],
+      "correct": 0,
+      "ref": "1Móz 18,8"
+    },
+    {
+      "id": "GEN.18.q5",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? Sára azért nevetett magában, mert azt gondolta, az Úr viccelődik vele, hogy öreg korára fia lesz.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 1,
+      "ref": "1Móz 18,12"
+    },
+    {
+      "id": "GEN.18.q6",
+      "diff": "veryhard",
+      "q": "Mit kérdezett az Úr Ábrahámtól Sára nevetésével kapcsolatban?",
+      "opts": [
+        "Miért nevetett Sára, ezt mondván: Vajjon csakugyan szűlhetek-é, holott én megvénhedtem?",
+        "Miért nevetett Sára, ezt mondván: Vajjon lehetséges-é ez az én koromban?",
+        "Miért nevetett Sára, ezt mondván: Vajjon az Úrnak lehetetlen-é valami?",
+        "Miért nevetett Sára, ezt mondván: Vajjon az én uram is öreg?"
+      ],
+      "correct": 0,
+      "ref": "1Móz 18,13"
+    },
+    {
+      "id": "GEN.18.q7",
+      "diff": "veryhard",
+      "q": "Melyik állítás a legpontosabb indok az Úr részéről arra, hogy nem titkolja el Ábrahámtól a tervét?",
+      "opts": [
+        "Mert Ábrahám hűséges barátja.",
+        "Mert Ábrahám nagy és hatalmas néppé lesz, és megparancsolja fiainak az Úr útját.",
+        "Mert Ábrahám megérdemli, hogy tudja.",
+        "Mert Ábrahám kérte, hogy tudja."
+      ],
+      "correct": 1,
+      "ref": "1Móz 18,19"
+    },
+    {
+      "id": "GEN.18.q8",
+      "diff": "veryhard",
+      "q": "Hány igaz emberért könyörgött Ábrahám utoljára, hogy miattuk az Úr megkímélje Sodomát?",
+      "opts": [
+        "Ötért",
+        "Tízenért",
+        "Tizenötért",
+        "Húszért"
+      ],
+      "correct": 1,
+      "ref": "1Móz 18,32"
+    },
+    {
+      "id": "GEN.18.q9",
+      "diff": "hard",
+      "q": "Ki jelent meg Ábrahámnak a Mamré tölgyesében?",
+      "opts": [
+        "Egy angyal",
+        "Három férfiú",
+        "Az Úr",
+        "Egy próféta"
+      ],
+      "correct": 2,
+      "ref": "1Móz 18,1"
+    },
+    {
+      "id": "GEN.18.q10",
+      "diff": "hard",
+      "q": "Mi volt Sára első reakciója, amikor meghallotta, hogy fia lesz?",
+      "opts": [
+        "Sírt örömében",
+        "Nevetett magában",
+        "Félelem fogta el",
+        "Kétkedve kérdezett"
+      ],
+      "correct": 1,
+      "ref": "1Móz 18,12"
+    }
+  ],
+  "GEN.19": [
+    {
+      "id": "GEN.19.q1",
+      "diff": "veryhard",
+      "q": "Mikor érkezett a két angyal Sodomába?",
+      "opts": [
+        "Reggel",
+        "Délben",
+        "Estére",
+        "Éjfélkor"
+      ],
+      "correct": 2,
+      "ref": "1Móz 19,1"
+    },
+    {
+      "id": "GEN.19.q2",
+      "diff": "veryhard",
+      "q": "Milyen ételt sütött Lót az angyaloknak vendégségül?",
+      "opts": [
+        "Kenyérlángost",
+        "Pogácsát",
+        "Kovászos kenyeret",
+        "Édes süteményt"
+      ],
+      "correct": 1,
+      "ref": "1Móz 19,3"
+    },
+    {
+      "id": "GEN.19.q3",
+      "diff": "hard",
+      "q": "Mit tettek a sodomai férfiak Lót házának ajtajánál?",
+      "opts": [
+        "Megvakultak",
+        "Betörtek az ajtón",
+        "Elmenekültek",
+        "Beszélgettek Lóttal"
+      ],
+      "correct": 0,
+      "ref": "1Móz 19,11"
+    },
+    {
+      "id": "GEN.19.q4",
+      "diff": "veryhard",
+      "q": "Hány leányát ajánlotta fel Lót a sodomai férfiaknak?",
+      "opts": [
+        "Egyet",
+        "Kettőt",
+        "Háromat",
+        "Négyet"
+      ],
+      "correct": 1,
+      "ref": "1Móz 19,8"
+    },
+    {
+      "id": "GEN.19.q5",
+      "diff": "veryhard",
+      "q": "Milyen kifejezéssel illették a sodomaiak Lótot, amikor ellenállt nekik?",
+      "opts": [
+        "Ez a jövevény",
+        "Ez a törvényszegő",
+        "Ez a gonosz",
+        "Ez a vénember"
+      ],
+      "correct": 0,
+      "ref": "1Móz 19,9"
+    },
+    {
+      "id": "GEN.19.q6",
+      "diff": "hard",
+      "q": "Igaz vagy hamis? Lót felesége sóbálvánnyá változott, mert hátrafordult.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 0,
+      "ref": "1Móz 19,26"
+    },
+    {
+      "id": "GEN.19.q7",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? Az angyalok utasítása szerint Lótnak a síkságra kellett menekülnie.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 1,
+      "ref": "1Móz 19,17"
+    },
+    {
+      "id": "GEN.19.q8",
+      "diff": "veryhard",
+      "q": "Miért nevezték Czóárnak azt a várost, ahová Lót menekült?",
+      "opts": [
+        "Mert kicsiny volt",
+        "Mert az Úr ott lakozott",
+        "Mert Lót ott született",
+        "Mert az angyalok ott pihentek meg"
+      ],
+      "correct": 0,
+      "ref": "1Móz 19,22"
+    },
+    {
+      "id": "GEN.19.q9",
+      "diff": "veryhard",
+      "q": "Hová költözött Lót a két leányával Czóárból való távozása után?",
+      "opts": [
+        "Egy másik városba",
+        "A pusztába",
+        "A hegyre, egy barlangba",
+        "Vissza Sodoma romjaihoz"
+      ],
+      "correct": 2,
+      "ref": "1Móz 19,30"
+    },
+    {
+      "id": "GEN.19.q10",
+      "diff": "veryhard",
+      "q": "Mi volt a neve Lót idősebb leányának fiának?",
+      "opts": [
+        "Benammi",
+        "Moáb",
+        "Ábrahám",
+        "Lót"
+      ],
+      "correct": 1,
+      "ref": "1Móz 19,37"
+    }
+  ],
+  "GEN.20": [
+    {
+      "id": "GEN.20.q1",
+      "diff": "veryhard",
+      "q": "Ábrahám a déli tartományba költözve Kádes és Súr között telepedett le. Hol tartózkodott ezután?",
+      "opts": [
+        "Beér-Sebában",
+        "Gérárban",
+        "Hebronban",
+        "Mámréban"
+      ],
+      "correct": 1,
+      "ref": "1Móz 20,1"
+    },
+    {
+      "id": "GEN.20.q2",
+      "diff": "hard",
+      "q": "Ki volt Gérár királya, aki elviteté Sárát, miután Ábrahám azt mondta róla, hogy a húga?",
+      "opts": [
+        "Fáraó",
+        "Abimélek",
+        "Lót",
+        "Észaú"
+      ],
+      "correct": 1,
+      "ref": "1Móz 20,2"
+    },
+    {
+      "id": "GEN.20.q3",
+      "diff": "veryhard",
+      "q": "Amikor Abimélek Istenhez beszélt álmában, azzal védekezett, hogy Ábrahám azt mondta: „én húgom ő”. Mit mondott Abimélek szerint Sára?",
+      "opts": [
+        "Én bátyám ő",
+        "Én férjem ő",
+        "Én rokonunk ő",
+        "Én barátom ő"
+      ],
+      "correct": 0,
+      "ref": "1Móz 20,5"
+    },
+    {
+      "id": "GEN.20.q4",
+      "diff": "veryhard",
+      "q": "Miért nem tudta Abimélek megilletni Sárát, mielőtt Isten figyelmeztette volna?",
+      "opts": [
+        "Mert Sára ellenállt neki.",
+        "Mert Isten tartóztatta meg őt.",
+        "Mert Abimélek nem akarta.",
+        "Mert a szolgái megakadályozták."
+      ],
+      "correct": 1,
+      "ref": "1Móz 20,6"
+    },
+    {
+      "id": "GEN.20.q5",
+      "diff": "hard",
+      "q": "Igaz vagy hamis? Isten azt mondta Abiméleknek, hogy Ábrahám próféta, és imádkozni fog érte, hogy életben maradjon.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 0,
+      "ref": "1Móz 20,7"
+    },
+    {
+      "id": "GEN.20.q6",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? Isten azt mondta Abiméleknek, hogy ha nem adja vissza Sárát, akkor csak ő maga hal meg, de a háza népe megmenekül.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 1,
+      "ref": "1Móz 20,7"
+    },
+    {
+      "id": "GEN.20.q7",
+      "diff": "veryhard",
+      "q": "Milyen rokonsági fokban állt Ábrahám és Sára egymással a szöveg szerint?",
+      "opts": [
+        "Sára Ábrahám unokatestvére volt.",
+        "Sára Ábrahám édes húga volt.",
+        "Sára Ábrahám apjának lánya volt, de nem az anyjának.",
+        "Sára Ábrahám testvérének lánya volt."
+      ],
+      "correct": 2,
+      "ref": "1Móz 20,12"
+    },
+    {
+      "id": "GEN.20.q8",
+      "diff": "veryhard",
+      "q": "Milyen kéréssel fordult Ábrahám Sárához, amikor Isten kibujdostatta őt atyja házából?",
+      "opts": [
+        "Azt mondja, hogy ő a felesége.",
+        "Azt mondja, hogy ő a húga.",
+        "Azt mondja, hogy ő a bátyja.",
+        "Azt mondja, hogy ő a szolgálója."
+      ],
+      "correct": 2,
+      "ref": "1Móz 20,13"
+    },
+    {
+      "id": "GEN.20.q9",
+      "diff": "veryhard",
+      "q": "Hány ezüst pénzt adott Abimélek Sárának (a bátyján keresztül), mondván, hogy az a szemek befedezője?",
+      "opts": [
+        "Ötszáz ezüst pénzt",
+        "Ezer ezüst pénzt",
+        "Kétezer ezüst pénzt",
+        "Háromszáz ezüst pénzt"
+      ],
+      "correct": 1,
+      "ref": "1Móz 20,16"
+    },
+    {
+      "id": "GEN.20.q10",
+      "diff": "veryhard",
+      "q": "Miért zárta be az Úr Abimélek háza népének méhét, mielőtt Ábrahám imádkozott volna?",
+      "opts": [
+        "Mert Abimélek nem tisztelte Istent.",
+        "Sáráért, az Ábrahám feleségéért.",
+        "Mert Abimélek népe bűnös volt.",
+        "Hogy próbára tegye Abiméleket."
+      ],
+      "correct": 1,
+      "ref": "1Móz 20,18"
+    }
+  ],
+  "GEN.21": [
+    {
+      "id": "GEN.21.q1",
+      "diff": "veryhard",
+      "q": "Ki nevezte el Sára fiát Izsáknak?",
+      "opts": [
+        "Sára",
+        "Isten",
+        "Ábrahám",
+        "Az angyal"
+      ],
+      "correct": 2,
+      "ref": "1Móz 21,3"
+    },
+    {
+      "id": "GEN.21.q2",
+      "diff": "veryhard",
+      "q": "Hány napos volt Izsák, mikor Ábrahám körülmetélte?",
+      "opts": [
+        "Hét napos",
+        "Nyolc napos",
+        "Tíz napos",
+        "Tizennégy napos"
+      ],
+      "correct": 1,
+      "ref": "1Móz 21,4"
+    },
+    {
+      "id": "GEN.21.q3",
+      "diff": "veryhard",
+      "q": "Milyen esemény alkalmából szerzett Ábrahám nagy vendégséget?",
+      "opts": [
+        "Izsák születésekor",
+        "Izsák körülmetélésekor",
+        "Izsák elválasztásakor",
+        "Sára nevetésekor"
+      ],
+      "correct": 2,
+      "ref": "1Móz 21,8"
+    },
+    {
+      "id": "GEN.21.q4",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? Isten azt mondta Ábrahámnak, hogy ne engedjen Sára szavának, mert a szolgáló fia is az ő magja.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 1,
+      "ref": "1Móz 21,12"
+    },
+    {
+      "id": "GEN.21.q5",
+      "diff": "veryhard",
+      "q": "Mit adott Ábrahám Hágárnak, mielőtt elbocsátotta?",
+      "opts": [
+        "Pénzt és ruhát",
+        "Kenyeret és egy tömlő vizet",
+        "Élelmet és egy botot",
+        "Csak vizet"
+      ],
+      "correct": 1,
+      "ref": "1Móz 21,14"
+    },
+    {
+      "id": "GEN.21.q6",
+      "diff": "veryhard",
+      "q": "Milyen távolságra ült le Hágár a gyermektől, miután letette egy bokor alá?",
+      "opts": [
+        "Egy kőhajításnyira",
+        "Egy nyíllövésnyire",
+        "Egy napi járóföldre",
+        "Olyan messze, hogy már nem látta"
+      ],
+      "correct": 1,
+      "ref": "1Móz 21,16"
+    },
+    {
+      "id": "GEN.21.q7",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? Abimélek tudott arról, hogy a szolgái elvették Ábrahám kútját, de nem akarta beismerni.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 1,
+      "ref": "1Móz 21,26"
+    },
+    {
+      "id": "GEN.21.q8",
+      "diff": "veryhard",
+      "q": "Hány juhot állított külön Ábrahám a nyájból, hogy bizonyságul szolgáljon a kút ásásáról?",
+      "opts": [
+        "Három",
+        "Öt",
+        "Hét",
+        "Tíz"
+      ],
+      "correct": 2,
+      "ref": "1Móz 21,28"
+    },
+    {
+      "id": "GEN.21.q9",
+      "diff": "hard",
+      "q": "Miért akarta Sára elkergetni Hágárt és fiát?",
+      "opts": [
+        "Mert Hágár fia gúnyolta Izsákot",
+        "Mert féltékeny volt Hágárra",
+        "Mert Hágár fia nem lehetett örökös Izsák mellett",
+        "Mert Hágár fia rossz hatással volt Izsákra"
+      ],
+      "correct": 2,
+      "ref": "1Móz 21,10"
+    },
+    {
+      "id": "GEN.21.q10",
+      "diff": "hard",
+      "q": "Milyen mesterséget űzött a gyermek (Hágár fia), miután felnövekedett a pusztában?",
+      "opts": [
+        "Pásztor",
+        "Vadász",
+        "Íjász",
+        "Földműves"
+      ],
+      "correct": 2,
+      "ref": "1Móz 21,20"
+    }
+  ],
+  "GEN.22": [
+    {
+      "id": "GEN.22.q1",
+      "diff": "veryhard",
+      "q": "Hány szolgát vitt magával Ábrahám, amikor Izsákkal elindult az áldozat helyére?",
+      "opts": [
+        "Egyet",
+        "Kettőt",
+        "Hármat",
+        "Négyet"
+      ],
+      "correct": 1,
+      "ref": "1Móz 22,3"
+    },
+    {
+      "id": "GEN.22.q2",
+      "diff": "veryhard",
+      "q": "Mi volt az utolsó dolog, amit Ábrahám tett, mielőtt az Úr Angyala megszólította?",
+      "opts": [
+        "Megkötözte Izsákot és felrakta az oltárra",
+        "Kinyújtotta kezét és megragadta a kést",
+        "Felrakta a fát az oltárra",
+        "Megépítette az oltárt"
+      ],
+      "correct": 1,
+      "ref": "1Móz 22,10"
+    },
+    {
+      "id": "GEN.22.q3",
+      "diff": "veryhard",
+      "q": "Melyik földre kellett Ábrahámnak mennie, hogy feláldozza Izsákot?",
+      "opts": [
+        "Kánaán földére",
+        "Mórijának földére",
+        "Beérsebába",
+        "Urba"
+      ],
+      "correct": 1,
+      "ref": "1Móz 22,2"
+    },
+    {
+      "id": "GEN.22.q4",
+      "diff": "veryhard",
+      "q": "Hány fiút szült Milkha Nákhornak, Ábrahám atyjafiának?",
+      "opts": [
+        "Hatot",
+        "Hetet",
+        "Nyolczat",
+        "Tízet"
+      ],
+      "correct": 2,
+      "ref": "1Móz 22,23"
+    },
+    {
+      "id": "GEN.22.q5",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? Izsák vitte a tüzet és a kést, míg Ábrahám a fát az áldozathoz.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 1,
+      "ref": "1Móz 22,6"
+    },
+    {
+      "id": "GEN.22.q6",
+      "diff": "veryhard",
+      "q": "Ki volt Rebeka apja a szöveg szerint?",
+      "opts": [
+        "Nákhor",
+        "Úz",
+        "Bethuél",
+        "Kemuél"
+      ],
+      "correct": 2,
+      "ref": "1Móz 22,23"
+    },
+    {
+      "id": "GEN.22.q7",
+      "diff": "veryhard",
+      "q": "Hányadik napon látta meg Ábrahám messziről az áldozat helyét?",
+      "opts": [
+        "Az első napon",
+        "A második napon",
+        "A harmadik napon",
+        "A negyedik napon"
+      ],
+      "correct": 2,
+      "ref": "1Móz 22,4"
+    },
+    {
+      "id": "GEN.22.q8",
+      "diff": "veryhard",
+      "q": "Milyen állat akadt meg szarvánál fogva a szövevényben, amit Ábrahám feláldozott Izsák helyett?",
+      "opts": [
+        "Egy kecske",
+        "Egy bárány",
+        "Egy kos",
+        "Egy bika"
+      ],
+      "correct": 2,
+      "ref": "1Móz 22,13"
+    },
+    {
+      "id": "GEN.22.q9",
+      "diff": "hard",
+      "q": "Miért állította meg az Úr Angyala Ábrahámot, hogy ne ártson Izsáknak?",
+      "opts": [
+        "Mert Ábrahám már bizonyította istenfélelmét",
+        "Mert Izsák túl fiatal volt az áldozathoz",
+        "Mert Isten meggondolta magát az áldozattal kapcsolatban",
+        "Mert egy másik áldozatot találtak"
+      ],
+      "correct": 0,
+      "ref": "1Móz 22,12"
+    },
+    {
+      "id": "GEN.22.q10",
+      "diff": "hard",
+      "q": "Igaz vagy hamis? Isten megkísértette Ábrahámot, hogy feláldozza a fiát, Izsákot.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 0,
+      "ref": "1Móz 22,1"
+    }
+  ],
+  "GEN.23": [
+    {
+      "id": "GEN.23.q1",
+      "diff": "veryhard",
+      "q": "Hány éves volt Sára, amikor meghalt?",
+      "opts": [
+        "120",
+        "127",
+        "130",
+        "117"
+      ],
+      "correct": 1,
+      "ref": "1Móz 23,1"
+    },
+    {
+      "id": "GEN.23.q2",
+      "diff": "veryhard",
+      "q": "Hogyan jellemezte magát Ábrahám a Khéth fiainak, amikor temetőhelyet kért?",
+      "opts": [
+        "Idegen és jövevény",
+        "Gazdag és hatalmas",
+        "Szegény és védtelen",
+        "Barát és szövetséges"
+      ],
+      "correct": 0,
+      "ref": "1Móz 23,4"
+    },
+    {
+      "id": "GEN.23.q3",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? A Khéth fiai „Istentől való fejedelemnek” nevezték Ábrahámot.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 0,
+      "ref": "1Móz 23,6"
+    },
+    {
+      "id": "GEN.23.q4",
+      "diff": "veryhard",
+      "q": "Kinek a fiához, Efronhoz kellett Ábrahámnak esedeznie a barlangért?",
+      "opts": [
+        "Czohár",
+        "Mamré",
+        "Kirját-Arba",
+        "Kánaán"
+      ],
+      "correct": 0,
+      "ref": "1Móz 23,8"
+    },
+    {
+      "id": "GEN.23.q5",
+      "diff": "veryhard",
+      "q": "Milyen népcsoporthoz tartozott Efron, a barlang tulajdonosa?",
+      "opts": [
+        "Khitteus",
+        "Kanaánita",
+        "Amoreus",
+        "Jebusita"
+      ],
+      "correct": 0,
+      "ref": "1Móz 23,10"
+    },
+    {
+      "id": "GEN.23.q6",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? Efron azonnal pénzért akarta eladni a mezőt és a barlangot Ábrahámnak.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 1,
+      "ref": "1Móz 23,11"
+    },
+    {
+      "id": "GEN.23.q7",
+      "diff": "veryhard",
+      "q": "Hány ezüst siklust fizetett Ábrahám Efronnak a Makpelá mezejéért és a barlangért?",
+      "opts": [
+        "300",
+        "400",
+        "500",
+        "600"
+      ],
+      "correct": 1,
+      "ref": "1Móz 23,15"
+    },
+    {
+      "id": "GEN.23.q8",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? Ábrahám kizárólag a Makpelá barlangját és a közvetlen környező földet vette meg Efrontól.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 1,
+      "ref": "1Móz 23,17"
+    },
+    {
+      "id": "GEN.23.q9",
+      "diff": "hard",
+      "q": "Hol halt meg Sára?",
+      "opts": [
+        "Hebronban",
+        "Mamréban",
+        "Bételben",
+        "Sámáriában"
+      ],
+      "correct": 0,
+      "ref": "1Móz 23,2"
+    },
+    {
+      "id": "GEN.23.q10",
+      "diff": "hard",
+      "q": "Mi volt Ábrahám fő célja a Khéth fiaival való tárgyalás során?",
+      "opts": [
+        "Kereskedelmi kapcsolatok kiépítése",
+        "Temetésre való örökség szerzése",
+        "Birtokainak bővítése",
+        "Politikai szövetség kötése"
+      ],
+      "correct": 1,
+      "ref": "1Móz 23,4"
+    }
+  ],
+  "GEN.24": [
+    {
+      "id": "GEN.24.q1",
+      "diff": "veryhard",
+      "q": "Melyik testrész alá kellett a szolgának a kezét tennie, amikor esküt tett Ábrahámnak?",
+      "opts": [
+        "Ábrahám térde alá",
+        "Ábrahám feje alá",
+        "Ábrahám tompora alá",
+        "Ábrahám lába alá"
+      ],
+      "correct": 2,
+      "ref": "1Móz 24,2"
+    },
+    {
+      "id": "GEN.24.q2",
+      "diff": "veryhard",
+      "q": "Hány tevét vitt magával a szolga az útjára?",
+      "opts": [
+        "Ötöt",
+        "Hetet",
+        "Tízet",
+        "Tizenkettőt"
+      ],
+      "correct": 2,
+      "ref": "1Móz 24,10"
+    },
+    {
+      "id": "GEN.24.q3",
+      "diff": "veryhard",
+      "q": "Ki volt Rebeka anyja a szöveg szerint?",
+      "opts": [
+        "Sára",
+        "Milkha",
+        "Léa",
+        "Ráhel"
+      ],
+      "correct": 1,
+      "ref": "1Móz 24,15"
+    },
+    {
+      "id": "GEN.24.q4",
+      "diff": "veryhard",
+      "q": "Mekkora súlyú volt az aranyfüggő, amit a szolga Rebekának adott?",
+      "opts": [
+        "Egy siklus",
+        "Fél siklus",
+        "Tíz arany",
+        "Öt arany"
+      ],
+      "correct": 1,
+      "ref": "1Móz 24,22"
+    },
+    {
+      "id": "GEN.24.q5",
+      "diff": "veryhard",
+      "q": "Mi volt az a pontos jel, amit a szolga kért Istentől, hogy felismerje Izsák feleségét?",
+      "opts": [
+        "Aki vizet ad neki, és a tevéinek is.",
+        "Aki vizet ad neki, sőt a tevéit is megitatja, míg eleget nem isznak.",
+        "Aki vizet ad neki, és megmutatja a szálláshelyet.",
+        "Aki vizet ad neki, és eljön vele a házukba."
+      ],
+      "correct": 1,
+      "ref": "1Móz 24,14"
+    },
+    {
+      "id": "GEN.24.q6",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? Rebekát azzal áldották meg, hogy szaporodjon ezerszer való ezerig, és magja bírja ellenségei kapuját.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 0,
+      "ref": "1Móz 24,60"
+    },
+    {
+      "id": "GEN.24.q7",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? A szolga nem akart enni, amíg el nem mondta, miért jött.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 0,
+      "ref": "1Móz 24,33"
+    },
+    {
+      "id": "GEN.24.q8",
+      "diff": "veryhard",
+      "q": "Honnan jött vissza Izsák, amikor találkozott Rebekával?",
+      "opts": [
+        "Kánaán földjéről",
+        "Mésopotámiából",
+        "A Lakhai Rói forrástól",
+        "A déli tartományból"
+      ],
+      "correct": 2,
+      "ref": "1Móz 24,62"
+    },
+    {
+      "id": "GEN.24.q9",
+      "diff": "hard",
+      "q": "Mi volt Ábrahám fő kérése a szolgájához Izsák feleségével kapcsolatban?",
+      "opts": [
+        "Hogy a Kananeusok leányai közül válasszon feleséget.",
+        "Hogy a saját hazájából és rokonságából hozzon feleséget Izsáknak.",
+        "Hogy Izsák maga válasszon feleséget.",
+        "Hogy a szolga vegyen feleséget magának."
+      ],
+      "correct": 1,
+      "ref": "1Móz 24,4"
+    },
+    {
+      "id": "GEN.24.q10",
+      "diff": "hard",
+      "q": "Igaz vagy hamis? Rebeka azonnal beleegyezett, hogy elmenjen a férfival, amint megkérdezték tőle.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 0,
+      "ref": "1Móz 24,58"
+    }
+  ],
+  "GEN.25": [
+    {
+      "id": "GEN.25.q1",
+      "diff": "veryhard",
+      "q": "Melyik felsorolás tartalmazza PONTOSAN Ketúráh összes fiának nevét?",
+      "opts": [
+        "Zimrán, Joksán, Médán, Midián, Isbák, Suakh",
+        "Zimrán, Joksán, Médán, Midián, Éfah, Suakh",
+        "Zimrán, Séba, Médán, Midián, Isbák, Suakh",
+        "Zimrán, Joksán, Dédán, Midián, Isbák, Suakh"
+      ],
+      "correct": 0,
+      "ref": "1Móz 25,2"
+    },
+    {
+      "id": "GEN.25.q2",
+      "diff": "veryhard",
+      "q": "Hány fia született Ismáelnek a szöveg szerint?",
+      "opts": [
+        "Tíz",
+        "Tizenegy",
+        "Tizenkettő",
+        "Tizenhárom"
+      ],
+      "correct": 2,
+      "ref": "1Móz 25,13-15"
+    },
+    {
+      "id": "GEN.25.q3",
+      "diff": "veryhard",
+      "q": "Hány esztendős volt Ábrahám, amikor meghalt?",
+      "opts": [
+        "Százharminckettő",
+        "Százhetvenöt",
+        "Százötven",
+        "Száznegyvenöt"
+      ],
+      "correct": 1,
+      "ref": "1Móz 25,7"
+    },
+    {
+      "id": "GEN.25.q4",
+      "diff": "veryhard",
+      "q": "Hány esztendős volt Ismáel, amikor meghalt?",
+      "opts": [
+        "Százharminckettő",
+        "Százhetvenöt",
+        "Százötven",
+        "Száznegyvenkettő"
+      ],
+      "correct": 0,
+      "ref": "1Móz 25,17"
+    },
+    {
+      "id": "GEN.25.q5",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? Ábrahámot és Sárát a Makpelá barlangjában temették el, melyet Ábrahám a Khéth fiaitól vett.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 0,
+      "ref": "1Móz 25,9-10"
+    },
+    {
+      "id": "GEN.25.q6",
+      "diff": "veryhard",
+      "q": "Hány esztendős volt Izsák, amikor Ézsaú és Jákób születtek?",
+      "opts": [
+        "Negyven",
+        "Ötven",
+        "Hatvan",
+        "Hetven"
+      ],
+      "correct": 2,
+      "ref": "1Móz 25,26"
+    },
+    {
+      "id": "GEN.25.q7",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? Jákób született előbb, és Ézsaú fogta a sarkát.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 1,
+      "ref": "1Móz 25,25-26"
+    },
+    {
+      "id": "GEN.25.q8",
+      "diff": "veryhard",
+      "q": "Milyen volt Ézsaú, amikor megszületett?",
+      "opts": [
+        "Vereses vala, mindenestől szőrös, mint egy lazsnak",
+        "Fehér és sima bőrű, mint egy gyermek",
+        "Vereses és foltos, mint egy leopárd",
+        "Sárgás és szőrös, mint egy medvebőr"
+      ],
+      "correct": 0,
+      "ref": "1Móz 25,25"
+    },
+    {
+      "id": "GEN.25.q9",
+      "diff": "hard",
+      "q": "Kinek adta Ábrahám minden vagyonát?",
+      "opts": [
+        "Ketúráhnak",
+        "Izsáknak",
+        "Ismáelnek",
+        "Az ágyasok fiainak"
+      ],
+      "correct": 1,
+      "ref": "1Móz 25,5"
+    },
+    {
+      "id": "GEN.25.q10",
+      "diff": "hard",
+      "q": "Miért nevezték Ézsaút Edomnak?",
+      "opts": [
+        "Mert veres színű ételt kért Jákóbtól",
+        "Mert vörös haja volt",
+        "Mert egy edényben született",
+        "Mert az edomi földről jött"
+      ],
+      "correct": 0,
+      "ref": "1Móz 25,30"
+    }
+  ],
+  "GEN.26": [
+    {
+      "id": "GEN.26.q1",
+      "diff": "veryhard",
+      "q": "Milyen konkrét utasítást kapott Izsák az Úrtól az éhség idején, mielőtt Gérárba ment?",
+      "opts": [
+        "Ne menj alá Égyiptomba!",
+        "Ne menj alá Kánaánba!",
+        "Ne menj alá a Filiszteusokhoz!",
+        "Ne menj alá Szodomába!"
+      ],
+      "correct": 0,
+      "ref": "1Móz 26,2"
+    },
+    {
+      "id": "GEN.26.q2",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? Abimélek király az ablakon kitekintve látta, hogy Izsák Rebekával veszekszik a kút mellett.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 1,
+      "ref": "1Móz 26,8"
+    },
+    {
+      "id": "GEN.26.q3",
+      "diff": "veryhard",
+      "q": "Milyen szavakkal írta le a szöveg Ábrahám engedelmességét, amiért az Úr megáldotta Izsákot?",
+      "opts": [
+        "Megtartotta a megtartandókat, parancsolataimat, rendeléseimet és törvényeimet.",
+        "Megtartotta a parancsolatokat, az ígéreteket és a szövetséget.",
+        "Megtartotta a törvényeket, a rendeleteket és az esküvéseket.",
+        "Megtartotta a szavamat, a rendeleteimet és az ítéleteimet."
+      ],
+      "correct": 0,
+      "ref": "1Móz 26,5"
+    },
+    {
+      "id": "GEN.26.q4",
+      "diff": "veryhard",
+      "q": "Milyen nevet adott Izsák az első kútnak, amely miatt a Gérár pásztorai versengtek Izsák pásztoraival?",
+      "opts": [
+        "Szitna",
+        "Rehobóth",
+        "Észek",
+        "Sibáh"
+      ],
+      "correct": 2,
+      "ref": "1Móz 26,20"
+    },
+    {
+      "id": "GEN.26.q5",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? A harmadik kút, amelyet Izsák ásott, a „Szitna” nevet kapta, mert azon sem versengtek.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 1,
+      "ref": "1Móz 26,22"
+    },
+    {
+      "id": "GEN.26.q6",
+      "diff": "veryhard",
+      "q": "Kik kísérték el Abiméleket, amikor elment Izsákhoz Gérárból Beérsebába?",
+      "opts": [
+        "Akhuzzáth, a barátja és Pikhól, a hadvezére.",
+        "Fikól, a hadvezére és Akhuzzáth, a szolgája.",
+        "Akhuzzáth, a tanácsadója és Pikhól, a testőre.",
+        "Fikól, a barátja és Akhuzzáth, a főembere."
+      ],
+      "correct": 0,
+      "ref": "1Móz 26,26"
+    },
+    {
+      "id": "GEN.26.q7",
+      "diff": "veryhard",
+      "q": "Milyen nevet adott Izsák annak a kútnak, amelyről szolgái hírt hoztak Beérsebában?",
+      "opts": [
+        "Beérseba",
+        "Sibáh",
+        "Észek",
+        "Rehobóth"
+      ],
+      "correct": 1,
+      "ref": "1Móz 26,33"
+    },
+    {
+      "id": "GEN.26.q8",
+      "diff": "veryhard",
+      "q": "Hány éves volt Ézsau, amikor feleségül vette Jehudithot és Boszmátot?",
+      "opts": [
+        "Harminc",
+        "Negyven",
+        "Ötven",
+        "Hatvan"
+      ],
+      "correct": 1,
+      "ref": "1Móz 26,34"
+    },
+    {
+      "id": "GEN.26.q9",
+      "diff": "hard",
+      "q": "Miért mondta Izsák Rebekáról, hogy a húga?",
+      "opts": [
+        "Mert félt, hogy megölik őt Rebekáért, mivel szép ábrázatú volt.",
+        "Mert Rebeka valóban a húga volt.",
+        "Mert Abimélek megparancsolta neki, hogy így tegyen.",
+        "Mert azt hitte, hogy így biztonságban lesznek a nép között."
+      ],
+      "correct": 0,
+      "ref": "1Móz 26,7"
+    },
+    {
+      "id": "GEN.26.q10",
+      "diff": "hard",
+      "q": "Mit tettek a Filiszteusok azokkal a kutakkal, amelyeket Ábrahám szolgái ástak?",
+      "opts": [
+        "Behányszák azokat földdel.",
+        "Elfoglalták azokat és saját nevükön nevezték.",
+        "Megmérgezték a vizüket.",
+        "Elpusztították a kútgyűrűket."
+      ],
+      "correct": 0,
+      "ref": "1Móz 26,15"
+    }
+  ],
+  "GEN.27": [
+    {
+      "id": "GEN.27.q1",
+      "diff": "veryhard",
+      "q": "Izsák megöregedve milyen fizikai állapotban volt, amikor Ézsaút szólította?",
+      "opts": [
+        "Süket volt, de jól látott",
+        "Vak volt, de jól hallott",
+        "Sánta volt, de éles eszű",
+        "Szemei annyira meghomályosodtak, hogy nem látott"
+      ],
+      "correct": 3,
+      "ref": "1Móz 27,1"
+    },
+    {
+      "id": "GEN.27.q2",
+      "diff": "veryhard",
+      "q": "Milyen konkrét kiegészítést tett Rebeka Izsák áldásáról Jákób felé, amit Izsák eredetileg nem mondott Ézsaúnak?",
+      "opts": [
+        "...hogy megáldjalak téged az Úr előtt",
+        "...hogy megáldjalak téged az én lelkem erejével",
+        "...hogy megáldjalak téged örökre",
+        "...hogy megáldjalak téged a mi atyáink Istenének nevében"
+      ],
+      "correct": 0,
+      "ref": "1Móz 27,4,7"
+    },
+    {
+      "id": "GEN.27.q3",
+      "diff": "veryhard",
+      "q": "Hány kecskegödölyét kért Rebeka Jákóbtól, hogy elkészítse az ételt Izsáknak?",
+      "opts": [
+        "Egyet",
+        "Kettőt",
+        "Hármat",
+        "Négyet"
+      ],
+      "correct": 1,
+      "ref": "1Móz 27,9"
+    },
+    {
+      "id": "GEN.27.q4",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? Rebeka Jákób kezeit és nyakát is beborította kecskegödölyék bőrével.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 0,
+      "ref": "1Móz 27,16"
+    },
+    {
+      "id": "GEN.27.q5",
+      "diff": "veryhard",
+      "q": "Mit adott Rebeka Jákóbnak a készített étel mellé, hogy bevigye atyjának?",
+      "opts": [
+        "Egy korsó vizet",
+        "Egy kancsó bort",
+        "Kenyérrel együtt",
+        "Egy tál gyümölcsöt"
+      ],
+      "correct": 2,
+      "ref": "1Móz 27,17"
+    },
+    {
+      "id": "GEN.27.q6",
+      "diff": "veryhard",
+      "q": "Milyen okot mondott Jákób Izsáknak arra, hogy ilyen hamar talált vadat?",
+      "opts": [
+        "Mert ügyes vadász volt",
+        "Mert az Úr, a te Istened hozta előmbe",
+        "Mert a mező tele volt vadakkal",
+        "Mert egy szolga segített neki"
+      ],
+      "correct": 1,
+      "ref": "1Móz 27,20"
+    },
+    {
+      "id": "GEN.27.q7",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? Izsák azonnal felismerte Jákóbot, miután megérintette, mert a hangja Ézsaúé volt.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 1,
+      "ref": "1Móz 27,22-23"
+    },
+    {
+      "id": "GEN.27.q8",
+      "diff": "veryhard",
+      "q": "Milyen cselekvést kért Izsák Jákóbtól közvetlenül azelőtt, hogy megáldotta volna őt?",
+      "opts": [
+        "Hozzon még bort",
+        "Üljön le mellé",
+        "Csókolja meg őt",
+        "Meséljen a vadászatról"
+      ],
+      "correct": 2,
+      "ref": "1Móz 27,26"
+    },
+    {
+      "id": "GEN.27.q9",
+      "diff": "hard",
+      "q": "Mi volt Jákób fő aggodalma, amikor anyja arra kérte, hogy Ézsaúnak adja ki magát?",
+      "opts": [
+        "Hogy az étel nem lesz elég finom",
+        "Hogy Ézsaú hamarabb visszatér a vadászatból",
+        "Hogy az atyja megtapogatja, és csalónak tartja",
+        "Hogy az atyja nem fogja elhinni neki"
+      ],
+      "correct": 2,
+      "ref": "1Móz 27,11-12"
+    },
+    {
+      "id": "GEN.27.q10",
+      "diff": "hard",
+      "q": "Igaz vagy hamis? Ézsaú azt tervezte, hogy megöli Jákóbot, miután atyja, Izsák meghal.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 0,
+      "ref": "1Móz 27,41"
+    }
+  ],
+  "GEN.28": [
+    {
+      "id": "GEN.28.q1",
+      "diff": "veryhard",
+      "q": "Izsák parancsa szerint kinek a leányai közül kellett Jákóbnak feleséget választania?",
+      "opts": [
+        "Bethuélnek, az anyja atyjának leányai közül.",
+        "Lábánnak, az anyja bátyjának leányai közül.",
+        "Ismáelnek, az Ábrahám fiának leányai közül.",
+        "Rebekának, az anyja testvérének leányai közül."
+      ],
+      "correct": 1,
+      "ref": "1Móz 28,2"
+    },
+    {
+      "id": "GEN.28.q2",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? Izsák azt kérte Istentől, hogy Jákób népek sokaságává legyen, és örökölje a földet, melyet Ábrahám is birtokolt.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 0,
+      "ref": "1Móz 28,3-4"
+    },
+    {
+      "id": "GEN.28.q3",
+      "diff": "veryhard",
+      "q": "Ki volt Lábán apja a szöveg szerint?",
+      "opts": [
+        "Izsák",
+        "Ábrahám",
+        "Bethuél",
+        "Ismáel"
+      ],
+      "correct": 2,
+      "ref": "1Móz 28,5"
+    },
+    {
+      "id": "GEN.28.q4",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? Ézsaú azért vette feleségül Mahaláthot, mert a Kananeusok leányai nem tetszettek Izsáknak, az ő atyjának.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 0,
+      "ref": "1Móz 28,8-9"
+    },
+    {
+      "id": "GEN.28.q5",
+      "diff": "veryhard",
+      "q": "Melyik városból indult el Jákób, amikor Hárán felé tartott?",
+      "opts": [
+        "Lúz",
+        "Béthel",
+        "Beérseba",
+        "Mésopotámia"
+      ],
+      "correct": 2,
+      "ref": "1Móz 28,10"
+    },
+    {
+      "id": "GEN.28.q6",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? Jákób álmában egy lajtorját látott, melynek tetején az Úr állt, és az Isten angyalai fel- és alájártak rajta.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 0,
+      "ref": "1Móz 28,12-13"
+    },
+    {
+      "id": "GEN.28.q7",
+      "diff": "veryhard",
+      "q": "Milyen ígéretet tett az Úr Jákóbnak az ő magvának számát illetően?",
+      "opts": [
+        "Olyan lészen, mint a tenger homokja.",
+        "Olyan lészen, mint az ég csillagai.",
+        "Olyan lészen, mint a földnek pora.",
+        "Olyan lészen, mint a mező füve."
+      ],
+      "correct": 2,
+      "ref": "1Móz 28,14"
+    },
+    {
+      "id": "GEN.28.q8",
+      "diff": "veryhard",
+      "q": "Milyen nevet adott Jákób annak a helynek, ahol az álmot látta, és mi volt annak a városnak az előző neve?",
+      "opts": [
+        "Béthel, előtte pedig Lúz.",
+        "Lúz, előtte pedig Béthel.",
+        "Beérseba, előtte pedig Béthel.",
+        "Hárán, előtte pedig Lúz."
+      ],
+      "correct": 0,
+      "ref": "1Móz 28,19"
+    },
+    {
+      "id": "GEN.28.q9",
+      "diff": "hard",
+      "q": "Melyik nép leányai közül tiltotta meg Izsák Jákóbnak, hogy feleséget vegyen?",
+      "opts": [
+        "Siriabeliek",
+        "Mésopotámiaiak",
+        "Kananeusok",
+        "Ismáeliták"
+      ],
+      "correct": 2,
+      "ref": "1Móz 28,1"
+    },
+    {
+      "id": "GEN.28.q10",
+      "diff": "hard",
+      "q": "Igaz vagy hamis? Jákób fogadalmában megígérte, hogy ha Isten megőrzi őt az úton, és békességgel visszatér atyja házához, akkor mindennek a tizedét Istennek adja.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 0,
+      "ref": "1Móz 28,20-22"
+    }
+  ],
+  "GEN.29": [
+    {
+      "id": "GEN.29.q1",
+      "diff": "veryhard",
+      "q": "Melyik állítás igaz Jákób első találkozásáról a kútnál?",
+      "opts": [
+        "A juhok már el voltak terelve, amikor Jákób megérkezett.",
+        "Jákób egyedül gördítette el a követ, miután Rákhel megérkezett.",
+        "A pásztorok azonnal megitatták a juhokat Jákób érkezésekor.",
+        "Jákób megérkezése előtt már el volt gördítve a kő a kút szájáról."
+      ],
+      "correct": 1,
+      "ref": "1Móz 29,10"
+    },
+    {
+      "id": "GEN.29.q2",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? Jákób egy hónapig lakott Lábánnál, mielőtt Lábán megkérdezte volna a bérét.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 0,
+      "ref": "1Móz 29,14-15"
+    },
+    {
+      "id": "GEN.29.q3",
+      "diff": "veryhard",
+      "q": "Milyen okot adott Lábán Jákóbnak arra, hogy miért Leát adta neki Rákhel helyett?",
+      "opts": [
+        "Azt mondta, hogy Rákhel még túl fiatal a házassághoz.",
+        "Azt állította, hogy náluk nem szokás a kisebbiket előbb férjhez adni.",
+        "Azt mondta, hogy Lea volt az elsőszülött, és neki járt az elsőbbség.",
+        "Azt mondta, hogy tévedésből történt, és bocsánatot kért."
+      ],
+      "correct": 1,
+      "ref": "1Móz 29,26"
+    },
+    {
+      "id": "GEN.29.q4",
+      "diff": "veryhard",
+      "q": "Melyik fiának adott Lea nevet azzal a magyarázattal, hogy 'Most már ragaszkodni fog hozzám az én férjem, mert három fiat szűltem néki'?",
+      "opts": [
+        "Rúbennek",
+        "Simeonnak",
+        "Lévinek",
+        "Júdának"
+      ],
+      "correct": 2,
+      "ref": "1Móz 29,34"
+    },
+    {
+      "id": "GEN.29.q5",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? Jákób első találkozásakor a kútnál három falka juh hevert, és a kút száján egy nagy kő volt.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 0,
+      "ref": "1Móz 29,2"
+    },
+    {
+      "id": "GEN.29.q6",
+      "diff": "veryhard",
+      "q": "Melyik leányt jellemezte a szöveg úgy, hogy 'gyenge szemei valának'?",
+      "opts": [
+        "Rákhelt",
+        "Leát",
+        "Bilhát",
+        "Zilpát"
+      ],
+      "correct": 1,
+      "ref": "1Móz 29,17"
+    },
+    {
+      "id": "GEN.29.q7",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? Jákób azért javasolta a pásztoroknak, hogy itassák meg a juhokat és legeltessenek, mert már késő volt, és ideje volt beterelni a marhát.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 1,
+      "ref": "1Móz 29,7"
+    },
+    {
+      "id": "GEN.29.q8",
+      "diff": "veryhard",
+      "q": "Melyik szolgálót adta Lábán Leának, amikor Jákóbhoz adta feleségül?",
+      "opts": [
+        "Bilhát",
+        "Zilpátot",
+        "Dórát",
+        "Szárahát"
+      ],
+      "correct": 1,
+      "ref": "1Móz 29,24"
+    },
+    {
+      "id": "GEN.29.q9",
+      "diff": "hard",
+      "q": "Hány évig szolgált Jákób összesen Lábánnál Rákhelért?",
+      "opts": [
+        "Hét évig",
+        "Tizennégy évig",
+        "Tíz évig",
+        "Huszonegy évig"
+      ],
+      "correct": 1,
+      "ref": "1Móz 29,18; 27-30"
+    },
+    {
+      "id": "GEN.29.q10",
+      "diff": "hard",
+      "q": "Igaz vagy hamis? Az Úr megnyitotta Rákhel méhét, mert látta, hogy Jákób jobban szereti őt, mint Leát.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 1,
+      "ref": "1Móz 29,31"
+    }
+  ],
+  "GEN.30": [
+    {
+      "id": "GEN.30.q1",
+      "diff": "hard",
+      "q": "Ki volt Dán anyja?",
+      "opts": [
+        "Lea",
+        "Rákhel",
+        "Bilha",
+        "Zilpa"
+      ],
+      "correct": 2,
+      "ref": "1Móz 30,5"
+    },
+    {
+      "id": "GEN.30.q2",
+      "diff": "hard",
+      "q": "Igaz vagy hamis? Jákób a juhok itatóvályúiba helyezte a meghántott vesszőket, hogy a juhok azokat látva foganjanak.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 0,
+      "ref": "1Móz 30,38"
+    },
+    {
+      "id": "GEN.30.q3",
+      "diff": "veryhard",
+      "q": "Melyik asszony mondta: „Nagy tusakodással tusakodtam az én nénémmel, és győztem”?",
+      "opts": [
+        "Lea",
+        "Rákhel",
+        "Bilha",
+        "Zilpa"
+      ],
+      "correct": 1,
+      "ref": "1Móz 30,8"
+    },
+    {
+      "id": "GEN.30.q4",
+      "diff": "veryhard",
+      "q": "Melyik gyermek nevének adásakor mondta Lea, hogy „Megajándékozott az Isten engem jó ajándékkal; most már velem lakik az én férjem”?",
+      "opts": [
+        "Izsakhár",
+        "Gád",
+        "Zebulon",
+        "Áser"
+      ],
+      "correct": 2,
+      "ref": "1Móz 30,20"
+    },
+    {
+      "id": "GEN.30.q5",
+      "diff": "veryhard",
+      "q": "Ki találta a mezőn a mandragóra-bogyókat a búzaaratás idején?",
+      "opts": [
+        "Jákób",
+        "Lábán",
+        "Rúben",
+        "Izsakhár"
+      ],
+      "correct": 2,
+      "ref": "1Móz 30,14"
+    },
+    {
+      "id": "GEN.30.q6",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? Rákhel azért nevezte el fiát Józsefnek, mert azt mondta: „Elvevé Isten az én gyalázatomat, és adott nékem fiat.”",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 1,
+      "ref": "1Móz 30,23-24"
+    },
+    {
+      "id": "GEN.30.q7",
+      "diff": "veryhard",
+      "q": "Milyen fafajták vesszőit használta Jákób, hogy a juhok csíkos utódokat foganjanak?",
+      "opts": [
+        "Nyár, mogyoró és gesztenye",
+        "Tölgy, juhar és fűz",
+        "Alma, körte és szilva",
+        "Platán, hárs és kőris"
+      ],
+      "correct": 0,
+      "ref": "1Móz 30,37"
+    },
+    {
+      "id": "GEN.30.q8",
+      "diff": "veryhard",
+      "q": "Hány napi járóföldet vete Lábán maga közé és Jákób közé, miután szétválasztották a nyájat?",
+      "opts": [
+        "Egy napi járóföldet",
+        "Két napi járóföldet",
+        "Három napi járóföldet",
+        "Négy napi járóföldet"
+      ],
+      "correct": 2,
+      "ref": "1Móz 30,36"
+    },
+    {
+      "id": "GEN.30.q9",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? Jákób a vesszőket a nyáj minden részének párzási ideje alatt a vályúkba rakta, hogy minden állat csíkos utódot hozzon.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 1,
+      "ref": "1Móz 30,41-42"
+    },
+    {
+      "id": "GEN.30.q10",
+      "diff": "veryhard",
+      "q": "Milyen állatokat választott ki Jákób magának bérként Lábán nyájából?",
+      "opts": [
+        "Minden fekete bárányt és minden csíkos kecskét",
+        "Minden pettyegetett és tarka bárányt, minden fekete bárányt, és a tarkát és pettyegetettet a kecskék közül",
+        "Minden fehér bárányt és minden fekete kecskét",
+        "Minden foltos bárányt és minden csíkos kecskét"
+      ],
+      "correct": 1,
+      "ref": "1Móz 30,32"
+    }
+  ],
+  "GEN.31": [
+    {
+      "id": "GEN.31.q1",
+      "diff": "veryhard",
+      "q": "Melyik napon tudta meg Lábán, hogy Jákób elszökött?",
+      "opts": [
+        "Harmad napra",
+        "Másnap",
+        "Ötödik napra",
+        "Hetedik napra"
+      ],
+      "correct": 0,
+      "ref": "1Móz 31,22"
+    },
+    {
+      "id": "GEN.31.q2",
+      "diff": "veryhard",
+      "q": "Hány évet szolgált Jákób Lábánnál összesen, a saját elmondása szerint?",
+      "opts": [
+        "Tizennégy évet",
+        "Hat évet",
+        "Húsz évet",
+        "Huszonnégy évet"
+      ],
+      "correct": 2,
+      "ref": "1Móz 31,41"
+    },
+    {
+      "id": "GEN.31.q3",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? Lábán először Lea, majd a két szolgáló, végül Jákób sátorában kereste a házi bálványokat.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 1,
+      "ref": "1Móz 31,33"
+    },
+    {
+      "id": "GEN.31.q4",
+      "diff": "veryhard",
+      "q": "Melyik helyszín felé tartott Jákób, miután átkelt a folyóvízen?",
+      "opts": [
+        "Kanaán földjére",
+        "Béthel hegye felé",
+        "Gileád hegye felé",
+        "Mésopotámiába"
+      ],
+      "correct": 2,
+      "ref": "1Móz 31,21"
+    },
+    {
+      "id": "GEN.31.q5",
+      "diff": "veryhard",
+      "q": "Milyen ürüggyel nem kelt fel Rákhel a teve nyergéről, amikor Lábán kereste a házi bálványokat?",
+      "opts": [
+        "Fáradt volt",
+        "Beteg volt",
+        "Asszonyok baja volt rajta",
+        "Aludt"
+      ],
+      "correct": 2,
+      "ref": "1Móz 31,35"
+    },
+    {
+      "id": "GEN.31.q6",
+      "diff": "veryhard",
+      "q": "Mire esküdött Jákób a szövetségkötéskor, a szöveg szerint?",
+      "opts": [
+        "Az Ábrahám Istenére",
+        "A Nákhor Istenére",
+        "Az ő atyjának Izsáknak félelmére",
+        "A Béthel Istenére"
+      ],
+      "correct": 2,
+      "ref": "1Móz 31,53"
+    },
+    {
+      "id": "GEN.31.q7",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? Lábán azt mondta Jákóbnak, hogy ha a leányait nyomorgatja, és ha a leányain kívül több feleséget vesz, akkor Isten lesz a bizonyság közöttük.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 0,
+      "ref": "1Móz 31,50"
+    },
+    {
+      "id": "GEN.31.q8",
+      "diff": "veryhard",
+      "q": "Hányszor változtatta meg Lábán Jákób bérét a szöveg szerint?",
+      "opts": [
+        "Hétszer",
+        "Ötször",
+        "Tízszer",
+        "Tizenkétszer"
+      ],
+      "correct": 2,
+      "ref": "1Móz 31,7"
+    },
+    {
+      "id": "GEN.31.q9",
+      "diff": "hard",
+      "q": "Ki lopta el Lábán házi bálványait?",
+      "opts": [
+        "Jákób",
+        "Lea",
+        "Rákhel",
+        "A két szolgáló"
+      ],
+      "correct": 2,
+      "ref": "1Móz 31,19"
+    },
+    {
+      "id": "GEN.31.q10",
+      "diff": "hard",
+      "q": "Milyen módon jelent meg Isten Lábánnak, hogy figyelmeztesse Jákóbbal kapcsolatban?",
+      "opts": [
+        "Éjjel álomban",
+        "Nappal látomásban",
+        "Egy angyal által",
+        "Tűzoszlopban"
+      ],
+      "correct": 0,
+      "ref": "1Móz 31,24"
+    }
+  ],
+  "GEN.32": [
+    {
+      "id": "GEN.32.q1",
+      "diff": "hard",
+      "q": "Mi volt az első hely neve, amit Jákób nevezett el ebben a fejezetben, miután találkozott az Isten angyalaival?",
+      "opts": [
+        "Peniél",
+        "Mahanáim",
+        "Jabbók",
+        "Széir"
+      ],
+      "correct": 1,
+      "ref": "1Móz 32,2"
+    },
+    {
+      "id": "GEN.32.q2",
+      "diff": "hard",
+      "q": "Milyen új nevet kapott Jákób a tusakodás után?",
+      "opts": [
+        "Ézsaú",
+        "Izráel",
+        "Peniél",
+        "Jehova"
+      ],
+      "correct": 1,
+      "ref": "1Móz 32,28"
+    },
+    {
+      "id": "GEN.32.q3",
+      "diff": "veryhard",
+      "q": "Hány férfi kísérte Ézsaút, amikor a követek jelentése szerint Jákób elé jött?",
+      "opts": [
+        "Kétszáz",
+        "Háromszáz",
+        "Négyszáz",
+        "Ötszáz"
+      ],
+      "correct": 2,
+      "ref": "1Móz 32,6"
+    },
+    {
+      "id": "GEN.32.q4",
+      "diff": "veryhard",
+      "q": "Jákób imájában melyik két ősatyát említi, mint akiknek Istene Jehova?",
+      "opts": [
+        "Ábrahámot és Izsákot",
+        "Izsákot és Jákóbot",
+        "Ábrahámot és Lábánt",
+        "Noét és Ábrahámot"
+      ],
+      "correct": 0,
+      "ref": "1Móz 32,9"
+    },
+    {
+      "id": "GEN.32.q5",
+      "diff": "veryhard",
+      "q": "Hány szoptatós tevét küldött Jákób ajándékba Ézsaúnak?",
+      "opts": [
+        "Húszat",
+        "Harmincat",
+        "Negyvenet",
+        "Ötvenet"
+      ],
+      "correct": 1,
+      "ref": "1Móz 32,15"
+    },
+    {
+      "id": "GEN.32.q6",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? Jákób először a két feleségét és a két szolgálóját vitte át a Jabbók révén, majd a tizenegy gyermekét.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 1,
+      "ref": "1Móz 32,22-23"
+    },
+    {
+      "id": "GEN.32.q7",
+      "diff": "veryhard",
+      "q": "Milyen okból nem esznek Izráel fiai a csípő forgócsontjának inahúsából mind e mai napig?",
+      "opts": [
+        "Mert Isten megtiltotta nekik.",
+        "Mert Jákób csípője megsérült a tusakodásban.",
+        "Mert az áldozati állatoknak ez a része szent.",
+        "Mert ez a húsrész mérgező."
+      ],
+      "correct": 1,
+      "ref": "1Móz 32,32"
+    },
+    {
+      "id": "GEN.32.q8",
+      "diff": "veryhard",
+      "q": "Melyik folyó révén kelt át Jákób a családjával, miután elküldte az ajándékot Ézsaúnak?",
+      "opts": [
+        "Jordán",
+        "Jabbók",
+        "Eufrátesz",
+        "Nílus"
+      ],
+      "correct": 1,
+      "ref": "1Móz 32,22"
+    },
+    {
+      "id": "GEN.32.q9",
+      "diff": "veryhard",
+      "q": "Melyik testrészét illeté meg a férfi, aki Jákóbbal tusakodott, hogy ne vehessen rajta erőt?",
+      "opts": [
+        "Vállát",
+        "Térdét",
+        "Csípőjének forgócsontját",
+        "Karját"
+      ],
+      "correct": 2,
+      "ref": "1Móz 32,25"
+    },
+    {
+      "id": "GEN.32.q10",
+      "diff": "veryhard",
+      "q": "Igaz vagy hamis? Jákób azért kapta az Izráel nevet, mert győzött az Istennel és az emberekkel való küzdelemben.",
+      "opts": [
+        "Igaz",
+        "Hamis"
+      ],
+      "correct": 0,
+      "ref": "1Móz 32,28"
+    }
+  ]
+}
