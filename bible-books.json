@@ -1,0 +1,464 @@
+[
+{
+"order": 1,
+"code": "GEN",
+"hu": "1Mózes",
+"testament": "ot",
+"chapters": 50
+},
+{
+"order": 2,
+"code": "EXO",
+"hu": "2Mózes",
+"testament": "ot",
+"chapters": 40
+},
+{
+"order": 3,
+"code": "LEV",
+"hu": "3Mózes",
+"testament": "ot",
+"chapters": 27
+},
+{
+"order": 4,
+"code": "NUM",
+"hu": "4Mózes",
+"testament": "ot",
+"chapters": 36
+},
+{
+"order": 5,
+"code": "DEU",
+"hu": "5Mózes",
+"testament": "ot",
+"chapters": 34
+},
+{
+"order": 6,
+"code": "JOS",
+"hu": "Józsué",
+"testament": "ot",
+"chapters": 24
+},
+{
+"order": 7,
+"code": "JDG",
+"hu": "Bírák",
+"testament": "ot",
+"chapters": 21
+},
+{
+"order": 8,
+"code": "RUT",
+"hu": "Ruth",
+"testament": "ot",
+"chapters": 4
+},
+{
+"order": 9,
+"code": "1SA",
+"hu": "1Sámuel",
+"testament": "ot",
+"chapters": 31
+},
+{
+"order": 10,
+"code": "2SA",
+"hu": "2Sámuel",
+"testament": "ot",
+"chapters": 24
+},
+{
+"order": 11,
+"code": "1KI",
+"hu": "1Királyok",
+"testament": "ot",
+"chapters": 22
+},
+{
+"order": 12,
+"code": "2KI",
+"hu": "2Királyok",
+"testament": "ot",
+"chapters": 25
+},
+{
+"order": 13,
+"code": "1CH",
+"hu": "1Krónika",
+"testament": "ot",
+"chapters": 29
+},
+{
+"order": 14,
+"code": "2CH",
+"hu": "2Krónika",
+"testament": "ot",
+"chapters": 36
+},
+{
+"order": 15,
+"code": "EZR",
+"hu": "Ezsdrás",
+"testament": "ot",
+"chapters": 10
+},
+{
+"order": 16,
+"code": "NEH",
+"hu": "Nehémiás",
+"testament": "ot",
+"chapters": 13
+},
+{
+"order": 17,
+"code": "EST",
+"hu": "Eszter",
+"testament": "ot",
+"chapters": 10
+},
+{
+"order": 18,
+"code": "JOB",
+"hu": "Jób",
+"testament": "ot",
+"chapters": 42
+},
+{
+"order": 19,
+"code": "PSA",
+"hu": "Zsoltárok",
+"testament": "ot",
+"chapters": 150
+},
+{
+"order": 20,
+"code": "PRO",
+"hu": "Példabeszédek",
+"testament": "ot",
+"chapters": 31
+},
+{
+"order": 21,
+"code": "ECC",
+"hu": "Prédikátor",
+"testament": "ot",
+"chapters": 12
+},
+{
+"order": 22,
+"code": "SNG",
+"hu": "Énekek éneke",
+"testament": "ot",
+"chapters": 8
+},
+{
+"order": 23,
+"code": "ISA",
+"hu": "Ézsaiás",
+"testament": "ot",
+"chapters": 66
+},
+{
+"order": 24,
+"code": "JER",
+"hu": "Jeremiás",
+"testament": "ot",
+"chapters": 52
+},
+{
+"order": 25,
+"code": "LAM",
+"hu": "Jeremiás siralmai",
+"testament": "ot",
+"chapters": 5
+},
+{
+"order": 26,
+"code": "EZK",
+"hu": "Ezékiel",
+"testament": "ot",
+"chapters": 48
+},
+{
+"order": 27,
+"code": "DAN",
+"hu": "Dániel",
+"testament": "ot",
+"chapters": 12
+},
+{
+"order": 28,
+"code": "HOS",
+"hu": "Hóseás",
+"testament": "ot",
+"chapters": 14
+},
+{
+"order": 29,
+"code": "JOL",
+"hu": "Jóel",
+"testament": "ot",
+"chapters": 3
+},
+{
+"order": 30,
+"code": "AMO",
+"hu": "Ámós",
+"testament": "ot",
+"chapters": 9
+},
+{
+"order": 31,
+"code": "OBA",
+"hu": "Abdiás",
+"testament": "ot",
+"chapters": 1
+},
+{
+"order": 32,
+"code": "JON",
+"hu": "Jónás",
+"testament": "ot",
+"chapters": 4
+},
+{
+"order": 33,
+"code": "MIC",
+"hu": "Mikeás",
+"testament": "ot",
+"chapters": 7
+},
+{
+"order": 34,
+"code": "NAM",
+"hu": "Náhum",
+"testament": "ot",
+"chapters": 3
+},
+{
+"order": 35,
+"code": "HAB",
+"hu": "Habakuk",
+"testament": "ot",
+"chapters": 3
+},
+{
+"order": 36,
+"code": "ZEP",
+"hu": "Sofóniás",
+"testament": "ot",
+"chapters": 3
+},
+{
+"order": 37,
+"code": "HAG",
+"hu": "Aggeus",
+"testament": "ot",
+"chapters": 2
+},
+{
+"order": 38,
+"code": "ZEC",
+"hu": "Zakariás",
+"testament": "ot",
+"chapters": 14
+},
+{
+"order": 39,
+"code": "MAL",
+"hu": "Malakiás",
+"testament": "ot",
+"chapters": 4
+},
+{
+"order": 40,
+"code": "MAT",
+"hu": "Máté",
+"testament": "nt",
+"chapters": 28
+},
+{
+"order": 41,
+"code": "MRK",
+"hu": "Márk",
+"testament": "nt",
+"chapters": 16
+},
+{
+"order": 42,
+"code": "LUK",
+"hu": "Lukács",
+"testament": "nt",
+"chapters": 24
+},
+{
+"order": 43,
+"code": "JHN",
+"hu": "János",
+"testament": "nt",
+"chapters": 21
+},
+{
+"order": 44,
+"code": "ACT",
+"hu": "Apostolok cselekedetei",
+"testament": "nt",
+"chapters": 28
+},
+{
+"order": 45,
+"code": "ROM",
+"hu": "Róma",
+"testament": "nt",
+"chapters": 16
+},
+{
+"order": 46,
+"code": "1CO",
+"hu": "1Korinthus",
+"testament": "nt",
+"chapters": 16
+},
+{
+"order": 47,
+"code": "2CO",
+"hu": "2Korinthus",
+"testament": "nt",
+"chapters": 13
+},
+{
+"order": 48,
+"code": "GAL",
+"hu": "Galata",
+"testament": "nt",
+"chapters": 6
+},
+{
+"order": 49,
+"code": "EPH",
+"hu": "Efézus",
+"testament": "nt",
+"chapters": 6
+},
+{
+"order": 50,
+"code": "PHP",
+"hu": "Filippi",
+"testament": "nt",
+"chapters": 4
+},
+{
+"order": 51,
+"code": "COL",
+"hu": "Kolossé",
+"testament": "nt",
+"chapters": 4
+},
+{
+"order": 52,
+"code": "1TH",
+"hu": "1Thesszalonika",
+"testament": "nt",
+"chapters": 5
+},
+{
+"order": 53,
+"code": "2TH",
+"hu": "2Thesszalonika",
+"testament": "nt",
+"chapters": 3
+},
+{
+"order": 54,
+"code": "1TI",
+"hu": "1Timóteus",
+"testament": "nt",
+"chapters": 6
+},
+{
+"order": 55,
+"code": "2TI",
+"hu": "2Timóteus",
+"testament": "nt",
+"chapters": 4
+},
+{
+"order": 56,
+"code": "TIT",
+"hu": "Titus",
+"testament": "nt",
+"chapters": 3
+},
+{
+"order": 57,
+"code": "PHM",
+"hu": "Filemon",
+"testament": "nt",
+"chapters": 1
+},
+{
+"order": 58,
+"code": "HEB",
+"hu": "Zsidók",
+"testament": "nt",
+"chapters": 13
+},
+{
+"order": 59,
+"code": "JAS",
+"hu": "Jakab",
+"testament": "nt",
+"chapters": 5
+},
+{
+"order": 60,
+"code": "1PE",
+"hu": "1Péter",
+"testament": "nt",
+"chapters": 5
+},
+{
+"order": 61,
+"code": "2PE",
+"hu": "2Péter",
+"testament": "nt",
+"chapters": 3
+},
+{
+"order": 62,
+"code": "1JN",
+"hu": "1János",
+"testament": "nt",
+"chapters": 5
+},
+{
+"order": 63,
+"code": "2JN",
+"hu": "2János",
+"testament": "nt",
+"chapters": 1
+},
+{
+"order": 64,
+"code": "3JN",
+"hu": "3János",
+"testament": "nt",
+"chapters": 1
+},
+{
+"order": 65,
+"code": "JUD",
+"hu": "Júdás",
+"testament": "nt",
+"chapters": 1
+},
+{
+"order": 66,
+"code": "REV",
+"hu": "Jelenések",
+"testament": "nt",
+"chapters": 22
+}
+]
