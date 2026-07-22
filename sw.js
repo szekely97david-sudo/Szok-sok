@@ -1,10 +1,10 @@
-/* Trellis service worker — v47
+/* Trellis service worker — v48
    Stratégia:
    - HTML/navigáció  -> NETWORK FIRST (mindig a friss oldalt kéri, offline-ra cache tartalék)
    - statikus fájlok -> STALE-WHILE-REVALIDATE (azonnal cache-ből, közben frissít háttérben)
    - Firebase/Google -> sose cache, mindig hálózat
    A cache-verziót MINDEN kiadásnál léptesd (v12 -> v13 ...), így az app-shell frissül. */
-const VERSION = "v47";
+const VERSION = "v48";
 const CACHE = "trellis-" + VERSION;
 
 const CORE = [

@@ -550,6 +550,67 @@ nav .nav-in .tabbtn svg{width:20px; height:20px;}
 .todo-box.sel{background:var(--gold); border-color:transparent; color:var(--on-gold);}
 
 
+/* ---- Ciklus (menstruációs naptár) modul ---- */
+#tab-ciklus{padding-bottom:80px;}
+.cyc-hero{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:20px 18px; margin:14px 0 12px; text-align:center; position:relative; overflow:hidden;}
+.cyc-hero.on-period{border-color:var(--loss); background:linear-gradient(180deg,var(--loss-soft),var(--surface) 60%);}
+.cyc-phase{font-family:var(--disp); font-weight:700; font-size:24px; letter-spacing:.3px; margin:2px 0 4px;}
+.cyc-day{font-size:13px; color:var(--muted); margin-bottom:4px;}
+.cyc-next{font-size:14px; color:var(--ink); margin:10px 0 2px;}
+.cyc-next b{color:var(--gold);}
+.cyc-next.band b{color:var(--ink);}
+.cyc-learn{font-size:13px; color:var(--muted); line-height:1.6; margin:8px 4px 0;}
+.cyc-ring{width:62px; height:62px; margin:0 auto 8px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:26px; box-shadow:inset 0 0 0 3px var(--gold-line);}
+.cyc-hero.on-period .cyc-ring{box-shadow:inset 0 0 0 3px var(--loss);}
+.cyc-mainbtn{margin-top:14px;}
+.cyc-sublinks{display:flex; gap:8px; justify-content:center; margin-top:10px; flex-wrap:wrap;}
+.cyc-sublinks button{background:var(--surface-2); border:1px solid var(--line); color:var(--muted); border-radius:999px; padding:6px 13px; font-size:12px;}
+.cyc-cal{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:14px; margin-bottom:12px;}
+.cyc-cal-head{display:flex; align-items:center; gap:8px; margin-bottom:12px;}
+.cyc-cal-head .m-name{font-family:var(--disp); font-weight:700; font-size:16px; flex:1; text-align:center;}
+.cyc-cal-nav{background:var(--surface-2); border:1px solid var(--line); color:var(--ink); width:34px; height:34px; border-radius:9px; font-size:18px; flex:none;}
+.cyc-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:4px;}
+.cyc-wd{text-align:center; font-size:10px; color:var(--muted-2); text-transform:uppercase; letter-spacing:.06em; padding-bottom:2px;}
+.cyc-cell{aspect-ratio:1; border-radius:9px; border:1px solid transparent; background:var(--surface-2); color:var(--ink); font-family:var(--disp); font-weight:600; font-size:13px; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative; padding:0;}
+.cyc-cell.empty{background:transparent; border:0;}
+.cyc-cell.today{border-color:var(--gold);}
+.cyc-cell.period{background:var(--loss); color:#fff; border-color:transparent;}
+.cyc-cell.pred-period{background:transparent; border:1px dashed var(--loss); color:var(--loss);}
+.cyc-cell.fertile{background:var(--gold-soft); border-color:var(--gold-line);}
+.cyc-cell.ovul{box-shadow:inset 0 0 0 2px var(--gold);}
+.cyc-cell .lg-dot{position:absolute; bottom:4px; width:4px; height:4px; border-radius:50%; background:var(--muted);}
+.cyc-cell.period .lg-dot{background:rgba(255,255,255,.8);}
+.cyc-legend{display:flex; flex-wrap:wrap; gap:10px 14px; margin-top:12px; font-size:11px; color:var(--muted);}
+.cyc-legend span{display:inline-flex; align-items:center; gap:5px;}
+.cyc-legend i{width:12px; height:12px; border-radius:4px; display:inline-block;}
+.cyc-legend i.period{background:var(--loss);}
+.cyc-legend i.pred{border:1px dashed var(--loss);}
+.cyc-legend i.fertile{background:var(--gold-soft); border:1px solid var(--gold-line);}
+.cyc-stat-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+.cyc-stat{background:var(--surface-2); border:1px solid var(--line); border-radius:var(--r-sm); padding:12px 13px;}
+.cyc-stat .v{font-family:var(--disp); font-weight:700; font-size:22px; color:var(--gold);}
+.cyc-stat .l{font-size:11px; color:var(--muted); margin-top:2px;}
+.cyc-hist{margin-top:12px;}
+.cyc-hist-row{display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--line); font-size:13px;}
+.cyc-hist-row:last-child{border-bottom:0;}
+.cyc-hist-row .len{margin-left:auto; color:var(--muted); font-size:12px;}
+.cyc-disc{font-size:11px; color:var(--muted-2); line-height:1.6; background:var(--surface-2); border:1px solid var(--line); border-radius:var(--r-sm); padding:11px 12px; margin-bottom:12px;}
+.cyc-chips{display:flex; flex-wrap:wrap; gap:7px; margin-top:8px;}
+.cyc-chip{background:var(--surface-2); border:1px solid var(--line); color:var(--ink); border-radius:999px; padding:8px 13px; font-size:13px;}
+.cyc-chip.on{background:var(--gold-soft); border-color:var(--gold-line); color:var(--gold); font-weight:600;}
+.cyc-chip.flow.on{background:var(--loss-soft); border-color:var(--loss); color:var(--loss);}
+.cyc-edu details{background:var(--surface); border:1px solid var(--line); border-radius:var(--r-sm); padding:12px 14px; margin-bottom:8px;}
+.cyc-edu summary{font-weight:600; cursor:pointer; list-style:none; font-size:14px;}
+.cyc-edu summary::-webkit-details-marker{display:none;}
+.cyc-edu p{font-size:13px; line-height:1.65; color:var(--muted); margin:9px 0 0;}
+.cyc-daybtn{display:flex; gap:8px; margin:12px 0;}
+
+/* ---- „Mi újult meg?" újdonságok ---- */
+.whatsnew-block{background:var(--surface-2); border:1px solid var(--line); border-radius:var(--r-sm); padding:12px 14px; margin-bottom:10px;}
+.whatsnew-h{font-weight:700; font-size:14px; margin-bottom:6px;}
+.whatsnew-list{margin:0; padding-left:18px;}
+.whatsnew-list li{font-size:13px; line-height:1.6; color:var(--muted); margin-bottom:5px;}
+
 /* ---- Bibliaolvasás modul ---- */
 #tab-biblia{padding-bottom:80px;}
 .bible-slider{margin:14px 0 4px;}
@@ -645,6 +706,7 @@ nav .nav-in .tabbtn svg{width:20px; height:20px;}
   <section id="tab-haladas" class="hidden"></section>
   <section id="tab-kuldetesek" class="hidden"></section>
   <section id="tab-biblia" class="hidden"></section>
+  <section id="tab-ciklus" class="hidden"></section>
   <section id="tab-fiok" class="hidden"></section>
 </main>
 
@@ -659,6 +721,7 @@ nav .nav-in .tabbtn svg{width:20px; height:20px;}
   <button class="tabbtn" data-tab="celok"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg>Célok</button>
   <button class="tabbtn" data-tab="haladas"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Statisztika</button>
   <button class="tabbtn hidden" data-tab="biblia" id="navBiblia"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h11v16H6a2 2 0 0 0-2 2z"/><path d="M17 3h2a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-2"/><path d="M8 7h6M8 10h6"/></svg>Biblia</button>
+  <button class="tabbtn hidden" data-tab="ciklus" id="navCiklus"><svg viewBox="0 0 24 24"><path d="M12 3C9 7 6.5 9.6 6.5 13a5.5 5.5 0 0 0 11 0C17.5 9.6 15 7 12 3z"/></svg>Ciklus</button>
   <button class="tabbtn" data-tab="fiok"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-1.5 1-5 8-5s8 3.5 8 5"/></svg>Fiók</button>
 </div></nav>
 
@@ -722,18 +785,54 @@ function shortDate(k){return keyToDate(k).toLocaleDateString("hu-HU",{month:"sho
 function weekMonKey(dd){const d=dd?new Date(dd):new Date();const wd=(d.getDay()+6)%7;d.setDate(d.getDate()-wd);return dk(d);}
 function daysBetween(a,b){return Math.round((keyToDate(b)-keyToDate(a))/86400000);}
 function addDaysKey(k,n){const d=keyToDate(k);d.setDate(d.getDate()+n);return dk(d);}
+function validDate(k){return typeof k==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(k);}
 
 const TODAY=todayKey();
 let selDay=TODAY;
 function isSelToday(){return selDay===TODAY;}
 
 /* ---- állapot + migráció ---- */
-function blank(){return{version:9,onboarded:false,updatedAt:0,settings:{...DEF},
+function blank(){return{version:10,onboarded:false,updatedAt:0,settings:{...DEF},
   goals:[],days:{},
   quickDaily:{date:todayKey(),items:[]},quickDailyHistory:{},
   quickWeekly:{weekMon:weekMonKey(),items:[]},quickWeeklyHistory:{},
   reasons:{},todos:[],todoFolders:[],metaLevelSeen:null,avoidState:{},missFrom:TODAY,
-  bible:{enabled:false,plan:null,calib:{wpm:null,runs:[]},updatedAt:0}};}
+  bible:{enabled:false,plan:null,calib:{wpm:null,runs:[]},updatedAt:0},
+  cycle:cycleBlank()};}
+
+/* ---- Ciklus (menstruációs naptár) modul állapota ----
+   A felhasználói adat része (S.cycle) -> a meglévő úton szinkronizál és
+   exportálódik. Kikapcsolva semmi nem változik, a fül nem is renderelődik.
+   EGYETLEN forrás az igazsághoz: a rögzített menstruációk (periods). A ciklushossz,
+   a következő menstruáció, az ovuláció-becslés és a fázis mind ebből deriválható. */
+function cycleBlank(){return{enabled:false,updatedAt:0,
+  settings:{lutealLength:14,predictionsOn:true,dietLayer:true,weekStart:"mon",onBirthControl:false,discreetLabels:false},
+  periods:[],logs:{},version:1};}
+function normCycle(c){c=(c&&typeof c==="object")?c:{};
+  const s=(c.settings&&typeof c.settings==="object")?c.settings:{};
+  const set={
+    lutealLength:Math.max(9,Math.min(16,Number(s.lutealLength)||14)),
+    predictionsOn:s.predictionsOn!==false,
+    dietLayer:s.dietLayer!==false,
+    weekStart:s.weekStart==="sun"?"sun":"mon",
+    onBirthControl:!!s.onBirthControl,
+    discreetLabels:!!s.discreetLabels};
+  const periods=[];
+  if(Array.isArray(c.periods))for(const p of c.periods){
+    if(!p||typeof p!=="object"||!validDate(p.start))continue;
+    const en=validDate(p.end)?p.end:null;
+    periods.push({start:p.start,end:(en&&en>=p.start)?en:null});}
+  periods.sort((a,b)=>a.start<b.start?-1:a.start>b.start?1:0);
+  const logs={};
+  if(c.logs&&typeof c.logs==="object")for(const k in c.logs){
+    if(!validDate(k))continue;const l=c.logs[k]||{};const o={};
+    if(["spotting","light","medium","heavy"].includes(l.flow))o.flow=l.flow;
+    if(Array.isArray(l.symptoms)&&l.symptoms.length)o.symptoms=l.symptoms.map(String).slice(0,24);
+    if(Array.isArray(l.cravings)&&l.cravings.length)o.cravings=l.cravings.map(String).slice(0,24);
+    if(l.weight!=null&&isFinite(Number(l.weight))&&Number(l.weight)>0)o.weight=Number(l.weight);
+    if(l.notes)o.notes=String(l.notes).slice(0,2000);
+    if(Object.keys(o).length)logs[k]=o;}
+  return{enabled:!!c.enabled,updatedAt:Number(c.updatedAt)||0,settings:set,periods,logs,version:1};}
 
 function normMeas(m){m=m||{};const t=m.type||"scale";
   if(t==="scale")return{type:"scale",scaleMax:SCALE_OPTS.includes(Number(m.scaleMax))?Number(m.scaleMax):10,failAt:(m.failAt!=null?Number(m.failAt):null),winAt:(m.winAt!=null?Number(m.winAt):null)};
@@ -889,7 +988,8 @@ function normalize(s){const b=blank();if(!s)return b;
   o.metaLevelSeen=(s.metaLevelSeen==null?null:Number(s.metaLevelSeen));
   o.avoidState=(s.avoidState&&typeof s.avoidState==="object")?s.avoidState:{};
   o.bible=normBible(s.bible);
-  o.version=9;
+  o.cycle=normCycle(s.cycle);
+  o.version=10;
   return o;}
 
 function load(){const r=Store.get("szintlepo3");if(r){try{return normalize(JSON.parse(r));}catch(e){}}
@@ -3411,12 +3511,254 @@ function bibleQuizCardHtml(){
   h+='</div>';
   return h;}
 
+/* =========================================================================
+   CIKLUS (menstruációs naptár) modul — 1. fázis
+   Rögzítés + naptár + napló + fázis-előrejelzés + statisztika + alapozó.
+   Nem orvostechnikai eszköz; tendencia-nyelv; saját adatból jósol; nincs
+   hangulat-napló (az külön modul lesz). ========================================================================= */
+const CYCLE_FLOW=[["spotting","Pecsételő"],["light","Gyenge"],["medium","Közepes"],["heavy","Erős"]];
+const CYCLE_SYMPTOMS=[["cramps","Görcs"],["bloating","Puffadás"],["headache","Fejfájás"],["tender_breasts","Mellérzékenység"],["acne","Pattanás"],["fatigue","Fáradtság"],["back_pain","Hátfájás"],["nausea","Hányinger"],["appetite","Étvágy"]];
+const CYCLE_CRAVINGS=[["sweet","Édesség"],["salty","Sós"],["carbs","Szénhidrát"],["chocolate","Csoki"]];
+const CYCLE_PHASES={
+  menstrual:{name:"Menstruáció",emoji:"🩸",tip:"Az energia sokaknál alacsonyabb ilyenkor — legyél megengedő magaddal, és igyál eleget. A vasban gazdag ételek (zöld levelesek, hüvelyesek) sokaknál jólesnek a vérveszteség mellett."},
+  follicular:{name:"Follikuláris fázis",emoji:"🌱",tip:"Az emelkedő ösztrogén sokaknál több energiát és jobb hangulatot hoz — gyakran ez a „könnyebb” szakasz."},
+  ovulation:{name:"Ovuláció körül",emoji:"✨",tip:"Sokaknál energiacsúcs. A termékeny ablak becslése bizonytalan, és NEM megbízható fogamzásgátló módszer."},
+  luteal:{name:"Luteális fázis",emoji:"🌙",tip:"A progeszteron miatt kicsit emelkedhet az étvágy és a vízvisszatartás — ha most többet kívánsz vagy a mérleg feljebb megy, az élettan, nem hízás vagy kudarc."}
+};
+const CYCLE_EDU=[
+ {q:"A négy fázis röviden",a:"A ciklus jellemzően négy szakaszra osztható: <b>menstruáció</b> (a méhnyálkahártya leválik), <b>follikuláris</b> (ösztrogén emelkedik, tüsző érik), <b>ovuláció</b> (a petesejt kiszabadul) és <b>luteális</b> (progeszteron dominál a következő menstruációig). A hormonok végig változnak — ezért ingadozik az energia, az étvágy és a közérzet is sokaknál."},
+ {q:"Miért nem „mindenkinél 28 nap”?",a:"A ciklushossz és az ovuláció időzítése egyénenként és ciklusonként is változik — a 28 nap / 14. napi ovuláció csak egy átlag, nem szabály. Ezért a naptár a <b>saját adataidból</b> becsül, nem sablonból."},
+ {q:"Mikor NEM érvényes a tankönyv?",a:"Több helyzetben a szokásos minta nem áll: hormonális fogamzásgátló, terhesség vagy szoptatás, kamaszkor, a változókor közeledte, illetve egyes hormonális eltérések mellett. Ilyenkor a becslés bizonytalanabb — ez általános ismeret, nem személyes diagnózis."},
+ {q:"Az ovuláció-becslés nem fogamzásgátlás",a:"A termékeny ablak becslése tájékoztató jellegű, és <b>nem</b> megbízható fogamzásgátló módszer — a hímivarsejt több napig életképes lehet, és az ovuláció időzítése ciklusonként változhat."},
+ {q:"Mikor érdemes orvoshoz fordulni?",a:"Ha a ciklusod tartósan nagyon rendszertelen, kimarad, szokatlanul fájdalmas vagy erős, vagy ha bármi aggaszt — érdemes szakemberrel beszélni. Ez az app nem diagnosztizál és nem helyettesíti az orvosi vizsgálatot."}
+];
+
+function cycMedian(arr){if(!arr.length)return null;const a=arr.slice().sort((x,y)=>x-y);const m=a.length>>1;return a.length%2?a[m]:(a[m-1]+a[m])/2;}
+function dayInAnyPeriod(dayKey){for(const p of S.cycle.periods){const end=p.end||TODAY;if(dayKey>=p.start&&dayKey<=end)return true;}return false;}
+function findPeriodIndexContaining(dayKey){const ps=S.cycle.periods;for(let i=0;i<ps.length;i++){const end=ps[i].end||TODAY;if(dayKey>=ps[i].start&&dayKey<=end)return i;}return -1;}
+function cycleTouch(){S.cycle.updatedAt=Date.now();save();}
+
+function computeCycle(){
+  const C=S.cycle,ps=C.periods.slice().sort((a,b)=>a.start<b.start?-1:1);
+  const r={periods:ps,count:ps.length,avgCycle:null,cycleVar:null,avgPeriod:null,
+    lastStart:null,ongoing:false,cycleDay:null,nextStart:null,nextBand:null,
+    ovulation:null,fertile:null,phase:null,enoughData:false,irregular:false};
+  if(!ps.length)return r;
+  const last=ps[ps.length-1];
+  r.lastStart=last.start;r.ongoing=(last.end===null);
+  const gaps=[];for(let i=1;i<ps.length;i++)gaps.push(daysBetween(ps[i-1].start,ps[i].start));
+  const good=gaps.filter(g=>g>=15&&g<=60);const use=good.length?good:gaps;
+  if(use.length){r.avgCycle=Math.round(cycMedian(use));r.cycleVar=Math.max(...use)-Math.min(...use);}
+  const plen=ps.filter(p=>p.end).map(p=>daysBetween(p.start,p.end)+1);
+  if(plen.length)r.avgPeriod=Math.round(cycMedian(plen));
+  const cd=daysBetween(r.lastStart,TODAY)+1;r.cycleDay=cd>=1?cd:null;
+  r.enoughData=(ps.length>=2&&r.avgCycle!=null);
+  if(r.enoughData&&C.settings.predictionsOn&&!C.settings.onBirthControl){
+    r.nextStart=addDaysKey(r.lastStart,r.avgCycle);
+    r.irregular=(r.cycleVar!=null&&r.cycleVar>=7);
+    if(r.irregular){const half=Math.max(2,Math.round(r.cycleVar/2));r.nextBand=[addDaysKey(r.nextStart,-half),addDaysKey(r.nextStart,half)];}
+    r.ovulation=addDaysKey(r.nextStart,-C.settings.lutealLength);
+    r.fertile=[addDaysKey(r.ovulation,-5),addDaysKey(r.ovulation,1)];
+  }
+  r.phase=cyclePhase(r);
+  return r;}
+function cyclePhase(r){
+  if(dayInAnyPeriod(TODAY))return "menstrual";
+  if(!r.enoughData||!r.ovulation)return null;
+  const dO=daysBetween(r.ovulation,TODAY);
+  if(Math.abs(dO)<=1)return "ovulation";
+  return TODAY<r.ovulation?"follicular":"luteal";}
+
+/* --- rögzítés (minden manuális) --- */
+function startPeriod(dayKey){dayKey=dayKey||TODAY;
+  if(S.cycle.periods.some(p=>p.end===null)){cycleTouch();return;}
+  if(findPeriodIndexContaining(dayKey)>=0){cycleTouch();return;}
+  S.cycle.periods.push({start:dayKey,end:null});
+  S.cycle.periods.sort((a,b)=>a.start<b.start?-1:1);cycleTouch();}
+function endPeriodOngoing(dayKey){dayKey=dayKey||TODAY;
+  const p=S.cycle.periods.find(x=>x.end===null);
+  if(p)p.end=(dayKey>=p.start)?dayKey:p.start;cycleTouch();}
+function mergeCyclePeriods(){
+  const ps=S.cycle.periods.slice().sort((a,b)=>a.start<b.start?-1:1);const out=[];
+  for(const p of ps){
+    if(!out.length){out.push({start:p.start,end:p.end});continue;}
+    const prev=out[out.length-1],prevEnd=prev.end||TODAY;
+    if(p.start<=addDaysKey(prevEnd,1)){
+      if(prev.end===null||p.end===null)prev.end=null;
+      else if(p.end>prevEnd)prev.end=p.end;
+    }else out.push({start:p.start,end:p.end});}
+  S.cycle.periods=out;}
+function markPeriodDay(dayKey,on){
+  if(!validDate(dayKey)||dayKey>TODAY)return;
+  const ps=S.cycle.periods,idx=findPeriodIndexContaining(dayKey);
+  if(on){if(idx>=0)return;ps.push({start:dayKey,end:dayKey});mergeCyclePeriods();}
+  else{
+    if(idx<0)return;const p=ps[idx],realEnd=p.end||TODAY;
+    if(p.start===dayKey&&realEnd===dayKey)ps.splice(idx,1);
+    else if(dayKey===p.start)p.start=addDaysKey(dayKey,1);
+    else if(dayKey===realEnd){const ne=addDaysKey(dayKey,-1);if(ne<p.start)ps.splice(idx,1);else p.end=ne;}
+    else{const second={start:addDaysKey(dayKey,1),end:p.end};p.end=addDaysKey(dayKey,-1);ps.splice(idx+1,0,second);}
+  }
+  S.cycle.periods.sort((a,b)=>a.start<b.start?-1:1);}
+
+/* --- render --- */
+let cycCalMonth=null;
+function shiftMonth(ym,delta){let[y,m]=ym.split("-").map(Number);m+=delta;while(m<1){m+=12;y--;}while(m>12){m-=12;y++;}return y+"-"+String(m).padStart(2,"0");}
+function updateCycleNav(){const b=document.getElementById("navCiklus");if(b)b.classList.toggle("hidden",!(S.cycle&&S.cycle.enabled));}
+function renderCiklus(){
+  const el=document.getElementById("tab-ciklus");if(!el)return;const _sy=window.scrollY;
+  if(!cycCalMonth)cycCalMonth=TODAY.slice(0,7);
+  const r=computeCycle();
+  let h=renderCycleOverview(r)+renderCycleCalendar(r)+renderCycleStats(r)+renderCycleEdu();
+  h+='<div class="cyc-disc">Ez az eszköz nem orvostechnikai eszköz, nem diagnosztizál és nem helyettesíti a szakorvosi tanácsot. Az előrejelzés a saját adataidból becsül, a termékeny ablak becslése pedig NEM megbízható fogamzásgátló módszer. Egészségügyi kérdésben fordulj szakemberhez.</div>';
+  el.innerHTML=h;bindCycle(r);window.scrollTo(0,_sy);}
+function renderCycleOverview(r){
+  let h='<div class="cyc-hero'+(r.phase==="menstrual"?" on-period":"")+'">';
+  if(r.count===0){
+    h+='<div class="cyc-ring">🌸</div><div class="cyc-phase">Üdv a ciklusnaptárban</div>';
+    h+='<div class="cyc-learn">Jelöld be, mikor kezdődött a legutóbbi menstruációd — onnantól követi a naptár, és pár rögzített ciklus után a saját adataidból megbecsüli a következőt.</div>';
+    h+='<button class="btn wide cyc-mainbtn" id="cycStart">🩸 Most kezdődött a menstruációm</button></div>';
+    return h;}
+  const ph=r.phase?CYCLE_PHASES[r.phase]:null;
+  h+='<div class="cyc-ring">'+(ph?ph.emoji:"🌸")+'</div>';
+  if(r.phase==="menstrual"){
+    const idx=findPeriodIndexContaining(TODAY);const pst=idx>=0?S.cycle.periods[idx].start:r.lastStart;
+    h+='<div class="cyc-phase">Menstruáció</div><div class="cyc-day">'+(daysBetween(pst,TODAY)+1)+'. nap'+(r.ongoing?" · folyamatban":"")+'</div>';
+  }else if(ph){
+    h+='<div class="cyc-phase">'+ph.name+'</div><div class="cyc-day">'+(r.cycleDay?r.cycleDay+". ciklusnap":"")+'</div>';
+  }else h+='<div class="cyc-phase">Tanuljuk a ciklusodat</div>';
+  if(r.enoughData&&r.nextStart){
+    if(r.nextBand)h+='<div class="cyc-next band">Következő menstruáció: <b>'+shortDate(r.nextBand[0])+" – "+shortDate(r.nextBand[1])+'</b><br><span style="font-size:12px;color:var(--muted-2)">a ciklusod változékony — ez becsült sáv</span></div>';
+    else{const dl=daysBetween(TODAY,r.nextStart);h+='<div class="cyc-next">Következő menstruáció: <b>'+shortDate(r.nextStart)+'</b>'+(dl>0?" · "+dl+" nap múlva":(dl===0?" · ma":""))+'</div>';}
+  }else if(S.cycle.settings.onBirthControl){h+='<div class="cyc-learn" style="margin-top:8px">Fogamzásgátló mellett a természetes ciklus jellemzően elnyomott, ezért nem adunk menstruáció-/ovuláció-becslést.</div>';}
+  else h+='<div class="cyc-learn" style="margin-top:8px">Még tanuljuk a ciklusodat — pár rögzített ciklus után pontosabb előrejelzést adunk.</div>';
+  if(ph&&ph.tip)h+='<div class="cyc-learn" style="margin-top:10px">'+ph.tip+'</div>';
+  if(r.ongoing)h+='<button class="btn wide cyc-mainbtn" id="cycEnd">A menstruációm véget ért (ma)</button>';
+  else h+='<button class="btn wide cyc-mainbtn" id="cycStart">🩸 Most kezdődött a menstruációm</button>';
+  h+='<div class="cyc-sublinks"><button data-cyc-scroll="cyc-cal">📅 Naptár</button><button data-cyc-scroll="cyc-stats">📊 Statisztika</button><button id="cycTodayLog">📝 Mai napló</button></div>';
+  h+='</div>';return h;}
+function renderCycleCalendar(r){
+  const disc=S.cycle.settings.discreetLabels,sun=S.cycle.settings.weekStart==="sun";
+  const[yy,mm]=cycCalMonth.split("-").map(Number);
+  const first=new Date(yy,mm-1,1);
+  const monthName=first.toLocaleDateString("hu-HU",{year:"numeric",month:"long"});
+  const dim=new Date(yy,mm,0).getDate();
+  const lead=sun?first.getDay():((first.getDay()+6)%7);
+  const wd=sun?["V","H","K","Sze","Cs","P","Szo"]:["H","K","Sze","Cs","P","Szo","V"];
+  let predSet=new Set();
+  if(r.enoughData&&r.nextStart){const plen=r.avgPeriod||5;const base=r.nextBand?r.nextBand[0]:r.nextStart;const span=(r.nextBand?daysBetween(r.nextBand[0],r.nextBand[1]):0)+plen;for(let i=0;i<span;i++)predSet.add(addDaysKey(base,i));}
+  let fertSet=new Set(),ovul=null;
+  if(!disc&&r.fertile){for(let d=r.fertile[0];d<=r.fertile[1];d=addDaysKey(d,1))fertSet.add(d);ovul=r.ovulation;}
+  let h='<div class="section-title" id="cyc-cal">Naptár</div><div class="cyc-cal">';
+  h+='<div class="cyc-cal-head"><button class="cyc-cal-nav" data-cyc-mon="-1">‹</button><div class="m-name">'+monthName+'</div><button class="cyc-cal-nav" data-cyc-mon="1">›</button></div><div class="cyc-grid">';
+  wd.forEach(d=>h+='<div class="cyc-wd">'+d+'</div>');
+  for(let i=0;i<lead;i++)h+='<div class="cyc-cell empty"></div>';
+  for(let d=1;d<=dim;d++){
+    const key=yy+"-"+String(mm).padStart(2,"0")+"-"+String(d).padStart(2,"0");
+    const cls=["cyc-cell"];if(key===TODAY)cls.push("today");
+    const isP=dayInAnyPeriod(key);
+    if(isP)cls.push("period");else if(predSet.has(key)&&key>TODAY)cls.push("pred-period");
+    if(!isP&&fertSet.has(key))cls.push("fertile");
+    if(!isP&&ovul&&key===ovul)cls.push("ovul");
+    h+='<button class="'+cls.join(" ")+'" data-cyc-day="'+key+'">'+d+(S.cycle.logs[key]?'<span class="lg-dot"></span>':'')+'</button>';}
+  h+='</div><div class="cyc-legend"><span><i class="period"></i>Rögzített menstruáció</span><span><i class="pred"></i>Becsült</span>'+(disc?'':'<span><i class="fertile"></i>Termékeny (becslés)</span>')+'</div></div>';
+  return h;}
+function renderCycleStats(r){
+  let h='<div class="section-title" id="cyc-stats">Statisztika</div>';
+  if(r.count===0)return h+'<div class="card" style="padding:16px"><div class="hint">Még nincs rögzített ciklus. Jelölj be egy menstruációt, és itt megjelennek az összesítők.</div></div>';
+  h+='<div class="card" style="padding:16px"><div class="cyc-stat-grid">';
+  h+='<div class="cyc-stat"><div class="v">'+(r.avgCycle?r.avgCycle+" nap":"—")+'</div><div class="l">Átlagos ciklushossz</div></div>';
+  h+='<div class="cyc-stat"><div class="v">'+(r.avgPeriod?r.avgPeriod+" nap":"—")+'</div><div class="l">Átlagos menstruáció</div></div>';
+  h+='<div class="cyc-stat"><div class="v">'+r.count+'</div><div class="l">Rögzített ciklus</div></div>';
+  h+='<div class="cyc-stat"><div class="v">'+(r.cycleVar!=null?"±"+Math.max(1,Math.round(r.cycleVar/2))+" nap":"—")+'</div><div class="l">Ingadozás</div></div>';
+  h+='</div>';
+  if(!r.enoughData)h+='<div class="hint" style="margin-top:10px">Legalább két rögzített menstruáció kell a ciklushossz becsléséhez.</div>';
+  else if(r.irregular)h+='<div class="hint" style="margin-top:10px">A ciklusod hossza elég változékony — ilyenkor az előrejelzést sávként mutatjuk. Ha ez zavaró vagy nagyon rendszertelen, érdemes lehet orvossal beszélni.</div>';
+  const rec=r.periods.slice().reverse().slice(0,8);
+  h+='<div class="cyc-hist">';
+  rec.forEach(p=>{const len=p.end?(daysBetween(p.start,p.end)+1)+" nap":"folyamatban";h+='<div class="cyc-hist-row">🩸 <span>'+shortDate(p.start)+(p.end?" – "+shortDate(p.end):"")+'</span><span class="len">'+len+'</span></div>';});
+  h+='</div></div>';return h;}
+function renderCycleEdu(){
+  let h='<div class="section-title">Tudnivalók a ciklusról</div><div class="cyc-edu">';
+  CYCLE_EDU.forEach((e,i)=>{h+='<details'+(i===0?" open":"")+'><summary>'+e.q+'</summary><p>'+e.a+'</p></details>';});
+  return h+'</div>';}
+function bindCycle(r){
+  const s=document.getElementById("cycStart");if(s)s.onclick=()=>{startPeriod(TODAY);toast("Menstruáció rögzítve ✓");renderCiklus();};
+  const e=document.getElementById("cycEnd");if(e)e.onclick=()=>{endPeriodOngoing(TODAY);toast("Rögzítve: a menstruáció vége");renderCiklus();};
+  document.querySelectorAll("#tab-ciklus [data-cyc-day]").forEach(b=>b.onclick=()=>openCycleDay(b.dataset.cycDay));
+  document.querySelectorAll("#tab-ciklus [data-cyc-mon]").forEach(b=>b.onclick=()=>{cycCalMonth=shiftMonth(cycCalMonth,Number(b.dataset.cycMon));renderCiklus();});
+  document.querySelectorAll("#tab-ciklus [data-cyc-scroll]").forEach(b=>b.onclick=()=>{const el=document.getElementById(b.dataset.cycScroll);if(el)el.scrollIntoView({behavior:"smooth",block:"start"});});
+  const tl=document.getElementById("cycTodayLog");if(tl)tl.onclick=()=>openCycleDay(TODAY);}
+
+/* --- napi napló ablak (nap-belépés) --- */
+function cycDayBtnHtml(dayKey){return dayInAnyPeriod(dayKey)
+  ?'<button class="btn ghost wide" id="cycDayOff" style="color:var(--loss)">🩸 Mégsem menstruációs nap</button>'
+  :'<button class="btn wide" id="cycDayOn">🩸 Menstruációs nap</button>';}
+function bindCycDayBtn(dayKey){
+  const refresh=()=>{cycleTouch();renderCiklus();const w=document.getElementById("cycDayBtnWrap");if(w){w.innerHTML=cycDayBtnHtml(dayKey);bindCycDayBtn(dayKey);}};
+  const on=document.getElementById("cycDayOn");if(on)on.onclick=()=>{markPeriodDay(dayKey,true);refresh();};
+  const off=document.getElementById("cycDayOff");if(off)off.onclick=()=>{markPeriodDay(dayKey,false);refresh();};}
+function openCycleDay(dayKey){
+  const dObj=keyToDate(dayKey);
+  const title=dObj.toLocaleDateString("hu-HU",{year:"numeric",month:"long",day:"numeric",weekday:"long"});
+  let h='<button class="close-x" id="mClose">✕</button><h3 style="margin-right:30px">'+title+'</h3>';
+  if(dayKey>TODAY){h+='<div class="hint">Ez egy jövőbeli nap — ide még nem tudsz naplózni. A menstruációt akkor jelöld, amikor elkezdődött.</div>';openModal(h);return;}
+  const l=S.cycle.logs[dayKey]||{};
+  h+='<div class="cyc-daybtn" id="cycDayBtnWrap">'+cycDayBtnHtml(dayKey)+'</div>';
+  h+='<div class="section-title" style="margin-top:6px">Vérzés erőssége</div><div class="cyc-chips" id="cycFlow">';
+  CYCLE_FLOW.forEach(([v,lab])=>{h+='<button class="cyc-chip flow'+(l.flow===v?" on":"")+'" data-flow="'+v+'">'+lab+'</button>';});
+  h+='</div><div class="section-title">Tünetek</div><div class="cyc-chips" id="cycSym">';
+  CYCLE_SYMPTOMS.forEach(([v,lab])=>{h+='<button class="cyc-chip'+((l.symptoms||[]).includes(v)?" on":"")+'" data-sym="'+v+'">'+lab+'</button>';});
+  h+='</div><div class="section-title">Sóvárgás</div><div class="cyc-chips" id="cycCrav">';
+  CYCLE_CRAVINGS.forEach(([v,lab])=>{h+='<button class="cyc-chip'+((l.cravings||[]).includes(v)?" on":"")+'" data-crav="'+v+'">'+lab+'</button>';});
+  h+='</div><div class="section-title">Súly (opcionális)</div><input class="input" id="cycWeight" inputmode="decimal" placeholder="pl. 63.5" value="'+(l.weight!=null?l.weight:"")+'"/>';
+  h+='<div class="section-title">Jegyzet</div><textarea class="input" id="cycNotes" style="min-height:70px" placeholder="Bármi, amit fel szeretnél jegyezni…">'+esc(l.notes||"")+'</textarea>';
+  h+='<button class="btn wide" id="cycSave" style="margin-top:14px">Mentés</button>';
+  openModal(h);
+  bindCycDayBtn(dayKey);
+  document.querySelectorAll("#cycFlow [data-flow]").forEach(b=>b.onclick=()=>{const same=b.classList.contains("on");document.querySelectorAll("#cycFlow .on").forEach(x=>x.classList.remove("on"));if(!same)b.classList.add("on");});
+  document.querySelectorAll("#cycSym [data-sym]").forEach(b=>b.onclick=()=>b.classList.toggle("on"));
+  document.querySelectorAll("#cycCrav [data-crav]").forEach(b=>b.onclick=()=>b.classList.toggle("on"));
+  document.getElementById("cycSave").onclick=()=>{saveCycleDay(dayKey);closeScreen();renderCiklus();toast("Mentve ✓");};}
+function saveCycleDay(dayKey){
+  const fe=document.querySelector("#cycFlow .on");const flow=fe?fe.dataset.flow:null;
+  const symptoms=[...document.querySelectorAll("#cycSym .on")].map(b=>b.dataset.sym);
+  const cravings=[...document.querySelectorAll("#cycCrav .on")].map(b=>b.dataset.crav);
+  const wv=parseFloat(String(document.getElementById("cycWeight").value||"").replace(",","."));
+  const notes=(document.getElementById("cycNotes").value||"").trim();
+  const o={};if(flow)o.flow=flow;if(symptoms.length)o.symptoms=symptoms;if(cravings.length)o.cravings=cravings;
+  if(isFinite(wv)&&wv>0)o.weight=wv;if(notes)o.notes=notes;
+  if(Object.keys(o).length)S.cycle.logs[dayKey]=o;else delete S.cycle.logs[dayKey];
+  cycleTouch();}
+
+/* --- „Mi újult meg?" (közérthető változásnapló) --- */
+const CHANGELOG=[
+ {v:1,title:"🌸 Menstruációs ciklusnaptár",items:[
+   "Új, bekapcsolható napló: a <b>Fiók</b> fülön aktiválhatod a „Ciklus” naptárt — és megjelenik egy külön <b>Ciklus</b> fül.",
+   "Egy koppintással bejelölöd, mikor <b>kezdődött</b> és mikor <b>ért véget</b> a menstruációd; a naptár megmutatja, és pár ciklus után a saját adataidból <b>megbecsüli a következőt</b>.",
+   "Naptár + statisztika + rövid, közérthető tudnivalók a ciklusról.",
+   "Csak te látod, bármikor kikapcsolható, és az adataid megmaradnak."]}
+];
+function whatsNewHtml(fromV){
+  const items=CHANGELOG.filter(c=>c.v>fromV).sort((a,b)=>b.v-a.v);
+  if(!items.length)return null;
+  let h='<button class="close-x" id="mClose">✕</button><h3>✨ Mi újult meg?</h3><p class="hint" style="margin:-4px 0 14px">Frissült az app. Röviden, közérthetően, mi változott:</p>';
+  for(const c of items){h+='<div class="whatsnew-block"><div class="whatsnew-h">'+c.title+'</div><ul class="whatsnew-list">';for(const it of c.items)h+='<li>'+it+'</li>';h+='</ul></div>';}
+  return h+'<button class="btn wide" id="wnClose" style="margin-top:6px">Értem, köszönöm</button>';}
+function showWhatsNew(fromV){const h=whatsNewHtml(fromV);if(!h)return;openModal(h);const b=document.getElementById("wnClose");if(b)b.onclick=()=>closeScreen();}
+function maybeShowWhatsNew(){
+  const latest=CHANGELOG.reduce((m,c)=>Math.max(m,c.v),0);
+  let seen=Number(Store.get("sl_changelog_seen"));
+  if(!Number.isFinite(seen))seen=S.onboarded?0:latest;
+  if(S.onboarded&&seen<latest)showWhatsNew(seen);
+  Store.set("sl_changelog_seen",String(latest));}
+
 /* ---- NAV ---- */
 let curTab="ma";
 function switchTab(t){curTab=t;if(t!=="biblia"){bibleBookOpen=null;}if(t!=="ma"){maGoal=null;maMetric=null;}if(t!=="celok"){editing=null;formDraft=null;formMetricIdx=null;}if(t!=="haladas"){statGoal=null;statMetric=null;}document.querySelectorAll(".tabbtn").forEach(b=>b.classList.toggle("active",b.dataset.tab===t));
   if(t!=="ma"){gateActive=false;gateDismissedThisSession=false;}
-  ["ma","celok","haladas","kuldetesek","biblia","fiok"].forEach(x=>{const s=document.getElementById("tab-"+x);if(s)s.classList.toggle("hidden",x!==t);});
-  if(t==="ma")renderMa();if(t==="celok")renderCelok();if(t==="haladas")renderHaladas();if(t==="kuldetesek")renderKuldetesek();if(t==="biblia")renderBiblia();if(t==="fiok")renderFiok();updateDayFoot();window.scrollTo(0,0);}
+  ["ma","celok","haladas","kuldetesek","biblia","ciklus","fiok"].forEach(x=>{const s=document.getElementById("tab-"+x);if(s)s.classList.toggle("hidden",x!==t);});
+  if(t==="ma")renderMa();if(t==="celok")renderCelok();if(t==="haladas")renderHaladas();if(t==="kuldetesek")renderKuldetesek();if(t==="biblia")renderBiblia();if(t==="ciklus")renderCiklus();if(t==="fiok")renderFiok();updateDayFoot();window.scrollTo(0,0);}
 document.querySelectorAll(".tabbtn").forEach(b=>b.onclick=()=>{if(b.dataset.tab==="ma"){maGoal=null;maMetric=null;selDay=TODAY;}if(b.dataset.tab==="haladas"){statGoal=null;statMetric=null;}switchTab(b.dataset.tab);});
 
 /* ---- Vissza-navigáció: fix alsó gomb + telefonos vissza-gesztus (A) ----
@@ -3461,7 +3803,7 @@ window.SL={getState:()=>S,
 /* =========================================================================
    2. RÉTEG — témák, súgó, tutorial, indokok, ünneplés, visszajelzés
    ========================================================================= */
-const APP_VERSION="v9";
+const APP_VERSION="v10";
 
 /* ---- témák ---- */
 const THEMES=[{id:"kert",name:"Üvegház",sw:"#2D6A4F"},{id:"papir",name:"Letisztult",sw:"#1B4332"},{id:"krem",name:"Papír",sw:"#B5852B"},{id:"arany",name:"Arany éj",sw:"#E5A83B"},{id:"erdo",name:"Erdő",sw:"#5FD08A"},{id:"ocean",name:"Óceán",sw:"#4FB0E5"},{id:"naplemente",name:"Naplemente",sw:"#E5744F"},{id:"ejjel",name:"Éjszakai",sw:"#C79A46"},{id:"film",name:"Filmvászon",sw:"#D8D8D8"}];
@@ -3787,6 +4129,7 @@ function renderFiok(){const el=document.getElementById("tab-fiok");
   }else html+='<div class="hint">A felhő-szinkron nincs beállítva ehhez a példányhoz. Enélkül minden helyben, ezen az eszközön működik.</div>';
   html+='</div>';
   html+='<div class="section-title">Bibliaolvasás</div><div class="card" style="padding:16px"><div class="hint" style="margin-bottom:10px">Szószám-alapú olvasási terv a Károli-fordításhoz. Bekapcsolva külön <b>Biblia</b> fül jelenik meg, saját tervvel, haladással és statisztikával — a pontrendszeredbe nem számít bele.</div><button class="btn wide" id="bibleToggle">'+(S.bible.enabled?'📖 Bibliaolvasás kikapcsolása':'📖 Bibliaolvasás bekapcsolása')+'</button></div>';
+  html+='<div class="section-title">Ciklus (menstruációs naptár)</div><div class="card" style="padding:16px"><div class="hint" style="margin-bottom:10px">Menstruációs naptár és napló. Bekapcsolva külön <b>Ciklus</b> fül jelenik meg, ahol követheted a ciklusodat és a saját adataidból előrejelzést kapsz. Csak te látod; bármikor kikapcsolható, az adataid megmaradnak. <i>Nem orvostechnikai eszköz, nem diagnosztizál.</i></div><button class="btn wide" id="cycleToggle">'+(S.cycle.enabled?'🌸 Ciklusnaptár kikapcsolása':'🌸 Ciklusnaptár bekapcsolása')+'</button></div>';
   html+='<div class="section-title">Jutalmak</div><div class="card" style="padding:16px"><div class="hint" style="margin-bottom:10px">Érmék, jelvények és kihívások a szintlépéseidért — hamarosan.</div><button class="btn wide" id="openJutalmak">🏆 Jutalmak megnyitása</button></div>';
   html+='<div class="section-title">Ajánld ismerősnek</div><div class="card" style="padding:16px"><div class="hint" style="margin-bottom:10px">Tetszik a Trellis? Küldd el egy barátodnak egyetlen koppintással — Messenger, e-mail, bármi.</div><button class="btn wide" id="referBtn">🎁 Ajánld ismerősnek</button></div>';
   html+='<div class="section-title">Súgó</div><div class="card" style="padding:16px"><div class="hint" style="margin-bottom:10px">Részletes, kereshető útmutató mindenről — ha elakadsz, itt megtalálod a választ.</div><button class="btn wide" id="openHelpBtn">📖 Súgó megnyitása</button></div>';
@@ -3794,7 +4137,7 @@ function renderFiok(){const el=document.getElementById("tab-fiok");
   html+='<div class="section-title">Mentés</div><div class="card" style="padding:16px"><div class="rub-actions"><button class="btn ghost sm" id="expBtn">Exportálás (fájl)</button><button class="btn ghost sm" id="impBtn">Importálás (fájl)</button></div><div class="hint" style="margin-top:8px">Töltsd le biztonsági mentésként, vagy vidd át másik eszközre.</div></div>';
   html+='<div class="section-title">AI rubrika '+ibtn('gkey')+'</div><div class="card" style="padding:16px"><div class="field"><label>Saját Gemini API-kulcs (ingyenes)</label><input class="input" id="setGemini" placeholder="AIza…" value="'+escA(GKEY)+'"/><div class="hint">Lépésről lépésre: nyomd meg a fenti „i" ikont vagy a Súgóban a „Gemini-kulcs" részt. A kulcs csak ezen az eszközön tárolódik.</div></div><div class="field"><label>Modell</label><input class="input" id="setModel" placeholder="gemini-2.5-flash" value="'+escA(GMODEL)+'"/><div class="hint">Alap: <b>gemini-2.5-flash</b>. Ha egy modell megszűnik, itt átírhatod; az app magától visszavált flash / flash-lite modellre.</div></div><div class="rub-actions"><button class="btn ghost sm" id="saveGemini">Mentés</button></div></div>';
   html+='<div class="section-title">Visszajelzés a fejlesztőnek</div><div class="card" style="padding:16px"><div class="field"><label>Üzenet (hiba, ötlet, kérdés)</label><textarea class="input" id="fbText" placeholder="Írd le bátran, hosszabban is…" style="min-height:90px"></textarea></div><div class="field"><label>Elérhetőség (opcionális)</label><input class="input" id="fbContact" placeholder="e-mail, ha választ szeretnél"/></div><div class="rub-actions"><button class="btn sm" id="fbSend">Küldés</button></div><div class="hint" style="margin-top:8px">A visszajelzés a fejlesztőhöz jut. Rajta kívül más nem olvassa.</div></div>';
-  html+='<div class="section-title">Alkalmazás</div><div class="card" style="padding:16px"><div class="rub-actions"><button class="btn ghost sm" id="installBtn">Telepítés a kezdőképernyőre '+ibtn('telep').replace('data-info="telep"','data-info="telep"')+'</button></div><div class="hint" style="margin-top:10px">Verzió: '+APP_VERSION+'. Skála: 1–'+cfg().scaleMax+', semleges: '+cfg().neutral+'.</div><div class="rub-actions" style="margin-top:12px"><button class="btn ghost sm" id="resetData" style="color:var(--loss)">Összes adat törlése</button></div></div>';
+  html+='<div class="section-title">Alkalmazás</div><div class="card" style="padding:16px"><div class="rub-actions"><button class="btn ghost sm" id="installBtn">Telepítés a kezdőképernyőre '+ibtn('telep').replace('data-info="telep"','data-info="telep"')+'</button><button class="btn ghost sm" id="whatsNewBtn">✨ Mi újult meg?</button></div><div class="hint" style="margin-top:10px">Verzió: '+APP_VERSION+'. Skála: 1–'+cfg().scaleMax+', semleges: '+cfg().neutral+'.</div><div class="rub-actions" style="margin-top:12px"><button class="btn ghost sm" id="resetData" style="color:var(--loss)">Összes adat törlése</button></div></div>';
   el.innerHTML=html;
   const si=document.getElementById("signIn");if(si)si.onclick=()=>{window.Cloud.signIn();};
   const so=document.getElementById("signOut");if(so)so.onclick=()=>{if(confirm("Kijelentkezel?"))window.Cloud.signOut();};
@@ -3802,6 +4145,10 @@ function renderFiok(){const el=document.getElementById("tab-fiok");
   if(bt)bt.onclick=()=>{S.bible.enabled=!S.bible.enabled;S.bible.updatedAt=Date.now();save();
     updateBibleNav();renderFiok();
     if(S.bible.enabled){toast("Bibliaolvasás bekapcsolva");switchTab("biblia");}else toast("Kikapcsolva");};
+  const ct=document.getElementById("cycleToggle");
+  if(ct)ct.onclick=()=>{S.cycle.enabled=!S.cycle.enabled;cycleTouch();
+    updateCycleNav();renderFiok();
+    if(S.cycle.enabled){toast("Ciklusnaptár bekapcsolva");switchTab("ciklus");}else toast("Kikapcsolva");};
   const jb=document.getElementById("openJutalmak");if(jb)jb.onclick=showJutalmak;
   const rb=document.getElementById("referBtn");if(rb)rb.onclick=shareApp;
   document.getElementById("openHelpBtn").onclick=()=>openHelp(null);
@@ -3811,6 +4158,7 @@ function renderFiok(){const el=document.getElementById("tab-fiok");
   document.getElementById("saveGemini").onclick=()=>{GKEY=document.getElementById("setGemini").value.trim();Store.set("gemini_key",GKEY);const _m=document.getElementById("setModel");if(_m){GMODEL=_m.value.trim()||GEMINI_MODEL;Store.set("gemini_model",GMODEL);}toast("Mentve");};
   document.getElementById("fbSend").onclick=(e)=>sendFeedback(document.getElementById("fbText").value,document.getElementById("fbContact").value,e.target);
   document.getElementById("installBtn").onclick=doInstall;
+  const wn=document.getElementById("whatsNewBtn");if(wn)wn.onclick=()=>{const h=whatsNewHtml(-1);if(h){openModal(h);const b=document.getElementById("wnClose");if(b)b.onclick=()=>closeScreen();}else toast("Nincs újdonság");};
   document.getElementById("resetData").onclick=()=>{if(confirm("Biztos törlöd az ÖSSZES adatot ezen az eszközön? Nem visszavonható.")){
     S=blank();S.onboarded=true;S.updatedAt=Date.now();
     Store.set("szintlepo3",JSON.stringify(S));Store.set("szintlepo2","");Store.set("szintlepo","");Store.set("maSeg","napi");
@@ -3821,7 +4169,7 @@ function renderFiok(){const el=document.getElementById("tab-fiok");
 /* ---- indítás ---- */
 applyTheme(curTheme);
 document.addEventListener("click",e=>{const b=e.target&&e.target.closest&&e.target.closest("[data-info]");if(b){e.preventDefault();e.stopPropagation();showInfo(b.dataset.info);}});
-ensureQuick();renderHeader();updateBibleNav();setInterval(tickAvoid,1000);
+ensureQuick();renderHeader();updateBibleNav();updateCycleNav();setInterval(tickAvoid,1000);
 if(S.bible&&S.bible.enabled)loadBibleData();   /* háttérben, hogy a fül azonnal nyíljon */
 if(S.metaLevelSeen==null){S.metaLevelSeen=metaProgFor(metaPoints()).L;persist();}
 if(!S.onboarded){showOnboarding();switchTab("ma");}else{switchTab("ma");}
@@ -3839,7 +4187,7 @@ if(!S.onboarded){showOnboarding();switchTab("ma");}else{switchTab("ma");}
     if(vid){try{vid.pause();}catch(e){}}
     if(meta&&themeBefore!==null) meta.setAttribute("content",themeBefore);
     sp.style.transition="opacity .5s ease"; sp.classList.add("hide");
-    setTimeout(function(){ sp.style.display="none"; },560);
+    setTimeout(function(){ sp.style.display="none"; try{maybeShowWhatsNew();}catch(e){} },560);
   }
   /* A videó (5 mp) NEM átugorható — végigfut az animáció, majd 'ended' -> fade-out.
      Szándékosan nincs koppintás-átugrás és nincs Kihagyás gomb. */
