@@ -55,7 +55,7 @@ header{position:sticky; top:0; z-index:20; background:linear-gradient(180deg,var
 .cloudchip{font-size:14px; color:var(--muted-2); background:var(--surface); border:1px solid var(--line); border-radius:999px; padding:6px 9px;}
 .cloudchip.on{color:var(--gold);}
 
-nav{position:fixed; left:0; right:0; bottom:0; z-index:30; background:rgba(14,16,21,.92);
+nav{position:fixed; left:0; right:0; bottom:0; z-index:30; background:var(--nav-bg, rgba(14,16,21,.92));
   backdrop-filter:blur(12px); border-top:1px solid var(--line); padding:8px 0 calc(8px + env(safe-area-inset-bottom));}
 .nav-in{max-width:600px; margin:0 auto; display:flex;}
 .tabbtn{flex:1; background:none; border:0; padding:6px 0; display:flex; flex-direction:column; align-items:center; gap:4px; color:var(--muted-2); font-size:11px;}
@@ -469,6 +469,14 @@ body[data-theme="erdo"],body[data-theme="ocean"],body[data-theme="naplemente"],b
 .theme-chip{display:flex; align-items:center; gap:8px; font-family:var(--disp); font-weight:600; font-size:13px; padding:9px 12px; border-radius:999px; background:var(--surface-2); border:1px solid var(--line); color:var(--ink);}
 .theme-chip .sw{width:16px; height:16px; border-radius:50%; border:1px solid rgba(255,255,255,.25);}
 .theme-chip.active{border-color:var(--gold-line); box-shadow:0 0 0 2px var(--gold-soft) inset;}
+.theme-chip.custom{padding-right:6px; cursor:pointer;}
+.theme-chip .ct-act{background:transparent; border:0; color:var(--muted); font-size:13px; line-height:1; padding:2px 4px; margin-left:2px; cursor:pointer;}
+.theme-chip .ct-act:hover{color:var(--ink);}
+.cfield{margin:10px 0;}
+.cfield>label{display:block; font-family:var(--disp); font-weight:600; font-size:13px; color:var(--muted); margin-bottom:6px;}
+.cfield .crow{display:flex; align-items:center; gap:10px;}
+.cfield input[type=color]{width:52px; height:40px; padding:0; border:1px solid var(--line); border-radius:10px; background:var(--surface-2); cursor:pointer;}
+.cfield .chex{font-family:ui-monospace, "SFMono-Regular", Menlo, monospace; font-size:13px; color:var(--muted);}
 
 /* ===== infó-buborék ===== */
 .ib{display:inline-flex; align-items:center; justify-content:center; width:17px; height:17px; border-radius:50%; border:1px solid var(--muted-2); color:var(--muted); background:none; font-size:11px; font-style:italic; font-family:var(--disp); line-height:1; margin-left:6px; flex:none; vertical-align:middle;}
@@ -3458,8 +3466,121 @@ const APP_VERSION="v9";
 /* ---- témák ---- */
 const THEMES=[{id:"kert",name:"Üvegház",sw:"#2D6A4F"},{id:"papir",name:"Letisztult",sw:"#1B4332"},{id:"krem",name:"Papír",sw:"#B5852B"},{id:"arany",name:"Arany éj",sw:"#E5A83B"},{id:"erdo",name:"Erdő",sw:"#5FD08A"},{id:"ocean",name:"Óceán",sw:"#4FB0E5"},{id:"naplemente",name:"Naplemente",sw:"#E5744F"},{id:"ejjel",name:"Éjszakai",sw:"#C79A46"},{id:"film",name:"Filmvászon",sw:"#D8D8D8"}];
 let curTheme=Store.get("sl_theme")||"kert";
-function applyTheme(t){if(t&&t!=="arany")document.body.setAttribute("data-theme",t);else document.body.removeAttribute("data-theme");}
-function setTheme(t){curTheme=t;Store.set("sl_theme",t);applyTheme(t);if(curTab==="fiok")renderFiok();}
+let customThemes=(()=>{try{return JSON.parse(Store.get("sl_customThemes")||"[]")||[];}catch(e){return [];}})();
+function saveCustomThemes(){Store.set("sl_customThemes",JSON.stringify(customThemes));}
+function getCustom(id){return customThemes.find(t=>t&&t.id===id);}
+
+/* --- szín-segédfüggvények --- */
+function _h2(x){x=Math.max(0,Math.min(255,Math.round(x)));return x.toString(16).padStart(2,"0");}
+function hexToRgb(h){h=(h||"").trim();
+  if(/^rgb/i.test(h)){const m=h.match(/\d+/g)||[];return{r:+m[0]||0,g:+m[1]||0,b:+m[2]||0};}
+  h=h.replace("#","");if(h.length===3)h=h.split("").map(c=>c+c).join("");
+  const n=parseInt((h+"000000").slice(0,6),16);return{r:(n>>16)&255,g:(n>>8)&255,b:n&255};}
+function rgbToHex(r,g,b){return"#"+_h2(r)+_h2(g)+_h2(b);}
+function toHex6(s){const c=hexToRgb(s);return rgbToHex(c.r,c.g,c.b);}
+function mixHex(a,b,t){const x=hexToRgb(a),y=hexToRgb(b);return rgbToHex(x.r+(y.r-x.r)*t,x.g+(y.g-x.g)*t,x.b+(y.b-x.b)*t);}
+function rgbaHex(h,a){const c=hexToRgb(h);return"rgba("+c.r+","+c.g+","+c.b+","+a+")";}
+function lumaOf(h){const c=hexToRgb(h);return(0.299*c.r+0.587*c.g+0.114*c.b)/255;}
+function autoOn(h){return lumaOf(h)>0.6?"#141210":"#FFFFFF";}
+
+const CVARS=["--bg","--surface","--surface-2","--line","--ink","--muted","--muted-2","--gold","--gold-soft","--gold-line","--on-gold","--loss","--loss-soft","--nav-bg"];
+function resolveVars(v){const bg=v.bg,surface=v.surface,ink=v.ink,gold=v.gold,loss=v.loss||"#D2544B";
+  return{"--bg":bg,"--surface":surface,"--ink":ink,"--gold":gold,
+    "--surface-2":v.surface2||mixHex(surface,ink,0.07),
+    "--line":v.line||mixHex(surface,ink,0.20),
+    "--muted":v.muted||mixHex(ink,bg,0.42),
+    "--muted-2":v.muted2||mixHex(ink,bg,0.60),
+    "--gold-soft":rgbaHex(gold,0.14),"--gold-line":rgbaHex(gold,0.40),
+    "--on-gold":v.onGold||autoOn(gold),
+    "--loss":loss,"--loss-soft":rgbaHex(loss,0.14),
+    "--nav-bg":rgbaHex(bg,0.92)};}
+function applyCustomVars(v){const st=document.body.style,r=resolveVars(v);for(const k in r)st.setProperty(k,r[k]);}
+function clearCustomVars(){const st=document.body.style;CVARS.forEach(k=>st.removeProperty(k));}
+function setMetaTheme(){try{const bg=getComputedStyle(document.body).getPropertyValue("--bg").trim();const m=document.querySelector('meta[name="theme-color"]');if(m&&bg)m.setAttribute("content",toHex6(bg));}catch(e){}}
+
+function applyTheme(t){clearCustomVars();
+  if(t&&t.indexOf("custom:")===0){document.body.removeAttribute("data-theme");
+    const ct=getCustom(t.slice(7));
+    if(ct&&ct.vars)applyCustomVars(ct.vars);
+    else document.body.setAttribute("data-theme","kert");
+  }else if(t&&t!=="arany")document.body.setAttribute("data-theme",t);
+  else document.body.removeAttribute("data-theme");
+  setMetaTheme();}
+function setTheme(t){curTheme=t;Store.set("sl_theme",t);applyTheme(t);
+  const md=document.getElementById("modal");
+  if(md&&!md.classList.contains("hidden")&&designView==="list")refreshDesignPanel();
+  if(curTab==="fiok")renderFiok();}
+
+/* --- Megjelenés-panel (teljes képernyős) + egyéni téma-szerkesztő --- */
+let designView="list";
+let designEdit=null;
+function openDesignPanel(){designView="list";openModal(designPanelHtml());wireDesignPanel();}
+function refreshDesignPanel(){const s=document.getElementById("modalSheet");if(!s)return;s.innerHTML=designPanelHtml();document.getElementById("modal").classList.remove("hidden");wireDesignPanel();}
+function designPanelHtml(){
+  if(designView==="edit")return designEditHtml();
+  let h='<button class="close-x" id="mClose">✕</button><h3>🎨 Megjelenés</h3>';
+  h+='<p style="margin-top:0;color:var(--muted)">Válassz kész témát, vagy tervezz sajátot a színválasztóval.</p>';
+  h+='<div class="section-title" style="margin-top:14px">Kész témák</div>';
+  h+='<div class="theme-grid">'+THEMES.map(t=>'<button class="theme-chip'+(curTheme===t.id?" active":"")+'" data-settheme="'+t.id+'"><span class="sw" style="background:'+t.sw+'"></span>'+esc(t.name)+'</button>').join("")+'</div>';
+  h+='<div class="section-title" style="margin-top:16px">Saját témák</div>';
+  if(customThemes.length){h+='<div class="theme-grid">'+customThemes.map(t=>{const act=curTheme==="custom:"+t.id;
+      return '<span class="theme-chip custom'+(act?" active":"")+'" data-settheme="custom:'+t.id+'"><span class="sw" style="background:'+escA(t.vars.gold||"#888")+';border-color:'+escA(t.vars.ink||"#fff")+'"></span>'+esc(t.name)+'<button class="ct-act" data-edit="'+t.id+'" title="Szerkesztés">✎</button><button class="ct-act" data-del="'+t.id+'" title="Törlés">🗑</button></span>';}).join("")+'</div>';
+  }else h+='<div class="hint">Még nincs saját témád. Készíts egyet lent, és mentsd el a jól sikerülteket!</div>';
+  h+='<div class="rub-actions" style="margin-top:12px"><button class="btn sm" id="newTheme">＋ Új téma tervezése</button></div>';
+  return h;}
+function colorField(id,label,val,hint){const hx=toHex6(val);
+  return '<div class="cfield"><label>'+esc(label)+'</label><div class="crow"><input type="color" id="'+id+'" value="'+hx+'"><span class="chex" id="'+id+'_x">'+hx.toUpperCase()+'</span></div>'+(hint?'<div class="hint">'+esc(hint)+'</div>':'')+'</div>';}
+function designEditHtml(){const v=designEdit.vars,R=resolveVars(v);
+  let h='<button class="close-x" id="mClose">✕</button><h3>'+(designEdit.id?"Téma szerkesztése":"Új téma")+'</h3>';
+  h+='<div class="cfield"><label>Név</label><input class="input" id="ctName" placeholder="pl. Éjféli kék" value="'+escA(designEdit.name||"")+'"></div>';
+  h+='<div class="section-title" style="margin-top:12px">Alapszínek</div>';
+  h+=colorField("cv_bg","Háttér",v.bg);
+  h+=colorField("cv_surface","Kártya / felület",v.surface);
+  h+=colorField("cv_ink","Szöveg",v.ink);
+  h+=colorField("cv_gold","Kiemelőszín / gombok",v.gold);
+  h+='<details style="margin-top:12px"><summary class="section-title" style="cursor:pointer;list-style:revert">Haladó (opcionális)</summary>';
+  h+=colorField("cv_surface2","Másodlagos felület",v.surface2||R["--surface-2"]);
+  h+=colorField("cv_line","Vonalak / keret",v.line||R["--line"]);
+  h+=colorField("cv_muted","Halvány szöveg",v.muted||R["--muted"]);
+  h+=colorField("cv_ongold","Gomb-szövegszín",v.onGold||R["--on-gold"]);
+  h+=colorField("cv_loss","Piros / veszteség",v.loss||R["--loss"]);
+  h+='<div class="hint">Ha nem állítod be, ezeket az app automatikusan az alapszínekből számolja.</div></details>';
+  h+='<div class="rub-actions" style="margin-top:16px"><button class="btn sm" id="ctSave">Mentés</button><button class="btn ghost sm" id="ctCancel">Mégse</button></div>';
+  h+='<div class="hint" style="margin-top:8px">A változtatások élőben látszanak az egész appon.</div>';
+  return h;}
+function wireDesignPanel(){
+  const c=document.getElementById("mClose");if(c)c.onclick=()=>closeScreen();
+  if(designView==="edit"){wireEditor();return;}
+  document.querySelectorAll("#modalSheet [data-settheme]").forEach(el=>{
+    el.addEventListener("click",e=>{if(e.target.closest(".ct-act"))return;setTheme(el.getAttribute("data-settheme"));});});
+  document.querySelectorAll("#modalSheet [data-edit]").forEach(b=>b.onclick=e=>{e.stopPropagation();startThemeEdit(b.getAttribute("data-edit"));});
+  document.querySelectorAll("#modalSheet [data-del]").forEach(b=>b.onclick=e=>{e.stopPropagation();delCustomTheme(b.getAttribute("data-del"));});
+  const nt=document.getElementById("newTheme");if(nt)nt.onclick=()=>startThemeEdit(null);}
+function currentComputed(){const cs=getComputedStyle(document.body),g=k=>cs.getPropertyValue(k).trim();
+  return{bg:toHex6(g("--bg")||"#0E1015"),surface:toHex6(g("--surface")||"#171A21"),ink:toHex6(g("--ink")||"#ECEAE3"),gold:toHex6(g("--gold")||"#E5A83B")};}
+function startThemeEdit(id){
+  if(id){const t=getCustom(id);if(!t)return;designEdit={id:id,name:t.name,vars:JSON.parse(JSON.stringify(t.vars))};}
+  else{const c=currentComputed();designEdit={id:null,name:"",vars:{bg:c.bg,surface:c.surface,ink:c.ink,gold:c.gold}};}
+  designView="edit";refreshDesignPanel();
+  document.body.removeAttribute("data-theme");applyCustomVars(designEdit.vars);}
+function wireEditor(){
+  const bind=(inp,key)=>{const el=document.getElementById(inp);if(!el)return;
+    el.addEventListener("input",()=>{const hex=toHex6(el.value);designEdit.vars[key]=hex;
+      const x=document.getElementById(inp+"_x");if(x)x.textContent=hex.toUpperCase();applyCustomVars(designEdit.vars);});};
+  bind("cv_bg","bg");bind("cv_surface","surface");bind("cv_ink","ink");bind("cv_gold","gold");
+  bind("cv_surface2","surface2");bind("cv_line","line");bind("cv_muted","muted");bind("cv_ongold","onGold");bind("cv_loss","loss");
+  document.getElementById("ctSave").onclick=saveThemeEdit;
+  document.getElementById("ctCancel").onclick=()=>{designView="list";applyTheme(curTheme);refreshDesignPanel();};}
+function saveThemeEdit(){
+  const name=((document.getElementById("ctName")||{}).value||"").trim()||"Saját téma";
+  if(designEdit.id){const t=getCustom(designEdit.id);if(t){t.name=name;t.vars=designEdit.vars;}}
+  else{const id="c"+Date.now().toString(36);customThemes.push({id:id,name:name,vars:designEdit.vars});designEdit.id=id;}
+  saveCustomThemes();designView="list";setTheme("custom:"+designEdit.id);toast("Téma mentve ✓","win");}
+function delCustomTheme(id){const t=getCustom(id);if(!t)return;
+  if(!confirm('Törlöd a(z) "'+t.name+'" témát?'))return;
+  customThemes=customThemes.filter(x=>x.id!==id);saveCustomThemes();
+  if(curTheme==="custom:"+id)setTheme("kert");else refreshDesignPanel();
+  toast("Téma törölve");}
 
 /* ---- általános modál ---- */
 function openModal(html){const s=document.getElementById("modalSheet");s.innerHTML=html;document.getElementById("modal").classList.remove("hidden");pushScreen();const c=document.getElementById("mClose");if(c)c.onclick=()=>closeScreen();}
@@ -3669,7 +3790,7 @@ function renderFiok(){const el=document.getElementById("tab-fiok");
   html+='<div class="section-title">Jutalmak</div><div class="card" style="padding:16px"><div class="hint" style="margin-bottom:10px">Érmék, jelvények és kihívások a szintlépéseidért — hamarosan.</div><button class="btn wide" id="openJutalmak">🏆 Jutalmak megnyitása</button></div>';
   html+='<div class="section-title">Ajánld ismerősnek</div><div class="card" style="padding:16px"><div class="hint" style="margin-bottom:10px">Tetszik a Trellis? Küldd el egy barátodnak egyetlen koppintással — Messenger, e-mail, bármi.</div><button class="btn wide" id="referBtn">🎁 Ajánld ismerősnek</button></div>';
   html+='<div class="section-title">Súgó</div><div class="card" style="padding:16px"><div class="hint" style="margin-bottom:10px">Részletes, kereshető útmutató mindenről — ha elakadsz, itt megtalálod a választ.</div><button class="btn wide" id="openHelpBtn">📖 Súgó megnyitása</button></div>';
-  html+='<div class="section-title">Megjelenés '+ibtn('temak')+'</div><div class="card" style="padding:16px"><div class="theme-grid">'+THEMES.map(t=>'<button class="theme-chip'+(curTheme===t.id?" active":"")+'" data-theme="'+t.id+'"><span class="sw" style="background:'+t.sw+'"></span>'+esc(t.name)+'</button>').join("")+'</div></div>';
+  html+='<div class="section-title">Megjelenés '+ibtn('temak')+'</div><div class="card" style="padding:16px"><div class="hint" style="margin-bottom:10px">Válassz témát, vagy tervezz sajátot a színválasztóval — a jól sikerülteket elmentheted, és később egy koppintással visszahívhatod.</div><button class="btn wide" id="openDesign">🎨 Megjelenés és témák</button></div>';
   html+='<div class="section-title">Mentés</div><div class="card" style="padding:16px"><div class="rub-actions"><button class="btn ghost sm" id="expBtn">Exportálás (fájl)</button><button class="btn ghost sm" id="impBtn">Importálás (fájl)</button></div><div class="hint" style="margin-top:8px">Töltsd le biztonsági mentésként, vagy vidd át másik eszközre.</div></div>';
   html+='<div class="section-title">AI rubrika '+ibtn('gkey')+'</div><div class="card" style="padding:16px"><div class="field"><label>Saját Gemini API-kulcs (ingyenes)</label><input class="input" id="setGemini" placeholder="AIza…" value="'+escA(GKEY)+'"/><div class="hint">Lépésről lépésre: nyomd meg a fenti „i" ikont vagy a Súgóban a „Gemini-kulcs" részt. A kulcs csak ezen az eszközön tárolódik.</div></div><div class="field"><label>Modell</label><input class="input" id="setModel" placeholder="gemini-2.5-flash" value="'+escA(GMODEL)+'"/><div class="hint">Alap: <b>gemini-2.5-flash</b>. Ha egy modell megszűnik, itt átírhatod; az app magától visszavált flash / flash-lite modellre.</div></div><div class="rub-actions"><button class="btn ghost sm" id="saveGemini">Mentés</button></div></div>';
   html+='<div class="section-title">Visszajelzés a fejlesztőnek</div><div class="card" style="padding:16px"><div class="field"><label>Üzenet (hiba, ötlet, kérdés)</label><textarea class="input" id="fbText" placeholder="Írd le bátran, hosszabban is…" style="min-height:90px"></textarea></div><div class="field"><label>Elérhetőség (opcionális)</label><input class="input" id="fbContact" placeholder="e-mail, ha választ szeretnél"/></div><div class="rub-actions"><button class="btn sm" id="fbSend">Küldés</button></div><div class="hint" style="margin-top:8px">A visszajelzés a fejlesztőhöz jut. Rajta kívül más nem olvassa.</div></div>';
@@ -3684,7 +3805,7 @@ function renderFiok(){const el=document.getElementById("tab-fiok");
   const jb=document.getElementById("openJutalmak");if(jb)jb.onclick=showJutalmak;
   const rb=document.getElementById("referBtn");if(rb)rb.onclick=shareApp;
   document.getElementById("openHelpBtn").onclick=()=>openHelp(null);
-  document.querySelectorAll("#tab-fiok [data-theme]").forEach(b=>b.onclick=()=>setTheme(b.dataset.theme));
+  document.getElementById("openDesign").onclick=openDesignPanel;
   document.getElementById("expBtn").onclick=exportData;
   document.getElementById("impBtn").onclick=()=>document.getElementById("importFile").click();
   document.getElementById("saveGemini").onclick=()=>{GKEY=document.getElementById("setGemini").value.trim();Store.set("gemini_key",GKEY);const _m=document.getElementById("setModel");if(_m){GMODEL=_m.value.trim()||GEMINI_MODEL;Store.set("gemini_model",GMODEL);}toast("Mentve");};
