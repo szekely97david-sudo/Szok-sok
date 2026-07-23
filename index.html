@@ -603,7 +603,59 @@ nav .nav-in .tabbtn svg{width:20px; height:20px;}
 .cyc-edu summary{font-weight:600; cursor:pointer; list-style:none; font-size:14px;}
 .cyc-edu summary::-webkit-details-marker{display:none;}
 .cyc-edu p{font-size:13px; line-height:1.65; color:var(--muted); margin:9px 0 0;}
-.cyc-daybtn{display:flex; gap:8px; margin:12px 0;}
+.cyc-daybtn{display:flex; flex-direction:column; gap:8px; margin:12px 0;}
+/* Kiemelt visszaszámláló a következő menstruációig */
+.cyc-count{margin:14px auto 4px; max-width:320px; background:var(--surface-2); border:1px solid var(--gold-line); border-radius:var(--r); padding:14px 16px; text-align:center;}
+.cyc-count .cc-num{font-family:var(--disp); font-weight:800; font-size:40px; line-height:1; color:var(--gold);}
+.cyc-count .cc-num small{font-size:17px; font-weight:700; margin-left:3px;}
+.cyc-count .cc-lab{font-size:12.5px; color:var(--muted); margin-top:5px; letter-spacing:.02em;}
+.cyc-count .cc-date{font-size:12px; color:var(--muted-2); margin-top:2px;}
+.cyc-count.band .cc-num{font-size:22px;}
+.cyc-count.due .cc-num{color:var(--loss);}
+/* Naptár nézetváltó */
+.cyc-viewseg{display:flex; gap:6px; background:var(--surface-2); border:1px solid var(--line); border-radius:999px; padding:3px; margin-bottom:12px;}
+.cyc-viewseg button{flex:1; border:0; background:none; color:var(--muted); border-radius:999px; padding:7px 0; font-size:13px; font-weight:600;}
+.cyc-viewseg button.on{background:var(--gold-soft); color:var(--gold);}
+/* Együttlét-emojik a naptárcellában */
+.cyc-cell .ie-row{position:absolute; top:2px; right:2px; display:flex; gap:1px; line-height:1;}
+.cyc-cell .ie{font-size:10px;}
+.cyc-cell .ie.prot{border:1.5px solid var(--gold); border-radius:50%; padding:1px; box-sizing:content-box; background:var(--surface);}
+.cyc-cell.period .ie.prot{border-color:#fff; background:transparent;}
+/* Éves nézet */
+.cyc-year{display:grid; grid-template-columns:1fr 1fr 1fr; gap:9px;}
+.cyc-ymon{background:var(--surface-2); border:1px solid var(--line); border-radius:var(--r-sm); padding:7px 6px;}
+.cyc-ymon .ym-name{font-size:11px; font-weight:700; text-align:center; margin-bottom:4px; color:var(--muted); text-transform:capitalize;}
+.cyc-ygrid{display:grid; grid-template-columns:repeat(7,1fr); gap:1.5px;}
+.cyc-ycell{aspect-ratio:1; border-radius:2px; background:transparent;}
+.cyc-ycell.d{background:var(--surface);}
+.cyc-ycell.period{background:var(--loss);}
+.cyc-ycell.pred{background:var(--loss-soft); box-shadow:inset 0 0 0 1px var(--loss);}
+.cyc-ycell.today{box-shadow:inset 0 0 0 1.5px var(--gold);}
+.cyc-ycell.act{background:var(--gold);}
+.cyc-yhead{display:flex; align-items:center; gap:8px; margin-bottom:12px;}
+.cyc-yhead .y-name{font-family:var(--disp); font-weight:700; font-size:16px; flex:1; text-align:center;}
+/* Együttlét-napló a nap-belépésben */
+.cyc-acts{display:flex; flex-direction:column; gap:8px; margin-top:4px;}
+.cyc-act-row{display:flex; align-items:center; gap:10px; background:var(--surface-2); border:1px solid var(--line); border-radius:var(--r-sm); padding:9px 11px;}
+.cyc-act-row .ar-emoji{font-size:20px; flex:0 0 auto;}
+.cyc-act-row .ar-main{flex:1; min-width:0;}
+.cyc-act-row .ar-lab{font-size:14px; font-weight:600;}
+.cyc-act-row .ar-sub{font-size:11.5px; color:var(--muted); margin-top:1px;}
+.cyc-act-row .ar-del{background:none; border:0; color:var(--muted-2); font-size:18px; flex:0 0 auto; padding:2px 4px;}
+.cyc-act-add{width:100%; padding:10px 0; border-radius:var(--r-sm); background:none; border:1px dashed var(--line); color:var(--muted); font-size:13px; margin-top:2px;}
+.cyc-act-editor{background:var(--surface-2); border:1px solid var(--gold-line); border-radius:var(--r-sm); padding:12px 13px; margin-top:6px;}
+.cyc-act-editor .ae-lab{font-size:12px; color:var(--muted); font-weight:600; margin:10px 0 6px;}
+.cyc-act-editor .ae-lab:first-child{margin-top:0;}
+.cyc-mini{background:none; border:1px dashed var(--line); color:var(--muted); border-radius:999px; padding:6px 11px; font-size:12px;}
+.cyc-emojigrid{display:grid; grid-template-columns:repeat(8,1fr); gap:4px; margin-top:6px; max-height:150px; overflow-y:auto; background:var(--surface); border:1px solid var(--line); border-radius:var(--r-sm); padding:8px;}
+.cyc-emojigrid button{aspect-ratio:1; border:1px solid transparent; border-radius:8px; background:var(--surface-2); font-size:19px; padding:0;}
+.cyc-emojigrid button.on{border-color:var(--gold); background:var(--gold-soft);}
+.cyc-newdef{display:flex; gap:7px; align-items:center; margin-top:8px;}
+.cyc-newdef .nd-emoji{width:44px; height:44px; flex:0 0 44px; border-radius:9px; background:var(--surface); border:1px solid var(--line); font-size:22px;}
+.cyc-newdef .input{flex:1; margin:0;}
+.cyc-edu-outer{margin-top:4px;}
+.cyc-edu-outer>summary{list-style:none;}
+.cyc-edu-outer>summary::-webkit-details-marker{display:none;}
 
 /* ---- „Mi újult meg?" újdonságok ---- */
 .whatsnew-block{background:var(--surface-2); border:1px solid var(--line); border-radius:var(--r-sm); padding:12px 14px; margin-bottom:10px;}
@@ -806,8 +858,20 @@ function blank(){return{version:10,onboarded:false,updatedAt:0,settings:{...DEF}
    EGYETLEN forrás az igazsághoz: a rögzített menstruációk (periods). A ciklushossz,
    a következő menstruáció, az ovuláció-becslés és a fázis mind ebből deriválható. */
 function cycleBlank(){return{enabled:false,updatedAt:0,
-  settings:{lutealLength:14,predictionsOn:true,dietLayer:true,weekStart:"mon",onBirthControl:false,discreetLabels:false},
-  periods:[],logs:{},version:1};}
+  settings:{lutealLength:14,predictionsOn:true,dietLayer:true,weekStart:"mon",onBirthControl:false,discreetLabels:false,calView:"month"},
+  intim:{types:[{id:"love",label:"Együttlét",emoji:"❤️"}],methods:[{id:"condom",label:"Óvszer",emoji:"🛡️"}]},
+  periods:[],logs:{},version:2};}
+/* Együttlét-definíciók (típusok/védekezés-módok) normalizálása: mindig van legalább az alapelem. */
+function normDefList(arr,fallback){const out=[];const seen={};
+  if(Array.isArray(arr))for(const d of arr){
+    if(!d||typeof d!=="object")continue;
+    let id=String(d.id||"").slice(0,24)||("d"+uid());
+    if(seen[id])continue;seen[id]=1;
+    const label=String(d.label||"").slice(0,40).trim();if(!label)continue;
+    const emoji=String(d.emoji||"").slice(0,8);
+    out.push({id,label,emoji:emoji||"•"});}
+  if(!out.length)return fallback.slice();
+  return out;}
 function normCycle(c){c=(c&&typeof c==="object")?c:{};
   const s=(c.settings&&typeof c.settings==="object")?c.settings:{};
   const set={
@@ -816,7 +880,13 @@ function normCycle(c){c=(c&&typeof c==="object")?c:{};
     dietLayer:s.dietLayer!==false,
     weekStart:s.weekStart==="sun"?"sun":"mon",
     onBirthControl:!!s.onBirthControl,
-    discreetLabels:!!s.discreetLabels};
+    discreetLabels:!!s.discreetLabels,
+    calView:s.calView==="year"?"year":"month"};
+  const intimIn=(c.intim&&typeof c.intim==="object")?c.intim:{};
+  const intim={
+    types:normDefList(intimIn.types,[{id:"love",label:"Együttlét",emoji:"❤️"}]),
+    methods:normDefList(intimIn.methods,[{id:"condom",label:"Óvszer",emoji:"🛡️"}])};
+  const typeIds=new Set(intim.types.map(t=>t.id)),methIds=new Set(intim.methods.map(m=>m.id));
   const periods=[];
   if(Array.isArray(c.periods))for(const p of c.periods){
     if(!p||typeof p!=="object"||!validDate(p.start))continue;
@@ -831,8 +901,17 @@ function normCycle(c){c=(c&&typeof c==="object")?c:{};
     if(Array.isArray(l.cravings)&&l.cravings.length)o.cravings=l.cravings.map(String).slice(0,24);
     if(l.weight!=null&&isFinite(Number(l.weight))&&Number(l.weight)>0)o.weight=Number(l.weight);
     if(l.notes)o.notes=String(l.notes).slice(0,2000);
+    if(Array.isArray(l.acts)&&l.acts.length){
+      const acts=[];
+      for(const a of l.acts){
+        if(!a||typeof a!=="object")continue;
+        const typeId=typeIds.has(a.typeId)?a.typeId:intim.types[0].id;
+        const prot=!!a.prot;
+        const methods=prot&&Array.isArray(a.methods)?a.methods.filter(m=>methIds.has(m)):[];
+        acts.push({id:String(a.id||uid()),typeId,prot,methods});}
+      if(acts.length)o.acts=acts.slice(0,40);}
     if(Object.keys(o).length)logs[k]=o;}
-  return{enabled:!!c.enabled,updatedAt:Number(c.updatedAt)||0,settings:set,periods,logs,version:1};}
+  return{enabled:!!c.enabled,updatedAt:Number(c.updatedAt)||0,settings:set,intim,periods,logs,version:2};}
 
 function normMeas(m){m=m||{};const t=m.type||"scale";
   if(t==="scale")return{type:"scale",scaleMax:SCALE_OPTS.includes(Number(m.scaleMax))?Number(m.scaleMax):10,failAt:(m.failAt!=null?Number(m.failAt):null),winAt:(m.winAt!=null?Number(m.winAt):null)};
@@ -3517,6 +3596,8 @@ function bibleQuizCardHtml(){
    Nem orvostechnikai eszköz; tendencia-nyelv; saját adatból jósol; nincs
    hangulat-napló (az külön modul lesz). ========================================================================= */
 const CYCLE_FLOW=[["spotting","Pecsételő"],["light","Gyenge"],["medium","Közepes"],["heavy","Erős"]];
+/* Emoji-készlet az együttlét-típusokhoz / védekezés-módokhoz */
+const CYCLE_EMOJI=["❤️","🧡","💛","💚","💙","💜","🖤","🤍","💗","💓","💕","💞","💘","💝","😍","😘","🥰","😏","😈","🔥","💦","🍑","🍆","🌶️","🍒","🌹","🌸","💫","✨","⭐","🌙","🛡️","💊","💉","🌡️","🩹","🧴","📅","⏱️","🚫","✅","🔒","🔑","👀","🤫","🎯","🎲","🎉"];
 const CYCLE_SYMPTOMS=[["cramps","Görcs"],["bloating","Puffadás"],["headache","Fejfájás"],["tender_breasts","Mellérzékenység"],["acne","Pattanás"],["fatigue","Fáradtság"],["back_pain","Hátfájás"],["nausea","Hányinger"],["appetite","Étvágy"]];
 const CYCLE_CRAVINGS=[["sweet","Édesség"],["salty","Sós"],["carbs","Szénhidrát"],["chocolate","Csoki"]];
 const CYCLE_PHASES={
@@ -3601,8 +3682,47 @@ function markPeriodDay(dayKey,on){
   }
   S.cycle.periods.sort((a,b)=>a.start<b.start?-1:1);}
 
+/* Visszamenőleges "itt kezdődött" — bármelyik nap. Ma-ra folyamatban lévő (end=null),
+   múltbeli napra egynapos szakasz, amit később az "itt ért véget" kiterjeszt. */
+function periodStartAt(dayKey){
+  if(!validDate(dayKey)||dayKey>TODAY)return;
+  if(findPeriodIndexContaining(dayKey)>=0)return;
+  S.cycle.periods.push({start:dayKey,end:dayKey===TODAY?null:dayKey});
+  mergeCyclePeriods();S.cycle.periods.sort((a,b)=>a.start<b.start?-1:1);cycleTouch();}
+/* "Itt ért véget" — a legutóbbi, dayKey-t megelőző kezdetű szakaszt kiterjeszti eddig
+   (a köztes napok automatikusan menstruációsak lesznek). */
+function periodEndAt(dayKey){
+  if(!validDate(dayKey)||dayKey>TODAY)return;
+  let best=-1,bestStart=null;
+  S.cycle.periods.forEach((p,i)=>{if(p.start<=dayKey&&(bestStart===null||p.start>bestStart)){best=i;bestStart=p.start;}});
+  if(best<0){periodStartAt(dayKey);return;}
+  const p=S.cycle.periods[best];p.end=(dayKey>=p.start)?dayKey:p.start;
+  mergeCyclePeriods();S.cycle.periods.sort((a,b)=>a.start<b.start?-1:1);cycleTouch();}
+/* Van-e olyan korábbi szakasz, amit ki lehetne terjeszteni eddig a napig? (kirajzoljuk-e az "itt ért véget" gombot) */
+function extendableBefore(dayKey){
+  if(findPeriodIndexContaining(dayKey)>=0)return false;
+  let best=null;S.cycle.periods.forEach(p=>{const re=p.end||TODAY;if(p.start<dayKey&&re<dayKey&&(best===null||p.start>best.start))best=p;});
+  if(!best)return false;
+  const gap=daysBetween(best.end||best.start,dayKey);
+  return gap>=1&&gap<=20;}
+
+/* --- együttlét-napló helperek --- */
+function intimType(id){return S.cycle.intim.types.find(t=>t.id===id)||S.cycle.intim.types[0];}
+function intimMethod(id){return S.cycle.intim.methods.find(m=>m.id===id)||null;}
+function dayActs(dayKey){const l=S.cycle.logs[dayKey];return(l&&Array.isArray(l.acts))?l.acts:[];}
+function setDayActs(dayKey,acts){
+  const l=S.cycle.logs[dayKey]||{};
+  if(acts&&acts.length)l.acts=acts;else delete l.acts;
+  if(Object.keys(l).length)S.cycle.logs[dayKey]=l;else delete S.cycle.logs[dayKey];
+  cycleTouch();}
+function addIntimDef(kind,label,emoji){
+  label=String(label||"").slice(0,40).trim();if(!label)return null;
+  const id="d"+uid();const def={id,label,emoji:emoji||"•"};
+  S.cycle.intim[kind==="method"?"methods":"types"].push(def);cycleTouch();return def;}
+
 /* --- render --- */
-let cycCalMonth=null;
+let cycCalMonth=null,cycCalView="month",cycCalYear=null;
+let cycActDraft=null,cycNewDef=null,cycEmojiFor=null;
 function shiftMonth(ym,delta){let[y,m]=ym.split("-").map(Number);m+=delta;while(m<1){m+=12;y--;}while(m>12){m-=12;y++;}return y+"-"+String(m).padStart(2,"0");}
 function updateCycleNav(){const b=document.getElementById("navCiklus");if(b)b.classList.toggle("hidden",!(S.cycle&&S.cycle.enabled));}
 function renderCiklus(){
@@ -3628,8 +3748,7 @@ function renderCycleOverview(r){
     h+='<div class="cyc-phase">'+ph.name+'</div><div class="cyc-day">'+(r.cycleDay?r.cycleDay+". ciklusnap":"")+'</div>';
   }else h+='<div class="cyc-phase">Tanuljuk a ciklusodat</div>';
   if(r.enoughData&&r.nextStart){
-    if(r.nextBand)h+='<div class="cyc-next band">Következő menstruáció: <b>'+shortDate(r.nextBand[0])+" – "+shortDate(r.nextBand[1])+'</b><br><span style="font-size:12px;color:var(--muted-2)">a ciklusod változékony — ez becsült sáv</span></div>';
-    else{const dl=daysBetween(TODAY,r.nextStart);h+='<div class="cyc-next">Következő menstruáció: <b>'+shortDate(r.nextStart)+'</b>'+(dl>0?" · "+dl+" nap múlva":(dl===0?" · ma":""))+'</div>';}
+    h+=renderCycleCountdown(r);
   }else if(S.cycle.settings.onBirthControl){h+='<div class="cyc-learn" style="margin-top:8px">Fogamzásgátló mellett a természetes ciklus jellemzően elnyomott, ezért nem adunk menstruáció-/ovuláció-becslést.</div>';}
   else h+='<div class="cyc-learn" style="margin-top:8px">Még tanuljuk a ciklusodat — pár rögzített ciklus után pontosabb előrejelzést adunk.</div>';
   if(ph&&ph.tip)h+='<div class="cyc-learn" style="margin-top:10px">'+ph.tip+'</div>';
@@ -3637,7 +3756,18 @@ function renderCycleOverview(r){
   else h+='<button class="btn wide cyc-mainbtn" id="cycStart">🩸 Most kezdődött a menstruációm</button>';
   h+='<div class="cyc-sublinks"><button data-cyc-scroll="cyc-cal">📅 Naptár</button><button data-cyc-scroll="cyc-stats">📊 Statisztika</button><button id="cycTodayLog">📝 Mai napló</button></div>';
   h+='</div>';return h;}
+function renderCycleCountdown(r){
+  if(r.phase==="menstrual")return '';
+  if(r.nextBand){
+    const d0=daysBetween(TODAY,r.nextBand[0]);
+    return '<div class="cyc-count band"><div class="cc-num">'+shortDate(r.nextBand[0])+' – '+shortDate(r.nextBand[1])+'</div><div class="cc-lab">a következő menstruáció becsült sávja</div><div class="cc-date">'+(d0>0?'kb. '+d0+' nap múlva':'bármelyik nap')+' · a ciklusod változékony</div></div>';}
+  const dl=daysBetween(TODAY,r.nextStart);
+  if(dl>0)return '<div class="cyc-count"><div class="cc-num">'+dl+'<small>nap</small></div><div class="cc-lab">a következő menstruációig</div><div class="cc-date">várható: '+shortDate(r.nextStart)+'</div></div>';
+  if(dl===0)return '<div class="cyc-count due"><div class="cc-num">ma</div><div class="cc-lab">a becslés szerint ma esedékes</div></div>';
+  return '<div class="cyc-count due"><div class="cc-num">'+(-dl)+'<small>napja</small></div><div class="cc-lab">késik a becsléshez képest</div><div class="cc-date">várható volt: '+shortDate(r.nextStart)+'</div></div>';}
 function renderCycleCalendar(r){
+  if(!cycCalYear)cycCalYear=cycCalMonth.slice(0,4);
+  if(S.cycle.settings.calView==="year")return renderCycleYear(r);
   const disc=S.cycle.settings.discreetLabels,sun=S.cycle.settings.weekStart==="sun";
   const[yy,mm]=cycCalMonth.split("-").map(Number);
   const first=new Date(yy,mm-1,1);
@@ -3649,7 +3779,7 @@ function renderCycleCalendar(r){
   if(r.enoughData&&r.nextStart){const plen=r.avgPeriod||5;const base=r.nextBand?r.nextBand[0]:r.nextStart;const span=(r.nextBand?daysBetween(r.nextBand[0],r.nextBand[1]):0)+plen;for(let i=0;i<span;i++)predSet.add(addDaysKey(base,i));}
   let fertSet=new Set(),ovul=null;
   if(!disc&&r.fertile){for(let d=r.fertile[0];d<=r.fertile[1];d=addDaysKey(d,1))fertSet.add(d);ovul=r.ovulation;}
-  let h='<div class="section-title" id="cyc-cal">Naptár</div><div class="cyc-cal">';
+  let h='<div class="section-title" id="cyc-cal">Naptár</div>'+cycViewSeg()+'<div class="cyc-cal" id="cycSwipe">';
   h+='<div class="cyc-cal-head"><button class="cyc-cal-nav" data-cyc-mon="-1">‹</button><div class="m-name">'+monthName+'</div><button class="cyc-cal-nav" data-cyc-mon="1">›</button></div><div class="cyc-grid">';
   wd.forEach(d=>h+='<div class="cyc-wd">'+d+'</div>');
   for(let i=0;i<lead;i++)h+='<div class="cyc-cell empty"></div>';
@@ -3660,8 +3790,40 @@ function renderCycleCalendar(r){
     if(isP)cls.push("period");else if(predSet.has(key)&&key>TODAY)cls.push("pred-period");
     if(!isP&&fertSet.has(key))cls.push("fertile");
     if(!isP&&ovul&&key===ovul)cls.push("ovul");
-    h+='<button class="'+cls.join(" ")+'" data-cyc-day="'+key+'">'+d+(S.cycle.logs[key]?'<span class="lg-dot"></span>':'')+'</button>';}
+    const hasLog=S.cycle.logs[key]&&(S.cycle.logs[key].flow||S.cycle.logs[key].symptoms||S.cycle.logs[key].cravings||S.cycle.logs[key].weight||S.cycle.logs[key].notes);
+    h+='<button class="'+cls.join(" ")+'" data-cyc-day="'+key+'">'+d+cycActEmojiHtml(key)+(hasLog?'<span class="lg-dot"></span>':'')+'</button>';}
   h+='</div><div class="cyc-legend"><span><i class="period"></i>Rögzített menstruáció</span><span><i class="pred"></i>Becsült</span>'+(disc?'':'<span><i class="fertile"></i>Termékeny (becslés)</span>')+'</div></div>';
+  return h;}
+function cycViewSeg(){const v=S.cycle.settings.calView;
+  return '<div class="cyc-viewseg"><button data-cyc-view="month" class="'+(v!=="year"?"on":"")+'">Havi</button><button data-cyc-view="year" class="'+(v==="year"?"on":"")+'">Éves</button></div>';}
+function cycActEmojiHtml(key){const acts=dayActs(key);if(!acts.length)return '';
+  let s='<span class="ie-row">';
+  acts.slice(0,3).forEach(a=>{s+='<span class="ie'+(a.prot?' prot':'')+'">'+intimType(a.typeId).emoji+'</span>';});
+  return s+'</span>';}
+function renderCycleYear(r){
+  const yr=Number(cycCalYear);
+  let predSet=new Set();
+  if(r.enoughData&&r.nextStart){const plen=r.avgPeriod||5;const base=r.nextBand?r.nextBand[0]:r.nextStart;const span=(r.nextBand?daysBetween(r.nextBand[0],r.nextBand[1]):0)+plen;for(let i=0;i<span;i++)predSet.add(addDaysKey(base,i));}
+  let h='<div class="section-title" id="cyc-cal">Naptár</div>'+cycViewSeg()+'<div class="cyc-cal" id="cycSwipe">';
+  h+='<div class="cyc-yhead"><button class="cyc-cal-nav" data-cyc-year="-1">‹</button><div class="y-name">'+yr+'</div><button class="cyc-cal-nav" data-cyc-year="1">›</button></div>';
+  h+='<div class="cyc-year">';
+  for(let m=1;m<=12;m++){
+    const first=new Date(yr,m-1,1);const dim=new Date(yr,m,0).getDate();
+    const lead=(first.getDay()+6)%7;
+    const mName=first.toLocaleDateString("hu-HU",{month:"short"});
+    h+='<div class="cyc-ymon" data-cyc-open="'+yr+'-'+String(m).padStart(2,"0")+'"><div class="ym-name">'+mName+'</div><div class="cyc-ygrid">';
+    for(let i=0;i<lead;i++)h+='<span class="cyc-ycell"></span>';
+    for(let d=1;d<=dim;d++){
+      const key=yr+"-"+String(m).padStart(2,"0")+"-"+String(d).padStart(2,"0");
+      const cls=["cyc-ycell","d"];
+      if(dayInAnyPeriod(key))cls.push("period");
+      else if(predSet.has(key)&&key>TODAY)cls.push("pred");
+      if(dayActs(key).length)cls.push("act");
+      if(key===TODAY)cls.push("today");
+      h+='<span class="'+cls.join(" ")+'"></span>';}
+    h+='</div></div>';}
+  h+='</div><div class="cyc-legend"><span><i class="period"></i>Menstruáció</span><span><i class="pred"></i>Becsült</span><span><i style="background:var(--gold)"></i>Együttlét</span></div>';
+  h+='<div class="hint" style="margin-top:8px">Koppints egy hónapra a részletes nézethez.</div></div>';
   return h;}
 function renderCycleStats(r){
   let h='<div class="section-title" id="cyc-stats">Statisztika</div>';
@@ -3679,60 +3841,160 @@ function renderCycleStats(r){
   rec.forEach(p=>{const len=p.end?(daysBetween(p.start,p.end)+1)+" nap":"folyamatban";h+='<div class="cyc-hist-row">🩸 <span>'+shortDate(p.start)+(p.end?" – "+shortDate(p.end):"")+'</span><span class="len">'+len+'</span></div>';});
   h+='</div></div>';return h;}
 function renderCycleEdu(){
-  let h='<div class="section-title">Tudnivalók a ciklusról</div><div class="cyc-edu">';
-  CYCLE_EDU.forEach((e,i)=>{h+='<details'+(i===0?" open":"")+'><summary>'+e.q+'</summary><p>'+e.a+'</p></details>';});
-  return h+'</div>';}
+  let h='<details class="cyc-edu-outer"><summary class="section-title" style="cursor:pointer;list-style:none">Tudnivalók a ciklusról <span style="font-size:12px;color:var(--muted-2);font-weight:400">— nyisd ki</span></summary><div class="cyc-edu" style="margin-top:8px">';
+  CYCLE_EDU.forEach(e=>{h+='<details><summary>'+e.q+'</summary><p>'+e.a+'</p></details>';});
+  return h+'</div></details>';}
 function bindCycle(r){
   const s=document.getElementById("cycStart");if(s)s.onclick=()=>{startPeriod(TODAY);toast("Menstruáció rögzítve ✓");renderCiklus();};
   const e=document.getElementById("cycEnd");if(e)e.onclick=()=>{endPeriodOngoing(TODAY);toast("Rögzítve: a menstruáció vége");renderCiklus();};
   document.querySelectorAll("#tab-ciklus [data-cyc-day]").forEach(b=>b.onclick=()=>openCycleDay(b.dataset.cycDay));
   document.querySelectorAll("#tab-ciklus [data-cyc-mon]").forEach(b=>b.onclick=()=>{cycCalMonth=shiftMonth(cycCalMonth,Number(b.dataset.cycMon));renderCiklus();});
+  document.querySelectorAll("#tab-ciklus [data-cyc-year]").forEach(b=>b.onclick=()=>{cycCalYear=String(Number(cycCalYear)+Number(b.dataset.cycYear));renderCiklus();});
+  document.querySelectorAll("#tab-ciklus [data-cyc-view]").forEach(b=>b.onclick=()=>{S.cycle.settings.calView=b.dataset.cycView;if(b.dataset.cycView==="year")cycCalYear=cycCalMonth.slice(0,4);cycleTouch();renderCiklus();});
+  document.querySelectorAll("#tab-ciklus [data-cyc-open]").forEach(b=>b.onclick=()=>{cycCalMonth=b.dataset.cycOpen;S.cycle.settings.calView="month";cycleTouch();renderCiklus();});
   document.querySelectorAll("#tab-ciklus [data-cyc-scroll]").forEach(b=>b.onclick=()=>{const el=document.getElementById(b.dataset.cycScroll);if(el)el.scrollIntoView({behavior:"smooth",block:"start"});});
-  const tl=document.getElementById("cycTodayLog");if(tl)tl.onclick=()=>openCycleDay(TODAY);}
+  const tl=document.getElementById("cycTodayLog");if(tl)tl.onclick=()=>openCycleDay(TODAY);
+  bindCycSwipe();}
+/* Naptár lapozása jobbra/balra húzással (havi: hónap, éves: év). */
+function bindCycSwipe(){const el=document.getElementById("cycSwipe");if(!el)return;
+  let x0=null,y0=null;
+  el.addEventListener("touchstart",e=>{const t=e.changedTouches[0];x0=t.clientX;y0=t.clientY;},{passive:true});
+  el.addEventListener("touchend",e=>{if(x0===null)return;const t=e.changedTouches[0];const dx=t.clientX-x0,dy=t.clientY-y0;x0=null;
+    if(Math.abs(dx)<45||Math.abs(dx)<Math.abs(dy)*1.4)return;
+    const dir=dx<0?1:-1;
+    if(S.cycle.settings.calView==="year")cycCalYear=String(Number(cycCalYear)+dir);
+    else cycCalMonth=shiftMonth(cycCalMonth,dir);
+    renderCiklus();},{passive:true});}
 
 /* --- napi napló ablak (nap-belépés) --- */
-function cycDayBtnHtml(dayKey){return dayInAnyPeriod(dayKey)
-  ?'<button class="btn ghost wide" id="cycDayOff" style="color:var(--loss)">🩸 Mégsem menstruációs nap</button>'
-  :'<button class="btn wide" id="cycDayOn">🩸 Menstruációs nap</button>';}
-function bindCycDayBtn(dayKey){
-  const refresh=()=>{cycleTouch();renderCiklus();const w=document.getElementById("cycDayBtnWrap");if(w){w.innerHTML=cycDayBtnHtml(dayKey);bindCycDayBtn(dayKey);}};
-  const on=document.getElementById("cycDayOn");if(on)on.onclick=()=>{markPeriodDay(dayKey,true);refresh();};
-  const off=document.getElementById("cycDayOff");if(off)off.onclick=()=>{markPeriodDay(dayKey,false);refresh();};}
-function openCycleDay(dayKey){
-  const dObj=keyToDate(dayKey);
-  const title=dObj.toLocaleDateString("hu-HU",{year:"numeric",month:"long",day:"numeric",weekday:"long"});
-  let h='<button class="close-x" id="mClose">✕</button><h3 style="margin-right:30px">'+title+'</h3>';
-  if(dayKey>TODAY){h+='<div class="hint">Ez egy jövőbeli nap — ide még nem tudsz naplózni. A menstruációt akkor jelöld, amikor elkezdődött.</div>';openModal(h);return;}
-  const l=S.cycle.logs[dayKey]||{};
-  h+='<div class="cyc-daybtn" id="cycDayBtnWrap">'+cycDayBtnHtml(dayKey)+'</div>';
-  h+='<div class="section-title" style="margin-top:6px">Vérzés erőssége</div><div class="cyc-chips" id="cycFlow">';
-  CYCLE_FLOW.forEach(([v,lab])=>{h+='<button class="cyc-chip flow'+(l.flow===v?" on":"")+'" data-flow="'+v+'">'+lab+'</button>';});
-  h+='</div><div class="section-title">Tünetek</div><div class="cyc-chips" id="cycSym">';
+/* Menstruáció-szakasz: visszamenőleges kezdet + "eddig tartott" vég (köztes napok automatikusan). */
+function cycPeriodSectionHtml(dayKey){
+  const inP=dayInAnyPeriod(dayKey);
+  let h='<div class="cyc-daybtn" id="cycPeriodWrap">';
+  if(inP){
+    h+='<button class="btn ghost wide" id="cycDayOff" style="color:var(--loss)">🩸 Mégsem menstruációs nap</button>';
+  }else{
+    h+='<button class="btn wide" id="cycDayStart">🩸 '+(dayKey===TODAY?"Most kezdődött a menstruáció":"Itt kezdődött a menstruáció")+'</button>';
+    if(extendableBefore(dayKey))h+='<button class="btn ghost wide" id="cycDayEnd">🩸 Eddig tartott — itt ért véget</button>';
+  }
+  return h+'</div>';}
+/* Az együttlét-napló szekció (lista + szerkesztő). */
+function cycIntimSectionHtml(dayKey){
+  const acts=dayActs(dayKey);
+  let h='<div class="section-title">💞 Együttlét</div>';
+  if(acts.length){h+='<div class="cyc-acts">';
+    acts.forEach(a=>{const t=intimType(a.typeId);
+      let sub;
+      if(a.prot){const ms=a.methods.map(m=>intimMethod(m)?intimMethod(m).label:"").filter(Boolean);sub="Védekezéssel"+(ms.length?": "+ms.join(", "):"");}
+      else sub="Védekezés nélkül";
+      h+='<div class="cyc-act-row"><span class="ar-emoji">'+t.emoji+'</span><div class="ar-main"><div class="ar-lab">'+esc(t.label)+'</div><div class="ar-sub">'+esc(sub)+'</div></div><button class="ar-del" data-act-del="'+a.id+'">✕</button></div>';});
+    h+='</div>';}
+  if(cycActDraft&&cycActDraft.day===dayKey)h+=cycActEditorHtml();
+  else h+='<button class="cyc-act-add" id="cycActAdd">➕ Együttlét hozzáadása</button>';
+  return h;}
+function cycActEditorHtml(){
+  const d=cycActDraft;let h='<div class="cyc-act-editor">';
+  h+='<div class="ae-lab">Típus</div><div class="cyc-chips" id="aeType">';
+  S.cycle.intim.types.forEach(t=>h+='<button class="cyc-chip'+(d.typeId===t.id?" on":"")+'" data-ae-type="'+t.id+'">'+t.emoji+" "+esc(t.label)+'</button>');
+  h+='<button class="cyc-mini" id="aeNewType">＋ Új típus</button></div>';
+  if(cycNewDef&&cycNewDef.kind==="type")h+=cycNewDefHtml();
+  h+='<div class="ae-lab">Volt védekezés?</div><div class="cyc-chips" id="aeProt">';
+  h+='<button class="cyc-chip'+(!d.prot?" on":"")+'" data-ae-prot="0">Nem</button>';
+  h+='<button class="cyc-chip'+(d.prot?" on":"")+'" data-ae-prot="1">Igen</button></div>';
+  if(d.prot){
+    h+='<div class="ae-lab">Hogyan védekeztetek? (több is)</div><div class="cyc-chips" id="aeMeth">';
+    S.cycle.intim.methods.forEach(m=>h+='<button class="cyc-chip'+(d.methods.includes(m.id)?" on":"")+'" data-ae-meth="'+m.id+'">'+m.emoji+" "+esc(m.label)+'</button>');
+    h+='<button class="cyc-mini" id="aeNewMeth">＋ Új mód</button></div>';
+    if(cycNewDef&&cycNewDef.kind==="method")h+=cycNewDefHtml();}
+  h+='<div class="rub-actions" style="margin-top:12px"><button class="btn ghost sm" id="aeCancel">Mégsem</button><button class="btn sm" id="aeSave">Hozzáadás</button></div>';
+  return h+'</div>';}
+function cycNewDefHtml(){const n=cycNewDef;
+  let h='<div class="cyc-newdef"><button class="nd-emoji" id="ndEmoji">'+n.emoji+'</button><input class="input" id="ndLabel" placeholder="'+(n.kind==="type"?"pl. Kényeztetés":"pl. Fogamzásgátló tabletta")+'" value="'+escA(n.label)+'"/><button class="btn sm" id="ndSave">OK</button></div>';
+  if(cycEmojiFor==="new"){h+='<div class="cyc-emojigrid" id="emojiGrid">';
+    CYCLE_EMOJI.forEach(e=>h+='<button data-emoji="'+e+'"'+(n.emoji===e?' class="on"':"")+'>'+e+'</button>');
+    h+='</div>';}
+  return h;}
+function cycDayBody(dayKey){
+  const l=S.cycle.logs[dayKey]||{};const inP=dayInAnyPeriod(dayKey);
+  let h=cycPeriodSectionHtml(dayKey);
+  if(inP){h+='<div class="section-title" style="margin-top:6px">Vérzés erőssége</div><div class="cyc-chips" id="cycFlow">';
+    CYCLE_FLOW.forEach(([v,lab])=>{h+='<button class="cyc-chip flow'+(l.flow===v?" on":"")+'" data-flow="'+v+'">'+lab+'</button>';});
+    h+='</div>';}
+  h+=cycIntimSectionHtml(dayKey);
+  h+='<div class="section-title">Tünetek</div><div class="cyc-chips" id="cycSym">';
   CYCLE_SYMPTOMS.forEach(([v,lab])=>{h+='<button class="cyc-chip'+((l.symptoms||[]).includes(v)?" on":"")+'" data-sym="'+v+'">'+lab+'</button>';});
   h+='</div><div class="section-title">Sóvárgás</div><div class="cyc-chips" id="cycCrav">';
   CYCLE_CRAVINGS.forEach(([v,lab])=>{h+='<button class="cyc-chip'+((l.cravings||[]).includes(v)?" on":"")+'" data-crav="'+v+'">'+lab+'</button>';});
   h+='</div><div class="section-title">Súly (opcionális)</div><input class="input" id="cycWeight" inputmode="decimal" placeholder="pl. 63.5" value="'+(l.weight!=null?l.weight:"")+'"/>';
   h+='<div class="section-title">Jegyzet</div><textarea class="input" id="cycNotes" style="min-height:70px" placeholder="Bármi, amit fel szeretnél jegyezni…">'+esc(l.notes||"")+'</textarea>';
-  h+='<button class="btn wide" id="cycSave" style="margin-top:14px">Mentés</button>';
+  h+='<button class="btn wide" id="cycSave" style="margin-top:14px">Kész</button>';
+  return h;}
+function openCycleDay(dayKey){
+  cycActDraft=null;cycNewDef=null;cycEmojiFor=null;
+  const dObj=keyToDate(dayKey);
+  const title=dObj.toLocaleDateString("hu-HU",{year:"numeric",month:"long",day:"numeric",weekday:"long"});
+  let h='<button class="close-x" id="mClose">✕</button><h3 style="margin-right:30px">'+title+'</h3>';
+  if(dayKey>TODAY){h+='<div class="hint">Ez egy jövőbeli nap — ide még nem tudsz naplózni. A menstruációt akkor jelöld, amikor elkezdődött.</div>';openModal(h);return;}
+  h+='<div id="cycDayBody">'+cycDayBody(dayKey)+'</div>';
   openModal(h);
-  bindCycDayBtn(dayKey);
-  document.querySelectorAll("#cycFlow [data-flow]").forEach(b=>b.onclick=()=>{const same=b.classList.contains("on");document.querySelectorAll("#cycFlow .on").forEach(x=>x.classList.remove("on"));if(!same)b.classList.add("on");});
-  document.querySelectorAll("#cycSym [data-sym]").forEach(b=>b.onclick=()=>b.classList.toggle("on"));
-  document.querySelectorAll("#cycCrav [data-crav]").forEach(b=>b.onclick=()=>b.classList.toggle("on"));
-  document.getElementById("cycSave").onclick=()=>{saveCycleDay(dayKey);closeScreen();renderCiklus();toast("Mentve ✓");};}
-function saveCycleDay(dayKey){
+  bindCycDay(dayKey);}
+/* DOM-mezők (chip-ek, súly, jegyzet) beolvasása S-be — hívjuk minden újrarajzolás ELŐTT, hogy ne vesszen el a beírt szöveg. */
+function captureCycDayFields(dayKey){
+  if(!document.getElementById("cycDayBody"))return;
   const fe=document.querySelector("#cycFlow .on");const flow=fe?fe.dataset.flow:null;
   const symptoms=[...document.querySelectorAll("#cycSym .on")].map(b=>b.dataset.sym);
   const cravings=[...document.querySelectorAll("#cycCrav .on")].map(b=>b.dataset.crav);
-  const wv=parseFloat(String(document.getElementById("cycWeight").value||"").replace(",","."));
-  const notes=(document.getElementById("cycNotes").value||"").trim();
-  const o={};if(flow)o.flow=flow;if(symptoms.length)o.symptoms=symptoms;if(cravings.length)o.cravings=cravings;
-  if(isFinite(wv)&&wv>0)o.weight=wv;if(notes)o.notes=notes;
-  if(Object.keys(o).length)S.cycle.logs[dayKey]=o;else delete S.cycle.logs[dayKey];
-  cycleTouch();}
+  const fw=document.getElementById("cycWeight"),nt=document.getElementById("cycNotes");
+  const wv=fw?parseFloat(String(fw.value||"").replace(",",".")):NaN;
+  const notes=nt?nt.value.trim():"";
+  const acts=(S.cycle.logs[dayKey]||{}).acts;
+  const o={};
+  if(flow&&dayInAnyPeriod(dayKey))o.flow=flow;
+  if(symptoms.length)o.symptoms=symptoms;
+  if(cravings.length)o.cravings=cravings;
+  if(isFinite(wv)&&wv>0)o.weight=wv;
+  if(notes)o.notes=notes;
+  if(acts&&acts.length)o.acts=acts;
+  if(Object.keys(o).length)S.cycle.logs[dayKey]=o;else delete S.cycle.logs[dayKey];}
+/* Csak a modal-törzs újrarajzolása (szöveg megőrzésével). */
+function cycDayRerender(dayKey){captureCycDayFields(dayKey);const b=document.getElementById("cycDayBody");if(b){b.innerHTML=cycDayBody(dayKey);bindCycDay(dayKey);}}
+/* Mutáció + törzs- és naptár-újrarajzolás (menstruáció / együttlét változásához). */
+function cycDayApply(dayKey,fn){captureCycDayFields(dayKey);fn();cycDayRerender(dayKey);renderCiklus();}
+function bindCycDay(dayKey){
+  const off=document.getElementById("cycDayOff");if(off)off.onclick=()=>cycDayApply(dayKey,()=>markPeriodDay(dayKey,false));
+  const st=document.getElementById("cycDayStart");if(st)st.onclick=()=>cycDayApply(dayKey,()=>periodStartAt(dayKey));
+  const en=document.getElementById("cycDayEnd");if(en)en.onclick=()=>cycDayApply(dayKey,()=>periodEndAt(dayKey));
+  document.querySelectorAll("#cycFlow [data-flow]").forEach(b=>b.onclick=()=>{const same=b.classList.contains("on");document.querySelectorAll("#cycFlow .on").forEach(x=>x.classList.remove("on"));if(!same)b.classList.add("on");});
+  document.querySelectorAll("#cycSym [data-sym]").forEach(b=>b.onclick=()=>b.classList.toggle("on"));
+  document.querySelectorAll("#cycCrav [data-crav]").forEach(b=>b.onclick=()=>b.classList.toggle("on"));
+  // együttlét
+  const add=document.getElementById("cycActAdd");if(add)add.onclick=()=>{cycActDraft={day:dayKey,typeId:S.cycle.intim.types[0].id,prot:false,methods:[]};cycNewDef=null;cycEmojiFor=null;cycDayRerender(dayKey);};
+  document.querySelectorAll("[data-act-del]").forEach(b=>b.onclick=()=>cycDayApply(dayKey,()=>{const acts=dayActs(dayKey).filter(a=>a.id!==b.dataset.actDel);setDayActs(dayKey,acts);}));
+  document.querySelectorAll("[data-ae-type]").forEach(b=>b.onclick=()=>{cycActDraft.typeId=b.dataset.aeType;cycDayRerender(dayKey);});
+  document.querySelectorAll("[data-ae-prot]").forEach(b=>b.onclick=()=>{cycActDraft.prot=b.dataset.aeProt==="1";if(!cycActDraft.prot)cycActDraft.methods=[];cycDayRerender(dayKey);});
+  document.querySelectorAll("[data-ae-meth]").forEach(b=>b.onclick=()=>{const id=b.dataset.aeMeth;const i=cycActDraft.methods.indexOf(id);if(i>=0)cycActDraft.methods.splice(i,1);else cycActDraft.methods.push(id);cycDayRerender(dayKey);});
+  const nt2=document.getElementById("aeNewType");if(nt2)nt2.onclick=()=>{cycNewDef={kind:"type",label:"",emoji:"❤️"};cycEmojiFor=null;cycDayRerender(dayKey);};
+  const nm=document.getElementById("aeNewMeth");if(nm)nm.onclick=()=>{cycNewDef={kind:"method",label:"",emoji:"🛡️"};cycEmojiFor=null;cycDayRerender(dayKey);};
+  const nl=document.getElementById("ndLabel");if(nl)nl.oninput=()=>{if(cycNewDef)cycNewDef.label=nl.value;};
+  const ne=document.getElementById("ndEmoji");if(ne)ne.onclick=()=>{if(cycNewDef)cycNewDef.label=(document.getElementById("ndLabel")||{}).value||cycNewDef.label;cycEmojiFor=(cycEmojiFor==="new"?null:"new");cycDayRerender(dayKey);};
+  document.querySelectorAll("#emojiGrid [data-emoji]").forEach(b=>b.onclick=()=>{if(cycNewDef){cycNewDef.label=(document.getElementById("ndLabel")||{}).value||cycNewDef.label;cycNewDef.emoji=b.dataset.emoji;}cycEmojiFor=null;cycDayRerender(dayKey);});
+  const nd=document.getElementById("ndSave");if(nd)nd.onclick=()=>{const li=document.getElementById("ndLabel");if(li&&cycNewDef)cycNewDef.label=li.value;
+    if(!cycNewDef||!cycNewDef.label.trim()){toast("Adj nevet");return;}
+    const def=addIntimDef(cycNewDef.kind,cycNewDef.label,cycNewDef.emoji);
+    if(def){if(cycNewDef.kind==="type")cycActDraft.typeId=def.id;else{cycActDraft.prot=true;if(!cycActDraft.methods.includes(def.id))cycActDraft.methods.push(def.id);}}
+    cycNewDef=null;cycEmojiFor=null;cycDayRerender(dayKey);};
+  const ac=document.getElementById("aeCancel");if(ac)ac.onclick=()=>{cycActDraft=null;cycNewDef=null;cycEmojiFor=null;cycDayRerender(dayKey);};
+  const as=document.getElementById("aeSave");if(as)as.onclick=()=>cycDayApply(dayKey,()=>{const acts=dayActs(dayKey).slice();acts.push({id:uid(),typeId:cycActDraft.typeId,prot:cycActDraft.prot,methods:cycActDraft.prot?cycActDraft.methods.slice():[]});setDayActs(dayKey,acts);cycActDraft=null;cycNewDef=null;cycEmojiFor=null;});
+  const sv=document.getElementById("cycSave");if(sv)sv.onclick=()=>{captureCycDayFields(dayKey);cycleTouch();closeScreen();renderCiklus();toast("Mentve ✓");};}
 
 /* --- „Mi újult meg?" (közérthető változásnapló) --- */
 const CHANGELOG=[
+ {v:2,title:"🌸 Ciklusnaptár — nagy frissítés",items:[
+   "Mostantól <b>bármelyik korábbi napra</b> beállíthatod, hogy „itt kezdődött a menstruáció”, és egy másik napon, hogy „eddig tartott” — a <b>köztes napok automatikusan</b> menstruációsak lesznek.",
+   "A <b>vérzés erőssége</b> csak menstruációs napon kérdez rá (ott, ahol van értelme).",
+   "Új <b>💞 együttlét-napló</b>: rögzítheted az együttléteket, saját típusokkal és <b>emojival</b> — ami meg is jelenik a naptárban. Beállíthatod, hogy <b>volt-e védekezés</b> és hogyan (saját módok is). Védekezésnél az emoji a naptárban <b>bekarikázva</b> látszik.",
+   "A naptárt <b>jobbra-balra húzva lapozhatod</b>, és válthatsz <b>havi / éves</b> nézet közt.",
+   "A „következő menstruációig hátralévő napok” mostantól <b>nagyban, kiemelve</b> látszik; a „Tudnivalók a ciklusról” pedig alapból <b>összecsukva</b> van."]},
  {v:1,title:"🌸 Menstruációs ciklusnaptár",items:[
    "Új, bekapcsolható napló: a <b>Fiók</b> fülön aktiválhatod a „Ciklus” naptárt — és megjelenik egy külön <b>Ciklus</b> fül.",
    "Egy koppintással bejelölöd, mikor <b>kezdődött</b> és mikor <b>ért véget</b> a menstruációd; a naptár megmutatja, és pár ciklus után a saját adataidból <b>megbecsüli a következőt</b>.",
@@ -3803,7 +4065,7 @@ window.SL={getState:()=>S,
 /* =========================================================================
    2. RÉTEG — témák, súgó, tutorial, indokok, ünneplés, visszajelzés
    ========================================================================= */
-const APP_VERSION="v10";
+const APP_VERSION="v11";
 
 /* ---- témák ---- */
 const THEMES=[{id:"kert",name:"Üvegház",sw:"#2D6A4F"},{id:"papir",name:"Letisztult",sw:"#1B4332"},{id:"krem",name:"Papír",sw:"#B5852B"},{id:"arany",name:"Arany éj",sw:"#E5A83B"},{id:"erdo",name:"Erdő",sw:"#5FD08A"},{id:"ocean",name:"Óceán",sw:"#4FB0E5"},{id:"naplemente",name:"Naplemente",sw:"#E5744F"},{id:"ejjel",name:"Éjszakai",sw:"#C79A46"},{id:"film",name:"Filmvászon",sw:"#D8D8D8"}];
