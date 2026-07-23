@@ -14,7 +14,7 @@
 <link rel="apple-touch-icon" href="icon-180.png?v=2" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,500;0,600;1,500;1,600&display=swap" rel="stylesheet" />
 <style>
 :root{
   --bg:#0E1015; --surface:#171A21; --surface-2:#1F232C; --line:#2A2F3A;
@@ -24,6 +24,8 @@
   --r:16px; --r-sm:10px; --on-gold:#0E1015;
   --disp:"Space Grotesk", ui-sans-serif, system-ui, sans-serif;
   --body:ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* „díszes”, de jól olvasható antikva a napi igéhez (offline: rendszer-serif) */
+  --scrip:"EB Garamond", "Iowan Old Style", Georgia, "Palatino Linotype", "Times New Roman", serif;
 }
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
 /* overscroll-behavior-y:contain = nincs "lehúzás felülről = újratöltés" (pull-to-refresh),
@@ -377,6 +379,36 @@ select.input{appearance:none;-webkit-appearance:none;background-image:linear-gra
 .detail-back button{background:none;border:0;color:var(--gold);font-family:var(--disp);font-weight:600;font-size:15px;display:flex;align-items:center;gap:4px;padding:6px 2px;}
 .avoid-counter{font-family:var(--disp);font-weight:700;font-size:30px;color:var(--gold);font-variant-numeric:tabular-nums;text-align:center;padding:6px 0 14px;letter-spacing:.02em;}
 /* Cél-űrlap: haladó beállítások (C1) */
+/* --- Napi ige kártya (Biblia fül teteje) --- */
+.verse-card{position:relative; margin:12px 0 2px; padding:20px 18px 14px; border-radius:var(--r);
+  background:linear-gradient(180deg,var(--gold-soft),transparent 78%); border:1px solid var(--gold-line); overflow:hidden;}
+.verse-card::before{content:"\201C"; position:absolute; top:-14px; left:10px; font-family:var(--scrip);
+  font-size:64px; line-height:1; color:var(--gold); opacity:.22; pointer-events:none;}
+.verse-t{font-family:var(--scrip); font-style:italic; font-weight:500; font-size:19.5px; line-height:1.5;
+  color:var(--ink); text-align:center; padding:0 4px; letter-spacing:.005em;}
+.verse-r{font-family:var(--disp); font-weight:600; font-size:11px; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--gold); text-align:center; margin-top:11px;}
+.verse-card.long .verse-t{font-size:17px; line-height:1.48;}
+.verse-r i{font-style:normal; color:var(--muted-2); letter-spacing:.06em; text-transform:none; font-weight:400;}
+/* --- Mai olvasmány: összefoglaló fejléc --- */
+.bday-sum{font-family:var(--disp); font-weight:700; font-size:17px; line-height:1.3; color:var(--ink);}
+/* --- terv-levezetés (számsorok) --- */
+.bcalc{margin-top:4px; border:1px solid var(--line); border-radius:var(--r-sm); overflow:hidden;}
+.bcalc-r{display:flex; align-items:baseline; gap:10px; padding:8px 11px; font-size:13px; border-bottom:1px solid var(--line);}
+.bcalc-r:last-child{border-bottom:0;}
+.bcalc-r span{color:var(--muted); flex:1; min-width:0;}
+.bcalc-r b{font-family:var(--disp); font-variant-numeric:tabular-nums; text-align:right; flex:none;}
+.bcalc-r.sum{background:var(--surface-2);}
+.bcalc-r.sum b{color:var(--gold);}
+/* --- következő napok --- */
+.bfc{border:1px solid var(--line); border-radius:var(--r-sm); overflow:hidden;}
+.bfc-row{display:flex; align-items:baseline; gap:9px; padding:9px 11px; font-size:13px; border-bottom:1px solid var(--line);}
+.bfc-row:last-child{border-bottom:0;}
+.bfc-row.now{background:var(--gold-soft);}
+.bfc-d{font-family:var(--disp); font-size:11.5px; color:var(--muted); flex:none; width:78px;}
+.bfc-c{flex:1; min-width:0; line-height:1.4;}
+.bfc-m{font-family:var(--disp); font-size:11.5px; color:var(--muted-2); flex:none; font-variant-numeric:tabular-nums; text-align:right; line-height:1.25;}
+.bfc-tag{font-family:var(--disp); font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--gold);}
 details.advanced{margin-top:12px;border-top:1px solid var(--line);padding-top:4px;}
 details.advanced>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:var(--disp);font-weight:600;font-size:12.5px;color:var(--muted);padding:8px 2px;user-select:none;-webkit-user-select:none;}
 details.advanced>summary::-webkit-details-marker{display:none;}
@@ -2625,6 +2657,87 @@ function bibleModeName(p){
   if(p.scope==="full"&&p.parallel)parts.push("párhuzamos ÓSZ+ÚSZ");
   return parts.join(" · ");}
 
+const BIBLE_VERSES=[
+ {r:"Lukács 8:18",t:"Meglássátok azért, mimódon hallgatjátok: mert a kinek van, annak adatik; és a kinek nincs, még a mijét gondolja is hogy van, elvétetik tőle."},
+ {r:"Jakab 1:22",t:"Az ígének pedig megtartói legyetek és ne csak hallgatói, megcsalván magatokat."},
+ {r:"ApCsel 17:11",t:"Ezek pedig nemesb lelkűek valának a Thessalonikabelieknél, úgymint kik bevevék az ígét teljes készséggel, naponként tudakozva az írásokat, ha úgy vannak-é ezek."},
+ {r:"Zsidók 4:2",t:"Mert nékünk is hirdettetett az evangyéliom, miképen azoknak: de nem használt nékik a hallott beszéd, mivel nem párosították hittel azok, a kik hallották."},
+ {r:"2Timóteus 2:15",t:"Igyekezzél, hogy Isten előtt becsületesen megállj, mint oly munkás, a ki szégyent nem vall, a ki helyesen hasogatja az igazságnak beszédét."},
+ {r:"Zsoltárok 119:18",t:"Nyisd meg az én szemeimet, hogy szemléljem a te törvényednek csodálatos voltát."},
+ {r:"Józsué 1:8",t:"El ne távozzék e törvénynek könyve a te szádtól, hanem gondolkodjál arról éjjel és nappal, hogy vigyázz és mindent úgy cselekedjél, a mint írva van abban, mert akkor leszel jó szerencsés a te utaidon és akkor boldogulsz."},
+ {r:"Példabeszédek 4:20–22",t:"Fiam, az én szavaimra figyelmezz, az én beszédimre hajtsad füledet. Ne távozzanak el a te szemeidtől, tartsd meg ezeket a te elmédben. Mert életök ezek azoknak, a kik megnyerik, és egész testöknek egészség."},
+ {r:"Márk 4:24",t:"És monda nékik: Megjegyezzétek, a mit hallotok: A milyen mértékkel mértek, olyannal mérnek néktek, sőt ráadást adnak néktek, a kik halljátok."},
+ {r:"Máté 7:24",t:"Valaki azért hallja én tőlem e beszédeket, és megcselekszi azokat, hasonlítom azt a bölcs emberhez, a ki a kősziklára építette az ő házát:"},
+ {r:"Ezsdrás 7:10",t:"Mert Ezsdrás erős szívvel törekedett keresni és cselekedni az Úr törvényét, és tanítani Izráelben a rendeléseket és ítéleteket."},
+ {r:"1Thesszalonika 2:13",t:"Ugyanazért mi is hálát adunk az Istennek szüntelenül, hogy ti befogadván az Istennek általunk hirdetett beszédét, nem úgy fogadtátok, mint emberek beszédét, hanem mint Isten beszédét (a minthogy valósággal az is), a mely munkálkodik is ti bennetek, a kik hisztek."},
+ {r:"Ézsaiás 66:2",t:"Hiszen mindezeket kezem csinálta, így álltak elő mindezek; így szól az Úr. Hanem erre tekintek én, a ki szegény és megtörött lelkű, és a ki beszédemet rettegi."},
+ {r:"1Péter 2:2",t:"Mint most született csecsemők, a tiszta, hamisítatlan tej után vágyakozzatok, hogy azon növekedjetek;"},
+ {r:"Kolossé 3:16",t:"A Krisztusnak beszéde lakozzék ti bennetek gazdagon, minden bölcsességben; tanítván és intvén egymást zsoltárokkal, dícséretekkel, lelki énekekkel, hálával zengedezvén a ti szívetekben az Úrnak."},
+ {r:"Zsoltárok 1:2",t:"Hanem az Úr törvényében van gyönyörűsége és az ő törvényéről gondolkodik éjjel nappal."},
+ {r:"Zsoltárok 119:11",t:"Szívembe rejtettem a te beszédedet, hogy ne vétkezzem ellened."},
+ {r:"Zsoltárok 119:105",t:"Az én lábamnak szövétneke a te igéd, és ösvényemnek világossága."},
+ {r:"Zsoltárok 119:130",t:"A te beszéded megnyilatkozása világosságot ad, és oktatja az együgyűeket."},
+ {r:"János 8:31–32",t:"Monda azért Jézus a benne hívő zsidóknak: Ha ti megmaradtok az én beszédemben, bizonynyal az én tanítványaim vagytok; És megismeritek az igazságot, és az igazság szabadokká tesz titeket."},
+ {r:"János 5:39",t:"Tudakozzátok az írásokat, mert azt hiszitek, hogy azokban van a ti örök életetek; és ezek azok, a melyek bizonyságot tesznek rólam;"},
+ {r:"Máté 4:4",t:"Ő pedig felelvén, monda: Meg van írva: Nemcsak kenyérrel él az ember, hanem minden ígével, a mely Istennek szájából származik."},
+ {r:"5Mózes 6:6–7",t:"És ez ígék, a melyeket e mai napon parancsolok néked, legyenek a te szívedben. És gyakoroljad ezekben a te fiaidat, és szólj ezekről, mikor a te házadban ülsz, vagy mikor úton jársz, és mikor lefekszel, és mikor felkelsz."},
+ {r:"5Mózes 32:47",t:"Mert nem hiábavaló íge ez néktek; hanem ez a ti életetek, és ez íge által hosszabbítjátok meg napjaitokat azon a földön, a melyre általmentek a Jordánon, hogy bírjátok azt."},
+ {r:"Zsidók 4:12",t:"Mert az Istennek beszéde élő és ható, és élesebb minden kétélű fegyvernél, és elhat a szívnek és léleknek, az ízeknek és a velőknek megoszlásáig, és megítéli a gondolatokat és a szívnek indulatait."},
+ {r:"Jakab 1:21",t:"Elvetvén azért minden undokságot és a gonoszságnak sokaságát, szelídséggel fogadjátok a beoltott ígét, a mely megtarthatja a ti lelkeiteket."},
+ {r:"Jakab 1:25",t:"De a ki belenéz a szabadság tökéletes törvényébe és megmarad a mellett, az nem feledékeny hallgató, sőt cselekedet követője lévén, az boldog lesz az ő cselekedetében."},
+ {r:"Lukács 11:28",t:"Ő pedig monda: Sőt inkább boldogok a kik hallgatják az Istennek beszédét, és megtartják azt."},
+ {r:"Máté 13:23",t:"A mely pedig a jó földbe esett, ez az, a ki hallja és érti az igét; a ki gyümöcsöt is terem, és terem némely száz annyit, némely hatvan annyit, némely pedig harmincz annyit."},
+ {r:"Lukács 24:32",t:"És mondának egymásnak: Avagy nem gerjedezett-é a mi szívünk mi bennünk, mikor nékünk szóla az úton, és mikor magyarázá nékünk az írásokat?"},
+ {r:"Jeremiás 15:16",t:"Ha szavaidat hallattad, én élveztem azokat; a te szavaid örömömre váltak nékem és szívemnek vígasságára; mert a te nevedről neveztetem oh Uram, Seregeknek Istene!"},
+ {r:"Nehémiás 8:8",t:"Olvasának pedig a könyvből, Isten törvényéből világosan, s azután magyarázának, és a nép megérté az olvasottakat."},
+ {r:"2Timóteus 3:16–17",t:"A teljes írás Istentől ihletett és hasznos a tanításra, a feddésre, a megjobbításra, az igazságban való nevelésre, Hogy tökéletes legyen az Isten embere, minden jó cselekedetre felkészített."},
+ {r:"1Timóteus 4:13",t:"A míg oda megyek, legyen gondod a felolvasásra, az intésre és a tanításra."},
+ {r:"Zsoltárok 19:8",t:"Az Úrnak rendelései helyesek, megvidámítják a szívet; az Úrnak parancsolata világos, megvilágosítja a szemeket."},
+ {r:"Ézsaiás 55:11",t:"Így lesz az én beszédem, a mely számból kimegy, nem tér hozzám üresen, hanem megcselekszi, a mit akarok, és szerencsés lesz ott, a hová küldöttem."},
+ {r:"János 6:63",t:"A lélek az, a mi megelevenít, a test nem használ semmit: a beszédek, a melyeket én szólok néktek, lélek és élet."},
+ {r:"Máté 13:16",t:"A ti szemeitek pedig boldogok, hogy látnak; és a ti füleitek, hogy hallanak."},
+ {r:"Ezékiel 3:10",t:"És mondá nékem: Embernek fia! minden beszédimet, a melyeket szólok néked, vedd szívedbe, és füleiddel halld meg."},
+ {r:"Zsoltárok 119:15–16",t:"A te határozataidról gondolkodom, és a te ösvényeidre nézek. Gyönyörködöm a te rendeléseidben; a te beszédedről nem feledkezem el."},
+ {r:"Példabeszédek 2:4–5",t:"Ha keresed azt, mint az ezüstöt, és mint a kincseket kutatod azt: Akkor megérted az Úrnak félelmét, és az Istennek ismeretére jutsz."},
+ {r:"Zsoltárok 119:97",t:"Mely igen szeretem a te törvényedet, egész napestig arról gondolkodom!"},
+ {r:"Zsoltárok 119:162",t:"Gyönyörködöm a te beszédedben, mint a ki nagy nyereséget talált."},
+ {r:"Jakab 1:23–24",t:"Mert ha valaki hallgatója az ígének és nem megtartója, az ilyen hasonlatos ahhoz az emberhez, a ki tükörben nézi az ő természet szerinti ábrázatát: Mert megnézte magát és elment, és azonnal elfelejtette, milyen volt."},
+ {r:"Zsoltárok 119:103",t:"Mily édes az én ínyemnek a te beszéded; méznél édesbb az az én számnak!"},
+ {r:"ApCsel 8:30",t:"Filep azért oda futamodván, hallá, a mint az Ésaiás prófétát olvassa vala. És monda: Vajjon érted-é, a mit olvasol?"},
+ {r:"Jelenések 1:3",t:"Boldog, a ki olvassa, és a kik hallgatják e prófétálásnak beszédeit, és megtartják azokat, a melyek megírattak abban; mert az idő közel van."},
+ {r:"Máté 13:9",t:"A kinek van füle a hallásra, hallja."},
+ {r:"Példabeszédek 3:1–2",t:"Fiam! az én tanításomról el ne felejtkezzél, és az én parancsolatimat megőrizze a te elméd; Mert napoknak hosszú voltát, és sok esztendős életet, és békességet hoznak néked bőven."},
+ {r:"Zsoltárok 119:133",t:"Vezéreld útamat a te igéd szerint, és ne engedd, hogy valami hamisság uralkodjék rajtam!"},
+ {r:"János 15:7",t:"Ha én bennem maradtok, és az én beszédeim bennetek maradnak, kérjetek, a mit csak akartok, és meglesz az néktek."}];
+
+/* Napi ige: dátumból derivált index -> mindenkinél ugyanaz a nap ugyanaz az ige,
+   és egy teljes körben (51 nap) mind sorra kerül. Károli (közkincs), a text/-ből. */
+const BIBLE_VERSE_ANCHOR="2026-07-23";   /* ezen a napon a lista 1. igéje (Luk 8:18) jön */
+function bibleVerseOfDay(key){
+  const n=BIBLE_VERSES.length,D=86400000;
+  const day=Math.floor(keyToDate(key||TODAY).getTime()/D)-Math.floor(keyToDate(BIBLE_VERSE_ANCHOR).getTime()/D);
+  return BIBLE_VERSES[((day%n)+n)%n];}
+function bibleVerseCardHtml(){
+  const v=bibleVerseOfDay(TODAY);
+  return '<div class="verse-card'+(v.t.length>190?' long':'')+'"><div class="verse-t">'+esc(v.t)+'</div>'+
+         '<div class="verse-r">'+esc(v.r)+' <i>· Károli</i></div></div>';}
+
+/* rövid magyar dátum a napi előrejelzéshez: „júl. 24. P” */
+const BHONAP=["jan.","feb.","márc.","ápr.","máj.","jún.","júl.","aug.","szept.","okt.","nov.","dec."];
+const BNAP=["V","H","K","Sze","Cs","P","Szo"];
+function bibleShortDate(k){const d=keyToDate(k);return BHONAP[d.getMonth()]+" "+d.getDate()+". "+BNAP[d.getDay()];}
+/* évszámmal, ha nem az idei évre esik */
+function bibleMidDate(k){const d=keyToDate(k),y=d.getFullYear();
+  return (y!==keyToDate(TODAY).getFullYear()?(y+". "):"")+BHONAP[d.getMonth()]+" "+d.getDate()+".";}
+/* tömör tartomány-felirat egy naphoz: „1Mózes 12–18 · 2Mózes 1” */
+function bibleSpanLabel(c,ids){
+  if(!ids||!ids.length)return "";
+  const parts=[];let cur=null;
+  ids.forEach(function(id){const s=c.byId[id];if(!s)return;
+    if(cur&&cur.book===s.book&&(s.ch===cur.to||s.ch===cur.to+1)){cur.to=s.ch;return;}
+    cur={book:s.book,from:s.ch,to:s.ch};parts.push(cur);});
+  return parts.map(function(x){return bibleBookName(x.book)+" "+(x.from===x.to?x.from:(x.from+"–"+x.to));}).join(" · ");}
+
 /* ---- kétirányú tervszámítás: a "pin" a rögzített csúszka, a többi ebből derivál ---- */
 function computeBiblePlan(p){
   const inf=bibleScope(p);
@@ -2646,23 +2759,74 @@ function computeBiblePlan(p){
     dailyMinutes:budget/wpm,
     avgChaptersDay:budget/inf.avgW};}
 
-/* ---- napi olvasmány: EGÉSZ fejezetek, amíg a keretet el nem érjük (min. 1) ---- */
+/* ---- napi olvasmány --------------------------------------------------------
+   EGÉSZ egységeket olvasunk, a napi keret viszont szó-alapú, ezért két szabály:
+   (1) FÉL-EGYSÉG SZABÁLY: a keretet átlógó egység MÁRA kerül, ha még legalább a
+       FELE belefér a keretbe; ha kevesebb, akkor HOLNAPRA csúszik.
+   (2) KORREKCIÓ: a mai keret = napi adag ± a tegnapig felgyűlt különbség
+       (legfeljebb egynapi adaggal), így a lekerekítések kiegyenlítődnek és a
+       terv a kitűzött időre elkészül. --------------------------------------- */
 function bibleNextUnreadIdx(p,c){
   const list=c.list;let i=c.pos[p.cursor];
   if(i==null)i=0;
   while(i<list.length&&p.read[list[i].id])i++;
   return i<list.length?i:-1;}
+/* hányadik olvasónapon járunk (az indulás napja az 1.) */
+function bibleDayNo(p){return Math.max(1,bibleDaysBetween(p.startDate,TODAY)+1);}
+/* az appon BELÜL olvasott szavak a mai nap ELŐTT (a „prior” kiindulópont nem számít) */
+function bibleWordsBeforeToday(p,c){
+  let w=0;for(const s of c.list){const d=bibleReadDay(p.read[s.id]);if(d&&d<TODAY)w+=s.words;}return w;}
+/* a MA bejelölt szavak */
+function bibleWordsToday(p,c){
+  let w=0;for(const s of c.list)if(p.read[s.id]===TODAY)w+=s.words;return w;}
+/* a nap kerete: napi adag + korrekció (±1 napnyi) */
+function bibleAllowance(c,dayNo,consumedBefore){
+  const b=c.dailyWordBudget;
+  const carry=Math.max(-b,Math.min(b,b*(dayNo-1)-consumedBefore));
+  return{budget:b,carry:carry,allow:Math.max(0,b+carry)};}
+/* egységek gyűjtése startIdx-től a megadott keretig, fél-egység szabállyal */
+function bibleFillFrom(c,startIdx,allowW,isDone){
+  const ids=[];let w=0,i=startIdx,spill=null;
+  while(i<c.list.length){
+    const s=c.list[i];
+    if(isDone&&isDone(s.id)){i++;continue;}
+    const fits=allowW-w;
+    if(s.words<=fits){ids.push(s.id);w+=s.words;i++;continue;}
+    if(fits>=s.words/2){ids.push(s.id);w+=s.words;i++;}      /* legalább a fele belefér -> mára */
+    else spill={id:s.id,fits:Math.max(0,fits),words:s.words}; /* kevesebb mint a fele -> holnapra */
+    break;}
+  return{ids:ids,words:w,nextIdx:i,spill:spill};}
 function buildDailyReading(p){
   const c=computeBiblePlan(p);
+  const i=bibleNextUnreadIdx(p,c);
+  const before=bibleWordsBeforeToday(p,c),todayW=bibleWordsToday(p,c);
+  const a=bibleAllowance(c,bibleDayNo(p),before);
+  if(i<0)return{ids:[],words:0,secs:0,finished:true,allow:a.allow,carry:a.carry,budget:a.budget,
+                todayWords:todayW,spill:null};
+  const r=bibleFillFrom(c,i,Math.max(0,a.allow-todayW),function(id){return !!p.read[id];});
+  return{ids:r.ids,words:r.words,secs:Math.round(r.words/c.wpm*60),finished:false,
+    allow:a.allow,carry:a.carry,budget:a.budget,todayWords:todayW,spill:r.spill};}
+
+/* ---- előrejelzés: a következő N nap adagja ugyanezzel a szabállyal ---- */
+function bibleForecast(p,c,days){
+  const out=[];
   let i=bibleNextUnreadIdx(p,c);
-  if(i<0)return{ids:[],words:0,secs:0,finished:true};
-  const ids=[];let w=0;
-  while(i<c.list.length){
-    const ch=c.list[i];i++;
-    if(p.read[ch.id])continue;
-    ids.push(ch.id);w+=ch.words;
-    if(w>=c.dailyWordBudget)break;}
-  return{ids:ids,words:w,secs:Math.round(w/c.wpm*60),finished:false};}
+  const done={};for(const k in p.read)done[k]=1;
+  let consumed=bibleWordsBeforeToday(p,c);
+  const todayW=bibleWordsToday(p,c);
+  let day=bibleDayNo(p),key=TODAY;
+  for(let k=0;k<days;k++){
+    while(i<c.list.length&&done[c.list[i].id])i++;
+    if(i<0||i>=c.list.length)break;
+    const a=bibleAllowance(c,day,consumed);
+    const pre=(k===0)?todayW:0;
+    const r=bibleFillFrom(c,i,Math.max(0,a.allow-pre),function(id){return !!done[id];});
+    r.ids.forEach(function(id){done[id]=1;});
+    i=r.nextIdx;
+    consumed+=r.words+pre;
+    out.push({date:key,day:day,ids:r.ids,words:r.words,allow:a.allow,carry:a.carry});
+    key=addDaysKey(key,1);day++;}
+  return out;}
 
 function bibleDaysBetween(a,b){return Math.round((keyToDate(b)-keyToDate(a))/86400000);}
 
@@ -2711,7 +2875,7 @@ function renderBiblia(){
     return;}
   if(!S.bible.plan){renderBiblePlanner();return;}
   const _sy=window.scrollY;
-  let html='<div class="seg big">'+
+  let html=bibleVerseCardHtml()+'<div class="seg big">'+
     '<button data-bt="ma" class="'+(bibleTab==="ma"?"active":"")+'">Ma</button>'+
     '<button data-bt="olvaso" class="'+(bibleTab==="olvaso"?"active":"")+'">Olvasó</button>'+
     '<button data-bt="stat" class="'+(bibleTab==="stat"?"active":"")+'">Statisztika</button></div>';
@@ -2728,13 +2892,11 @@ function renderBiblia(){
 function bibleMaTargets(p){
   if(bibleMa.date!==TODAY)bibleMa={date:TODAY,ids:[]};
   if(!bibleMa.ids.length){
-    const c=computeBiblePlan(p),budget=c.dailyWordBudget;
-    const set={},out=[];let w=0;
-    c.list.forEach(function(ch){if(p.read[ch.id]===TODAY){set[ch.id]=1;out.push(ch.id);w+=ch.words;}});
-    buildDailyReading(p).ids.forEach(function(id){
-      if(set[id])return;
-      if(out.length&&w>=budget)return;              /* ne nőjön a holnapi adagba, ha ma már megvan a keret */
-      set[id]=1;out.push(id);w+=(c.byId[id]?c.byId[id].words:0);});
+    const c=computeBiblePlan(p);
+    const set={},out=[];
+    c.list.forEach(function(ch){if(p.read[ch.id]===TODAY){set[ch.id]=1;out.push(ch.id);}});
+    /* buildDailyReading már figyelembe veszi a ma bejelölteket a keretben */
+    buildDailyReading(p).ids.forEach(function(id){if(!set[id]){set[id]=1;out.push(id);}});
     out.sort(function(a,b){return c.pos[a]-c.pos[b];});
     bibleMa.ids=out;}
   return bibleMa.ids.slice();}
@@ -2748,24 +2910,127 @@ function bibleMaHtml(){
        '<div class="rub-actions" style="margin-top:12px"><button class="btn ghost sm" id="bNewPlan">Új terv indítása</button></div>';
   }else{
     const c=pr.c,ids=bibleMaTargets(p),un=bibleUnitNoun(p);
-    let doneN=0,doneW=0;
-    ids.forEach(function(id){const ww=c.byId[id]?c.byId[id].words:0;if(p.read[id]){doneN++;doneW+=ww;}});
-    h+='<div class="hint" style="line-height:1.6">Pipáld ki, ameddig ma eljutottál — <b>'+bibleUnitAdverb(p)+'</b>. Kevesebbet olvastál? Csak a megfelelőt jelöld. Többet? A lenti gombbal <b>bővítsd a listát</b>.</div>';
-    h+='<div class="bible-daylist">'+ids.map(function(id){
-        const on=!!p.read[id];
-        return '<label class="bd-it'+(on?' done':'')+'"><input type="checkbox" data-bday="'+id+'"'+(on?' checked':'')+'>'+esc(bibleChLabel(id))+'</label>';}).join("")+'</div>';
-    h+='<button class="bd-more" id="bMaMore">+ Következő '+un+' a listához</button>';
-    h+='<div class="hint" style="margin-top:9px"><b>'+doneN+'</b> / '+ids.length+' '+un+' bejelölve · ≈ '+Math.max(0,Math.round(doneW/c.wpm))+' perc olvasva ma</div>';
-    h+='<div class="rub-actions" style="margin-top:10px"><button class="btn ghost sm" id="bMaAll">Mind bejelöl ✓</button><button class="btn ghost sm" id="bReadOpen">📖 Megnyitom az olvasóban</button></div>';
+    let doneN=0,doneW=0,totW=0;
+    ids.forEach(function(id){const ww=c.byId[id]?c.byId[id].words:0;totW+=ww;if(p.read[id]){doneN++;doneW+=ww;}});
+    if(ids.length){
+      /* teljes mai igehely-lista: összefoglaló fejléc + tételes, pipálható lista */
+      h+='<div class="bday-sum">'+esc(bibleSpanLabel(c,ids))+'</div>';
+      h+='<div class="hint" style="margin-top:5px">'+ids.length+' '+un+' · '+Math.round(totW).toLocaleString("hu-HU")+' szó · ≈ '+bibleMinLabel(totW/c.wpm)+'</div>';
+      h+='<div class="hint" style="margin-top:10px;line-height:1.6">Pipáld ki, ameddig ma eljutottál — <b>'+bibleUnitAdverb(p)+'</b>. Kevesebbet olvastál? Csak a megfelelőt jelöld. Többet? A lenti gombbal <b>bővítsd a listát</b>.</div>';
+      h+='<div class="bible-daylist">'+ids.map(function(id){
+          const on=!!p.read[id],sg=c.byId[id];
+          return '<label class="bd-it'+(on?' done':'')+'"><input type="checkbox" data-bday="'+id+'"'+(on?' checked':'')+'>'+esc(bibleChLabel(id))+(sg?'<span style="color:var(--muted-2);font-weight:400"> · '+Math.max(1,Math.round(sg.words/c.wpm))+'p</span>':'')+'</label>';}).join("")+'</div>';
+      h+='<button class="bd-more" id="bMaMore">+ Következő '+un+' a listához</button>';
+      h+='<div class="hint" style="margin-top:9px"><b>'+doneN+'</b> / '+ids.length+' '+un+' bejelölve · ≈ '+Math.max(0,Math.round(doneW/c.wpm))+' perc olvasva ma</div>';
+      h+='<div class="rub-actions" style="margin-top:10px"><button class="btn ghost sm" id="bMaAll">Mind bejelöl ✓</button><button class="btn ghost sm" id="bReadOpen">📖 Megnyitom az olvasóban</button></div>';
+    }else{
+      h+='<div style="font-size:15px;line-height:1.6">✅ <b>Ma nincs esedékes '+un+'</b> — a korábbi napokon <b>előre olvastál</b>, ezért a terv mára pihenőt ad.</div>';
+      h+='<div class="hint" style="margin-top:8px">Ha most is szeretnél olvasni, vedd fel a következőt — a keret holnap ennyivel kevesebb lesz.</div>';
+      h+='<button class="bd-more" id="bMaMore">+ Következő '+un+' a listához</button>';
+      h+='<div class="rub-actions" style="margin-top:10px"><button class="btn ghost sm" id="bReadOpen">📖 Megnyitom az olvasóban</button></div>';
+    }
+    if(d.spill)
+      h+='<div class="hint" style="margin-top:10px;color:var(--muted-2);line-height:1.6">A következő '+un+' (<b>'+esc(bibleChLabel(d.spill.id))+'</b>) már a <b>holnapi</b> adag: mára csak a '+Math.round(d.spill.fits/d.spill.words*100)+'%-a férne bele, a felénél kevesebb.</div>';
   }
   h+='</div>';
   h+=bibleQuizCardHtml();
-  h+='<div class="section-title">Haladás</div><div class="card" style="padding:16px">'+bibleProgressHtml(pr)+'</div>';
+  h+='<div class="section-title">Haladás</div><div class="card" style="padding:16px">'+bibleProgressHtml(pr)+
+     '<details class="advanced"><summary>📊 Részletes haladás<span class="chev">›</span></summary><div class="adv-body">'+
+     bibleProgressDetailHtml(pr)+'</div></details></div>';
   h+='<div class="section-title">Terv</div><div class="card" style="padding:16px">'+
-     '<div class="hint" style="line-height:1.7">'+esc(bibleModeName(p))+' · napi ≈ <b>'+bibleMinLabel(pr.c.dailyMinutes)+'</b> ('+pr.c.avgChaptersDay.toFixed(1).replace(".",",")+' '+bibleUnitNoun(p)+') · '+
+     '<div class="hint" style="line-height:1.7">'+esc(bibleModeName(p))+' · napi ≈ <b>'+bibleMinLabel(pr.c.dailyMinutes)+'</b> = <b>'+bibleNumHu(pr.c.dailyWordBudget)+' szó</b> · '+
      'olvasási sebesség <b>'+Math.round(pr.c.wpm)+'</b> szó/perc'+(S.bible.calib.wpm?' (kalibrált)':'')+'<br>Indulás: '+esc(p.startDate)+'</div>'+
+     '<div class="hint" style="margin-top:7px;color:var(--muted-2);line-height:1.6">A napi '+bibleUnitNoun(p)+'szám <b>változik</b> (a Zsoltárokban sok rövid, Lukácsban 2–3 hosszú '+bibleUnitNoun(p)+' fér bele) — a napi <b>idő</b> marad ennyi.</div>'+
+     '<details class="advanced"><summary>🧮 Hogyan jön ki a napi adag?<span class="chev">›</span></summary><div class="adv-body">'+
+     bibleCalcHtml(p,pr.c,d)+'</div></details>'+
+     '<details class="advanced"><summary>📅 Következő napok<span class="chev">›</span></summary><div class="adv-body">'+
+     bibleForecastHtml(p,pr.c)+'</div></details>'+
      '<div class="rub-actions" style="margin-top:12px"><button class="btn ghost sm" id="bEditPlan">Terv módosítása</button><button class="btn ghost sm" id="bStartPt">📍 Hol tartok most?</button><button class="btn ghost sm" id="bCalib">⏱ Olvasási idő kalibrálása</button></div>'+
      (pr.baseCh?'<div class="hint" style="margin-top:9px;color:var(--muted-2)">'+pr.baseCh+' '+bibleUnitNoun(p)+' az app előtt olvasottként jelöltél — beleszámít a haladásba, de nem a napi sorozatba.</div>':'')+'</div>';
+  return h;}
+
+/* ---- „Mit jelent a napi keret az egyes könyvekben?" — ez teszi láthatóvá, hogy a
+   napi adag SZÓRA megy, nem fejezetszámra: ugyanaz a perc a Zsoltárokban sok rövid
+   fejezet, Lukácsban 2 hosszú. ---------------------------------------------------- */
+const BIBLE_PACE_BOOKS=["PSA","PRO","GEN","ISA","MAT","LUK","JHN","ROM","REV"];
+function biblePaceRows(c){
+  const agg={};
+  c.list.forEach(function(seg){const a=agg[seg.book]||(agg[seg.book]={w:0,n:0});a.w+=seg.words;a.n++;});
+  const out=[];
+  BIBLE_PACE_BOOKS.forEach(function(bk){
+    const a=agg[bk];if(!a||a.n<3)return;
+    const avg=a.w/a.n;
+    out.push({book:bk,avg:avg,perDay:c.dailyWordBudget/avg});});
+  return out;}
+function biblePaceHtml(p,c){
+  const rows=biblePaceRows(c),un=bibleUnitNoun(p);
+  if(rows.length<2)return "";
+  function fmt(x){return x>=10?Math.round(x):(Math.round(x*10)/10).toString().replace(".",",");}
+  let h='<div class="bcalc" style="margin-top:10px">'+
+    '<div class="bcalc-r sum"><span>Ugyanez a napi keret könyvenként</span><b>'+bibleMinLabel(c.dailyMinutes)+'</b></div>';
+  rows.forEach(function(r){
+    h+='<div class="bcalc-r"><span>'+esc(bibleBookName(r.book))+' <span style="color:var(--muted-2)">('+Math.round(r.avg)+' szó/'+un+')</span></span><b>≈ '+fmt(r.perDay)+' '+un+'</b></div>';});
+  h+='</div>';
+  return h;}
+
+/* ---- Terv-levezetés: percből szó, szóból nap, és a kerekítési szabály ---- */
+function bibleNumHu(n){return Math.round(n).toLocaleString("hu-HU");}
+function bibleCalcHtml(p,c,d){
+  const un=bibleUnitNoun(p);
+  let h='<div class="bcalc">'+
+    '<div class="bcalc-r"><span>Napi olvasási idő</span><b>'+bibleMinLabel(c.dailyMinutes)+'</b></div>'+
+    '<div class="bcalc-r"><span>Olvasási sebesség</span><b>'+Math.round(c.wpm)+' szó/perc</b></div>'+
+    '<div class="bcalc-r sum"><span>Napi keret ('+bibleMinLabel(c.dailyMinutes)+' × '+Math.round(c.wpm)+')</span><b>'+bibleNumHu(c.dailyWordBudget)+' szó/nap</b></div>'+
+    '<div class="bcalc-r"><span>'+esc(bibleScopeName(p.scope))+'</span><b>'+c.list.length+' '+un+'</b></div>'+
+    '<div class="bcalc-r"><span>Összes szó</span><b>'+bibleNumHu(c.totalW)+' szó</b></div>'+
+    '<div class="bcalc-r sum"><span>'+bibleNumHu(c.totalW)+' ÷ '+bibleNumHu(c.dailyWordBudget)+'</span><b>≈ '+Math.ceil(c.plannedDays)+' nap · '+bibleMonthsLabel(c.targetMonths)+'</b></div>'+
+    '</div>';
+  h+='<div class="hint" style="margin-top:11px;line-height:1.7">A napi adag <b>szóra</b> megy, nem '+un+'számra: minden nap annyi '+un+'t kapsz, amennyi kiadja a napi keretet. Ezért a '+un+'szám könyvenként erősen változik, az <b>idő viszont nagyjából állandó</b>.</div>';
+  h+=biblePaceHtml(p,c);
+  h+='<div class="hint" style="margin-top:11px;line-height:1.7">Fél '+un+'-et nem olvasunk, ezért a napi adag ingadozik. Ha egy '+un+' <b>átlógna</b> a napi kereten: <b>ma</b> kapod meg, ha még legalább a <b>fele</b> belefér — ha kevesebb, <b>holnapra</b> kerül. A különbséget a rendszer másnap <b>korrigálja</b> (legfeljebb egynapi adaggal), így a lekerekítések kiegyenlítődnek, és a terv a kitűzött időre elkészül.</div>';
+  if(d&&!d.finished){
+    const cr=Math.round(d.carry);
+    h+='<div class="hint" style="margin-top:9px;line-height:1.7"><b>Mai keret:</b> '+bibleNumHu(d.allow)+' szó'+
+       (Math.abs(cr)>=1?(' &nbsp;=&nbsp; '+bibleNumHu(d.budget)+' '+(cr>0?'+':'−')+' '+bibleNumHu(Math.abs(cr))+' korrekció'+
+         (cr>0?' <span style="color:var(--muted-2)">(eddig kevesebbet olvastál a tervezettnél)</span>'
+              :' <span style="color:var(--muted-2)">(eddig többet olvastál a tervezettnél)</span>')):'')+
+       (d.todayWords?'<br>Ebből ma már bejelölve: <b>'+bibleNumHu(d.todayWords)+' szó</b>.':'')+'</div>';}
+  return h;}
+
+/* ---- Következő napok: ugyanaz az algoritmus előre szimulálva ---- */
+function bibleForecastHtml(p,c){
+  const f=bibleForecast(p,c,14),un=bibleUnitNoun(p);
+  if(!f.length)return '<div class="hint">Nincs több olvasnivaló a tervben. 🎉</div>';
+  let h='<div class="hint" style="margin-bottom:9px">A terv szerinti következő napok. Ha előrébb vagy hátrébb tartasz, ez napról napra újraszámolódik.</div><div class="bfc">';
+  f.forEach(function(d,i){
+    h+='<div class="bfc-row'+(i===0?' now':'')+'">'+
+       '<div class="bfc-d">'+(i===0?'<span class="bfc-tag">ma</span> ':'')+esc(bibleShortDate(d.date))+'</div>'+
+       '<div class="bfc-c">'+(d.ids.length?esc(bibleSpanLabel(c,d.ids)):'<span style="color:var(--muted-2)">— pihenő</span>')+'</div>'+
+       '<div class="bfc-m">'+(d.ids.length?('<b style="color:var(--ink)">'+Math.max(1,Math.round(d.words/c.wpm))+'p</b><br><span style="font-size:10.5px">'+d.ids.length+' '+(un==="szakasz"?"szak.":"fej.")+'</span>'):'')+'</div></div>';});
+  h+='</div>';
+  return h;}
+
+/* ---- Részletes haladás: tervezett vs. tényleges, szó- és nap-szinten ---- */
+function bibleProgressDetailHtml(pr){
+  const p=S.bible.plan,c=pr.c,un=bibleUnitNoun(p);
+  const plannedW=c.totalW*pr.plannedPct;
+  const diffW=pr.readWords-plannedW;
+  const remW=Math.max(0,c.totalW-pr.readWords);
+  const targetDays=Math.ceil(c.plannedDays);
+  const targetKey=addDaysKey(p.startDate,Math.min(3650,targetDays));
+  const leftDays=Math.max(0,bibleDaysBetween(TODAY,targetKey));
+  const needPerDay=leftDays>0?remW/leftDays:remW;
+  let h='<div class="bcalc">'+
+    '<div class="bcalc-r"><span>Indulás óta eltelt</span><b>'+pr.elapsed+' nap</b></div>'+
+    '<div class="bcalc-r"><span>Tervezett a mai nap végéig</span><b>'+bibleNumHu(plannedW)+' szó</b></div>'+
+    '<div class="bcalc-r"><span>Eddig elolvasva</span><b>'+bibleNumHu(pr.readWords)+' szó</b></div>'+
+    '<div class="bcalc-r sum"><span>Különbség</span><b>'+(diffW>=0?'+':'−')+bibleNumHu(Math.abs(diffW))+' szó · '+(pr.deltaDays>=0?'+':'−')+Math.abs(pr.deltaDays)+' nap</b></div>'+
+    '<div class="bcalc-r"><span>Hátralévő</span><b>'+pr.remCh+' '+un+' · '+bibleNumHu(remW)+' szó</b></div>'+
+    '<div class="bcalc-r"><span>Eredeti céldátum</span><b>'+esc(bibleMidDate(targetKey))+'</b></div>'+
+    '<div class="bcalc-r"><span>Ehhez mostantól</span><b>'+bibleNumHu(needPerDay)+' szó/nap · ≈ '+bibleMinLabel(needPerDay/c.wpm)+'</b></div>'+
+    '<div class="bcalc-r"><span>Jelenlegi tempóddal</span><b>'+esc(bibleNiceDate(pr.finishKey))+'</b></div>'+
+    '</div>';
+  if(pr.baseCh)h+='<div class="hint" style="margin-top:9px;color:var(--muted-2)">A kiindulóponttal megjelölt '+pr.baseCh+' '+un+' beleszámít a haladásba, de nem a napi tempóba.</div>';
   return h;}
 
 function bibleProgressHtml(pr){
@@ -2977,9 +3242,13 @@ function bibleClamp(v,lo,hi){return Math.max(lo,Math.min(hi,v));}
 
 function bibleReadoutHtml(c,d){
   const un=bibleUnitNoun(d);
-  return '≈ napi <b>'+bibleMinLabel(c.dailyMinutes)+'</b> · ≈ <b>'+c.avgChaptersDay.toFixed(1).replace(".",",")+' '+un+'</b> átlagosan<br>'+
+  const rows=biblePaceRows(c);
+  function fmt(x){return x>=10?Math.round(x):(Math.round(x*10)/10).toString().replace(".",",");}
+  const ex=rows.slice(0,3).map(function(r){return bibleBookName(r.book)+' ≈ '+fmt(r.perDay);}).join(" · ");
+  return '≈ napi <b>'+bibleMinLabel(c.dailyMinutes)+'</b> = <b>'+Math.round(c.dailyWordBudget).toLocaleString("hu-HU")+' szó</b><br>'+
     'Ezzel a tempóval <b>'+bibleMonthsLabel(c.targetMonths)+'</b> alatt végzel ('+Math.round(c.plannedDays)+' nap).<br>'+
-    '<span style="color:var(--muted)">'+bibleScopeName(d.scope)+': '+c.list.length+' '+un+', '+c.totalW.toLocaleString("hu-HU")+' szó · '+Math.round(c.dailyWordBudget)+' szó/nap</span>';}
+    '<span style="color:var(--muted)">'+bibleScopeName(d.scope)+': '+c.list.length+' '+un+', '+c.totalW.toLocaleString("hu-HU")+' szó</span>'+
+    (ex?'<br><span style="color:var(--muted-2)">A napi '+un+'szám könyvenként változik: '+esc(ex)+' '+un+'/nap.</span>':'');}
 
 /* skip = annak a mezőnek az id-je, amibe a felhasználó ÉPPEN gépel (azt nem írjuk felül) */
 function bibleSyncSliders(skip){
@@ -3989,6 +4258,14 @@ function bindCycDay(dayKey){
 
 /* --- „Mi újult meg?" (közérthető változásnapló) --- */
 const CHANGELOG=[
+ {v:3,title:"📖 Biblia — napi ige és átlátható terv",items:[
+   "A Biblia fül tetején mostantól <b>minden nap más igevers</b> köszönt — mind arról szól, hogy <b>nem mindegy, hogyan</b> olvassuk és hallgatjuk az Igét. 51 vers váltakozik (Károli).",
+   "A <b>Mai olvasmány</b> kártya fejlécén egy pillantással látod az <b>összes mai igehelyet</b> (pl. „1Mózes 12–18”), a fejezetszámot, a szószámot és a becsült időt — alatta pedig továbbra is tételesen kipipálható minden fejezet.",
+   "Új, <b>fél-fejezet szabály</b>: ha egy fejezet átlógna a napi kereten, akkor kapod meg <b>ma</b>, ha még legalább a <b>fele</b> belefér — ha kevesebb, <b>holnapra</b> csúszik. A rendszer a különbséget másnap <b>korrigálja</b>, így a terv a kitűzött időre elkészül.",
+   "A <b>Terv</b> kártyán lenyitható a <b>„🧮 Hogyan jön ki a napi adag?”</b> — tételesen levezetve, hogy a napi percből és a szó/perc sebességből hogyan lesz napi keret, abból hány nap, és mennyi ma a keret.",
+   "Szintén lenyitható a <b>„📅 Következő napok”</b>: a következő két hét fejezetei naponta, dátummal és becsült idővel.",
+   "A <b>Haladás</b> kártyán a <b>„📊 Részletes haladás”</b> megmutatja a tervezett és a tényleges szószámot, az eltérést napban, az eredeti céldátumot, és hogy ahhoz mostantól napi mennyit kellene olvasnod.",
+   "Világosabb lett, hogy a napi adag <b>szóra</b> megy, nem fejezetszámra: ugyanaz a napi 10 perc a Zsoltárokban ~10–17 fejezet, Lukácsban 2 — mert a fejezetek hossza nagyon eltér. A Terv kártya és a levezetés ezt most <b>könyvenkénti táblázattal</b> is megmutatja."]},
  {v:2,title:"🌸 Ciklusnaptár — nagy frissítés",items:[
    "Mostantól <b>bármelyik korábbi napra</b> beállíthatod, hogy „itt kezdődött a menstruáció”, és egy másik napon, hogy „eddig tartott” — a <b>köztes napok automatikusan</b> menstruációsak lesznek.",
    "A <b>vérzés erőssége</b> csak menstruációs napon kérdez rá (ott, ahol van értelme).",
@@ -4007,12 +4284,22 @@ function whatsNewHtml(fromV){
   let h='<button class="close-x" id="mClose">✕</button><h3>✨ Mi újult meg?</h3><p class="hint" style="margin:-4px 0 14px">Frissült az app. Röviden, közérthetően, mi változott:</p>';
   for(const c of items){h+='<div class="whatsnew-block"><div class="whatsnew-h">'+c.title+'</div><ul class="whatsnew-list">';for(const it of c.items)h+='<li>'+it+'</li>';h+='</ul></div>';}
   return h+'<button class="btn wide" id="wnClose" style="margin-top:6px">Értem, köszönöm</button>';}
-function showWhatsNew(fromV){const h=whatsNewHtml(fromV);if(!h)return;openModal(h);const b=document.getElementById("wnClose");if(b)b.onclick=()=>closeScreen();}
+/* A „látott” jelölés CSAK akkor íródik ki, ha a felhasználó ténylegesen bezárta a
+   panelt — így ha közben kilép, a ki nem olvasott körök legközelebb újra előjönnek.
+   A panel mindig az ÖSSZES még nem látott kört mutatja, nem csak a legutolsót. */
+let _wnPendingSeen=null;
+function showWhatsNew(fromV){
+  const h=whatsNewHtml(fromV);if(!h)return false;
+  openModal(h);
+  const ack=function(){if(_wnPendingSeen!=null){Store.set("sl_changelog_seen",String(_wnPendingSeen));_wnPendingSeen=null;}};
+  const b=document.getElementById("wnClose");if(b)b.onclick=()=>{ack();closeScreen();};
+  const x=document.getElementById("mClose");if(x)x.onclick=()=>{ack();closeScreen();};
+  return true;}
 function maybeShowWhatsNew(){
   const latest=CHANGELOG.reduce((m,c)=>Math.max(m,c.v),0);
   let seen=Number(Store.get("sl_changelog_seen"));
   if(!Number.isFinite(seen))seen=S.onboarded?0:latest;
-  if(S.onboarded&&seen<latest)showWhatsNew(seen);
+  if(S.onboarded&&seen<latest){_wnPendingSeen=latest;if(showWhatsNew(seen))return;_wnPendingSeen=null;}
   Store.set("sl_changelog_seen",String(latest));}
 
 /* ---- NAV ---- */
@@ -4065,7 +4352,7 @@ window.SL={getState:()=>S,
 /* =========================================================================
    2. RÉTEG — témák, súgó, tutorial, indokok, ünneplés, visszajelzés
    ========================================================================= */
-const APP_VERSION="v11";
+const APP_VERSION="v12";
 
 /* ---- témák ---- */
 const THEMES=[{id:"kert",name:"Üvegház",sw:"#2D6A4F"},{id:"papir",name:"Letisztult",sw:"#1B4332"},{id:"krem",name:"Papír",sw:"#B5852B"},{id:"arany",name:"Arany éj",sw:"#E5A83B"},{id:"erdo",name:"Erdő",sw:"#5FD08A"},{id:"ocean",name:"Óceán",sw:"#4FB0E5"},{id:"naplemente",name:"Naplemente",sw:"#E5744F"},{id:"ejjel",name:"Éjszakai",sw:"#C79A46"},{id:"film",name:"Filmvászon",sw:"#D8D8D8"}];
@@ -4420,7 +4707,7 @@ function renderFiok(){const el=document.getElementById("tab-fiok");
   document.getElementById("saveGemini").onclick=()=>{GKEY=document.getElementById("setGemini").value.trim();Store.set("gemini_key",GKEY);const _m=document.getElementById("setModel");if(_m){GMODEL=_m.value.trim()||GEMINI_MODEL;Store.set("gemini_model",GMODEL);}toast("Mentve");};
   document.getElementById("fbSend").onclick=(e)=>sendFeedback(document.getElementById("fbText").value,document.getElementById("fbContact").value,e.target);
   document.getElementById("installBtn").onclick=doInstall;
-  const wn=document.getElementById("whatsNewBtn");if(wn)wn.onclick=()=>{const h=whatsNewHtml(-1);if(h){openModal(h);const b=document.getElementById("wnClose");if(b)b.onclick=()=>closeScreen();}else toast("Nincs újdonság");};
+  const wn=document.getElementById("whatsNewBtn");if(wn)wn.onclick=()=>{if(!showWhatsNew(-1))toast("Nincs újdonság");};
   document.getElementById("resetData").onclick=()=>{if(confirm("Biztos törlöd az ÖSSZES adatot ezen az eszközön? Nem visszavonható.")){
     S=blank();S.onboarded=true;S.updatedAt=Date.now();
     Store.set("szintlepo3",JSON.stringify(S));Store.set("szintlepo2","");Store.set("szintlepo","");Store.set("maSeg","napi");
