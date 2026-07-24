@@ -4347,7 +4347,8 @@ const CHANGELOG=[
  {v:4,title:"🛟 Adatbiztonság — soha többé eltűnő adat",items:[
    "Javítottunk egy <b>súlyos szinkron-hibát</b>: ha egy <b>új eszközön</b> nyitottad meg az appot és beléptél, az ottani <b>üres</b> állapot „frissebbnek” számított, és <b>felülírta a felhőt</b> — onnan pedig a telefonodat is. Mostantól <b>üres állapot soha nem írhat felül</b> meglévő adatot, egyik irányba sem.",
    "Ha a két oldal érdemben eltér, az app <b>megkérdez</b>, és megmutatja mindkettőt (hány cél, hány nap, mikori) — magától <b>semmit nem töröl</b>.",
-   "Új <b>🛟 Biztonsági mentések</b> a Fiók fülön: az app <b>naponta</b> és minden kockázatos lépés előtt (szinkron, importálás, törlés) pillanatképet készít <b>az eszközön</b>, belépve pedig <b>a felhőbe</b> is — 14 napra visszamenőleg. Bármelyik <b>egy koppintással visszaállítható</b>.",
+   "Új <b>🛟 Biztonsági mentések</b> a Fiók fülön: az app <b>naponta</b> és minden kockázatos lépés előtt (szinkron, importálás, törlés) pillanatképet készít <b>az eszközön</b>, belépve pedig <b>a felhőbe</b> is — visszamenőleg. Bármelyik <b>egy koppintással visszaállítható</b>.",
+   "Új: <b>Google Drive mentés</b> — bekapcsolható a Fiók fülön (🛟 Biztonsági mentések → Google Drive). Az app a <b>saját Drive-odba</b> is ment egy „Trellis mentések” mappába — ez egy tőlünk <b>teljesen független</b> másolat, amit te is elérsz.",
    "A „Minden adat törlése” mostantól külön rákérdez, hogy a <b>felhőből</b> is töröljön-e."]},
  {v:3,title:"📖 Biblia — napi ige és átlátható terv",items:[
    "A Biblia fül tetején mostantól <b>minden nap más igevers</b> köszönt — mind arról szól, hogy <b>nem mindegy, hogyan</b> olvassuk és hallgatjuk az Igét. 51 vers váltakozik (Károli).",
@@ -4493,7 +4494,7 @@ function askCloudConflict(remote,api){
 /* =========================================================================
    2. RÉTEG — témák, súgó, tutorial, indokok, ünneplés, visszajelzés
    ========================================================================= */
-const APP_VERSION="v14";
+const APP_VERSION="v15";
 
 /* ---- témák ---- */
 const THEMES=[{id:"kert",name:"Üvegház",sw:"#2D6A4F"},{id:"papir",name:"Letisztult",sw:"#1B4332"},{id:"krem",name:"Papír",sw:"#B5852B"},{id:"arany",name:"Arany éj",sw:"#E5A83B"},{id:"erdo",name:"Erdő",sw:"#5FD08A"},{id:"ocean",name:"Óceán",sw:"#4FB0E5"},{id:"naplemente",name:"Naplemente",sw:"#E5744F"},{id:"ejjel",name:"Éjszakai",sw:"#C79A46"},{id:"film",name:"Filmvászon",sw:"#D8D8D8"}];
@@ -4810,7 +4811,8 @@ function shareApp(){
       .catch(()=>{window.location.href="mailto:?subject="+encodeURIComponent("Trellis")+"&body="+encodeURIComponent(full);});
   }else{window.location.href="mailto:?subject="+encodeURIComponent("Trellis")+"&body="+encodeURIComponent(full);}}
 
-/* ---- Biztonsági mentések (helyi + felhő) ---- */
+/* ---- Biztonsági mentések (helyi + felhő + Drive) ---- */
+const DRIVE_FOLDER_NAME="Trellis mentések";
 const BAK_TAGS={napi:"napi automatikus","felho-elott":"felhő-szinkron előtt","import-elott":"importálás előtt",
   "torles-elott":"törlés előtt",utkozes:"eltérés észlelve","visszaallitas-elott":"visszaállítás előtt",
   "eszkoz-elott":"eszköz felülírása előtt","mento":"mentőoldalról",kezi:"kézi mentés"};
@@ -4839,6 +4841,7 @@ function showBackups(){
       '<button class="btn ghost sm" data-bakloc="'+i+'">Visszaállítás</button></div>';
   });
   html+='<div class="section-title" style="margin-top:14px">Felhőben</div><div id="bakCloud"><div class="hint">Betöltés…</div></div>';
+  html+='<div class="section-title" style="margin-top:14px">Google Drive <span class="hint" style="font-weight:400">(független másolat)</span></div><div id="bakDrive"><div class="hint">Betöltés…</div></div>';
   html+='<button class="btn ghost wide sm" id="bakNow" style="margin-top:14px">Pillanatkép készítése most</button>';
   openModal(html);
   document.querySelectorAll("[data-bakloc]").forEach(btn=>{btn.onclick=()=>{
@@ -4867,6 +4870,58 @@ function showBackups(){
       const b=list[Number(btn.dataset.bakcl)];const d=b.data&&b.data.state;
       if(d)restoreState(d,"felhő-mentés – "+b.id);};});
   }).catch(e=>{cb.innerHTML='<div class="hint">A felhő-mentések nem érhetők el ('+(e.code||e.message)+').</div>';});
+  renderDriveSection();
+}
+
+/* ---- Google Drive szekció a mentés-panelben ---- */
+function driveWhen(iso){try{return new Date(iso).toLocaleString("hu-HU");}catch(e){return iso||"—";}}
+function renderDriveSection(){
+  const db=document.getElementById("bakDrive");if(!db)return;
+  const D=window.Cloud&&window.Cloud.drive;
+  if(!(D&&D.configured)){db.innerHTML='<div class="hint">A Drive-mentés ebben a példányban nincs beállítva.</div>';return;}
+  if(!cloudUser){db.innerHTML='<div class="hint">Előbb jelentkezz be Google-fiókkal (fent), utána kapcsolható a Drive-mentés.</div>';return;}
+  if(!D.isOn()){
+    db.innerHTML='<div class="hint" style="margin-bottom:8px">Kapcsold be, hogy az app a saját Google Drive-odba is mentsen egy „<b>'+DRIVE_FOLDER_NAME+'</b>" mappába — ez a Firebase-től független, általad is elérhető másolat.</div>'+
+      '<button class="btn wide sm" id="drvOn">🟢 Google Drive mentés bekapcsolása</button>';
+    document.getElementById("drvOn").onclick=async()=>{
+      toast("Drive engedélyezése…");
+      try{const okc=await D.connect();
+        if(okc){await D.backupNow(cloudCopy());toast("Drive-mentés bekapcsolva ✓","win");renderDriveSection();}
+        else toast("Nem sikerült a Drive-engedély","down");
+      }catch(e){toast("Drive hiba: "+(e.message||e),"down");}
+    };
+    return;
+  }
+  // Be van kapcsolva:
+  db.innerHTML='<div class="rub-actions" style="margin-bottom:8px"><button class="btn sm" id="drvNow">Mentés a Drive-ra most</button><button class="btn ghost sm" id="drvOff">Kikapcsolás</button></div><div id="drvList"><div class="hint">Lista betöltése…</div></div>';
+  document.getElementById("drvOff").onclick=()=>{if(confirm("Kikapcsolod a Drive-mentést? A Drive-ban lévő fájlok megmaradnak."))
+    {D.disable();renderDriveSection();toast("Drive-mentés kikapcsolva");}};
+  document.getElementById("drvNow").onclick=async()=>{
+    toast("Mentés a Drive-ra…");
+    try{
+      if(!D.ready()){const okc=await D.connect();if(!okc){toast("Előbb engedélyezd a Drive-ot","down");return;}}
+      const okb=await D.backupNow(cloudCopy());
+      toast(okb?"Elmentve a Drive-ra ✓":"Nincs mit menteni",okb?"win":null);
+      renderDriveSection();
+    }catch(e){toast("Drive hiba: "+(e.message||e),"down");}
+  };
+  const listEl=document.getElementById("drvList");
+  const fill=()=>D.list().then(files=>{
+    if(!files.length){listEl.innerHTML='<div class="hint">Még nincs Drive-mentés — koppints a „Mentés a Drive-ra most" gombra.</div>';return;}
+    let h='';files.forEach((f,i)=>{h+='<div class="card" style="padding:12px;margin-bottom:8px"><b>'+esc(f.name)+'</b>'+
+      '<div class="hint" style="margin:4px 0">'+driveWhen(f.modifiedTime)+'</div>'+
+      '<button class="btn ghost sm" data-drv="'+i+'">Visszaállítás</button></div>';});
+    listEl.innerHTML=h;
+    listEl.querySelectorAll("[data-drv]").forEach(btn=>{btn.onclick=async()=>{
+      try{toast("Letöltés a Drive-ról…");const obj=await D.download(files[Number(btn.dataset.drv)].id);
+        restoreState(obj,"Drive-mentés – "+files[Number(btn.dataset.drv)].name);
+      }catch(e){toast("Drive hiba: "+(e.message||e),"down");}};});
+  }).catch(e=>{
+    if((e&&e.message)==="drive-auth")listEl.innerHTML='<div class="hint">A Drive-hozzáférés lejárt. Koppints a „Mentés a Drive-ra most" gombra az újrakapcsoláshoz.</div>';
+    else listEl.innerHTML='<div class="hint">A Drive-lista nem érhető el ('+(e.message||e)+'). Lehet, hogy a Drive API nincs engedélyezve a projektben.</div>';
+  });
+  if(D.ready())fill();
+  else listEl.innerHTML='<div class="hint">A Drive-kapcsolat ebben a munkamenetben még nincs frissítve. Koppints a „Mentés a Drive-ra most" gombra — utána a lista is megjelenik.</div>';
 }
 
 /* ---- FIÓK (bővített) ---- */
@@ -5020,13 +5075,17 @@ try{
     const {getFirestore,doc,setDoc,getDoc,onSnapshot,collection,addDoc,getDocs,deleteDoc,serverTimestamp}=await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js");
     const app=initializeApp(cfg);const auth=getAuth(app);const db=getFirestore(app);const provider=new GoogleAuthProvider();
     let uid=null,unsub=null,pushT=null;
-    getRedirectResult(auth).catch(()=>{});
+    // Google Drive mentés — a token itt kapható el (a belépés eredményéből).
+    const DRIVE_SCOPE="https://www.googleapis.com/auth/drive.file";
+    let driveToken=null,driveTokenExp=0,driveFolderId=null;
+    function driveCapture(res){try{const c=GoogleAuthProvider.credentialFromResult(res);if(c&&c.accessToken){driveToken=c.accessToken;driveTokenExp=Date.now()+55*60*1000;}}catch(e){}}
+    getRedirectResult(auth).then(r=>{if(r)driveCapture(r);}).catch(()=>{});
     window.Cloud={configured:true,
       sendFeedback:(data)=>addDoc(collection(db,"feedback"),data),
       quizBankGet:(chapterId)=>getDocs(collection(db,"quizbank",chapterId,"questions")).then(s=>{const a=[];s.forEach(d=>a.push(Object.assign({id:d.id},d.data())));return a;}),
       quizBankPut:(chapterId,qid,data)=>uid?setDoc(doc(db,"quizbank",chapterId,"questions",qid),Object.assign({},data,{createdBy:uid,createdAt:serverTimestamp()})):Promise.reject(new Error("no-auth")),
       quizReport:(data)=>uid?addDoc(collection(db,"quizreports"),Object.assign({},data,{uid:uid,ts:serverTimestamp()})):Promise.reject(new Error("no-auth")),
-      signIn:async()=>{try{await signInWithPopup(auth,provider);}catch(e){const c=(e&&e.code)||"";if(c==="auth/popup-blocked"||c==="auth/cancelled-popup-request"||c==="auth/operation-not-supported-in-this-environment"){try{await signInWithRedirect(auth,provider);}catch(e2){alert("Belépési hiba: "+((e2&&e2.code)||(e2&&e2.message)||e2));}}else if(c&&c!=="auth/popup-closed-by-user"){alert("Belépési hiba: "+c);}}},
+      signIn:async()=>{const p=new GoogleAuthProvider();if(localStorage.getItem("sl_driveOn")==="1")p.addScope(DRIVE_SCOPE);try{const res=await signInWithPopup(auth,p);driveCapture(res);}catch(e){const c=(e&&e.code)||"";if(c==="auth/popup-blocked"||c==="auth/cancelled-popup-request"||c==="auth/operation-not-supported-in-this-environment"){try{await signInWithRedirect(auth,p);}catch(e2){alert("Belépési hiba: "+((e2&&e2.code)||(e2&&e2.message)||e2));}}else if(c&&c!=="auth/popup-closed-by-user"){alert("Belépési hiba: "+c);}}},
       signOut:()=>signOut(auth),
       // force = a felhasználó KIFEJEZETTEN kérte (pl. "töröld a felhőből is").
       push:(state,force)=>{
@@ -5060,6 +5119,8 @@ try{
           if(ex&&ex.exists()&&window.SL.weight((ex.data()||{}).state)>w)return;
         }
         await setDoc(ref,{at:Date.now(),weight:w,state:state});
+        // Napi mentésnél a Drive-ra is (ha be van kapcsolva és van érvényes token).
+        if(!tag&&localStorage.getItem("sl_driveOn")==="1"&&driveReady())driveBackup(state).catch(()=>{});
         // Takarítás: a 30 legfrissebb pillanatkép marad (idő szerint).
         const s=await getDocs(collection(db,"users",uid,"backups")).catch(()=>null);
         if(s){const arr=[];s.forEach(d=>arr.push({id:d.id,at:(d.data()||{}).at||0}));
@@ -5068,7 +5129,84 @@ try{
       }catch(e){}
     }
     window.Cloud.backupNow=(state,tag)=>cloudBackup(state,tag||"kezi");
-    window.Cloud.cloudBackupNow=(state)=>cloudBackup(state,null);
+    window.Cloud.cloudBackupNow=(state)=>{cloudBackup(state,null);driveBackup(state).catch(()=>{});};
+
+    /* ===================== Google Drive mentés (látható mappa) =====================
+       Független, a FELHASZNÁLÓ saját Drive-ján lévő másolat — a Firebase-projekttől
+       teljesen elkülönül. A "Trellis mentések" mappában, a felhasználó által is
+       elérhető .json fájlokként. drive.file jogosultság: az app CSAK a saját maga
+       által létrehozott fájlokat látja, a többi Drive-fájlhoz nem fér hozzá. */
+    const DRIVE_FOLDER="Trellis mentések";
+    function driveReady(){return !!driveToken&&Date.now()<driveTokenExp;}
+    async function driveApi(path,opts){
+      opts=opts||{};
+      const r=await fetch("https://www.googleapis.com/"+path,Object.assign({},opts,{
+        headers:Object.assign({Authorization:"Bearer "+driveToken},opts.headers||{})}));
+      if(r.status===401||r.status===403){driveToken=null;const e=new Error("drive-auth");e.status=r.status;throw e;}
+      if(!r.ok){const e=new Error("drive-http-"+r.status);e.status=r.status;throw e;}
+      return r;
+    }
+    async function driveEnsureFolder(){
+      if(driveFolderId)return driveFolderId;
+      const q=encodeURIComponent("mimeType='application/vnd.google-apps.folder' and name='"+DRIVE_FOLDER+"' and trashed=false");
+      const j=await driveApi("drive/v3/files?spaces=drive&fields=files(id,name)&q="+q).then(r=>r.json());
+      if(j.files&&j.files.length){driveFolderId=j.files[0].id;return driveFolderId;}
+      const cj=await driveApi("drive/v3/files",{method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({name:DRIVE_FOLDER,mimeType:"application/vnd.google-apps.folder"})}).then(r=>r.json());
+      driveFolderId=cj.id;return driveFolderId;
+    }
+    async function driveList(){
+      if(!driveReady())return [];
+      const folder=await driveEnsureFolder();
+      const q=encodeURIComponent("'"+folder+"' in parents and trashed=false");
+      const j=await driveApi("drive/v3/files?orderBy=modifiedTime desc&fields=files(id,name,modifiedTime,size)&q="+q).then(r=>r.json());
+      return j.files||[];
+    }
+    async function driveBackup(state){
+      if(!driveReady())return false;
+      if(window.SL.weight(state)===0)return false;
+      const folder=await driveEnsureFolder();
+      const name="trellis-mentes-"+new Date().toISOString().slice(0,10)+".json";
+      // Ha ma már van ilyen nevű fájl, frissítjük; különben újat hozunk létre.
+      const q=encodeURIComponent("'"+folder+"' in parents and name='"+name+"' and trashed=false");
+      const ex=await driveApi("drive/v3/files?fields=files(id)&q="+q).then(r=>r.json()).catch(()=>({}));
+      const payload=JSON.stringify(state);
+      if(ex.files&&ex.files.length){
+        await driveApi("upload/drive/v3/files/"+ex.files[0].id+"?uploadType=media",
+          {method:"PATCH",headers:{"Content-Type":"application/json"},body:payload});
+      }else{
+        const boundary="trellis"+Date.now();
+        const meta=JSON.stringify({name:name,parents:[folder],mimeType:"application/json"});
+        const body="--"+boundary+"\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n"+meta+
+          "\r\n--"+boundary+"\r\nContent-Type: application/json\r\n\r\n"+payload+"\r\n--"+boundary+"--";
+        await driveApi("upload/drive/v3/files?uploadType=multipart&fields=id",
+          {method:"POST",headers:{"Content-Type":"multipart/related; boundary="+boundary},body:body});
+      }
+      // Takarítás: a 30 legfrissebb marad.
+      const lst=await driveList().catch(()=>[]);
+      lst.slice(30).forEach(f=>driveApi("drive/v3/files/"+f.id,{method:"DELETE"}).catch(()=>{}));
+      return true;
+    }
+    async function driveDownload(id){
+      return driveApi("drive/v3/files/"+id+"?alt=media").then(r=>r.json());
+    }
+    async function driveConnect(){
+      const p=new GoogleAuthProvider();p.addScope(DRIVE_SCOPE);
+      const res=await signInWithPopup(auth,p);
+      driveCapture(res);
+      if(driveReady()){localStorage.setItem("sl_driveOn","1");return true;}
+      return false;
+    }
+    window.Cloud.drive={
+      configured:true,
+      isOn:()=>localStorage.getItem("sl_driveOn")==="1",
+      ready:()=>driveReady(),
+      connect:driveConnect,
+      disable:()=>{localStorage.removeItem("sl_driveOn");driveToken=null;},
+      backupNow:(state)=>driveBackup(state),
+      list:driveList,
+      download:driveDownload
+    };
     onAuthStateChanged(auth,async(user)=>{
       uid=user?user.uid:null;
       lastRemoteWeight=0;
