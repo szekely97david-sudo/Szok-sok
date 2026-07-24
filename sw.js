@@ -4,7 +4,7 @@
    - statikus fájlok -> STALE-WHILE-REVALIDATE (azonnal cache-ből, közben frissít háttérben)
    - Firebase/Google -> sose cache, mindig hálózat
    A cache-verziót MINDEN kiadásnál léptesd (v12 -> v13 ...), így az app-shell frissül. */
-const VERSION = "v50";
+const VERSION = "v51";
 const CACHE = "trellis-" + VERSION;
 
 const CORE = [
@@ -63,9 +63,14 @@ self.addEventListener("fetch", e => {
     e.respondWith(
       fetch(req)
         .then(res => {
-          // Friss oldal cache-be a következő offline induláshoz.
-          const copy = res.clone();
-          caches.open(CACHE).then(c => c.put("./index.html", copy)).catch(() => {});
+          // Friss oldal cache-be a következő offline induláshoz — de CSAK az app
+          // főoldalát. (Korábban bármelyik HTML, pl. a mento.html is felülírta az
+          // app-shellt, és offline az a lap jött be az app helyett.)
+          const p = url.pathname;
+          if (p.endsWith("/") || p.endsWith("/index.html")) {
+            const copy = res.clone();
+            caches.open(CACHE).then(c => c.put("./index.html", copy)).catch(() => {});
+          }
           return res;
         })
         .catch(() =>

@@ -847,7 +847,12 @@ nav .nav-in .tabbtn svg{width:20px; height:20px;}
 
 const Store=(()=>{let ok=false,mem={};try{localStorage.setItem("__t","1");localStorage.removeItem("__t");ok=true;}catch(e){}
   return{get(k){try{return ok?localStorage.getItem(k):(mem[k]??null);}catch(e){return mem[k]??null;}},
-         set(k,v){try{ok?localStorage.setItem(k,v):(mem[k]=v);}catch(e){mem[k]=v;}}};})();
+         set(k,v){try{ok?localStorage.setItem(k,v):(mem[k]=v);}catch(e){mem[k]=v;}},
+         // setSafe: true, ha tényleg sikerült kiírni (a biztonsági mentések ezt használják,
+         // hogy a kvóta-hibát észrevegyük és ne higgyük mentettnek a nem mentettet).
+         setSafe(k,v){try{if(!ok){mem[k]=v;return true;}localStorage.setItem(k,v);return true;}catch(e){return false;}},
+         del(k){try{ok?localStorage.removeItem(k):(delete mem[k]);}catch(e){}},
+         keys(){try{if(!ok)return Object.keys(mem);const a=[];for(let i=0;i<localStorage.length;i++)a.push(localStorage.key(i));return a;}catch(e){return[];}}};})();
 
 const GEMINI_MODEL="gemini-2.5-flash";
 const DEF={scaleMax:10,neutral:5,posStep:2,negStep:2,levelBase:20,levelGrow:5,metaFactor:1,todoMeta:6,metaLevelBase:60,metaLevelGrow:10};
@@ -1110,6 +1115,77 @@ function load(){const r=Store.get("szintlepo3");if(r){try{return normalize(JSON.
 function persist(){_missCache=null;Store.set("szintlepo3",JSON.stringify(S));}
 function save(){S.updatedAt=Date.now();persist();if(window.Cloud&&window.Cloud.push&&cloudUser)window.Cloud.push(cloudCopy());}
 function cloudCopy(){return JSON.parse(JSON.stringify(S));} // GKEY nincs S-ben, nem szinkronizál
+
+/* =========================================================================
+   ADATVÉDELEM (2026-07-24) — miért van erre szükség
+   Korábban a felhő-szinkron pusztán az `updatedAt` időbélyeget nézte: "az újabb nyer".
+   Egy ÚJ eszközön az app végigvitte az üdvözlő képernyőt (save() -> updatedAt = most),
+   és belépéskor ez az ÜRES állapot lett a "frissebb" -> felülírta a felhőt, majd az
+   onSnapshot-on át a telefont is. Ezért mostantól:
+     1) tartalom-súly dönt, nem csak az idő (üres SOHA nem ír felül nem-üreset),
+     2) ütközésnél a felhasználó dönt,
+     3) minden veszélyes lépés előtt helyi biztonsági mentés készül.
+   ========================================================================= */
+
+// Egy állapot "tartalom-súlya". 0 = gyakorlatilag üres (friss telepítés).
+function contentWeight(s){
+  if(!s||typeof s!=="object")return 0;
+  let n=0;
+  if(Array.isArray(s.goals))n+=s.goals.length*3;
+  if(s.days)n+=Object.keys(s.days).length;
+  if(s.entries)n+=Object.keys(s.entries).length;
+  if(Array.isArray(s.todos))n+=s.todos.length;
+  if(s.bible&&s.bible.plan&&s.bible.plan.read)n+=Object.keys(s.bible.plan.read).length;
+  if(s.cycle){if(Array.isArray(s.cycle.periods))n+=s.cycle.periods.length;if(Array.isArray(s.cycle.intim))n+=s.cycle.intim.length;}
+  if(s.quickDailyHistory)n+=Object.keys(s.quickDailyHistory).length;
+  return n;
+}
+// Rövid, emberi összefoglaló egy állapotról — az ütközés-párbeszédhez.
+function stateSummary(s){
+  if(!s)return"—";
+  const g=Array.isArray(s.goals)?s.goals.length:0;
+  const d=s.days?Object.keys(s.days).length:0;
+  const e=s.entries?Object.keys(s.entries).length:0;
+  const t=Array.isArray(s.todos)?s.todos.length:0;
+  const when=s.updatedAt?new Date(Number(s.updatedAt)).toLocaleString("hu-HU"):"ismeretlen idő";
+  return g+" cél · "+d+" nap · "+e+" bejegyzés"+(t?" · "+t+" teendő":"")+"<br><span class=\"muted\">utolsó mentés: "+when+"</span>";
+}
+
+/* ---- helyi biztonsági mentések (körforgó) ---- */
+const BAK_PREFIX="sl_bak_", BAK_MAX=6, BAK_BUDGET=1500000; // kb. 1,5 MB összesen
+function bakList(){ // legfrissebb elöl; csak a valódi, időbélyeges pillanatképek
+  return Store.keys().filter(k=>k.indexOf(BAK_PREFIX)===0)
+    .map(k=>({key:k,ts:Number(k.slice(BAK_PREFIX.length).split("_")[0])||0,
+              tag:(k.slice(BAK_PREFIX.length).split("_")[1]||"")}))
+    .filter(b=>b.ts>0)
+    .sort((a,b)=>b.ts-a.ts);
+}
+function bakPrune(){
+  let list=bakList(), total=0, keep=[];
+  for(const b of list){const raw=Store.get(b.key)||"";total+=raw.length;
+    if(keep.length<BAK_MAX&&total<=BAK_BUDGET)keep.push(b.key);else Store.del(b.key);}
+}
+// Pillanatkép a JELENLEGI localStorage-tartalomról. reason: mi váltotta ki.
+function bakSnapshot(reason){
+  try{
+    const raw=Store.get("szintlepo3");
+    if(!raw||raw.length<40)return false;
+    const list=bakList();
+    // ne készítsünk két azonos tartalmú mentést egymás után
+    if(list.length&&Store.get(list[0].key)===raw)return true;
+    bakPrune();
+    let okw=Store.setSafe(BAK_PREFIX+Date.now()+"_"+(reason||"auto"),raw);
+    if(!okw){ // tele a tár: dobjuk a legrégebbit és próbáljuk újra
+      const l=bakList();if(l.length){Store.del(l[l.length-1].key);okw=Store.setSafe(BAK_PREFIX+Date.now()+"_"+(reason||"auto"),raw);}
+    }
+    return okw;
+  }catch(e){return false;}
+}
+// Naponta egyszer, az app indulásakor.
+function bakDaily(){
+  if(Store.get("sl_bakday")===TODAY)return;
+  if(bakSnapshot("napi"))Store.set("sl_bakday",TODAY);
+}
 
 let S=load();
 
@@ -2296,7 +2372,7 @@ function exportData(){const data=JSON.stringify(S,null,2);const blob=new Blob([d
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="szintlepo-mentes-"+TODAY+".json";a.click();URL.revokeObjectURL(a.href);toast("Mentés letöltve");}
 document.getElementById("importFile").onchange=(e)=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();
   r.onload=()=>{try{const o=JSON.parse(r.result);if(!o||!o.goals)throw new Error("nem érvényes mentés");
-    if(confirm("Ez felülírja a mostani adataidat ezen az eszközön. Folytatod?")){S=normalize(o);S.onboarded=true;save();switchTab("ma");toast("Mentés betöltve");}}
+    if(confirm("Ez felülírja a mostani adataidat ezen az eszközön. Folytatod?")){bakSnapshot("import-elott");S=normalize(o);S.onboarded=true;save();switchTab("ma");toast("Mentés betöltve");}}
     catch(err){toast("Hiba: "+err.message,"down");}e.target.value="";};r.readAsText(f);};
 
 /* ---- Telepítés ---- */
@@ -4258,6 +4334,11 @@ function bindCycDay(dayKey){
 
 /* --- „Mi újult meg?" (közérthető változásnapló) --- */
 const CHANGELOG=[
+ {v:4,title:"🛟 Adatbiztonság — soha többé eltűnő adat",items:[
+   "Javítottunk egy <b>súlyos szinkron-hibát</b>: ha egy <b>új eszközön</b> nyitottad meg az appot és beléptél, az ottani <b>üres</b> állapot „frissebbnek” számított, és <b>felülírta a felhőt</b> — onnan pedig a telefonodat is. Mostantól <b>üres állapot soha nem írhat felül</b> meglévő adatot, egyik irányba sem.",
+   "Ha a két oldal érdemben eltér, az app <b>megkérdez</b>, és megmutatja mindkettőt (hány cél, hány nap, mikori) — magától <b>semmit nem töröl</b>.",
+   "Új <b>🛟 Biztonsági mentések</b> a Fiók fülön: az app <b>naponta</b> és minden kockázatos lépés előtt (szinkron, importálás, törlés) pillanatképet készít <b>az eszközön</b>, belépve pedig <b>a felhőbe</b> is — 14 napra visszamenőleg. Bármelyik <b>egy koppintással visszaállítható</b>.",
+   "A „Minden adat törlése” mostantól külön rákérdez, hogy a <b>felhőből</b> is töröljön-e."]},
  {v:3,title:"📖 Biblia — napi ige és átlátható terv",items:[
    "A Biblia fül tetején mostantól <b>minden nap más igevers</b> köszönt — mind arról szól, hogy <b>nem mindegy, hogyan</b> olvassuk és hallgatjuk az Igét. 51 vers váltakozik (Károli).",
    "A <b>Mai olvasmány</b> kártya fejlécén egy pillantással látod az <b>összes mai igehelyet</b> (pl. „1Mózes 12–18”), a fejezetszámot, a szószámot és a becsült időt — alatta pedig továbbra is tételesen kipipálható minden fejezet.",
@@ -4341,18 +4422,62 @@ window.addEventListener("popstate",()=>{if(_screenDepth>0)_screenDepth--;goBack(
 
 /* ---- Onboarding ---- */
 function showOnboarding(){document.getElementById("onb").classList.remove("hidden");}
-document.getElementById("onbStart").onclick=()=>{document.getElementById("onb").classList.add("hidden");S.onboarded=true;save();startTutorial();};
+// FONTOS: itt csak persist(), NEM save() — az üdvözlő képernyő elfogadása nem
+// tehet "frissebbé" egy üres állapotot, mert az korábban felülírta a felhőt.
+document.getElementById("onbStart").onclick=()=>{document.getElementById("onb").classList.add("hidden");S.onboarded=true;persist();startTutorial();};
 
 /* ---- Felhő-hook ---- */
+/* Amíg ütközés-kérdés áll a képernyőn, TILOS a felhőbe írni — különben a
+   "még nem döntöttem" helyi állapot felülírná a felhőben lévő jó adatot. */
+let cloudLock=false, _conflictOpen=false;
+
 window.SL={getState:()=>S,
-  applyRemote:(r)=>{try{S=normalize(r);persist();renderHeader();switchTab(curTab);toast("Szinkronizálva");}catch(e){}},
+  weight:(s)=>contentWeight(s),
+  isLocked:()=>cloudLock,
+  applyRemote:(r)=>{try{bakSnapshot("felho-elott");S=normalize(r);persist();renderHeader();switchTab(curTab);toast("Szinkronizálva");}catch(e){}},
+
+  /* A felhő-modul EZT hívja belépéskor és élő változáskor. Itt dől el, mi történjen.
+     Szabályok (a 2026-07-24-i adatvesztés után):
+       - üres eszköz SOHA nem írja felül a felhőt (és fordítva sem),
+       - ha az "újabb" oldal érdemben kevesebbet tartalmaz, a felhasználó dönt,
+       - amíg nem döntött, egyik irányba sem megy adat. */
+  cloudResolve:(remote,api)=>{
+    const lw=contentWeight(S), rw=contentWeight(remote);
+    if(!remote){if(lw>0)api.upload();return;}
+    if(lw===0&&rw===0)return;
+    if(lw===0){window.SL.applyRemote(remote);return;}
+    if(rw===0){api.upload();return;}
+    const remoteNewer=(remote.updatedAt||0)>(S.updatedAt||0);
+    const winner=remoteNewer?remote:S, loser=remoteNewer?S:remote;
+    if(contentWeight(winner)+2 < contentWeight(loser)*0.9){askCloudConflict(remote,api);return;}
+    if(remoteNewer)window.SL.applyRemote(remote);
+    else if((S.updatedAt||0)>(remote.updatedAt||0))api.upload();
+  },
   onCloudState:(u)=>{cloudUser=u;renderHeader();if(curTab==="fiok")renderFiok();},
   onCloudReady:()=>{if(curTab==="fiok")renderFiok();}};
+
+/* Ütközés-párbeszéd: a felhasználó választ, semmi nem vész el magától. */
+function askCloudConflict(remote,api){
+  if(_conflictOpen)return;
+  _conflictOpen=true;cloudLock=true;
+  bakSnapshot("utkozes");
+  openModal('<h3>⚠️ Eltérő adat a felhőben</h3>'+
+    '<p class="muted" style="margin-top:-4px">A két oldal jelentősen eltér, ezért nem döntök helyetted. Válaszd ki, melyik a jó — a másikat nem törlöm, mentés készült róla ezen az eszközön.</p>'+
+    '<div class="card" style="margin:10px 0"><b>☁️ Felhőben</b><div style="margin-top:4px">'+stateSummary(remote)+'</div></div>'+
+    '<div class="card" style="margin:10px 0"><b>📱 Ezen az eszközön</b><div style="margin-top:4px">'+stateSummary(S)+'</div></div>'+
+    '<button class="btn wide" id="cfR">A felhő verzióját kérem</button>'+
+    '<button class="btn ghost wide sm" id="cfL" style="margin-top:8px">Az eszközön lévőt tartsuk meg</button>'+
+    '<button class="btn ghost wide sm" id="cfW" style="margin-top:8px">Most nem döntök</button>');
+  const fin=()=>{_conflictOpen=false;closeScreen();};
+  document.getElementById("cfR").onclick=()=>{cloudLock=false;window.SL.applyRemote(remote);fin();};
+  document.getElementById("cfL").onclick=()=>{cloudLock=false;api.upload();fin();toast("Feltöltve a felhőbe");};
+  document.getElementById("cfW").onclick=()=>{fin();toast("A szinkron szünetel, amíg nem döntesz","warn");};
+}
 
 /* =========================================================================
    2. RÉTEG — témák, súgó, tutorial, indokok, ünneplés, visszajelzés
    ========================================================================= */
-const APP_VERSION="v12";
+const APP_VERSION="v13";
 
 /* ---- témák ---- */
 const THEMES=[{id:"kert",name:"Üvegház",sw:"#2D6A4F"},{id:"papir",name:"Letisztult",sw:"#1B4332"},{id:"krem",name:"Papír",sw:"#B5852B"},{id:"arany",name:"Arany éj",sw:"#E5A83B"},{id:"erdo",name:"Erdő",sw:"#5FD08A"},{id:"ocean",name:"Óceán",sw:"#4FB0E5"},{id:"naplemente",name:"Naplemente",sw:"#E5744F"},{id:"ejjel",name:"Éjszakai",sw:"#C79A46"},{id:"film",name:"Filmvászon",sw:"#D8D8D8"}];
@@ -4669,6 +4794,61 @@ function shareApp(){
       .catch(()=>{window.location.href="mailto:?subject="+encodeURIComponent("Trellis")+"&body="+encodeURIComponent(full);});
   }else{window.location.href="mailto:?subject="+encodeURIComponent("Trellis")+"&body="+encodeURIComponent(full);}}
 
+/* ---- Biztonsági mentések (helyi + felhő) ---- */
+const BAK_TAGS={napi:"napi automatikus","felho-elott":"felhő-szinkron előtt","import-elott":"importálás előtt",
+  "torles-elott":"törlés előtt",utkozes:"eltérés észlelve","visszaallitas-elott":"visszaállítás előtt",kezi:"kézi mentés"};
+function bakWhen(ts){try{return new Date(ts).toLocaleString("hu-HU");}catch(e){return"—";}}
+function restoreState(obj,label){
+  try{
+    if(!confirm("Visszaállítás erről: "+label+"\n\n"+(Array.isArray(obj.goals)?obj.goals.length:0)+" cél. A mostani állapotról mentés készül, mielőtt felülírnám. Folytatod?"))return;
+    bakSnapshot("visszaallitas-elott");
+    S=normalize(obj);S.onboarded=true;save();
+    closeScreen();switchTab("ma");toast("Visszaállítva ✓");
+  }catch(e){toast("Hiba: "+e.message,"down");}
+}
+function showBackups(){
+  const loc=bakList();
+  let html='<button class="close-x" id="mClose">✕</button><h3>🛟 Biztonsági mentések</h3>';
+  html+='<div class="hint" style="margin-bottom:10px">Innen bármelyik korábbi állapot visszahozható. A visszaállítás előtt a mostani állapotról is készül mentés.</div>';
+  html+='<div class="section-title">Ezen az eszközön</div>';
+  if(!loc.length)html+='<div class="hint">Még nincs helyi pillanatkép. (Az első a mai indításnál készül.)</div>';
+  loc.forEach((b,i)=>{
+    let d=null;try{d=JSON.parse(Store.get(b.key));}catch(e){}
+    if(!d)return;
+    html+='<div class="card" style="padding:12px;margin-bottom:8px"><b>'+bakWhen(b.ts)+'</b>'+
+      '<div class="hint" style="margin:4px 0">'+(BAK_TAGS[b.tag]||b.tag||"mentés")+' · '+
+      (Array.isArray(d.goals)?d.goals.length:0)+' cél · '+(d.days?Object.keys(d.days).length:0)+' nap · '+
+      (d.entries?Object.keys(d.entries).length:0)+' bejegyzés</div>'+
+      '<button class="btn ghost sm" data-bakloc="'+i+'">Visszaállítás</button></div>';
+  });
+  html+='<div class="section-title" style="margin-top:14px">Felhőben</div><div id="bakCloud"><div class="hint">Betöltés…</div></div>';
+  html+='<button class="btn ghost wide sm" id="bakNow" style="margin-top:14px">Pillanatkép készítése most</button>';
+  openModal(html);
+  document.querySelectorAll("[data-bakloc]").forEach(btn=>{btn.onclick=()=>{
+    const b=loc[Number(btn.dataset.bakloc)];let d=null;try{d=JSON.parse(Store.get(b.key));}catch(e){}
+    if(d)restoreState(d,"helyi mentés – "+bakWhen(b.ts));};});
+  document.getElementById("bakNow").onclick=()=>{
+    const okl=bakSnapshot("kezi");
+    if(window.Cloud&&window.Cloud.cloudBackupNow&&cloudUser)window.Cloud.cloudBackupNow(cloudCopy());
+    toast(okl?"Pillanatkép elkészült":"Nem sikerült (tele a tár)",okl?null:"down");
+    if(okl)showBackups();};
+  const cb=document.getElementById("bakCloud");
+  if(!(window.Cloud&&window.Cloud.listBackups&&cloudUser)){cb.innerHTML='<div class="hint">Jelentkezz be, hogy felhő-pillanatképek is készüljenek.</div>';return;}
+  window.Cloud.listBackups().then(list=>{
+    if(!list.length){cb.innerHTML='<div class="hint">Még nincs felhő-pillanatkép (a következő mentésnél készül).</div>';return;}
+    let h='';
+    list.forEach((b,i)=>{const d=(b.data&&b.data.state)||{};
+      h+='<div class="card" style="padding:12px;margin-bottom:8px"><b>'+b.id+'</b><div class="hint" style="margin:4px 0">'+
+        (Array.isArray(d.goals)?d.goals.length:0)+' cél · '+(d.days?Object.keys(d.days).length:0)+' nap · '+
+        (d.entries?Object.keys(d.entries).length:0)+' bejegyzés</div>'+
+        '<button class="btn ghost sm" data-bakcl="'+i+'">Visszaállítás</button></div>';});
+    cb.innerHTML=h;
+    cb.querySelectorAll("[data-bakcl]").forEach(btn=>{btn.onclick=()=>{
+      const b=list[Number(btn.dataset.bakcl)];const d=b.data&&b.data.state;
+      if(d)restoreState(d,"felhő-mentés – "+b.id);};});
+  }).catch(e=>{cb.innerHTML='<div class="hint">A felhő-mentések nem érhetők el ('+(e.code||e.message)+').</div>';});
+}
+
 /* ---- FIÓK (bővített) ---- */
 function renderFiok(){const el=document.getElementById("tab-fiok");
   let html='<div class="section-title" style="margin-top:8px">Fiók & szinkron</div><div class="card" style="padding:16px">';
@@ -4683,7 +4863,9 @@ function renderFiok(){const el=document.getElementById("tab-fiok");
   html+='<div class="section-title">Ajánld ismerősnek</div><div class="card" style="padding:16px"><div class="hint" style="margin-bottom:10px">Tetszik a Trellis? Küldd el egy barátodnak egyetlen koppintással — Messenger, e-mail, bármi.</div><button class="btn wide" id="referBtn">🎁 Ajánld ismerősnek</button></div>';
   html+='<div class="section-title">Súgó</div><div class="card" style="padding:16px"><div class="hint" style="margin-bottom:10px">Részletes, kereshető útmutató mindenről — ha elakadsz, itt megtalálod a választ.</div><button class="btn wide" id="openHelpBtn">📖 Súgó megnyitása</button></div>';
   html+='<div class="section-title">Megjelenés '+ibtn('temak')+'</div><div class="card" style="padding:16px"><div class="hint" style="margin-bottom:10px">Válassz témát, vagy tervezz sajátot a színválasztóval — a jól sikerülteket elmentheted, és később egy koppintással visszahívhatod.</div><button class="btn wide" id="openDesign">🎨 Megjelenés és témák</button></div>';
-  html+='<div class="section-title">Mentés</div><div class="card" style="padding:16px"><div class="rub-actions"><button class="btn ghost sm" id="expBtn">Exportálás (fájl)</button><button class="btn ghost sm" id="impBtn">Importálás (fájl)</button></div><div class="hint" style="margin-top:8px">Töltsd le biztonsági mentésként, vagy vidd át másik eszközre.</div></div>';
+  html+='<div class="section-title">Mentés</div><div class="card" style="padding:16px"><div class="rub-actions"><button class="btn ghost sm" id="expBtn">Exportálás (fájl)</button><button class="btn ghost sm" id="impBtn">Importálás (fájl)</button></div><div class="hint" style="margin-top:8px">Töltsd le biztonsági mentésként, vagy vidd át másik eszközre.</div>'+
+    '<button class="btn wide sm" id="bakBtn" style="margin-top:10px">🛟 Biztonsági mentések</button>'+
+    '<div class="hint" style="margin-top:8px">Az app magától is készít pillanatképeket (naponta, és minden kockázatos lépés előtt) — innen bármikor visszaállíthatod őket.</div></div>';
   html+='<div class="section-title">AI rubrika '+ibtn('gkey')+'</div><div class="card" style="padding:16px"><div class="field"><label>Saját Gemini API-kulcs (ingyenes)</label><input class="input" id="setGemini" placeholder="AIza…" value="'+escA(GKEY)+'"/><div class="hint">Lépésről lépésre: nyomd meg a fenti „i" ikont vagy a Súgóban a „Gemini-kulcs" részt. A kulcs csak ezen az eszközön tárolódik.</div></div><div class="field"><label>Modell</label><input class="input" id="setModel" placeholder="gemini-2.5-flash" value="'+escA(GMODEL)+'"/><div class="hint">Alap: <b>gemini-2.5-flash</b>. Ha egy modell megszűnik, itt átírhatod; az app magától visszavált flash / flash-lite modellre.</div></div><div class="rub-actions"><button class="btn ghost sm" id="saveGemini">Mentés</button></div></div>';
   html+='<div class="section-title">Visszajelzés a fejlesztőnek</div><div class="card" style="padding:16px"><div class="field"><label>Üzenet (hiba, ötlet, kérdés)</label><textarea class="input" id="fbText" placeholder="Írd le bátran, hosszabban is…" style="min-height:90px"></textarea></div><div class="field"><label>Elérhetőség (opcionális)</label><input class="input" id="fbContact" placeholder="e-mail, ha választ szeretnél"/></div><div class="rub-actions"><button class="btn sm" id="fbSend">Küldés</button></div><div class="hint" style="margin-top:8px">A visszajelzés a fejlesztőhöz jut. Rajta kívül más nem olvassa.</div></div>';
   html+='<div class="section-title">Alkalmazás</div><div class="card" style="padding:16px"><div class="rub-actions"><button class="btn ghost sm" id="installBtn">Telepítés a kezdőképernyőre '+ibtn('telep').replace('data-info="telep"','data-info="telep"')+'</button><button class="btn ghost sm" id="whatsNewBtn">✨ Mi újult meg?</button></div><div class="hint" style="margin-top:10px">Verzió: '+APP_VERSION+'. Skála: 1–'+cfg().scaleMax+', semleges: '+cfg().neutral+'.</div><div class="rub-actions" style="margin-top:12px"><button class="btn ghost sm" id="resetData" style="color:var(--loss)">Összes adat törlése</button></div></div>';
@@ -4704,21 +4886,27 @@ function renderFiok(){const el=document.getElementById("tab-fiok");
   document.getElementById("openDesign").onclick=openDesignPanel;
   document.getElementById("expBtn").onclick=exportData;
   document.getElementById("impBtn").onclick=()=>document.getElementById("importFile").click();
+  const bkb=document.getElementById("bakBtn");if(bkb)bkb.onclick=showBackups;
   document.getElementById("saveGemini").onclick=()=>{GKEY=document.getElementById("setGemini").value.trim();Store.set("gemini_key",GKEY);const _m=document.getElementById("setModel");if(_m){GMODEL=_m.value.trim()||GEMINI_MODEL;Store.set("gemini_model",GMODEL);}toast("Mentve");};
   document.getElementById("fbSend").onclick=(e)=>sendFeedback(document.getElementById("fbText").value,document.getElementById("fbContact").value,e.target);
   document.getElementById("installBtn").onclick=doInstall;
   const wn=document.getElementById("whatsNewBtn");if(wn)wn.onclick=()=>{if(!showWhatsNew(-1))toast("Nincs újdonság");};
-  document.getElementById("resetData").onclick=()=>{if(confirm("Biztos törlöd az ÖSSZES adatot ezen az eszközön? Nem visszavonható.")){
+  document.getElementById("resetData").onclick=()=>{if(confirm("Biztos törlöd az ÖSSZES adatot ezen az eszközön? (A Biztonsági mentések közül vissza tudod hozni.)")){
+    bakSnapshot("torles-elott");
     S=blank();S.onboarded=true;S.updatedAt=Date.now();
     Store.set("szintlepo3",JSON.stringify(S));Store.set("szintlepo2","");Store.set("szintlepo","");Store.set("maSeg","napi");
     maSeg="napi";selDay=TODAY;openGoals={};chartSel={};editing=null;formDraft=null;formMetricIdx=null;maGoal=null;maMetric=null;maView="celok";S.avoidState={};
-    if(cloudUser&&window.Cloud&&window.Cloud.push)window.Cloud.push(cloudCopy());
+    // A felhőt csak külön kérésre ürítjük — különben a másik eszközöd adata is elveszne.
+    if(cloudUser&&window.Cloud&&window.Cloud.push){
+      if(confirm("Töröljem a FELHŐBŐL is, minden eszközödről?\n\nOK = a felhő is ürül.\nMégse = a felhőben megmarad, és a következő szinkronnál visszajön ide."))
+        window.Cloud.push(cloudCopy(),true);
+    }
     renderHeader();switchTab("ma");toast("Minden adat törölve");}};}
 
 /* ---- indítás ---- */
 applyTheme(curTheme);
 document.addEventListener("click",e=>{const b=e.target&&e.target.closest&&e.target.closest("[data-info]");if(b){e.preventDefault();e.stopPropagation();showInfo(b.dataset.info);}});
-ensureQuick();renderHeader();updateBibleNav();updateCycleNav();setInterval(tickAvoid,1000);
+ensureQuick();bakDaily();renderHeader();updateBibleNav();updateCycleNav();setInterval(tickAvoid,1000);
 if(S.bible&&S.bible.enabled)loadBibleData();   /* háttérben, hogy a fül azonnal nyíljon */
 if(S.metaLevelSeen==null){S.metaLevelSeen=metaProgFor(metaPoints()).L;persist();}
 if(!S.onboarded){showOnboarding();switchTab("ma");}else{switchTab("ma");}
@@ -4809,7 +4997,7 @@ try{
   if(ok){
     const {initializeApp}=await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js");
     const {getAuth,GoogleAuthProvider,signInWithPopup,signInWithRedirect,getRedirectResult,onAuthStateChanged,signOut}=await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js");
-    const {getFirestore,doc,setDoc,getDoc,onSnapshot,collection,addDoc,getDocs,serverTimestamp}=await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js");
+    const {getFirestore,doc,setDoc,getDoc,onSnapshot,collection,addDoc,getDocs,deleteDoc,serverTimestamp}=await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js");
     const app=initializeApp(cfg);const auth=getAuth(app);const db=getFirestore(app);const provider=new GoogleAuthProvider();
     let uid=null,unsub=null,pushT=null;
     getRedirectResult(auth).catch(()=>{});
@@ -4820,16 +5008,58 @@ try{
       quizReport:(data)=>uid?addDoc(collection(db,"quizreports"),Object.assign({},data,{uid:uid,ts:serverTimestamp()})):Promise.reject(new Error("no-auth")),
       signIn:async()=>{try{await signInWithPopup(auth,provider);}catch(e){const c=(e&&e.code)||"";if(c==="auth/popup-blocked"||c==="auth/cancelled-popup-request"||c==="auth/operation-not-supported-in-this-environment"){try{await signInWithRedirect(auth,provider);}catch(e2){alert("Belépési hiba: "+((e2&&e2.code)||(e2&&e2.message)||e2));}}else if(c&&c!=="auth/popup-closed-by-user"){alert("Belépési hiba: "+c);}}},
       signOut:()=>signOut(auth),
-      push:(state)=>{if(!uid)return;clearTimeout(pushT);pushT=setTimeout(()=>{setDoc(doc(db,"users",uid),state).catch(()=>{});},1200);}},
+      // force = a felhasználó KIFEJEZETTEN kérte (pl. "töröld a felhőből is").
+      push:(state,force)=>{
+        if(!uid)return;
+        // Biztonsági fék: amíg ütközés-kérdés áll, semmit nem írunk felül.
+        if(!force&&window.SL.isLocked&&window.SL.isLocked())return;
+        // Üres állapot SOHA nem írja felül a felhőben lévő tartalmat. (Ez volt a
+        // 2026-07-24-i adatvesztés oka: egy friss eszköz "frissebb" üres állapota.)
+        if(!force&&window.SL.weight(state)===0&&lastRemoteWeight>0)return;
+        clearTimeout(pushT);
+        pushT=setTimeout(()=>{const ref=doc(db,"users",uid);
+          setDoc(ref,state).then(()=>{lastRemoteWeight=window.SL.weight(state);cloudBackup(ref,state);}).catch(()=>{});
+        },1200);},
+      // Napi felhő-pillanatkép: users/{uid}/backups/{ÉÉÉÉ-HH-NN}. Naponta egy írás,
+      // 14 napig visszamenőleg elérhető (a Fiók fülön), a régieket takarítjuk.
+      listBackups:()=>uid?getDocs(collection(db,"users",uid,"backups")).then(s=>{const a=[];s.forEach(d=>a.push({id:d.id,data:d.data()}));return a.sort((x,y)=>x.id<y.id?1:-1);}):Promise.resolve([])};
+    let lastBakDay=null, lastRemoteWeight=0;
+    function cloudBackup(ref,state){
+      try{
+        const day=new Date().toISOString().slice(0,10);
+        if(lastBakDay===day)return;
+        if(window.SL.weight(state)===0)return;
+        lastBakDay=day;
+        setDoc(doc(db,"users",uid,"backups",day),{at:Date.now(),state:state}).then(()=>{
+          // 14 napnál régebbi pillanatképek takarítása
+          getDocs(collection(db,"users",uid,"backups")).then(s=>{
+            const ids=[];s.forEach(d=>ids.push(d.id));ids.sort().reverse();
+            ids.slice(14).forEach(id=>deleteDoc(doc(db,"users",uid,"backups",id)).catch(()=>{}));
+          }).catch(()=>{});
+        }).catch(()=>{});
+      }catch(e){}
+    }
+    window.Cloud.cloudBackupNow=(state)=>{if(uid){lastBakDay=null;cloudBackup(doc(db,"users",uid),state);}};
     onAuthStateChanged(auth,async(user)=>{
       uid=user?user.uid:null;
+      lastRemoteWeight=0;
       window.SL.onCloudState(user?{name:user.displayName||user.email||"fiók",uid:user.uid}:null);
       if(unsub){unsub();unsub=null;}
       if(user){
-        try{const ref=doc(db,"users",uid);const snap=await getDoc(ref);const local=window.SL.getState();
-          if(snap.exists()){const remote=snap.data();if((remote.updatedAt||0)>(local.updatedAt||0))window.SL.applyRemote(remote);else setDoc(ref,local).catch(()=>{});}
-          else setDoc(ref,local).catch(()=>{});
-          unsub=onSnapshot(ref,(s)=>{if(!s.exists())return;const remote=s.data();const loc=window.SL.getState();if((remote.updatedAt||0)>(loc.updatedAt||0))window.SL.applyRemote(remote);});
+        try{const ref=doc(db,"users",uid);const snap=await getDoc(ref);
+          const remote=snap.exists()?snap.data():null;
+          lastRemoteWeight=window.SL.weight(remote);
+          // A döntést az app rétege hozza (tartalom-súly + szükség esetén kérdés).
+          window.SL.cloudResolve(remote,{upload:()=>{const st=window.SL.getState();
+            setDoc(ref,st).then(()=>{lastRemoteWeight=window.SL.weight(st);cloudBackup(ref,st);}).catch(()=>{});}});
+          unsub=onSnapshot(ref,(s)=>{
+            if(!s.exists())return;
+            const rem=s.data();
+            lastRemoteWeight=Math.max(lastRemoteWeight,window.SL.weight(rem));
+            if((rem.updatedAt||0)<=(window.SL.getState().updatedAt||0))return; // saját visszhang
+            window.SL.cloudResolve(rem,{upload:()=>{const st=window.SL.getState();
+              setDoc(ref,st).then(()=>{lastRemoteWeight=window.SL.weight(st);}).catch(()=>{});}});
+          });
         }catch(e){}
       }
     });

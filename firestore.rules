@@ -5,6 +5,11 @@ service cloud.firestore {
     match /users/{uid} {
       allow read, write: if request.auth != null && request.auth.uid == uid;
     }
+    // Napi felhő-pillanatképek (users/{uid}/backups/{ÉÉÉÉ-HH-NN}) — adatvesztés esetén
+    // ebből lehet visszaállni. Csak a saját fiók éri el. Az app 14 napot tart meg.
+    match /users/{uid}/backups/{bakId} {
+      allow read, write, delete: if request.auth != null && request.auth.uid == uid;
+    }
     // Visszajelzés: bárki LÉTREHOZHAT (belépés nélkül is), de senki nem olvashatja/listázhatja
     // az appból — csak a Firebase konzolból. Rövid hosszkorlát spam ellen.
     match /feedback/{doc} {

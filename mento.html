@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Trellis — Adatmentő</title>
+<style>
+:root{--bg:#f6f7f5;--card:#fff;--ink:#1b2a22;--mut:#5b6b62;--line:#dfe5e0;--acc:#2D6A4F;--bad:#b4232a;--warn:#8a5a00}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:16px;padding-bottom:60px}
+h1{font-size:20px;margin:0 0 4px}
+h2{font-size:16px;margin:22px 0 8px}
+p.sub{color:var(--mut);margin:0 0 16px;font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin:10px 0}
+.card.ok{border-color:#9ccdb4;background:#f2fbf6}
+.card.bad{border-color:#e8b6b8;background:#fdf4f4}
+.card.warn{border-color:#e8d3a0;background:#fdfaf0}
+.k{font-weight:600;font-size:14px;word-break:break-all}
+.meta{color:var(--mut);font-size:13px;margin-top:4px}
+button{font:inherit;padding:10px 14px;border-radius:10px;border:1px solid var(--acc);background:var(--acc);color:#fff;cursor:pointer;margin:4px 6px 4px 0}
+button.sec{background:#fff;color:var(--acc)}
+button:disabled{opacity:.5;cursor:default}
+pre{background:#0f1a14;color:#d9efe3;padding:10px;border-radius:8px;overflow:auto;max-height:260px;font-size:12px}
+.big{font-size:15px;font-weight:600}
+code{background:#eceee9;padding:1px 5px;border-radius:4px;font-size:13px}
+</style>
+</head>
+<body>
+<h1>Trellis — Adatmentő 🛟</h1>
+<p class="sub">Ez az oldal <b>semmit nem ír felül magától</b>. Csak megnézi, mi van ezen az eszközön és a felhőben, és letölthetővé teszi.</p>
+
+<h2>1. Ezen az eszközön tárolt adatok</h2>
+<div id="local"></div>
+<button id="dlLocal" class="sec">📥 Minden helyi adat letöltése (JSON)</button>
+
+<h2>2. Felhő (Google-fiók)</h2>
+<div id="cloudBox" class="card"><span class="meta">Kattints a belépésre, hogy lássuk, mi van a felhőben.</span></div>
+<button id="signin">🔑 Belépés Google-fiókkal</button>
+<button id="dlCloud" class="sec" disabled>📥 Felhő-adat letöltése (JSON)</button>
+
+<h2>3. Visszaállítás mentésből</h2>
+<p class="sub">Csak akkor használd, ha van egy jó mentés-fájlod. Felülírja az ezen az eszközön lévő adatot.</p>
+<input type="file" id="file" accept="application/json,.json">
+<div id="restoreInfo"></div>
+<button id="doRestore" disabled>♻️ Visszaállítás erre az eszközre</button>
+
+<h2>4. Naplók</h2>
+<pre id="log">indul…</pre>
+
+<script src="./firebase-config.js"></script>
+<script type="module">
+const $=id=>document.getElementById(id);
+const logEl=$("log");let logs=[];
+function log(m){logs.push(m);logEl.textContent=logs.join("\n");}
+logs=[];
+
+/* ---------- 1. HELYI ---------- */
+const KEYS=["szintlepo3","szintlepo2","szintlepo"];
+function fmt(ts){if(!ts)return"—";try{return new Date(Number(ts)).toLocaleString("hu-HU");}catch(e){return String(ts);}}
+function describe(raw){
+  const out={bytes:raw?raw.length:0};
+  try{
+    const o=JSON.parse(raw);
+    out.ok=true;out.version=o.version;out.updatedAt=o.updatedAt;
+    out.goals=Array.isArray(o.goals)?o.goals.length:0;
+    out.days=o.days?Object.keys(o.days).length:0;
+    out.entries=o.entries?Object.keys(o.entries).length:0;
+    out.todos=Array.isArray(o.todos)?o.todos.length:0;
+    out.bible=o.bible&&o.bible.plan?("terv, "+Object.keys((o.bible.plan.read)||{}).length+" jelölés"):"—";
+    out.cycle=o.cycle&&o.cycle.periods?(o.cycle.periods.length+" ciklus-bejegyzés"):"—";
+    out.obj=o;
+  }catch(e){out.ok=false;out.err=e.message;}
+  return out;
+}
+function weight(d){return (d.goals||0)+(d.days||0)+(d.entries||0)+(d.todos||0);}
+const localFound={};
+function scanLocal(){
+  const box=$("local");box.innerHTML="";
+  let any=false;
+  // ismert kulcsok + minden más, ami ismerősnek tűnik
+  const all=[];
+  for(let i=0;i<localStorage.length;i++)all.push(localStorage.key(i));
+  const show=all.filter(k=>KEYS.includes(k)||/^szintlepo|^sl_|^trellis/i.test(k));
+  if(!show.length){box.innerHTML='<div class="card bad"><b>Ezen az eszközön nincs semmilyen Trellis-adat.</b><div class="meta">Vagy soha nem volt itt adat, vagy más címről nyitottad meg az appot.</div></div>';}
+  show.sort();
+  for(const k of show){
+    const raw=localStorage.getItem(k);
+    const d=describe(raw);
+    localFound[k]=raw;
+    // Állapotnak számít minden kulcs, amiben tényleg van 'goals' tömb — így az
+    // automatikus pillanatképek (sl_bak_*) is részletesen látszanak.
+    const isState=KEYS.includes(k)||(d.ok&&d.obj&&Array.isArray(d.obj.goals));
+    let cls="card";
+    if(isState)cls+= (d.ok&&weight(d)>0)?" ok":" bad";
+    const el=document.createElement("div");el.className=cls;
+    if(isState&&d.ok){
+      any=any||weight(d)>0;
+      el.innerHTML='<div class="k">'+k+'</div>'+
+        '<div class="big">'+(weight(d)>0?"✅ VAN ADAT":"⚠️ ÜRES állapot")+'</div>'+
+        '<div class="meta">célok: <b>'+d.goals+'</b> · napok: <b>'+d.days+'</b> · bejegyzések: <b>'+d.entries+'</b> · teendők: <b>'+d.todos+'</b><br>'+
+        'Biblia: '+d.bible+' · Ciklus: '+d.cycle+'<br>'+
+        'verzió: '+d.version+' · utolsó mentés: <b>'+fmt(d.updatedAt)+'</b> · méret: '+d.bytes+' bájt</div>'+
+        ((k!=="szintlepo3"&&weight(d)>0)?'<button class="sec" data-use="'+k+'" style="margin-top:8px">♻️ Ezt állítsd vissza az appba</button>':'');
+    }else{
+      el.innerHTML='<div class="k">'+k+'</div><div class="meta">'+(d.ok?"":"(nem JSON) ")+d.bytes+' bájt</div>';
+    }
+    box.appendChild(el);
+  }
+  box.querySelectorAll("[data-use]").forEach(btn=>{btn.onclick=()=>{
+    const k=btn.dataset.use, raw=localStorage.getItem(k);
+    if(!raw)return;
+    if(!confirm("Ez lesz mostantól az app adata (a '"+k+"' kulcsból). A mostani állapotról előbb mentés készül. Folytatod?"))return;
+    const prev=localStorage.getItem("szintlepo3");
+    if(prev)localStorage.setItem("sl_bak_"+Date.now()+"_mento",prev);
+    const o=JSON.parse(raw);o.onboarded=true;o.updatedAt=Date.now();
+    localStorage.setItem("szintlepo3",JSON.stringify(o));
+    alert("Kész. Nyisd meg az appot — ott kell lennie az adatoknak.");
+    scanLocal();
+  };});
+  log("Helyi kulcsok: "+(show.join(", ")||"(nincs)"));
+  return any;
+}
+scanLocal();
+
+$("dlLocal").onclick=()=>{
+  const dump={};
+  for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);dump[k]=localStorage.getItem(k);}
+  dl(JSON.stringify({kind:"trellis-localstorage-dump",at:new Date().toISOString(),origin:location.origin,data:dump},null,2),
+     "trellis-helyi-mentes-"+new Date().toISOString().slice(0,10)+".json");
+};
+function dl(text,name){
+  const b=new Blob([text],{type:"application/json"});const a=document.createElement("a");
+  a.href=URL.createObjectURL(b);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+}
+
+/* ---------- 2. FELHŐ ---------- */
+let cloudData=null;
+try{
+  const cfg=window.FIREBASE_CONFIG;
+  const {initializeApp}=await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js");
+  const {getAuth,GoogleAuthProvider,signInWithPopup,signInWithRedirect,getRedirectResult,onAuthStateChanged}=await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js");
+  const {getFirestore,doc,getDoc,collection,getDocs}=await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js");
+  const app=initializeApp(cfg);const auth=getAuth(app);const db=getFirestore(app);
+  getRedirectResult(auth).catch(()=>{});
+  $("signin").onclick=async()=>{
+    try{await signInWithPopup(auth,new GoogleAuthProvider());}
+    catch(e){try{await signInWithRedirect(auth,new GoogleAuthProvider());}catch(e2){log("Belépési hiba: "+e2.code);}}
+  };
+  onAuthStateChanged(auth,async(user)=>{
+    const box=$("cloudBox");
+    if(!user){box.className="card";box.innerHTML='<span class="meta">Nem vagy belépve.</span>';return;}
+    box.className="card";box.innerHTML='<span class="meta">Belépve: '+(user.email||user.uid)+' — olvasás…</span>';
+    log("uid = "+user.uid);
+    try{
+      const snap=await getDoc(doc(db,"users",user.uid));
+      if(!snap.exists()){box.className="card bad";box.innerHTML='<b>A felhőben NINCS dokumentum ehhez a fiókhoz.</b>';return;}
+      cloudData=snap.data();
+      const d=describe(JSON.stringify(cloudData));
+      box.className="card "+(weight(d)>0?"ok":"bad");
+      box.innerHTML='<div class="big">'+(weight(d)>0?"✅ VAN ADAT a felhőben":"❌ A felhőben ÜRES állapot van")+'</div>'+
+        '<div class="meta">fiók: '+(user.email||"")+'<br>célok: <b>'+d.goals+'</b> · napok: <b>'+d.days+'</b> · bejegyzések: <b>'+d.entries+'</b> · teendők: <b>'+d.todos+'</b><br>'+
+        'Biblia: '+d.bible+' · Ciklus: '+d.cycle+'<br>utolsó mentés: <b>'+fmt(d.updatedAt)+'</b></div>';
+      $("dlCloud").disabled=false;
+      // esetleges mentés-almappa (új verziókban)
+      try{
+        const bs=await getDocs(collection(db,"users",user.uid,"backups"));
+        if(!bs.empty){
+          let h='<div class="card warn"><b>Felhő-biztonsági mentések ('+bs.size+' db):</b><div class="meta">';
+          const rows=[];bs.forEach(s=>{const x=s.data();const dd=describe(JSON.stringify(x.state||x));rows.push(s.id+" → "+dd.goals+" cél, "+dd.days+" nap ("+fmt(dd.updatedAt)+")");});
+          rows.sort().reverse();h+=rows.join("<br>")+'</div></div>';
+          box.insertAdjacentHTML("afterend",h);
+          window.__backups=bs;
+        }else log("backups almappa: üres");
+      }catch(e){log("backups olvasás: "+e.code);}
+    }catch(e){box.className="card bad";box.innerHTML='<b>Olvasási hiba:</b> '+(e.code||e.message);log("getDoc hiba: "+(e.code||e.message));}
+  });
+  log("Firebase betöltve, projekt: "+cfg.projectId);
+}catch(e){log("Firebase hiba: "+e.message);}
+
+$("dlCloud").onclick=()=>{if(cloudData)dl(JSON.stringify(cloudData,null,2),"trellis-felho-mentes-"+new Date().toISOString().slice(0,10)+".json");};
+
+/* ---------- 3. VISSZAÁLLÍTÁS ---------- */
+let restoreObj=null;
+$("file").onchange=(e)=>{
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      let o=JSON.parse(r.result);
+      if(o&&o.kind==="trellis-localstorage-dump"&&o.data){o=JSON.parse(o.data.szintlepo3||o.data.szintlepo2||o.data.szintlepo);}
+      if(!o||!o.goals)throw new Error("Ez nem Trellis-mentés (nincs benne 'goals').");
+      restoreObj=o;const d=describe(JSON.stringify(o));
+      $("restoreInfo").innerHTML='<div class="card ok"><b>Betöltve:</b> '+d.goals+' cél, '+d.days+' nap, '+d.entries+' bejegyzés · '+fmt(d.updatedAt)+'</div>';
+      $("doRestore").disabled=false;
+    }catch(err){$("restoreInfo").innerHTML='<div class="card bad">'+err.message+'</div>';$("doRestore").disabled=true;}
+  };
+  r.readAsText(f);
+};
+$("doRestore").onclick=()=>{
+  if(!restoreObj)return;
+  if(!confirm("Ez felülírja az ezen az eszközön tárolt Trellis-adatot. Folytatod?"))return;
+  const prev=localStorage.getItem("szintlepo3");
+  if(prev)localStorage.setItem("szintlepo3_bak_"+Date.now(),prev);
+  restoreObj.updatedAt=Date.now();
+  restoreObj.onboarded=true;
+  localStorage.setItem("szintlepo3",JSON.stringify(restoreObj));
+  alert("Kész. Most nyisd meg az appot (index.html) — ott kell lennie mindennek.\nHa be vagy lépve, az app fel is tölti a felhőbe.");
+  scanLocal();
+};
+</script>
+</body>
+</html>
