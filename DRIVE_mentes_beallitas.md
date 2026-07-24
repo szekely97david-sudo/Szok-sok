@@ -12,14 +12,33 @@ a saját maga által létrehozott fájlokat látja, a felhasználó többi Drive
 ## Egyszeri beállítás a Google Cloud konzolban (a projekt tulajdonosának)
 Projekt: **szokasok-5847c**
 
-1. **Drive API engedélyezése:**
-   https://console.cloud.google.com/apis/library/drive.googleapis.com?project=szokasok-5847c
-   → *Enable*.
-2. **OAuth consent screen → Scopes:** vedd fel a `.../auth/drive.file` scope-ot
-   (ha nincs ott). A `drive.file` „recommended/non-sensitive", általában nem kell
-   Google-verifikáció a saját/teszt-felhasználókhoz.
-3. Ha az OAuth consent „Testing" módban van, add hozzá magad (és bárkit, aki használja)
-   **Test users**-ként — különben a Drive-engedély kérésekor elakad.
+FONTOS: a `drive.file` **nem érzékeny** scope-ot NEM kötelező kézzel felvenni a consent
+screen scope-listájába. Csak két dolog kell valójában: (A) Drive API bekapcsolása,
+(B) teszt-felhasználó (vagy éles/published app).
+
+### A) Drive API bekapcsolása (kötelező)
+https://console.cloud.google.com/apis/library/drive.googleapis.com?project=szokasok-5847c
+→ ellenőrizd a projektet (szokasok-5847c) → **Enable**. (Ha *Manage* látszik, már megvan.)
+
+### B) Teszt-felhasználó (a kulcslépés)
+https://console.cloud.google.com/auth/audience?project=szokasok-5847c
+(klasszikus: https://console.cloud.google.com/apis/credentials/consent?project=szokasok-5847c)
+- Ha **Publishing status = Testing**: Test users → **+ Add users** → `szekely.97.david@gmail.com`
+  (+ bárki más, aki használja) → Save.
+- Ha **In production**: nincs teendő (a drive.file éles módban is megy).
+
+### (Opcionális) scope kézi felvétele
+https://console.cloud.google.com/auth/scopes?project=szokasok-5847c → Add or remove scopes →
+`.../auth/drive.file`. Testing módban NEM szükséges — futásidőben kérjük, teszt-user átengedi.
+
+### Az appban való bekapcsoláskor
+A Google „hasn't verified this app" figyelmeztetés NORMÁLIS a saját appnál:
+**Advanced → Go to Trellis (unsafe) → Allow**.
+
+### Hibák jelentése
+- „Access blocked / app is blocked" → nem vagy teszt-user (lásd B).
+- „Drive API has not been used / disabled" → az A pont maradt ki.
+- A Drive-lista helyén magyarázó szöveg → általában a Drive API nincs engedélyezve.
 
 Amíg a Drive API nincs engedélyezve, az app **hibátlanul működik**, csak a Drive-lista
 helyén egy magyarázó üzenet jelenik meg — semmi nem törik el.
