@@ -743,7 +743,15 @@ nav .nav-in .tabbtn svg{width:20px; height:20px;}
 .bible-chgrid button.cur{outline:2px solid var(--gold); outline-offset:1px;}
 .bible-booklist{display:flex; flex-direction:column; gap:6px; margin-top:8px;}
 .bible-booklist button{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:11px 13px; border-radius:var(--r-sm); background:var(--surface-2); border:1px solid var(--line); color:var(--ink); font-size:14px; text-align:left;}
-.bible-booklist button .bb-r{font-size:12px; color:var(--muted); font-family:var(--disp);}
+.bible-booklist button .bb-r{font-size:12px; color:var(--muted); font-family:var(--disp); flex:0 0 auto; text-align:right;}
+.bible-booklist button.bb-hot{border-color:var(--gold-line); background:var(--gold-soft);}
+.bible-booklist button.bb-hot .bb-r{color:var(--gold);}
+.bb-badge{font-size:10.5px; padding:2px 7px; border-radius:999px; background:var(--gold); color:var(--surface); font-family:var(--disp); margin-left:5px; white-space:nowrap;}
+/* olvasó: vers-könyvjelző („eddig jutottam”) */
+.bible-verses .bv{border-radius:6px; padding:2px 4px; margin-left:-4px;}
+.bible-verses .bv.marked{background:var(--gold-soft); box-shadow:inset 3px 0 0 var(--gold);}
+.bmark-row{display:flex; align-items:center; gap:9px; flex-wrap:wrap; font-size:13px; color:var(--ink); background:var(--gold-soft); border:1px solid var(--gold-line); border-radius:var(--r-sm); padding:8px 11px; margin:2px 0 9px;}
+.bmark-x{margin-left:auto; background:none; border:0; color:var(--muted); font-size:12px; text-decoration:underline; padding:2px 4px;}
 .bible-stats{display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-top:4px;}
 .bible-stats .bst{background:var(--surface-2); border:1px solid var(--line); border-radius:var(--r-sm); padding:11px 12px;}
 .bible-stats .bst .bsv{font-family:var(--disp); font-weight:700; font-size:19px;}
@@ -767,6 +775,10 @@ nav .nav-in .tabbtn svg{width:20px; height:20px;}
 .quiz-reveal{margin-top:14px; padding:11px 13px; border-radius:var(--r-sm); font-size:14px; line-height:1.6;}
 .quiz-reveal.ok{background:var(--gold-soft); border:1px solid var(--gold-line);}
 .quiz-reveal.no{background:rgba(220,80,80,.10); border:1px solid var(--loss);}
+/* kvíz: kontextus-nézet + hibás kérdés jelentése (a kvíz-ablakon BELÜL) */
+.quiz-ctx{max-height:52vh; overflow:auto; -webkit-overflow-scrolling:touch; background:var(--surface-2); border:1px solid var(--line); border-radius:var(--r-sm); padding:13px 14px; margin-top:4px; line-height:1.85;}
+.quiz-rep-q{margin-top:12px; padding:12px 13px; border-radius:var(--r-sm); background:var(--surface-2); border:1px solid var(--line); font-size:14px; line-height:1.55;}
+.quiz-rep-ref{margin-top:6px; font-size:12px; color:var(--muted); font-family:var(--disp);}
 .quiz-actions{display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;}
 .quiz-score{font-family:var(--disp); font-weight:700; font-size:46px; text-align:center; color:var(--gold); margin:12px 0 0; letter-spacing:1px;}
 </style>
@@ -1007,15 +1019,18 @@ function normBibleQuiz(q){q=(q&&typeof q==="object")?q:{};
   return{enabled:q.enabled!==false,settings:{total:total,review:review},seen:seen,wrong:wrong,history:Array.isArray(q.history)?q.history.slice(-200):[]};}
 function normBible(b){b=b||{};
   const fs=(b.reader&&Number(b.reader.fontScale))||1;
+  /* olvasó-könyvjelző: melyik szakasz hányadik versénél hagytad abba */
+  const mk=(b.reader&&b.reader.mark&&typeof b.reader.mark==="object"&&typeof b.reader.mark.id==="string"&&Number(b.reader.mark.v)>0)
+    ?{id:b.reader.mark.id,v:Math.round(Number(b.reader.mark.v))}:null;
   const o={enabled:!!b.enabled,plan:null,calib:{wpm:null,runs:[]},
-    reader:{fontScale:Math.max(.8,Math.min(1.8,fs))},updatedAt:Number(b.updatedAt)||0};
+    reader:{fontScale:Math.max(.8,Math.min(1.8,fs)),mark:mk},updatedAt:Number(b.updatedAt)||0};
   if(b.calib&&typeof b.calib==="object"){
     o.calib.wpm=Number(b.calib.wpm)||null;
     o.calib.runs=Array.isArray(b.calib.runs)?b.calib.runs.slice(-20).map(r=>({date:r.date||"",secs:Number(r.secs)||0,words:Number(r.words)||0,wpm:Number(r.wpm)||0})):[];}
   const p=b.plan;
   if(p&&typeof p==="object"){
     o.plan={scope:["full","ot","nt"].includes(p.scope)?p.scope:"full",
-      order:["canonical","chronological"].includes(p.order)?p.order:"canonical",
+      order:["canonical","chronological","free"].includes(p.order)?p.order:"canonical",
       parallel:!!p.parallel,
       pin:["time","chapters","months"].includes(p.pin)?p.pin:"time",
       wpm:Number(p.wpm)||200,
@@ -2635,8 +2650,8 @@ let BMETA=null,BBOOKS=null,BMAP=null,BBOOKMAP=null,BORDERS=null,_bibleLoading=nu
 let _bScopeCache={};
 const _bTextCache={};
 let bibleTab="ma",bibleBookOpen=null,_bCalibIv=null,_bCalibT0=0,biblePlanDraft=null;
-let bibleMa={date:null,ids:[]};   /* a „Ma” nézet bejelölhető listájának napra rögzített pillanatképe */
-function bibleMaReset(){bibleMa={date:null,ids:[]};}
+let bibleMa={date:null,ids:[],extra:[]};   /* a „Ma” nézet listája (extra = kézzel felvett egységek) */
+function bibleMaReset(){bibleMa={date:null,ids:[],extra:[]};}
 /* egy read-érték csak akkor számít napi olvasásnak, ha valódi dátum (a "prior" = app előtti olvasás) */
 function bibleReadDay(v){return (typeof v==="string"&&/^\d{4}-\d\d-\d\d$/.test(v))?v:null;}
 
@@ -2729,15 +2744,23 @@ function bibleScope(p){
   const inf={list:list,pos:pos,byId:byId,totalW:t,avgW:list.length?t/list.length:1};
   _bScopeCache[key]=inf;return inf;}
 function bibleScopeName(s){return s==="ot"?"Ószövetség":(s==="nt"?"Újszövetség":"Teljes Biblia");}
+/* SZABAD SORREND: nincs kötött napi lista — magad választod, mit olvasol, az app
+   pedig számon tartja, mi van meg és mi hiányzik. A napi keret (idő/szó) és a
+   céltávlat (pl. „egy év alatt végig”) ugyanúgy számít, csak nem sorrendhez köti. */
+function bibleFree(p){return !!p&&p.order==="free";}
 function bibleOrderHint(d){
-  let s=(d.order==="chronological")
+  let s=(d.order==="free")
+    ?"<b>Szabad sorrend:</b> nincs kötött napi lista — te választod ki, melyik könyvet, melyik fejezetet olvasod. Az app számon tartja, mi van már meg és mi hiányzik, és mutatja, melyik könyvből mennyi maradt. A napi keret és a céldátum ugyanúgy él."
+    :((d.order==="chronological")
     ?"<b>Kronologikus sorrend:</b> az események időrendjében — a zsoltárok és próféciák a történeti helyükön. Az ÓSZ a kronologikus kiadás alapján; az ÚSZ <b>Ruff Tibor vázlata szerint, vers-szinten</b> (az evangéliumok harmonizálva, szakaszonként)."
-    :"<b>Hagyományos sorrend:</b> a könyvek a megszokott bibliai sorrendben.";
+    :"<b>Hagyományos sorrend:</b> a könyvek a megszokott bibliai sorrendben.");
+  if(d.order==="free")return s;
   if(d.scope==="full")s+= d.parallel
     ?" Az Ó- és Újszövetséget <b>párhuzamosan</b> olvasod, és <b>egyszerre</b> érsz a végükre."
     :" Előbb végig az Ószövetség, utána az Újszövetség.";
   return s;}
 function bibleModeName(p){
+  if(bibleFree(p))return bibleScopeName(p.scope)+" · szabad sorrend";
   const parts=[bibleScopeName(p.scope)];
   if(p.order==="chronological")parts.push("kronologikus");
   if(p.scope==="full"&&p.parallel)parts.push("párhuzamos ÓSZ+ÚSZ");
@@ -2852,9 +2875,13 @@ function computeBiblePlan(p){
    (2) KORREKCIÓ: a mai keret = napi adag ± a tegnapig felgyűlt különbség
        (legfeljebb egynapi adaggal), így a lekerekítések kiegyenlítődnek és a
        terv a kitűzött időre elkészül. --------------------------------------- */
+/* A terv haladása a LEGELSŐ olvasatlan egységtől megy — NEM a kurzortól.
+   (Korábban a kurzortól indult, ezért ha a kurzor előreugrott — pl. az olvasóban a ›
+   nyíllal, a könyv-választóval vagy a kvíz „mutasd a kontextust” gombjával —, a köztes
+   fejezetek kimaradtak a Ma-listából: „1Móz 3 után 1Móz 5”. A kurzor mostantól csak az
+   OLVASÓ pozíciója; a napi adag mindig az első olvasatlantól folytatódik.) */
 function bibleNextUnreadIdx(p,c){
-  const list=c.list;let i=c.pos[p.cursor];
-  if(i==null)i=0;
+  const list=c.list;let i=0;
   while(i<list.length&&p.read[list[i].id])i++;
   return i<list.length?i:-1;}
 /* hányadik olvasónapon járunk (az indulás napja az 1.) */
@@ -2938,14 +2965,22 @@ function bibleProgress(p){
     elapsed:elapsed};}
 
 /* ---- olvasás rögzítése ---- */
+/* A kurzor = az OLVASÓ pozíciója. Csak akkor mozdítjuk, ha a helye már olvasott
+   (különben visszarántaná a felhasználót, ha épp máshol olvas). */
+function bibleSyncCursor(p,c){
+  c=c||computeBiblePlan(p);
+  if(c.byId[p.cursor]&&!p.read[p.cursor])return;
+  const i=bibleNextUnreadIdx(p,c);
+  p.cursor=i>=0?c.list[i].id:(c.list.length?c.list[c.list.length-1].id:"GEN.1");}
 function bibleMarkRead(ids,on){
   const p=S.bible.plan;if(!p)return;
   const day=TODAY;
-  ids.forEach(function(id){if(on===false)delete p.read[id];else if(!p.read[id])p.read[id]=day;});
-  const c=computeBiblePlan(p);
-  const i=bibleNextUnreadIdx(p,c);
-  p.cursor=i>=0?c.list[i].id:(c.list.length?c.list[c.list.length-1].id:"GEN.1");
+  ids.forEach(function(id){if(on===false)delete p.read[id];else if(!p.read[id]){p.read[id]=day;bibleClearMark(id);}});
+  bibleSyncCursor(p);
   S.bible.updatedAt=Date.now();save();}
+/* a vers-könyvjelzőt eldobjuk, ha az adott szakaszt befejezettnek jelölte */
+function bibleClearMark(id){
+  const r=S.bible.reader;if(r&&r.mark&&r.mark.id===id)r.mark=null;}
 
 /* =================== RENDER =================== */
 function updateBibleNav(){
@@ -2969,27 +3004,64 @@ function renderBiblia(){
   else if(bibleTab==="olvaso")html+=bibleReaderHtml();
   else html+=bibleStatHtml();
   el.innerHTML=html;
-  el.querySelectorAll("[data-bt]").forEach(function(b){b.onclick=function(){bibleTab=b.dataset.bt;bibleBookOpen=null;renderBiblia();window.scrollTo(0,0);};});
+  el.querySelectorAll("[data-bt]").forEach(function(b){b.onclick=function(){
+    if(b.dataset.bt==="olvaso"){bibleOpenReader(false);return;}
+    bibleTab=b.dataset.bt;bibleBookOpen=null;renderBiblia();window.scrollTo(0,0);};});
   bibleBind(el);
   if(bibleTab==="olvaso"&&bibleBookOpen===null)bibleFillVerses();
   window.scrollTo(0,_sy);}
 
-/* ---- a „Ma” lista napra rögzített pillanatképe: mai olvasmány + ami ma már megvan ---- */
+/* ---- Olvasó megnyitása: a vers-könyvjelző az elsődleges („ott folytatom”) ----
+   fromMa=true (a Ma-lap gombja): ha nincs könyvjelző, a mai lista első még be nem
+   jelölt egységére ugrunk. Elavult (törölt/olvasottnak jelölt) könyvjelzőt eldobunk. */
+function bibleOpenReader(fromMa){
+  const p=S.bible.plan;if(!p)return;
+  const r=S.bible.reader||(S.bible.reader={fontScale:1,mark:null});
+  const c=computeBiblePlan(p);
+  if(r.mark&&(!c.byId[r.mark.id]||p.read[r.mark.id]))r.mark=null;
+  if(r.mark)p.cursor=r.mark.id;
+  else if(fromMa){
+    let go=null;
+    if(!bibleFree(p)){const ids=bibleMaTargets(p);for(let i=0;i<ids.length;i++)if(!p.read[ids[i]]){go=ids[i];break;}}
+    if(!go){const i=bibleNextUnreadIdx(p,c);if(i>=0)go=c.list[i].id;}
+    if(go)p.cursor=go;}
+  else if(!c.byId[p.cursor]){const i=bibleNextUnreadIdx(p,c);if(i>=0)p.cursor=c.list[i].id;}
+  S.bible.updatedAt=Date.now();save();
+  bibleTab="olvaso";bibleBookOpen=null;renderBiblia();window.scrollTo(0,0);}
+
+/* ---- a „Ma” lista: mai olvasmány + ami ma már megvan (bárhonnan) ----
+   Minden hívásnál újraszámoljuk, mert ha közben MÁSHONNAN (az olvasóban, más
+   könyvből) is olvastál és bejelölted, az elfogyasztja a mai keretet — ilyenkor a
+   sorban következő fejezetekből annyi esik ki a lista VÉGÉRŐL, amennyit máshol
+   elolvastál. Nullánál kevesebb nem lehet: a sor eleje sosem ugrik át semmit.
+   A „+ Következő fejezet” gombbal kézzel felvett tételek (extra) megmaradnak. */
 function bibleMaTargets(p){
-  if(bibleMa.date!==TODAY)bibleMa={date:TODAY,ids:[]};
-  if(!bibleMa.ids.length){
-    const c=computeBiblePlan(p);
-    const set={},out=[];
-    c.list.forEach(function(ch){if(p.read[ch.id]===TODAY){set[ch.id]=1;out.push(ch.id);}});
-    /* buildDailyReading már figyelembe veszi a ma bejelölteket a keretben */
-    buildDailyReading(p).ids.forEach(function(id){if(!set[id]){set[id]=1;out.push(id);}});
-    out.sort(function(a,b){return c.pos[a]-c.pos[b];});
-    bibleMa.ids=out;}
-  return bibleMa.ids.slice();}
+  if(bibleMa.date!==TODAY)bibleMa={date:TODAY,ids:[],extra:[]};
+  if(!Array.isArray(bibleMa.extra))bibleMa.extra=[];
+  const c=computeBiblePlan(p);
+  const set={},out=[];
+  /* 1) amit MA bejelöltél — bárhol a tervben (soron kívüli olvasás is látszik) */
+  c.list.forEach(function(ch){if(p.read[ch.id]===TODAY){set[ch.id]=1;out.push(ch.id);}});
+  /* 2) a terv szerinti mai adag (a keretből már levonva, amit ma máshol olvastál) */
+  buildDailyReading(p).ids.forEach(function(id){if(!set[id]){set[id]=1;out.push(id);}});
+  /* 3) kézzel felvett extra egységek */
+  bibleMa.extra.forEach(function(id){if(!set[id]&&c.byId[id]){set[id]=1;out.push(id);}});
+  out.sort(function(a,b){return c.pos[a]-c.pos[b];});
+  bibleMa.ids=out;
+  return out.slice();}
+/* hány egységet olvastál MA a soron kívül (a napi adag eleje elé/mögé esve)? */
+function bibleOffPlanToday(p,c,ids){
+  const first=bibleNextUnreadIdx(p,c);
+  const anchor=first>=0?first:c.list.length;
+  let n=0,w=0;
+  ids.forEach(function(id){if(p.read[id]===TODAY&&c.pos[id]>anchor){n++;w+=(c.byId[id]?c.byId[id].words:0);}});
+  return{n:n,w:w};}
 
 /* ---- "Ma" nézet: mai olvasmány + haladássáv ---- */
 function bibleMaHtml(){
-  const p=S.bible.plan,pr=bibleProgress(p),d=buildDailyReading(p);
+  const p=S.bible.plan;
+  if(bibleFree(p))return bibleFreeMaHtml();
+  const pr=bibleProgress(p),d=buildDailyReading(p);
   let h='<div class="section-title" style="margin-top:2px">Mai olvasmány</div><div class="card" style="padding:16px">';
   if(d.finished){
     h+='<div style="font-size:15px;line-height:1.6">🎉 <b>Végigolvastad</b> — '+esc(bibleScopeName(p.scope))+'. Gratulálunk!</div>'+
@@ -3003,6 +3075,8 @@ function bibleMaHtml(){
       h+='<div class="bday-sum">'+esc(bibleSpanLabel(c,ids))+'</div>';
       h+='<div class="hint" style="margin-top:5px">'+ids.length+' '+un+' · '+Math.round(totW).toLocaleString("hu-HU")+' szó · ≈ '+bibleMinLabel(totW/c.wpm)+'</div>';
       h+='<div class="hint" style="margin-top:10px;line-height:1.6">Pipáld ki, ameddig ma eljutottál — <b>'+bibleUnitAdverb(p)+'</b>. Kevesebbet olvastál? Csak a megfelelőt jelöld. Többet? A lenti gombbal <b>bővítsd a listát</b>.</div>';
+      const off=bibleOffPlanToday(p,c,ids);
+      if(off.n)h+='<div class="hint" style="margin-top:8px;line-height:1.6;color:var(--gold)">Ma <b>'+off.n+' '+un+'</b> a soron kívül is megvan (≈ '+Math.max(1,Math.round(off.w/c.wpm))+' perc) — beleszámít a haladásba, és a mai adag <b>végéről</b> ennyivel kevesebb maradt.</div>';
       h+='<div class="bible-daylist">'+ids.map(function(id){
           const on=!!p.read[id],sg=c.byId[id];
           return '<label class="bd-it'+(on?' done':'')+'"><input type="checkbox" data-bday="'+id+'"'+(on?' checked':'')+'>'+esc(bibleChLabel(id))+(sg?'<span style="color:var(--muted-2);font-weight:400"> · '+Math.max(1,Math.round(sg.words/c.wpm))+'p</span>':'')+'</label>';}).join("")+'</div>';
@@ -3033,6 +3107,91 @@ function bibleMaHtml(){
      bibleForecastHtml(p,pr.c)+'</div></details>'+
      '<div class="rub-actions" style="margin-top:12px"><button class="btn ghost sm" id="bEditPlan">Terv módosítása</button><button class="btn ghost sm" id="bStartPt">📍 Hol tartok most?</button><button class="btn ghost sm" id="bCalib">⏱ Olvasási idő kalibrálása</button></div>'+
      (pr.baseCh?'<div class="hint" style="margin-top:9px;color:var(--muted-2)">'+pr.baseCh+' '+bibleUnitNoun(p)+' az app előtt olvasottként jelöltél — beleszámít a haladásba, de nem a napi sorozatba.</div>':'')+'</div>';
+  return h;}
+
+/* ======================= SZABAD SORREND (order:"free") =======================
+   Nincs kötött napi lista: a felhasználó választja, mit olvas. Az app a napi
+   KERETET (idő/szó) és a céldátumot ugyanúgy számolja, csak nem köti sorrendhez —
+   és megmutatja, könyvenként mennyi van még hátra. ------------------------------ */
+function bibleFreeBooks(p,c){
+  const agg={},order=[];
+  c.list.forEach(function(seg){
+    let a=agg[seg.book];
+    if(!a){a=agg[seg.book]={book:seg.book,tot:0,done:0,w:0,wLeft:0,nextId:null};order.push(a);}
+    a.tot++;a.w+=seg.words;
+    if(p.read[seg.id])a.done++;
+    else{a.wLeft+=seg.words;if(!a.nextId)a.nextId=seg.id;}});
+  return order;}
+
+function bibleFreeRowHtml(b,c){
+  const left=b.tot-b.done;
+  const hot=left>0&&left<=3;
+  return '<button data-bfbk="'+b.book+'" class="'+(hot?"bb-hot":"")+'">'+
+    '<span>'+esc(bibleBookName(b.book))+(hot?' <span class="bb-badge">már csak '+left+'!</span>':'')+'</span>'+
+    '<span class="bb-r">'+(left>0?(left+' / '+b.tot+' hátra · ≈ '+bibleMinLabel(b.wLeft/c.wpm)):'kész ✓')+'</span></button>';}
+
+function bibleFreeRemainHtml(p,c){
+  const books=bibleFreeBooks(p,c);
+  const started=books.filter(function(b){return b.done>0&&b.done<b.tot;}).sort(function(x,y){return (x.tot-x.done)-(y.tot-y.done);});
+  const fresh=books.filter(function(b){return b.done===0;});
+  const fin=books.filter(function(b){return b.done>=b.tot;});
+  let remW=0,remN=0;books.forEach(function(b){remW+=b.wLeft;remN+=(b.tot-b.done);});
+  let h='<div class="section-title">Mi van még hátra?</div><div class="card" style="padding:16px">';
+  h+='<div class="hint" style="line-height:1.7">Összesen <b>'+remN+' fejezet</b> hiányzik ≈ <b>'+bibleMinLabel(remW/c.wpm)+'</b> olvasás. Koppints egy könyvre — az olvasóban rögtön a fejezetei nyílnak meg.</div>';
+  if(started.length){
+    const tip=started[0];
+    h+='<div class="hint" style="margin-top:9px;color:var(--gold);line-height:1.6">💡 Legközelebb ezt tudod befejezni: <b>'+esc(bibleBookName(tip.book))+'</b> — még '+(tip.tot-tip.done)+' fejezet.</div>';
+    h+='<div class="bs-lab" style="margin:13px 0 5px">Elkezdett könyvek</div><div class="bible-booklist">'+
+       started.map(function(b){return bibleFreeRowHtml(b,c);}).join("")+'</div>';}
+  if(fresh.length)
+    h+='<details class="advanced"><summary>📚 Még el sem kezdted ('+fresh.length+' könyv)<span class="chev">›</span></summary><div class="adv-body">'+
+       '<div class="bible-booklist">'+fresh.map(function(b){return bibleFreeRowHtml(b,c);}).join("")+'</div></div></details>';
+  if(fin.length)
+    h+='<details class="advanced"><summary>✅ Kész könyvek ('+fin.length+')<span class="chev">›</span></summary><div class="adv-body">'+
+       '<div class="bible-booklist">'+fin.map(function(b){return bibleFreeRowHtml(b,c);}).join("")+'</div></div></details>';
+  return h+'</div>';}
+
+function bibleFreeMaHtml(){
+  const p=S.bible.plan,pr=bibleProgress(p),c=pr.c;
+  const before=bibleWordsBeforeToday(p,c),todayW=bibleWordsToday(p,c);
+  const a=bibleAllowance(c,bibleDayNo(p),before);
+  const left=Math.max(0,a.allow-todayW);
+  const pctT=a.allow>0?Math.min(100,Math.round(todayW/a.allow*100)):100;
+  const todayIds=c.list.filter(function(s){return p.read[s.id]===TODAY;}).map(function(s){return s.id;});
+  let h='<div class="section-title" style="margin-top:2px">Mai olvasás</div><div class="card" style="padding:16px">';
+  if(pr.remCh<=0){
+    h+='<div style="font-size:15px;line-height:1.6">🎉 <b>Végigolvastad</b> — '+esc(bibleScopeName(p.scope))+'. Gratulálunk!</div>'+
+       '<div class="rub-actions" style="margin-top:12px"><button class="btn ghost sm" id="bNewPlan">Új terv indítása</button></div>';
+  }else{
+    h+='<div class="bday-sum">Szabad sorrend — te választod meg</div>';
+    h+='<div class="hint" style="margin-top:5px;line-height:1.7">Mai keret: <b>'+bibleMinLabel(a.allow/c.wpm)+'</b> ≈ <b>'+bibleNumHu(a.allow)+' szó</b>'+
+       (Math.abs(a.carry)>=c.dailyWordBudget*0.05?(a.carry>0?' <span style="color:var(--loss)">(a lemaradás miatt több)</span>':' <span style="color:var(--gold)">(az előnyöd miatt kevesebb)</span>'):'')+'</div>';
+    h+='<div class="bible-bar" style="margin-top:9px"><i style="width:'+pctT+'%"></i></div>';
+    h+='<div class="hint" style="margin-top:6px;line-height:1.7">Ma eddig: <b>'+todayIds.length+' fejezet</b> · ≈ '+bibleMinLabel(todayW/c.wpm)+
+       (left>0?(' — a mai keretből még ≈ <b>'+bibleMinLabel(left/c.wpm)+'</b> van hátra.'):' — <b>a mai keret megvan ✓</b>')+'</div>';
+    if(todayIds.length){
+      h+='<div class="bible-daylist">'+todayIds.map(function(id){
+          const sg=c.byId[id];
+          return '<label class="bd-it done"><input type="checkbox" data-bday="'+id+'" checked>'+esc(bibleChLabel(id))+(sg?'<span style="color:var(--muted-2);font-weight:400"> · '+Math.max(1,Math.round(sg.words/c.wpm))+'p</span>':'')+'</label>';}).join("")+'</div>';
+      h+='<div class="hint" style="margin-top:8px;color:var(--muted-2)">A pipát levéve visszavonhatod a jelölést.</div>';
+    }else{
+      h+='<div class="hint" style="margin-top:10px;line-height:1.6">Ma még nem jelöltél be semmit. Nyisd meg az olvasót, válaszd ki, mit szeretnél olvasni — a fejezet végén az <b>Olvasottnak jelölöm</b> gombbal rögzítheted.</div>';}
+    h+='<div class="rub-actions" style="margin-top:12px"><button class="btn ghost sm" id="bReadOpen">📖 Megnyitom az olvasóban</button><button class="btn ghost sm" id="bFreePick">📚 Könyv választása</button></div>';
+  }
+  h+='</div>';
+  h+=bibleQuizCardHtml();
+  h+=bibleFreeRemainHtml(p,c);
+  h+='<div class="section-title">Haladás</div><div class="card" style="padding:16px">'+bibleProgressHtml(pr)+
+     '<details class="advanced"><summary>📊 Részletes haladás<span class="chev">›</span></summary><div class="adv-body">'+
+     bibleProgressDetailHtml(pr)+'</div></details></div>';
+  h+='<div class="section-title">Terv</div><div class="card" style="padding:16px">'+
+     '<div class="hint" style="line-height:1.7">'+esc(bibleModeName(p))+' · napi ≈ <b>'+bibleMinLabel(pr.c.dailyMinutes)+'</b> = <b>'+bibleNumHu(pr.c.dailyWordBudget)+' szó</b> · '+
+     'olvasási sebesség <b>'+Math.round(pr.c.wpm)+'</b> szó/perc'+(S.bible.calib.wpm?' (kalibrált)':'')+'<br>Indulás: '+esc(p.startDate)+'</div>'+
+     '<div class="hint" style="margin-top:7px;color:var(--muted-2);line-height:1.6">Szabad sorrendben nincs kötelező napi lista — csak <b>napi keret</b>. Amit elolvasol, azt az app beszámítja, és ebből számolja, mikor érsz a végére.</div>'+
+     '<details class="advanced"><summary>🧮 Hogyan jön ki a napi adag?<span class="chev">›</span></summary><div class="adv-body">'+
+     bibleCalcHtml(p,pr.c,{allow:a.allow,carry:a.carry,budget:a.budget,todayWords:todayW,words:0,ids:[],spill:null,finished:false})+'</div></details>'+
+     '<div class="rub-actions" style="margin-top:12px"><button class="btn ghost sm" id="bEditPlan">Terv módosítása</button><button class="btn ghost sm" id="bStartPt">📍 Hol tartok most?</button><button class="btn ghost sm" id="bCalib">⏱ Olvasási idő kalibrálása</button></div>'+
+     (pr.baseCh?'<div class="hint" style="margin-top:9px;color:var(--muted-2)">'+pr.baseCh+' fejezet az app előtt olvasottként jelöltél — beleszámít a haladásba, de nem a napi sorozatba.</div>':'')+'</div>';
   return h;}
 
 /* ---- „Mit jelent a napi keret az egyes könyvekben?" — ez teszi láthatóvá, hogy a
@@ -3073,7 +3232,9 @@ function bibleCalcHtml(p,c,d){
     '</div>';
   h+='<div class="hint" style="margin-top:11px;line-height:1.7">A napi adag <b>szóra</b> megy, nem '+un+'számra: minden nap annyi '+un+'t kapsz, amennyi kiadja a napi keretet. Ezért a '+un+'szám könyvenként erősen változik, az <b>idő viszont nagyjából állandó</b>.</div>';
   h+=biblePaceHtml(p,c);
-  h+='<div class="hint" style="margin-top:11px;line-height:1.7">Fél '+un+'-et nem olvasunk, ezért a napi adag ingadozik. Ha egy '+un+' <b>átlógna</b> a napi kereten: <b>ma</b> kapod meg, ha még legalább a <b>fele</b> belefér — ha kevesebb, <b>holnapra</b> kerül. A különbséget a rendszer másnap <b>korrigálja</b> (legfeljebb egynapi adaggal), így a lekerekítések kiegyenlítődnek, és a terv a kitűzött időre elkészül.</div>';
+  h+=bibleFree(p)
+    ?'<div class="hint" style="margin-top:11px;line-height:1.7">Szabad sorrendben te választod ki, mit olvasol — a keret csak azt mondja meg, <b>mennyit</b> érdemes ma. Ha egy nap kevesebbet olvasol, a különbséget a rendszer másnap <b>korrigálja</b> (legfeljebb egynapi adaggal), így a céldátum tartható marad.</div>'
+    :'<div class="hint" style="margin-top:11px;line-height:1.7">Fél '+un+'-et nem olvasunk, ezért a napi adag ingadozik. Ha egy '+un+' <b>átlógna</b> a napi kereten: <b>ma</b> kapod meg, ha még legalább a <b>fele</b> belefér — ha kevesebb, <b>holnapra</b> kerül. A különbséget a rendszer másnap <b>korrigálja</b> (legfeljebb egynapi adaggal), így a lekerekítések kiegyenlítődnek, és a terv a kitűzött időre elkészül.</div>';
   if(d&&!d.finished){
     const cr=Math.round(d.carry);
     h+='<div class="hint" style="margin-top:9px;line-height:1.7"><b>Mai keret:</b> '+bibleNumHu(d.allow)+' szó'+
@@ -3135,6 +3296,25 @@ function bibleNiceDate(k){const d=keyToDate(k);
   return d.getFullYear()+". "+["január","február","március","április","május","június","július","augusztus","szeptember","október","november","december"][d.getMonth()]+" "+d.getDate()+"-én";}
 
 /* ---- Olvasó: szegmens-navigáció + szöveg + könyv-checklist ---- */
+/* Könyvjelző-sor (vagy a rá vonatkozó tipp), külön függvényben, mert versre
+   koppintáskor csak ezt a kis darabot rajzoljuk újra. */
+function bibleMarkRowHtml(id){
+  const mk=S.bible.reader&&S.bible.reader.mark;
+  return (mk&&mk.id===id)
+    ?'<div class="bmark-row">🔖 Itt hagytad abba: <b>'+mk.v+'. vers</b><button class="bmark-x" id="bMarkClear">Törlés</button></div>'
+    :'<div class="hint" style="margin:2px 0 8px;color:var(--muted-2)">Félbe kell hagynod? <b>Koppints arra a versre</b>, ameddig eljutottál — az app megjegyzi, és legközelebb ott nyílik meg.</div>';}
+function bibleBindMarkRow(id){
+  const b=document.getElementById("bMarkClear");
+  if(b)b.onclick=function(){
+    const r=S.bible.reader;if(r)r.mark=null;
+    S.bible.updatedAt=Date.now();save();
+    document.querySelectorAll("#bVerses .bv.marked").forEach(function(x){x.classList.remove("marked");});
+    bibleRefreshMarkRow(id);toast("Könyvjelző törölve");};}
+function bibleRefreshMarkRow(id){
+  const row=document.getElementById("bMarkRow");
+  if(!row)return;
+  row.innerHTML=bibleMarkRowHtml(id);
+  bibleBindMarkRow(id);}
 function bibleReaderHtml(){
   const p=S.bible.plan,c=computeBiblePlan(p),un=bibleUnitNoun(p);
   if(bibleBookOpen){
@@ -3164,9 +3344,10 @@ function bibleReaderHtml(){
   h+='<div class="card" style="padding:16px">'+
      '<div class="hint" style="margin-bottom:6px">'+vc+' vers · '+seg.words+' szó · ≈ '+Math.max(1,Math.round(seg.words/c.wpm))+' perc'+(seg.par?' · <span style="color:var(--muted-2)">párhuzamos hely</span>':'')+(p.read[id]?' · <b style="color:var(--gold)">olvasva ✓</b>':'')+'</div>'+
      '<div class="bfont-row"><span class="bfl">Betűméret</span><button class="bfont-btn sm" id="bFontDn">A−</button><button class="bfont-btn lg" id="bFontUp">A+</button></div>'+
+     '<div id="bMarkRow">'+bibleMarkRowHtml(id)+'</div>'+
      '<div class="bible-verses" id="bVerses" style="font-size:'+(16*fscale).toFixed(1)+'px">Betöltés…</div>'+
      '<button class="btn wide" id="bReadNext" style="margin-top:14px">'+(p.read[id]?'Következő '+un+' ›':'Olvasottnak jelölöm és tovább ›')+'</button>'+
-     '<div class="rub-actions" style="margin-top:10px"><button class="btn ghost sm" id="bJump">Ugrás N '+bibleUnitInstr(p)+'…</button>'+(p.read[id]?'<button class="btn ghost sm" id="bUnread">Olvasottság visszavonása</button>':'')+'</div></div>';
+     (p.read[id]?'<div class="rub-actions" style="margin-top:10px"><button class="btn ghost sm" id="bUnread">Olvasottság visszavonása</button></div>':'')+'</div>';
   return h;}
 
 function bibleFillVerses(){
@@ -3176,13 +3357,31 @@ function bibleFillVerses(){
     const cur=document.getElementById("bVerses");
     if(!cur||S.bible.plan.cursor!==seg.id)return;
     const vs=((t.chapters[String(seg.ch)]||{}).verses)||{};
+    const mk=S.bible.reader&&S.bible.reader.mark;
+    const mv=(mk&&mk.id===seg.id)?mk.v:0;
     let html="";
     seg.ranges.forEach(function(r,ri){
       if(ri>0)html+='<div class="bv-gap">⋯</div>';   /* kihagyott versek jelzése két tartomány közt */
-      for(let v=r[0];v<=r[1];v++){const tx=vs[String(v)];if(tx!=null)html+='<div class="bv"><span class="bvn">'+v+'</span>'+esc(tx)+'</div>';}
+      for(let v=r[0];v<=r[1];v++){const tx=vs[String(v)];if(tx!=null)html+='<div class="bv'+(v===mv?' marked':'')+'" data-bvv="'+v+'"><span class="bvn">'+v+'</span>'+esc(tx)+'</div>';}
     });
     cur.innerHTML=html||'<div class="hint">Nincs szöveg.</div>';
+    bibleBindVerses(cur,seg);
+    if(mv){const t2=cur.querySelector('.bv.marked');
+      if(t2)setTimeout(function(){try{t2.scrollIntoView({block:"center"});}catch(e){}},30);}
   }).catch(function(){const cur=document.getElementById("bVerses");if(cur)cur.innerHTML='<div class="hint">A szöveg nem tölthető be (offline és még nincs cache-elve).</div>';});}
+
+/* Versre koppintás = könyvjelző („eddig jutottam”). Ugyanarra a versre újra koppintva törlődik. */
+function bibleBindVerses(box,seg){
+  box.querySelectorAll("[data-bvv]").forEach(function(d){d.onclick=function(){
+    const v=Number(d.dataset.bvv);
+    const r=S.bible.reader||(S.bible.reader={fontScale:1,mark:null});
+    const on=r.mark&&r.mark.id===seg.id&&r.mark.v===v;
+    r.mark=on?null:{id:seg.id,v:v};
+    S.bible.updatedAt=Date.now();save();
+    box.querySelectorAll(".bv.marked").forEach(function(x){x.classList.remove("marked");});
+    if(!on)d.classList.add("marked");
+    bibleRefreshMarkRow(seg.id);
+    toast(on?"Könyvjelző törölve":("Könyvjelző: "+bibleSegLabel(seg)+":"+v));};});}
 
 /* ---- Statisztika + heatmap ---- */
 function bibleDayMap(){
@@ -3277,11 +3476,13 @@ function renderBiblePlanner(){
   h+='<div class="bs-lab" style="margin-bottom:7px">Mit olvasol végig?</div><div class="seg" style="margin-top:0">'+
      [["full","Teljes"],["ot","Csak ÓSZ"],["nt","Csak ÚSZ"]].map(function(x){
        return '<button data-bscope="'+x[0]+'" class="'+(d.scope===x[0]?"active":"")+'">'+x[1]+'</button>';}).join("")+'</div>';
-  if(bibleHasChron())
-    h+='<div class="bs-lab" style="margin:14px 0 7px">Sorrend</div><div class="seg" style="margin-top:0">'+
-       [["canonical","Hagyományos"],["chronological","Kronologikus"]].map(function(x){
-         return '<button data-border="'+x[0]+'" class="'+(d.order===x[0]?"active":"")+'">'+x[1]+'</button>';}).join("")+'</div>';
-  if(d.scope==="full")
+  {const ords=[["canonical","Hagyományos"]];
+   if(bibleHasChron())ords.push(["chronological","Kronologikus"]);
+   ords.push(["free","Szabad"]);
+   h+='<div class="bs-lab" style="margin:14px 0 7px">Sorrend</div><div class="seg" style="margin-top:0">'+
+      ords.map(function(x){
+        return '<button data-border="'+x[0]+'" class="'+(d.order===x[0]?"active":"")+'">'+x[1]+'</button>';}).join("")+'</div>';}
+  if(d.scope==="full"&&d.order!=="free")
     h+='<div class="bs-lab" style="margin:14px 0 7px">Olvasásmód</div><div class="seg" style="margin-top:0">'+
        [["seq","Végig (ÓSZ→ÚSZ)"],["par","Párhuzamos ÓSZ+ÚSZ"]].map(function(x){
          return '<button data-bpar="'+x[0]+'" class="'+(((x[0]==="par")===!!d.parallel)?"active":"")+'">'+x[1]+'</button>';}).join("")+'</div>';
@@ -3360,7 +3561,10 @@ function bibleMonthsLabel(m){
 function bibleBindPlanner(el){
   const d=biblePlanDraft;
   el.querySelectorAll("[data-bscope]").forEach(function(b){b.onclick=function(){d.scope=b.dataset.bscope;renderBiblePlanner();};});
-  el.querySelectorAll("[data-border]").forEach(function(b){b.onclick=function(){d.order=b.dataset.border;renderBiblePlanner();};});
+  el.querySelectorAll("[data-border]").forEach(function(b){b.onclick=function(){
+    d.order=b.dataset.border;
+    if(d.order==="free")d.parallel=false;   /* szabad sorrendnél a párhuzamos összefésülésnek nincs értelme */
+    renderBiblePlanner();};});
   el.querySelectorAll("[data-bpar]").forEach(function(b){b.onclick=function(){d.parallel=(b.dataset.bpar==="par");renderBiblePlanner();};});
   const refresh=bibleSyncSliders;
   (function bindSliders(){
@@ -3415,26 +3619,30 @@ function bibleBind(el){
   /* Ma: fejezetenként bejelölhető lista */
   el.querySelectorAll("[data-bday]").forEach(function(cb){cb.onchange=function(){
     const id=cb.dataset.bday;
-    if(cb.checked){if(!p.read[id])p.read[id]=TODAY;}
+    if(cb.checked){if(!p.read[id]){p.read[id]=TODAY;bibleClearMark(id);}}
     else delete p.read[id];
-    const c2=computeBiblePlan(p),i=bibleNextUnreadIdx(p,c2);
-    p.cursor=i>=0?c2.list[i].id:p.cursor;
+    bibleSyncCursor(p);
     S.bible.updatedAt=Date.now();save();renderBiblia();};});
   const maMore=document.getElementById("bMaMore");
   if(maMore)maMore.onclick=function(){
     const c2=computeBiblePlan(p),inset={};bibleMa.ids.forEach(function(x){inset[x]=1;});
     let add=null;for(const ch of c2.list){if(!p.read[ch.id]&&!inset[ch.id]){add=ch.id;break;}}
     if(!add){toast("Nincs több olvasatlan fejezet a tervben");return;}
-    bibleMa.ids.push(add);bibleMa.ids.sort(function(a,b){return c2.pos[a]-c2.pos[b];});
+    if(!Array.isArray(bibleMa.extra))bibleMa.extra=[];
+    bibleMa.extra.push(add);
     renderBiblia();};
   const maAll=document.getElementById("bMaAll");
   if(maAll)maAll.onclick=function(){
-    bibleMa.ids.forEach(function(id){if(!p.read[id])p.read[id]=TODAY;});
-    const c2=computeBiblePlan(p),i=bibleNextUnreadIdx(p,c2);
-    p.cursor=i>=0?c2.list[i].id:p.cursor;
+    bibleMa.ids.forEach(function(id){if(!p.read[id]){p.read[id]=TODAY;bibleClearMark(id);}});
+    bibleSyncCursor(p);
     S.bible.updatedAt=Date.now();save();renderBiblia();toast("Mai olvasmány bejelölve ✓");};
   const rOpen=document.getElementById("bReadOpen");
-  if(rOpen)rOpen.onclick=function(){bibleTab="olvaso";bibleBookOpen=null;renderBiblia();window.scrollTo(0,0);};
+  if(rOpen)rOpen.onclick=function(){bibleOpenReader(true);};
+  const fpick=document.getElementById("bFreePick");
+  if(fpick)fpick.onclick=function(){bibleTab="olvaso";bibleBookOpen=null;renderBiblia();bibleBookPicker();};
+  /* „Mi van még hátra?” — könyvre koppintva az olvasó fejezet-rácsa nyílik meg */
+  el.querySelectorAll("[data-bfbk]").forEach(function(b){b.onclick=function(){
+    bibleBookOpen=b.dataset.bfbk;bibleTab="olvaso";renderBiblia();window.scrollTo(0,0);};});
   const spt=document.getElementById("bStartPt");
   if(spt)spt.onclick=bibleSetStartPoint;
   /* Olvasó: betűméret */
@@ -3463,22 +3671,14 @@ function bibleBind(el){
   const rn=document.getElementById("bReadNext");
   if(rn)rn.onclick=function(){
     const i=c.pos[p.cursor];
-    if(!p.read[p.cursor])p.read[p.cursor]=TODAY;
+    if(!p.read[p.cursor]){p.read[p.cursor]=TODAY;bibleClearMark(p.cursor);}
     p.cursor=(i<c.list.length-1)?c.list[i+1].id:p.cursor;
     S.bible.updatedAt=Date.now();save();renderBiblia();};
   const un=document.getElementById("bUnread");
   if(un)un.onclick=function(){delete p.read[p.cursor];S.bible.updatedAt=Date.now();save();renderBiblia();toast("Visszavonva");};
   const pick=document.getElementById("bPick");
   if(pick)pick.onclick=bibleBookPicker;
-  const jump=document.getElementById("bJump");
-  if(jump)jump.onclick=function(){
-    const raw=prompt("Hány fejezettel ugorjak? (előre: pozitív, vissza: negatív)\nElőre ugrásnál a közben átlépett fejezetek olvasottnak számítanak.","1");
-    if(raw==null)return;
-    const n=Math.round(Number(raw));if(!n)return;
-    const i=c.pos[p.cursor],j=Math.max(0,Math.min(c.list.length-1,i+n));
-    if(n>0){for(let k=i;k<j;k++)if(!p.read[c.list[k].id])p.read[c.list[k].id]=TODAY;}
-    p.cursor=c.list[j].id;S.bible.updatedAt=Date.now();save();renderBiblia();
-    toast(n>0?(j-i)+" fejezet olvasottnak jelölve":"Visszaléptünk");};
+  if(document.getElementById("bMarkRow"))bibleBindMarkRow(p.cursor);
   /* könyv-checklist */
   const bb=document.getElementById("bBookBack");
   if(bb)bb.onclick=function(){bibleBookOpen=null;renderBiblia();};
@@ -3488,7 +3688,8 @@ function bibleBind(el){
     const segs=c.list.filter(function(s){return s.book+"."+s.ch===chId;});
     function toggle(){long=true;
       const allRead=segs.length>0&&segs.every(function(s){return p.read[s.id];});
-      segs.forEach(function(s){if(allRead)delete p.read[s.id];else if(!p.read[s.id])p.read[s.id]=TODAY;});
+      segs.forEach(function(s){if(allRead)delete p.read[s.id];else if(!p.read[s.id]){p.read[s.id]=TODAY;bibleClearMark(s.id);}});
+      bibleSyncCursor(p);
       S.bible.updatedAt=Date.now();save();renderBiblia();}
     b.onpointerdown=function(){long=false;t=setTimeout(toggle,500);};
     b.onpointerup=b.onpointerleave=b.onpointercancel=function(){if(t)clearTimeout(t);t=null;};
@@ -3852,6 +4053,8 @@ function quizSheet(html){const s=document.getElementById("modalSheet");if(s)s.in
 
 function quizRender(){
   if(!quizS)return;
+  if(quizS.view==="ctx"){quizRenderCtx();return;}
+  if(quizS.view==="report"){quizRenderReport();return;}
   const q=quizS.queue[quizS.idx],n=quizS.queue.length;
   let h='<button class="close-x" id="mClose">✕</button>';
   h+='<div class="quiz-top"><span>'+(quizS.idx+1)+' / '+n+' kérdés</span><span class="quiz-diff'+(q.diff==="veryhard"?" vh":"")+'">'+(q.diff==="veryhard"?"nagyon nehéz":"nehéz")+'</span></div>';
@@ -3865,16 +4068,18 @@ function quizRender(){
   if(quizS.answered){
     const ok=quizS.picked===q.correct;
     h+='<div class="quiz-reveal '+(ok?"ok":"no")+'">'+(ok?"✓ Helyes":"✗ Nem talált")+' — <b>'+esc(q.ref)+'</b></div>';
-    h+='<div class="quiz-actions"><button class="btn ghost sm" id="qCtx">📖 Mutasd a kontextust</button><button class="btn ghost sm" id="qReport">⚑ Hibás kérdés</button></div>';
+    const done=quizS.reported&&quizS.reported[q.id];
+    h+='<div class="quiz-actions"><button class="btn ghost sm" id="qCtx">📖 Mutasd a kontextust</button><button class="btn ghost sm" id="qReport"'+(done?" disabled":"")+'>'+(done?"⚑ Jelentve":"⚑ Hibás kérdés")+'</button></div>';
     h+='<button class="btn wide" id="qNext" style="margin-top:12px">'+(quizS.idx<n-1?"Következő ›":"Befejezés")+'</button>';
   }else{
-    h+='<div class="quiz-actions" style="margin-top:12px"><button class="btn ghost sm" id="qReport">⚑ Hibás kérdés</button></div>';
+    const done=quizS.reported&&quizS.reported[q.id];
+    h+='<div class="quiz-actions" style="margin-top:12px"><button class="btn ghost sm" id="qReport"'+(done?" disabled":"")+'>'+(done?"⚑ Jelentve":"⚑ Hibás kérdés")+'</button></div>';
   }
   quizSheet(h);
   const c=document.getElementById("mClose");if(c)c.onclick=function(){quizAbort();};
   document.querySelectorAll("#modalSheet [data-qo]").forEach(function(b){b.onclick=function(){quizAnswer(Number(b.dataset.qo));};});
   const nx=document.getElementById("qNext");if(nx)nx.onclick=quizNext;
-  const rp=document.getElementById("qReport");if(rp)rp.onclick=function(){quizReport(q,rp);};
+  const rp=document.getElementById("qReport");if(rp)rp.onclick=function(){quizOpenReport();};
   const cx=document.getElementById("qCtx");if(cx)cx.onclick=function(){quizShowContext(q);};}
 
 function quizAnswer(i){
@@ -3913,19 +4118,91 @@ function quizFinish(){
 
 function quizAbort(){quizS=null;closeScreen();if(curTab==="biblia")renderBiblia();}
 
+/* ---- KONTEXTUS a kvízen BELÜL ----------------------------------------------
+   Korábban ez átdobott az olvasóba, és a kvíz elveszett. Most a kvíz-ablakon
+   belül nyílik egy görgethető igehely-nézet: a kérdés verse kiemelve, a nyilakkal
+   előre-hátra lehet olvasni, és a „Vissza a kvízhez” gombbal (vagy a ✕-szel)
+   pontosan ott folytatod, ahol abbahagytad. ---------------------------------- */
+function quizCtxRange(ref){
+  const m=String(ref||"").match(/[,:.]\s*(\d+)\s*[-–—]\s*(\d+)|[,:]\s*(\d+)/);
+  if(!m)return null;
+  if(m[1]){const a=Number(m[1]),b=Number(m[2]);return [Math.min(a,b),Math.max(a,b)];}
+  const a=Number(m[3]);return [a,a];}
+function quizCtxNeighbor(id,delta){
+  const ch=BMAP[id];if(!ch||!BMETA)return null;
+  const j=ch.i+delta;
+  return (j>=0&&j<BMETA.chapters.length)?BMETA.chapters[j].id:null;}
 function quizShowContext(q){
   const id=q.chapterId;if(!id||!BMAP[id]){toast("Nincs kontextus ehhez a kérdéshez","warn");return;}
-  quizS=null;
-  S.bible.plan.cursor=id;bibleTab="olvaso";bibleBookOpen=null;S.bible.updatedAt=Date.now();save();
-  closeScreen();
-  if(curTab==="biblia")renderBiblia();else switchTab("biblia");
-  toast("Kontextus: "+bibleChLabel(id));}
+  quizS.view="ctx";quizS.ctx={id:id,home:id,range:quizCtxRange(q.ref)};
+  quizRender();}
+function quizCtxBack(){if(!quizS)return;quizS.view=null;quizS.ctx=null;quizRender();}
+function quizRenderCtx(){
+  const q=quizS.queue[quizS.idx],cx=quizS.ctx,ch=BMAP[cx.id];
+  if(!ch){quizCtxBack();return;}
+  const fscale=(S.bible.reader&&S.bible.reader.fontScale)||1;
+  let h='<button class="close-x" id="mClose">✕</button><h3>📖 '+esc(bibleBookName(ch.book)+" "+ch.ch)+'</h3>';
+  h+='<div class="hint" style="line-height:1.65">A kérdés igehelye: <b>'+esc(q.ref)+'</b>'+(cx.id===cx.home?' — <b>kiemelve</b> alább':'')+'. Görgethetsz, a nyilakkal pedig tovább olvashatsz a szomszédos fejezetekbe. A kvíz addig is <b>megvár</b>.</div>';
+  h+='<div class="bible-navrow" style="margin-top:11px">'+
+     '<button class="bn-arrow" id="qCtxPrev"'+(quizCtxNeighbor(cx.id,-1)?"":" disabled")+'>‹</button>'+
+     '<div class="bn-mid">'+esc(bibleBookName(ch.book)+" "+ch.ch)+'</div>'+
+     '<button class="bn-arrow" id="qCtxNext"'+(quizCtxNeighbor(cx.id,1)?"":" disabled")+'>›</button></div>';
+  h+='<div class="quiz-ctx bible-verses" id="qCtxBody" style="font-size:'+(15*fscale).toFixed(1)+'px">Betöltés…</div>';
+  h+='<button class="btn wide" id="qCtxBack" style="margin-top:14px">‹ Vissza a kvízhez</button>';
+  quizSheet(h);
+  const c=document.getElementById("mClose");if(c)c.onclick=quizCtxBack;
+  const bk=document.getElementById("qCtxBack");if(bk)bk.onclick=quizCtxBack;
+  const pv=document.getElementById("qCtxPrev");if(pv)pv.onclick=function(){const n=quizCtxNeighbor(cx.id,-1);if(n){cx.id=n;quizRender();}};
+  const nx=document.getElementById("qCtxNext");if(nx)nx.onclick=function(){const n=quizCtxNeighbor(cx.id,1);if(n){cx.id=n;quizRender();}};
+  bibleLoadText(ch.book).then(function(t){
+    const box=document.getElementById("qCtxBody");
+    if(!box||!quizS||quizS.view!=="ctx"||quizS.ctx.id!==ch.id)return;
+    const vs=((t.chapters[String(ch.ch)]||{}).verses)||{};
+    const rg=(cx.id===cx.home)?cx.range:null;
+    let html="";
+    Object.keys(vs).sort(function(a,b){return Number(a)-Number(b);}).forEach(function(n){
+      const v=Number(n),hit=rg&&v>=rg[0]&&v<=rg[1];
+      html+='<div class="bv'+(hit?' marked':'')+'"><span class="bvn">'+n+'</span>'+esc(vs[n])+'</div>';});
+    box.innerHTML=html||'<div class="hint">Nincs szöveg.</div>';
+    const first=box.querySelector(".bv.marked");
+    if(first)setTimeout(function(){try{box.scrollTop=Math.max(0,first.offsetTop-box.offsetTop-60);}catch(e){}},20);
+  }).catch(function(){const box=document.getElementById("qCtxBody");
+    if(box)box.innerHTML='<div class="hint">A szöveg nem tölthető be (offline és még nincs cache-elve).</div>';});}
 
-function quizReport(q,btn){
-  if(!quizCanWrite()){toast("A hibás kérdés jelentéséhez lépj be a Fiók fülön.","warn");return;}
-  if(btn){btn.disabled=true;btn.textContent="⚑ Jelentve";}
-  window.Cloud.quizReport({qid:q.id,chapterId:q.chapterId||""}).then(function(){toast("Köszönjük, megnézzük.");})
-    .catch(function(){toast("Nem sikerült elküldeni","down");if(btn){btn.disabled=false;btn.textContent="⚑ Hibás kérdés";}});}
+/* ---- HIBÁS KÉRDÉS: rövid indoklással, a kvízből ki nem lépve ---- */
+function quizOpenReport(){if(!quizS)return;quizS.view="report";quizRender();}
+function quizReportBack(){if(!quizS)return;quizS.view=null;quizRender();}
+function quizRenderReport(){
+  const q=quizS.queue[quizS.idx];
+  const can=quizCanWrite();
+  let h='<button class="close-x" id="mClose">✕</button><h3>⚑ Hibás kérdés jelentése</h3>';
+  h+='<div class="quiz-rep-q">'+esc(q.q)+'<div class="quiz-rep-ref">'+esc(q.ref||"")+'</div></div>';
+  if(!can){
+    h+='<div class="hint" style="line-height:1.7;margin-top:12px">A jelentéshez <b>be kell lépned</b> a Fiók fülön (Google-fiókkal) — így tudjuk kiszűrni a visszaéléseket. Lépj be, és a következő kvíznél már működni fog.</div>';
+    h+='<button class="btn wide" id="qRepCancel" style="margin-top:16px">‹ Vissza a kvízhez</button>';
+  }else{
+    h+='<div class="hint" style="line-height:1.7;margin-top:10px">Mi a baj vele? Pár szó is sokat segít — ebből tudjuk eldönteni, mit javítsunk. <b>Nem kötelező</b> kitölteni.</div>';
+    h+='<textarea class="input" id="qRepNote" rows="4" style="margin-top:9px;resize:vertical" placeholder="Pl. „a helyes válasz nem szerepel a fejezetben”, „két válasz is jó”, „rossz az igehely”, „félreérthető a kérdés”…">'+esc(quizS.repNote||"")+'</textarea>';
+    h+='<button class="btn wide" id="qRepSend" style="margin-top:12px">Elküldöm és folytatom</button>';
+    h+='<div class="rub-actions" style="margin-top:10px"><button class="btn ghost sm" id="qRepCancel">Mégsem — vissza a kvízhez</button></div>';
+  }
+  quizSheet(h);
+  const c=document.getElementById("mClose");if(c)c.onclick=quizReportBack;
+  const cn=document.getElementById("qRepCancel");if(cn)cn.onclick=quizReportBack;
+  const ta=document.getElementById("qRepNote");
+  if(ta)ta.oninput=function(){quizS.repNote=ta.value;};
+  const sd=document.getElementById("qRepSend");
+  if(sd)sd.onclick=function(){
+    const note=((ta&&ta.value)||"").trim().slice(0,1000);
+    sd.disabled=true;sd.textContent="Küldés…";
+    window.Cloud.quizReport({qid:q.id,chapterId:q.chapterId||"",note:note,ref:q.ref||"",qtext:String(q.q||"").slice(0,400)})
+      .then(function(){
+        if(!quizS)return;
+        quizS.reported=quizS.reported||{};quizS.reported[q.id]=1;quizS.repNote="";
+        quizReportBack();toast("Köszönjük, megnézzük.");})
+      .catch(function(){
+        sd.disabled=false;sd.textContent="Elküldöm és folytatom";
+        toast("Nem sikerült elküldeni","down");});};}
 
 /* ---- Kvíz-kártya a Biblia „Ma” nézetben ---- */
 function bibleQuizCardHtml(){
@@ -4344,6 +4621,14 @@ function bindCycDay(dayKey){
 
 /* --- „Mi újult meg?" (közérthető változásnapló) --- */
 const CHANGELOG=[
+ {v:5,title:"📖 Biblia — kényelmesebb olvasó és kvíz",items:[
+   "A kvízben a <b>📖 Mutasd a kontextust</b> már nem dob ki az olvasóba: a kvízen <b>belül</b> nyílik egy görgethető igehely-ablak, a kérdés verse <b>kiemelve</b>. A nyilakkal tovább is olvashatsz a szomszédos fejezetekbe, és bezárva <b>pontosan ott folytatod</b> a kvízt, ahol abbahagytad.",
+   "A <b>⚑ Hibás kérdés</b> gombnál mostantól rövid <b>indoklást</b> is írhatsz (mi a baj vele) — elküldve vagy mégsem-mel visszatérsz a kérdéshez.",
+   "Új <b>🔖 vers-könyvjelző</b>: ha egy fejezet felénél kell abbahagynod, koppints arra a versre, ameddig eljutottál. Az app halványan kiemeli, megjegyzi — és az olvasó legközelebb <b>ott nyílik meg</b>.",
+   "Javítottunk egy bosszantó hibát: a <b>Ma</b> lista néha <b>átugrott fejezeteket</b> (pl. 1Mózes 3 után rögtön az 5-öt). A napi adag mostantól mindig a <b>legelső olvasatlan</b> fejezettől folytatódik, akkor is, ha közben az olvasóban máshová lapoztál.",
+   "Ha <b>máshonnan</b> olvasol (más könyv, más fejezet) és bejelölöd, az mostantól <b>beszámít a napi keretbe</b>: a mai lista <b>végéről</b> annyival kevesebb marad. A sor eleje viszont sosem ugrik át semmit — így végig tudod, hol tartasz.",
+   "Új terv-típus a hagyományos és a kronologikus mellé: <b>Szabad sorrend</b>. Nincs kötött napi lista — te választod meg, mit olvasol, az app pedig számon tartja, mi van már meg, és <b>könyvenként mutatja, hány fejezet hiányzik</b> (kiemelve, amelyikből már csak pár maradt). A napi keret és a céldátum (pl. „egy év alatt végig”) itt is számít.",
+   "Az olvasóból kikerült az <b>„Ugrás N fejezettel”</b> gomb — a nyilak és a könyv-választó egyszerűbbek."]},
  {v:4,title:"🛟 Adatbiztonság — soha többé eltűnő adat",items:[
    "Javítottunk egy <b>súlyos szinkron-hibát</b>: ha egy <b>új eszközön</b> nyitottad meg az appot és beléptél, az ottani <b>üres</b> állapot „frissebbnek” számított, és <b>felülírta a felhőt</b> — onnan pedig a telefonodat is. Mostantól <b>üres állapot soha nem írhat felül</b> meglévő adatot, egyik irányba sem.",
    "Ha a két oldal érdemben eltér, az app <b>megkérdez</b>, és megmutatja mindkettőt (hány cél, hány nap, mikori) — magától <b>semmit nem töröl</b>.",
@@ -4419,7 +4704,11 @@ function goBack(){
   // a legfelső nyitott alnézetet zárja; igazat ad, ha kezelt valamit
   if(_menuOpen){closeMenu();const a=_pendingMenuAction;_pendingMenuAction=null;if(a)setTimeout(a,0);return true;}
   if(!document.getElementById("help").classList.contains("hidden")){document.getElementById("help").classList.add("hidden");return true;}
-  if(!document.getElementById("modal").classList.contains("hidden")){closeModal();return true;}
+  if(!document.getElementById("modal").classList.contains("hidden")){
+    /* a kvíz kontextus-/jelentés-nézetéből a vissza-gesztus a KÉRDÉSHEZ tér vissza,
+       nem zárja be a kvízt (a history-bejegyzést pótoljuk, hogy a mélység stimmeljen) */
+    if(quizS&&quizS.view){quizS.view=null;quizS.ctx=null;quizRender();pushScreen();return true;}
+    closeModal();return true;}
   if(curTab==="ma"&&maGoal){if(maMetric){maMetric=null;window.scrollTo(0,0);renderMa();updateDayFoot();return true;}maGoal=null;window.scrollTo(0,0);renderMa();updateDayFoot();return true;}
   if(curTab==="haladas"&&statGoal){if(statMetric){statMetric=null;window.scrollTo(0,0);renderHaladas();updateDayFoot();return true;}statGoal=null;window.scrollTo(0,0);renderHaladas();updateDayFoot();return true;}
   if(curTab==="celok"&&editing){if(formMetricIdx!=null){formMetricIdx=null;window.scrollTo(0,0);renderGoalForm();updateDayFoot();return true;}editing=null;formDraft=null;renderCelok();updateDayFoot();return true;}
@@ -4494,7 +4783,7 @@ function askCloudConflict(remote,api){
 /* =========================================================================
    2. RÉTEG — témák, súgó, tutorial, indokok, ünneplés, visszajelzés
    ========================================================================= */
-const APP_VERSION="v15";
+const APP_VERSION="v16";
 
 /* ---- témák ---- */
 const THEMES=[{id:"kert",name:"Üvegház",sw:"#2D6A4F"},{id:"papir",name:"Letisztult",sw:"#1B4332"},{id:"krem",name:"Papír",sw:"#B5852B"},{id:"arany",name:"Arany éj",sw:"#E5A83B"},{id:"erdo",name:"Erdő",sw:"#5FD08A"},{id:"ocean",name:"Óceán",sw:"#4FB0E5"},{id:"naplemente",name:"Naplemente",sw:"#E5744F"},{id:"ejjel",name:"Éjszakai",sw:"#C79A46"},{id:"film",name:"Filmvászon",sw:"#D8D8D8"}];
@@ -4682,7 +4971,7 @@ function showInfo(key){const i=INFO[key];if(!i)return;openModal('<button class="
 
 /* ---- SÚGÓ tartalom ---- */
 const HELP=[
-  {id:"kviz",title:"Bibliai kvíz",keywords:"kvíz kviz kérdés teszt vetélkedő biblia gemini bank riport jelentés igehely",html:'<p>A Biblia fül <b>Ma</b> nézetében a <b>📖 Mai kvíz</b> gombbal kőkemény, szövegértési kérdéseket kapsz a mai olvasmányból.</p><ul><li><b>Honnan jönnek?</b> Egy közös, közösségi bankból. Aki megadta a saját <b>Gemini-kulcsát</b> (Fiók fül), annak az appja AI-val új kérdéseket generál a frissen olvasott fejezetből, és a közös bankba menti — így a bank folyamatosan bővül. Kulcs nélkül is kvízezhetsz a meglévő kérdésekből.</li><li><b>Miért lehet néha pontatlan?</b> A kérdéseket mesterséges intelligencia írja a Károli-szövegből. A rendszer ellenőrzi, de tévedhet. Ezért minden kérdésnél ott a <b>⚑ Hibás kérdés</b> gomb — egy koppintás jelenti nekünk.</li><li><b>Helyes válasz és igehely:</b> minden kérdés megválaszolása után látod a helyes megoldást és a pontos vershivatkozást, a <b>📖 Mutasd a kontextust</b> gombbal pedig odaugorhatsz az olvasóban.</li><li><b>Ismétlés:</b> amit jól megválaszolsz, nem tér vissza; amit elrontasz, addig visszajön, amíg meg nem tanulod. A kvíz hosszát és a korábbi olvasmányok arányát a kvíz-kártyán állíthatod.</li></ul>'},
+  {id:"kviz",title:"Bibliai kvíz",keywords:"kvíz kviz kérdés teszt vetélkedő biblia gemini bank riport jelentés igehely",html:'<p>A Biblia fül <b>Ma</b> nézetében a <b>📖 Mai kvíz</b> gombbal kőkemény, szövegértési kérdéseket kapsz a mai olvasmányból.</p><ul><li><b>Honnan jönnek?</b> Egy közös, közösségi bankból. Aki megadta a saját <b>Gemini-kulcsát</b> (Fiók fül), annak az appja AI-val új kérdéseket generál a frissen olvasott fejezetből, és a közös bankba menti — így a bank folyamatosan bővül. Kulcs nélkül is kvízezhetsz a meglévő kérdésekből.</li><li><b>Miért lehet néha pontatlan?</b> A kérdéseket mesterséges intelligencia írja a Károli-szövegből. A rendszer ellenőrzi, de tévedhet. Ezért minden kérdésnél ott a <b>⚑ Hibás kérdés</b> gomb — és mellé rövid <b>indoklást</b> is írhatsz, hogy tudjuk, mit javítsunk. Elküldés (vagy mégsem) után ott folytatod a kvízt, ahol abbahagytad.</li><li><b>Helyes válasz és igehely:</b> minden kérdés megválaszolása után látod a helyes megoldást és a pontos vershivatkozást. A <b>📖 Mutasd a kontextust</b> gomb a kvízen <b>belül</b> nyit egy görgethető igehely-ablakot (a kérdés verse kiemelve, a nyilakkal tovább is olvashatsz) — bezárva visszakerülsz a kérdéshez.</li><li><b>Ismétlés:</b> amit jól megválaszolsz, nem tér vissza; amit elrontasz, addig visszajön, amíg meg nem tanulod. A kvíz hosszát és a korábbi olvasmányok arányát a kvíz-kártyán állíthatod.</li></ul>'},
   {id:"alap",title:"Mi ez az egész?",keywords:"kezdés alap áttekintés hogyan működik",html:'<p>A Trellis egy szokás- és célkövető. Célokat tűzöl ki, minden nap értékeled magad, és ahogy haladsz, <b>szintet lépsz</b> — mint egy játékban. Minden a saját eszközödön tárolódik; belépve több eszköz közt szinkronizál.</p><ul><li><b>Ma</b>: itt naplózol nap mint nap.</li><li><b>Célok</b>: itt hozol létre és szerkesztesz célokat.</li><li><b>Haladás</b>: szintek, streakek, grafikonok, napló.</li><li><b>Fiók</b>: belépés, téma, mentés, Gemini-kulcs, súgó, visszajelzés.</li></ul>'},
   {id:"celletre",title:"Cél létrehozása lépésről lépésre",keywords:"új cél létrehozás szokás felvétel hogyan",html:'<p>A <b>Célok</b> fülön nyomd meg a <b>+ Új cél</b> gombot, majd:</p><ul><li><b>1. Név</b> — pl. „Reggeli mozgás".</li><li><b>2. Alcélok</b> — legalább egy; mindegyiknek saját <b>ütemezése</b>, <b>kezdő dátuma</b>, <b>mérési módja</b> (igen/nem, skála, mennyiség, idő) és <b>iránya</b> (építeni/elhagyni) van.</li><li><b>3. Ha több alcélod van</b>, a cél kártyaként fogja őket össze — mindegyik önállóan pontozódik és szintezik.</li><li><b>4. Mentés.</b></li></ul><p>Nincs szükség AI-ra: mindent kézzel megadhatsz. Az AI csak a skálás rubrikákhoz opció.</p>'},
   {id:"meres",title:"Mérési módok",keywords:"igen nem skála mennyiség idő timer mérés típus",html:'<p><b>Igen/Nem</b> — a legegyszerűbb: megvolt vagy sem, 1 tap.<br><b>Skála</b> — 1–3, 1–5 vagy 1–10; fokozatonként rubrikát is adhatsz.<br><b>Mennyiség</b> — szám + egység (pl. 30 db) + reláció: legalább / pontosan / legfeljebb.<br><b>Idő</b> — időtartam percben vagy órában. Megadhatod közvetlenül, vagy beírod a <b>kezdő és vég időpontot</b>, és az app kiszámolja. Ha mindhármat megadod, ellenőrzi az egyezést.</p>'},
