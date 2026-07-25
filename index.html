@@ -801,7 +801,8 @@ nav .nav-in .tabbtn svg{width:20px; height:20px;}
 .mdw-btn.soon{color:var(--muted-2);}
 .mdw-btn.soon .em{opacity:.5;}
 .mdw-foot{border-top:1px solid var(--line); margin:6px 10px 0; padding-top:6px;}
-.tabbtn.navmenu{flex:0 0 auto; min-width:64px; padding-left:8px; padding-right:8px; color:var(--muted);}
+.tabbtn.navmenu{flex:0 0 auto; min-width:62px; padding-left:7px; padding-right:7px; color:var(--muted);}
+.tabbtn.navhome{flex:0 0 auto; min-width:66px; padding-left:7px; padding-right:7px;}
 /* modul-lista a Fiókban */
 .mod-row{display:flex; align-items:flex-start; gap:11px; padding:14px 15px; border-bottom:1px solid var(--line);}
 .mod-row:last-child{border-bottom:0;}
@@ -2747,6 +2748,7 @@ let BMETA=null,BBOOKS=null,BMAP=null,BBOOKMAP=null,BORDERS=null,_bibleLoading=nu
 let _bScopeCache={};
 const _bTextCache={};
 let bibleTab="ma",bibleBookOpen=null,_bCalibIv=null,_bCalibT0=0,biblePlanDraft=null;
+let biblePlanCont=null;   /* terv-űrlap: „onnan folytatom, ahol tartok” be van-e kapcsolva (null = a tervből derül ki) */
 let bibleMa={date:null,ids:[],extra:[]};   /* a „Ma” nézet listája (extra = kézzel felvett egységek) */
 function bibleMaReset(){bibleMa={date:null,ids:[],extra:[]};}
 /* egy read-érték csak akkor számít napi olvasásnak, ha valódi dátum (a "prior" = app előtti olvasás) */
@@ -2948,18 +2950,26 @@ function bibleSpanLabel(c,ids){
 function computeBiblePlan(p){
   const inf=bibleScope(p);
   const wpm=Math.max(30,Math.min(1500,Number(p.wpm)||200));
+  /* KIINDULÓPONT: a "prior" (app előtti olvasás) jelölésű szakaszok NEM részei a
+     tervnek. Minden terv-matek (napi keret, céldátum, 100%) a HÁTRALÉVŐ részre megy:
+     ha valaki Lukácsnál tart, a "6 hónap alatt" a maradékra vonatkozik, nem az
+     egész Bibliára. */
+  let priorW=0;const _rd=p.read||{};
+  for(const s of inf.list){const v=_rd[s.id];if(v&&!bibleReadDay(v))priorW+=s.words;}
+  const planW=Math.max(1,inf.totalW-priorW);
   let budget;
   if(p.pin==="months"){
     const days=Math.max(1,(Number(p.targetMonths)||12)*BIBLE_MONTH_DAYS);
-    budget=inf.totalW/days;
+    budget=planW/days;
   }else if(p.pin==="chapters"){
     budget=Math.max(0.5,Number(p.dailyChapters)||1)*inf.avgW;
   }else{
     budget=Math.max(1,Number(p.dailyMinutes)||15)*wpm;
   }
   budget=Math.max(1,budget);
-  const plannedDays=inf.totalW/budget;
+  const plannedDays=planW/budget;
   return{list:inf.list,pos:inf.pos,byId:inf.byId,totalW:inf.totalW,avgW:inf.avgW,wpm:wpm,
+    priorW:priorW,planW:planW,
     dailyWordBudget:budget,plannedDays:plannedDays,
     targetMonths:plannedDays/BIBLE_MONTH_DAYS,
     dailyMinutes:budget/wpm,
@@ -3046,18 +3056,26 @@ function bibleProgress(p){
   let readW=0,readN=0,baseW=0,baseN=0;   /* base = app előtti ("prior") olvasás */
   for(const ch of c.list){const v=p.read[ch.id];if(!v)continue;readW+=ch.words;readN++;
     if(!bibleReadDay(v)){baseW+=ch.words;baseN++;}}
-  const trackedW=Math.max(0,readW-baseW);                            /* app-on belül olvasott szó */
+  const trackedW=Math.max(0,readW-baseW);            /* app-on belül olvasott szó */
+  const planW=c.planW;                               /* a terv = a kiindulóponttól hátralévő rész */
   const elapsed=Math.max(0,bibleDaysBetween(p.startDate,TODAY))+1;   /* az indulás napja is olvasónap */
-  const plannedW=Math.min(c.totalW,baseW+c.dailyWordBudget*elapsed); /* a terv a kiindulóponttól indul */
-  const remW=Math.max(0,c.totalW-readW);
-  const pace=trackedW>0?trackedW/elapsed:c.dailyWordBudget;          /* tényleges tempó (a base nélkül) */
+  const b=c.dailyWordBudget;
+  /* Lemaradás CSAK a már LEZÁRULT napokra jár: a mai adag napközben még nem "hiány".
+     Így az indulás napján nem fogad rögtön egy „1 nappal lemaradva”. */
+  const dueStart=b*(elapsed-1),dueEnd=b*elapsed;
+  const remW=Math.max(0,planW-trackedW);
+  const pace=trackedW>0?trackedW/elapsed:b;
   const daysLeft=remW>0?Math.ceil(remW/Math.max(1,pace)):0;
-  return{c:c,readWords:readW,readCh:readN,totalCh:c.list.length,
-    baseCh:baseN,trackedCh:readN-baseN,
-    actualPct:c.totalW?readW/c.totalW:0,
-    plannedPct:c.totalW?plannedW/c.totalW:0,
-    deltaDays:Math.round((readW-plannedW)/c.dailyWordBudget),
-    remCh:c.list.length-readN,daysLeft:daysLeft,
+  let deltaDays=0;
+  if(trackedW<dueStart)deltaDays=-Math.round((dueStart-trackedW)/b);
+  else if(trackedW>dueEnd)deltaDays=Math.round((trackedW-dueEnd)/b);
+  return{c:c,readWords:readW,trackedWords:trackedW,readCh:readN,totalCh:c.list.length,
+    baseCh:baseN,trackedCh:readN-baseN,planCh:c.list.length-baseN,
+    actualPct:planW?Math.min(1,trackedW/planW):0,
+    plannedPct:planW?Math.min(1,dueEnd/planW):0,
+    plannedWords:Math.min(planW,dueEnd),
+    deltaDays:deltaDays,
+    remCh:c.list.length-readN,remWords:remW,daysLeft:daysLeft,
     finishKey:addDaysKey(TODAY,Math.min(3650,daysLeft)),
     elapsed:elapsed};}
 
@@ -3196,7 +3214,7 @@ function bibleMaHtml(){
      '<details class="advanced"><summary>📅 Következő napok<span class="chev">›</span></summary><div class="adv-body">'+
      bibleForecastHtml(p,pr.c)+'</div></details>'+
      '<div class="rub-actions" style="margin-top:12px"><button class="btn ghost sm" id="bEditPlan">Terv módosítása</button><button class="btn ghost sm" id="bStartPt">📍 Hol tartok most?</button><button class="btn ghost sm" id="bCalib">⏱ Olvasási idő kalibrálása</button></div>'+
-     (pr.baseCh?'<div class="hint" style="margin-top:9px;color:var(--muted-2)">'+pr.baseCh+' '+bibleUnitNoun(p)+' az app előtt olvasottként jelöltél — beleszámít a haladásba, de nem a napi sorozatba.</div>':'')+'</div>';
+     (pr.baseCh?'<div class="hint" style="margin-top:9px;color:var(--muted-2)">📍 Kiindulópont: '+pr.baseCh+' '+bibleUnitNoun(p)+' az app előtt olvasottként van jelölve — ezeket a terv kihagyja, a százalék és a céldátum a <b>hátralévő</b> részre vonatkozik.</div>':'')+'</div>';
   return h;}
 
 /* ======================= SZABAD SORREND (order:"free") =======================
@@ -3318,7 +3336,9 @@ function bibleCalcHtml(p,c,d){
     '<div class="bcalc-r sum"><span>Napi keret ('+bibleMinLabel(c.dailyMinutes)+' × '+Math.round(c.wpm)+')</span><b>'+bibleNumHu(c.dailyWordBudget)+' szó/nap</b></div>'+
     '<div class="bcalc-r"><span>'+esc(bibleScopeName(p.scope))+'</span><b>'+c.list.length+' '+un+'</b></div>'+
     '<div class="bcalc-r"><span>Összes szó</span><b>'+bibleNumHu(c.totalW)+' szó</b></div>'+
-    '<div class="bcalc-r sum"><span>'+bibleNumHu(c.totalW)+' ÷ '+bibleNumHu(c.dailyWordBudget)+'</span><b>≈ '+Math.ceil(c.plannedDays)+' nap · '+bibleMonthsLabel(c.targetMonths)+'</b></div>'+
+    (c.priorW>0?'<div class="bcalc-r"><span>📍 A kiindulópont előtt (kihagyva)</span><b>−'+bibleNumHu(c.priorW)+' szó</b></div>'+
+                '<div class="bcalc-r"><span>Hátralévő</span><b>'+bibleNumHu(c.planW)+' szó</b></div>':'')+
+    '<div class="bcalc-r sum"><span>'+bibleNumHu(c.planW)+' ÷ '+bibleNumHu(c.dailyWordBudget)+'</span><b>≈ '+Math.ceil(c.plannedDays)+' nap · '+bibleMonthsLabel(c.targetMonths)+'</b></div>'+
     '</div>';
   h+='<div class="hint" style="margin-top:11px;line-height:1.7">A napi adag <b>szóra</b> megy, nem '+un+'számra: minden nap annyi '+un+'t kapsz, amennyi kiadja a napi keretet. Ezért a '+un+'szám könyvenként erősen változik, az <b>idő viszont nagyjából állandó</b>.</div>';
   h+=biblePaceHtml(p,c);
@@ -3350,9 +3370,9 @@ function bibleForecastHtml(p,c){
 /* ---- Részletes haladás: tervezett vs. tényleges, szó- és nap-szinten ---- */
 function bibleProgressDetailHtml(pr){
   const p=S.bible.plan,c=pr.c,un=bibleUnitNoun(p);
-  const plannedW=c.totalW*pr.plannedPct;
-  const diffW=pr.readWords-plannedW;
-  const remW=Math.max(0,c.totalW-pr.readWords);
+  const plannedW=pr.plannedWords;
+  const diffW=pr.trackedWords-plannedW;
+  const remW=pr.remWords;
   const targetDays=Math.ceil(c.plannedDays);
   const targetKey=addDaysKey(p.startDate,Math.min(3650,targetDays));
   const leftDays=Math.max(0,bibleDaysBetween(TODAY,targetKey));
@@ -3360,14 +3380,14 @@ function bibleProgressDetailHtml(pr){
   let h='<div class="bcalc">'+
     '<div class="bcalc-r"><span>Indulás óta eltelt</span><b>'+pr.elapsed+' nap</b></div>'+
     '<div class="bcalc-r"><span>Tervezett a mai nap végéig</span><b>'+bibleNumHu(plannedW)+' szó</b></div>'+
-    '<div class="bcalc-r"><span>Eddig elolvasva</span><b>'+bibleNumHu(pr.readWords)+' szó</b></div>'+
+    '<div class="bcalc-r"><span>Eddig elolvasva</span><b>'+bibleNumHu(pr.trackedWords)+' szó</b></div>'+
     '<div class="bcalc-r sum"><span>Különbség</span><b>'+(diffW>=0?'+':'−')+bibleNumHu(Math.abs(diffW))+' szó · '+(pr.deltaDays>=0?'+':'−')+Math.abs(pr.deltaDays)+' nap</b></div>'+
     '<div class="bcalc-r"><span>Hátralévő</span><b>'+pr.remCh+' '+un+' · '+bibleNumHu(remW)+' szó</b></div>'+
     '<div class="bcalc-r"><span>Eredeti céldátum</span><b>'+esc(bibleMidDate(targetKey))+'</b></div>'+
     '<div class="bcalc-r"><span>Ehhez mostantól</span><b>'+bibleNumHu(needPerDay)+' szó/nap · ≈ '+bibleMinLabel(needPerDay/c.wpm)+'</b></div>'+
     '<div class="bcalc-r"><span>Jelenlegi tempóddal</span><b>'+esc(bibleNiceDate(pr.finishKey))+'</b></div>'+
     '</div>';
-  if(pr.baseCh)h+='<div class="hint" style="margin-top:9px;color:var(--muted-2)">A kiindulóponttal megjelölt '+pr.baseCh+' '+un+' beleszámít a haladásba, de nem a napi tempóba.</div>';
+  if(pr.baseCh)h+='<div class="hint" style="margin-top:9px;color:var(--muted-2)">A kiindulópont előtti '+pr.baseCh+' '+un+' <b>nem része</b> ennek a tervnek — a fenti számok mind a hátralévő részre vonatkoznak.</div>';
   return h;}
 
 function bibleProgressHtml(pr){
@@ -3375,11 +3395,11 @@ function bibleProgressHtml(pr){
   let d;
   if(pr.deltaDays>0)d='<b style="color:var(--gold)">'+pr.deltaDays+' nappal előrébb</b>';
   else if(pr.deltaDays<0)d='<b style="color:var(--loss)">'+(-pr.deltaDays)+' nappal lemaradva</b>';
-  else d='<b>pontosan terv szerint</b>';
+  else d='<b>terv szerint haladsz</b>';
   return '<div class="bible-bar"><i style="width:'+Math.min(100,a)+'%"></i><u style="left:'+Math.min(99.6,pl)+'%"></u></div>'+
     '<div style="font-family:var(--disp);font-weight:700;font-size:22px">'+a+'%</div>'+
     '<div class="hint" style="margin-top:4px;line-height:1.7">Tervezett: '+pl+'% · Jelenlegi: '+a+'% · '+d+'<br>'+
-    '<b>'+pr.readCh+'</b> / '+pr.totalCh+' '+un+' · még <b>'+pr.remCh+'</b> '+un+' ≈ '+pr.daysLeft+' nap<br>'+
+    '<b>'+pr.trackedCh+'</b> / '+pr.planCh+' '+un+' · még <b>'+pr.remCh+'</b> '+un+' ≈ '+pr.daysLeft+' nap<br>'+
     (pr.remCh>0?'Ha így folytatod, <b>'+esc(bibleNiceDate(pr.finishKey))+'</b> végzel.':'Kész! 🎉')+'</div>';}
 
 function bibleNiceDate(k){const d=keyToDate(k);
@@ -3549,6 +3569,7 @@ function bibleHeatmapHtml(m){
 
 /* =================== TERVEZŐ =================== */
 function bibleStartDraft(){
+  biblePlanCont=null;
   const p=S.bible.plan;
   biblePlanDraft=p?JSON.parse(JSON.stringify(p)):{
     scope:"full",order:"canonical",parallel:false,pin:"time",
@@ -3577,6 +3598,28 @@ function renderBiblePlanner(){
        [["seq","Végig (ÓSZ→ÚSZ)"],["par","Párhuzamos ÓSZ+ÚSZ"]].map(function(x){
          return '<button data-bpar="'+x[0]+'" class="'+(((x[0]==="par")===!!d.parallel)?"active":"")+'">'+x[1]+'</button>';}).join("")+'</div>';
   h+='<div class="hint" style="margin-top:9px;line-height:1.6">'+bibleOrderHint(d)+'</div>';
+  /* --- Honnan indulsz? (csak hagyományos sorrendnél van értelme) --- */
+  if(d.order==="canonical"){
+    const sp=biblePriorStart(d);
+    const cont=(biblePlanCont===null)?!!sp:biblePlanCont;
+    h+='<div class="bs-lab" style="margin:18px 0 7px">Honnan indulsz?</div><div class="seg" style="margin-top:0">'+
+       '<button data-bfrom="0" class="'+(cont?"":"active")+'">Az elejétől</button>'+
+       '<button data-bfrom="1" class="'+(cont?"active":"")+'">Onnan, ahol tartok</button></div>';
+    if(cont){
+      const inf=bibleScope(d),books=[],seen={};
+      inf.list.forEach(function(s){if(!seen[s.book]){seen[s.book]=1;books.push(s.book);}});
+      const curId=sp||(inf.list.length?inf.list[0].id:null);
+      const cbk=curId?curId.split(".")[0]:books[0];
+      const cch=curId?Number(curId.split(".")[1]):1;
+      const nch=BBOOKMAP[cbk]?BBOOKMAP[cbk].chapters:1;
+      let opts="";for(let i=1;i<=nch;i++)opts+='<option value="'+i+'"'+(i===cch?' selected':'')+'>'+i+'. fejezet</option>';
+      h+='<div class="bs-lab" style="margin:12px 0 6px">Könyv</div><select class="input" id="bpBook">'+
+         books.map(function(bk){return '<option value="'+bk+'"'+(bk===cbk?' selected':'')+'>'+esc(bibleBookName(bk))+'</option>';}).join("")+'</select>';
+      h+='<div class="bs-lab" style="margin:10px 0 6px">Itt tartasz most (a következő olvasmányod)</div><select class="input" id="bpCh">'+opts+'</select>';
+      h+='<div class="hint" style="margin-top:9px;line-height:1.6">A megjelölt fejezet <b>elé</b> eső részt elolvasottnak vesszük: nem kapod meg napi adagként, és a <b>100% innentől</b> számol. Az alábbi napi/hónap beállítás így már a <b>hátralévő</b> részre vonatkozik.</div>';
+    }else{
+      h+='<div class="hint" style="margin-top:9px;line-height:1.6">Olvastad már ezt a tervet egy darabig? Válaszd az <b>„Onnan, ahol tartok”</b> lehetőséget — a terv onnan folytatja, és a százalék meg a céldátum is csak a <b>hátralévő</b> részre vonatkozik.</div>';}
+  }
   h+='<div id="bSliders">'+bibleSlidersHtml()+'</div>';
   h+='</div>';
   h+='<div class="section-title">Olvasási sebesség</div><div class="card" style="padding:16px">'+bibleCalibInfoHtml()+
@@ -3599,7 +3642,7 @@ function bibleSlidersHtml(){
       '<span class="bs-unit">perc</span>'+
       '<button class="bs-step" data-bstep="min:1">+</button></div>'+
     '<input type="range" id="bMinR" min="'+BIBLE_MIN_MIN+'" max="'+BIBLE_MIN_MAX+'" step="1"/></div>'+
-  '<div class="bible-slider"><div class="bs-top"><span class="bs-lab">Hány hónap alatt?</span><span class="bs-val" id="bMonV"></span></div>'+
+  '<div class="bible-slider"><div class="bs-top"><span class="bs-lab">Hány hónap alatt'+((biblePlanDraft&&computeBiblePlan(biblePlanDraft).priorW>0)?' a hátralévő?':'?')+'</span><span class="bs-val" id="bMonV"></span></div>'+
     '<div class="bs-row"><button class="bs-step" data-bstep="mon:-1">–</button>'+
       '<input class="input bs-num" id="bMonN" type="text" inputmode="decimal" autocomplete="off"/>'+
       '<span class="bs-unit">hónap</span>'+
@@ -3624,7 +3667,8 @@ function bibleReadoutHtml(c,d){
   const ex=rows.slice(0,3).map(function(r){return bibleBookName(r.book)+' ≈ '+fmt(r.perDay);}).join(" · ");
   return '≈ napi <b>'+bibleMinLabel(c.dailyMinutes)+'</b> = <b>'+Math.round(c.dailyWordBudget).toLocaleString("hu-HU")+' szó</b><br>'+
     'Ezzel a tempóval <b>'+bibleMonthsLabel(c.targetMonths)+'</b> alatt végzel ('+Math.round(c.plannedDays)+' nap).<br>'+
-    '<span style="color:var(--muted)">'+bibleScopeName(d.scope)+': '+c.list.length+' '+un+', '+c.totalW.toLocaleString("hu-HU")+' szó</span>'+
+    '<span style="color:var(--muted)">'+bibleScopeName(d.scope)+': '+c.list.length+' '+un+', '+c.totalW.toLocaleString("hu-HU")+' szó'+
+      (c.priorW>0?' · <b>hátralévő: '+Math.round(c.planW).toLocaleString("hu-HU")+' szó</b>':'')+'</span>'+
     (ex?'<br><span style="color:var(--muted-2)">A napi '+un+'szám könyvenként változik: '+esc(ex)+' '+un+'/nap.</span>':'');}
 
 /* skip = annak a mezőnek az id-je, amibe a felhasználó ÉPPEN gépel (azt nem írjuk felül) */
@@ -3650,11 +3694,23 @@ function bibleMonthsLabel(m){
 
 function bibleBindPlanner(el){
   const d=biblePlanDraft;
-  el.querySelectorAll("[data-bscope]").forEach(function(b){b.onclick=function(){d.scope=b.dataset.bscope;renderBiblePlanner();};});
+  el.querySelectorAll("[data-bscope]").forEach(function(b){b.onclick=function(){
+    d.scope=b.dataset.bscope;
+    bibleClearPrior(d);   /* más hatókörben a régi kiindulópont értelmét veszti */
+    renderBiblePlanner();};});
   el.querySelectorAll("[data-border]").forEach(function(b){b.onclick=function(){
     d.order=b.dataset.border;
     if(d.order==="free")d.parallel=false;   /* szabad sorrendnél a párhuzamos összefésülésnek nincs értelme */
+    /* Kiindulópont csak hagyományos sorrendnél: kronologikusnál/szabadnál nincs értelme. */
+    if(d.order!=="canonical"){bibleClearPrior(d);biblePlanCont=false;}
     renderBiblePlanner();};});
+  el.querySelectorAll("[data-bfrom]").forEach(function(b){b.onclick=function(){
+    biblePlanCont=(b.dataset.bfrom==="1");
+    if(!biblePlanCont)bibleClearPrior(d);
+    renderBiblePlanner();};});
+  {const bb=document.getElementById("bpBook"),bc=document.getElementById("bpCh");
+   if(bb)bb.onchange=function(){bibleApplyPrior(d,bb.value+".1");renderBiblePlanner();};
+   if(bc)bc.onchange=function(){bibleApplyPrior(d,bb.value+"."+bc.value);renderBiblePlanner();};}
   el.querySelectorAll("[data-bpar]").forEach(function(b){b.onclick=function(){d.parallel=(b.dataset.bpar==="par");renderBiblePlanner();};});
   const refresh=bibleSyncSliders;
   (function bindSliders(){
@@ -3689,8 +3745,13 @@ function bibleBindPlanner(el){
     const isNew=!S.bible.plan;
     if(isNew){
       const inf=bibleScope(d);
-      d.startDate=TODAY;d.createdAt=Date.now();d.read={};
-      d.cursor=inf.list.length?inf.list[0].id:"GEN.1";
+      d.startDate=TODAY;d.createdAt=Date.now();
+      /* a kiindulópont („már itt tartok”) jelölései MEGMARADNAK, minden más nullázódik */
+      const keep={},rd=d.read||{};
+      for(const k in rd)if(rd[k]==="prior")keep[k]="prior";
+      d.read=keep;
+      let ci=0;while(ci<inf.list.length&&keep[inf.list[ci].id])ci++;
+      d.cursor=inf.list.length?inf.list[Math.min(ci,inf.list.length-1)].id:"GEN.1";
     }else{
       const inf=bibleScope(d);
       if(inf.pos[d.cursor]==null)d.cursor=inf.list.length?inf.list[0].id:"GEN.1";}
@@ -3805,6 +3866,27 @@ function bibleBookPicker(){
   document.querySelectorAll("#modalSheet [data-bbk]").forEach(function(b){
     b.onclick=function(){bibleBookOpen=b.dataset.bbk;closeScreen();renderBiblia();};});}
 
+/* ---- Kiindulópont-segédek: a "prior" jelölés egy ELŐTAG a terv listáján ----
+   Az itt megjelölt fejezet ELÉ eső rész app-előtti olvasásnak számít: nem kerül
+   napi adagba, és kikerül a terv-matekból (100%, céldátum, napi keret). */
+function bibleClearPrior(d){const rd=d.read||{};let n=0;
+  for(const k in rd)if(rd[k]==="prior"){delete rd[k];n++;}return n;}
+function bibleApplyPrior(d,chId){
+  bibleClearPrior(d);
+  const inf=bibleScope(d);
+  const pos=inf.list.findIndex(function(s){return s.book+"."+s.ch===chId;});
+  if(pos<0)return -1;
+  d.read=d.read||{};
+  for(let k=0;k<pos;k++){const id=inf.list[k].id;if(!d.read[id])d.read[id]="prior";}
+  d.cursor=inf.list[pos].id;
+  return pos;}
+/* A jelenlegi kiindulópont: az első NEM app-előtti szakasz, ha van előtte prior-blokk. */
+function biblePriorStart(d){
+  const inf=bibleScope(d),rd=d.read||{};
+  let any=false,i=0;
+  for(;i<inf.list.length;i++){if(rd[inf.list[i].id]==="prior"){any=true;continue;}break;}
+  return (any&&i<inf.list.length)?inf.list[i].id:null;}
+
 /* ---- Kiindulópont: „már itt tartok" (app előtti olvasás) ---- */
 function bibleSetStartPoint(){
   const p=S.bible.plan,c=computeBiblePlan(p);
@@ -3834,6 +3916,7 @@ function bibleSetStartPoint(){
   document.getElementById("spGo").onclick=function(){
     const pos=firstIdxOfChapter(targetId());
     if(pos<0){toast("Ez a fejezet nincs a hatókörben","warn");return;}
+    bibleClearPrior(p);
     for(let k=0;k<pos;k++){const cid=c.list[k].id;if(!p.read[cid])p.read[cid]="prior";}
     p.cursor=c.list[pos].id;bibleMaReset();S.bible.updatedAt=Date.now();save();
     closeScreen();bibleTab="ma";renderBiblia();toast("Kiindulópont beállítva: "+bibleChLabel(c.list[pos].id));};
@@ -4147,7 +4230,8 @@ function quizRender(){
   if(quizS.view==="report"){quizRenderReport();return;}
   const q=quizS.queue[quizS.idx],n=quizS.queue.length;
   let h='<button class="close-x" id="mClose">✕</button>';
-  h+='<div class="quiz-top"><span>'+(quizS.idx+1)+' / '+n+' kérdés</span><span class="quiz-diff'+(q.diff==="veryhard"?" vh":"")+'">'+(q.diff==="veryhard"?"nagyon nehéz":"nehéz")+'</span></div>';
+  /* A kérdés nehézségét szándékosan NEM mutatjuk — ne befolyásolja az olvasót. */
+  h+='<div class="quiz-top"><span>'+(quizS.idx+1)+' / '+n+' kérdés</span></div>';
   h+='<div class="quiz-q">'+esc(q.q)+'</div>';
   h+='<div class="quiz-opts">';
   q.opts.forEach(function(o,i){
@@ -4716,6 +4800,13 @@ function bindCycDay(dayKey){
 
 /* --- „Mi újult meg?" (közérthető változásnapló) --- */
 const CHANGELOG=[
+ {v:7,title:"📖 Biblia — folytatás onnan, ahol tartasz",items:[
+   "A <b>terv készítésekor</b> már ott van a kérdés: <b>„Honnan indulsz?”</b> — az elejétől, vagy <b>onnan, ahol tartasz</b>. Ha korábban már olvastad ezt a tervet, csak jelöld be a könyvet és a fejezetet, és a terv onnan folytatja.",
+   "A kiindulópont előtti rész mostantól <b>kikerül a terv matekjából</b>: a <b>100% a hátralévő</b> részre vonatkozik, és a „hány hónap alatt” beállítás is azt jelenti, mennyi idő alatt akarod <b>befejezni a maradékot</b> — nem az egész Bibliát.",
+   "Nem fogad többé <b>„1 nappal lemaradva”</b> az indulás napján: a lemaradás csak a már <b>lezárult</b> napokra jár, a mai adag napközben még nem hiány.",
+   "A kiindulópont a <b>kronologikus</b> és a <b>szabad</b> sorrendnél nem jelenik meg — ott nincs értelme.",
+   "A kvízben már <b>nem látszik a kérdés nehézsége</b>.",
+   "Az alsó sávban a <b>🏠 Kezdőlap</b> mostantól mindig a <b>jobb szélen</b> van, a bal szélen pedig a <b>☰</b> modul-menü — köztük az éppen nyitott modul füleivel."]},
  {v:6,title:"🧩 Modulok — új menü a bal oldalon",items:[
    "Az alsó sáv bal szélén megjelent a <b>☰ gomb</b>: innen (vagy a képernyő <b>bal szélétől behúzva</b>) nyílik a <b>modul-fiók</b>. A Trellis mostantól <b>modulokból</b> áll — Szokáskövetés, Bibliaolvasás, Ciklusnaptár —, és mindig <b>egy modul</b> van előtted, a saját füleivel az alsó sávban.",
    "Új <b>🏠 Kezdőlap</b>: egy képernyőn látod a mai állásod az <b>összes bekapcsolt modulból</b> (hány célt rögzítettél ma, hol tartasz a napi olvasmánnyal, hányadik ciklusnapon vagy) — és egy koppintással beugorhatsz bármelyikbe.",
@@ -4800,13 +4891,15 @@ function switchTab(t,sub){curTab=t;
 function renderNav(){const el=document.getElementById("navIn");if(!el)return;
   const m=modById(curMod)||modById("habit");
   if(m&&m.tabs){_modLastTab[m.id]={t:curTab,sub:curSub()};if(m.id!=="account")Store.set("sl_lastMod",m.id);}
-  let h='<button class="tabbtn navmenu" id="navMenu" aria-label="Modulok">'+navSvg("menu")+(m?m.short:"Modulok")+'</button>';
-  /* Egyfüles modulnál (Kezdőlap, Fiók) nem teszünk ki fület: nincs mire váltani,
-     és a ☰ felirata amúgy is megmondja, hol vagy. */
+  /* Bal szélen a ☰ (modul-fiók) az aktuális modul nevével, jobb szélen MINDIG a
+     Kezdőlap — köztük az adott modul fülei. Egyfüles modulnál (Kezdőlap, Fiók)
+     nincs külön fül: nincs mire váltani. */
+  let h='<button class="tabbtn navmenu" id="navMenu" aria-label="Modulok">'+navSvg("menu")+((m&&m.id!=="home")?m.short:"Modulok")+'</button>';
   const tabs=((m&&m.tabs&&m.tabs.length>1)?m.tabs:[]);
   tabs.forEach(function(tb){
     const act=(curTab===tb.t)&&(!tb.sub||tb.sub===curSub());
     h+='<button class="tabbtn'+(act?" active":"")+'" data-tab="'+tb.t+'"'+(tb.sub?' data-sub="'+tb.sub+'"':'')+'>'+navSvg(tb.ico)+tb.label+'</button>';});
+  h+='<button class="tabbtn navhome'+(curTab==="home"?" active":"")+'" data-tab="home">'+navSvg("home")+'Kezdőlap</button>';
   el.innerHTML=h;
   document.getElementById("navMenu").onclick=openDrawer;
   el.querySelectorAll("[data-tab]").forEach(function(b){b.onclick=function(){
@@ -4964,7 +5057,7 @@ function askCloudConflict(remote,api){
 /* =========================================================================
    2. RÉTEG — témák, súgó, tutorial, indokok, ünneplés, visszajelzés
    ========================================================================= */
-const APP_VERSION="v17";
+const APP_VERSION="v18";
 
 /* ---- témák ---- */
 const THEMES=[{id:"kert",name:"Üvegház",sw:"#2D6A4F"},{id:"papir",name:"Letisztult",sw:"#1B4332"},{id:"krem",name:"Papír",sw:"#B5852B"},{id:"arany",name:"Arany éj",sw:"#E5A83B"},{id:"erdo",name:"Erdő",sw:"#5FD08A"},{id:"ocean",name:"Óceán",sw:"#4FB0E5"},{id:"naplemente",name:"Naplemente",sw:"#E5744F"},{id:"ejjel",name:"Éjszakai",sw:"#C79A46"},{id:"film",name:"Filmvászon",sw:"#D8D8D8"}];
@@ -5479,7 +5572,7 @@ function renderHome(){
   const list=modOrder().filter(function(m){return m.id!=="home"&&modOn(m);});
   list.forEach(function(m){
     h+='<div class="card"><button class="home-card" data-hopen="'+m.id+'"><span class="em">'+m.em+'</span><span style="min-width:0"><span class="nm">'+esc(m.name)+'</span><span class="ds">'+esc(homeSummary(m))+'</span></span><span class="chev">›</span></button></div>';});
-  h+='<div class="hint" style="margin:14px 4px 0">A modulok közt a bal alsó <b>☰</b> gombbal válthatsz (vagy húzd be a képernyő bal széléről). Új modult a <b>Fiók → Aktiválható modulok</b> résznél kapcsolhatsz be.</div>';
+  h+='<div class="hint" style="margin:14px 4px 0">A modulok közt a bal alsó <b>☰</b> gombbal válthatsz (vagy húzd be a képernyő bal széléről) — ide, a Kezdőlapra pedig a jobb alsó <b>🏠</b> gombbal térhetsz vissza bárhonnan. Új modult a <b>Fiók → Aktiválható modulok</b> résznél kapcsolhatsz be.</div>';
   el.innerHTML=h;
   const mc=document.getElementById("homeMeta");if(mc)mc.onclick=showOverview;
   el.querySelectorAll("[data-hopen]").forEach(function(b){b.onclick=function(){openModule(b.dataset.hopen);};});
