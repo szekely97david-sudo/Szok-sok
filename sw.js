@@ -1,10 +1,10 @@
-/* Trellis service worker — v56
+/* Trellis service worker — v57
    Stratégia:
    - HTML/navigáció  -> NETWORK FIRST (mindig a friss oldalt kéri, offline-ra cache tartalék)
    - statikus fájlok -> STALE-WHILE-REVALIDATE (azonnal cache-ből, közben frissít háttérben)
    - Firebase/Google -> sose cache, mindig hálózat
    A cache-verziót MINDEN kiadásnál léptesd (v12 -> v13 ...), így az app-shell frissül. */
-const VERSION = "v56";
+const VERSION = "v57";
 const CACHE = "trellis-" + VERSION;
 
 const CORE = [
@@ -16,7 +16,9 @@ const CORE = [
   // A teljes Károli-szöveg (text/*.json, ~4,3 MB) NEM kerül ide: lustán,
   // cache-first módon töltődik az általános statikus ágon, amikor a
   // felhasználó ténylegesen megnyit egy könyvet.
-  "./bible-meta.json", "./bible-books.json", "./bible-orders.json"
+  "./bible-meta.json", "./bible-books.json", "./bible-orders.json",
+  // Edzésnapló: a gyakorlat-katalógus (~32 KB) offline is kell.
+  "./exercises.json"
 ];
 
 // Telepítés: app-shell előtöltése. NEM hívunk skipWaiting-et automatikusan —
