@@ -1024,6 +1024,7 @@ nav .nav-in .tabbtn svg{width:20px; height:20px;}
   border-radius:8px; color:var(--ink); font-family:var(--disp); font-weight:600; font-size:14px; text-align:center; padding:0;}
 .wo-soundrow{display:flex; gap:8px; align-items:center;}
 .wo-soundrow select{flex:1;}
+.wo-soundrow input{flex:1; min-width:0;}
 .wo-range{width:100%; accent-color:var(--gold);}
 .wo-check{display:flex; gap:9px; align-items:flex-start; font-size:12.5px; color:var(--muted);
   margin-top:11px; line-height:1.45;}
@@ -1108,6 +1109,54 @@ nav .nav-in .tabbtn svg{width:20px; height:20px;}
 .wo-blk.dragging{opacity:.75; border-color:var(--gold); box-shadow:0 10px 30px rgba(0,0,0,.5);
   transform:scale(1.015);}
 .wo-bhead{touch-action:pan-y;}
+/* --- 4. kor: egyoldalas szettek, cel/teny, tartsd-nyomva, visszavonas, kepkereso, lebego ablak --- */
+.wo-sn.side{font-size:11.5px; letter-spacing:.01em;}
+.wo-unirow{display:flex; align-items:flex-start; gap:10px; background:var(--surface-2);
+  border:1px solid var(--line); border-radius:var(--r-sm); padding:11px 12px; margin:10px 0 4px;}
+.wo-unirow input{flex:none; width:19px; height:19px; margin-top:2px; accent-color:var(--gold);}
+.wo-unirow b{display:block; font-family:var(--disp); font-weight:600; font-size:13.5px;}
+.wo-unirow small{display:block; font-size:11.5px; color:var(--muted); line-height:1.5; margin-top:3px;}
+.wo-unitag{flex:none; font-size:10px; letter-spacing:.06em; color:var(--gold); border:1px solid var(--gold-line);
+  border-radius:999px; padding:2px 7px; background:var(--gold-soft);}
+.wo-goalline{grid-column:1/-1; font-size:11px; color:var(--muted-2); padding:0 0 4px 36px; line-height:1.4;}
+.wo-goalline b{color:var(--gold); font-weight:600;}
+.wo-actrow{display:flex; gap:10px;}
+.wo-actrow>div{flex:1;}
+.wo-actrow .wo-in{width:100%; height:52px; background:var(--surface-2); border:1px solid var(--line);
+  border-radius:10px; color:var(--ink); font-family:var(--disp); font-weight:700; font-size:22px;
+  text-align:center; padding:0;}
+/* tartsd nyomva a torleshez */
+.wo-hold{position:relative; display:block; width:100%; overflow:hidden; border:1px solid var(--loss);
+  border-radius:var(--r-sm); background:var(--surface-2); color:var(--loss); padding:15px 0;
+  font-family:var(--disp); font-weight:700; font-size:14.5px; user-select:none; -webkit-user-select:none;
+  -webkit-touch-callout:none; touch-action:none;}
+.wo-hold i{position:absolute; left:0; top:0; bottom:0; width:0; background:var(--loss); opacity:.32; transition:none;}
+.wo-hold.holding i{width:100%; transition:width 1.5s linear;}
+.wo-hold span{position:relative;}
+/* visszavonas-sav */
+.wo-undobar{position:fixed; left:0; right:0; bottom:calc(58px + env(safe-area-inset-bottom)); z-index:28;
+  max-width:600px; margin:0 auto; display:flex; align-items:center; gap:8px; padding:9px 12px;
+  background:var(--surface); border:1px solid var(--line); border-radius:14px;
+  box-shadow:0 8px 28px rgba(0,0,0,.45);}
+.wo-undobar>span{flex:1; font-size:12.5px; color:var(--muted); line-height:1.35;}
+.wo-undobar button{background:var(--gold); border:0; border-radius:9px; color:var(--on-gold);
+  font-family:var(--disp); font-weight:700; font-size:12.5px; padding:9px 12px; flex:none;}
+.wo-undobar button.x{background:var(--surface-2); color:var(--muted-2); font-weight:600; padding:9px 11px;}
+#tab-edzes.has-undo .wo-restbar{bottom:calc(114px + env(safe-area-inset-bottom));}
+/* kepkereso a neten */
+.wo-imgrid{display:grid; grid-template-columns:1fr 1fr 1fr; gap:7px; max-height:46vh; overflow-y:auto;
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:8px;}
+.wo-imgcell{position:relative; background:none; border:1px solid var(--line); border-radius:10px;
+  overflow:hidden; padding:0; aspect-ratio:1/1;}
+.wo-imgcell img{width:100%; height:100%; object-fit:cover; display:block;}
+.wo-imgcell:active{border-color:var(--gold);}
+.wo-imgnote{font-size:11px; color:var(--muted-2); line-height:1.5; margin:8px 2px 0;}
+/* lebego ablak gomb */
+.wo-pip{background:var(--surface-2); border:1px solid var(--line); border-radius:999px;
+  color:var(--muted); font-size:12.5px; padding:4px 10px; font-family:var(--disp); font-weight:600;}
+.wo-pip.on{border-color:var(--gold-line); background:var(--gold-soft); color:var(--gold);}
+/* edzes-vegi visszajelzes: melyik izom, mibol */
+.wo-fbwhy{display:block; font-size:10.5px; color:var(--muted-2); margin-top:2px; font-weight:400;}
 </style>
 <header>
   <div class="wrap"><div class="hdr">
@@ -1383,7 +1432,8 @@ function workoutBlank(){return{enabled:false,updatedAt:0,version:1,
   places:JSON.parse(JSON.stringify(WPLACES_DEF)),
   ex:{},routines:[],sessions:[],live:null,
   settings:{sound:"ding",vol:0.8,vibrate:true,autoRest:true,
-    restComp:180,restIso:90,unit:"kg",step:2.5,showRir:true}};}
+    restComp:180,restIso:90,unit:"kg",step:2.5,showRir:true,
+    goalMode:false,autoPip:false}};}
 
 const WSOUNDS={ding:"Lágy csengő",triple:"Tripla bip",gong:"Gong",bell:"Boksz-gong",none:"Néma"};
 function normWorkout(w){w=(w&&typeof w==="object")?w:{};
@@ -1408,6 +1458,8 @@ function normWorkout(w){w=(w&&typeof w==="object")?w:{};
     const o={};
     if(Array.isArray(e.plan)&&e.plan.length)o.plan=e.plan.map(normSet).filter(Boolean).slice(0,20);
     if(e.rest!=null&&isFinite(Number(e.rest)))o.rest=Math.max(0,Math.min(900,Number(e.rest)));
+    if(e.restSide!=null&&isFinite(Number(e.restSide)))o.restSide=Math.max(0,Math.min(900,Number(e.restSide)));
+    if(e.uni)o.uni=true;
     if(e.note)o.note=String(e.note).slice(0,600);
     if(e.setup)o.setup=String(e.setup).slice(0,200);
     if(e.setupF&&typeof e.setupF==="object"){const sf={};
@@ -1438,7 +1490,8 @@ function normWorkout(w){w=(w&&typeof w==="object")?w:{};
     restComp:Math.max(0,Math.min(900,Number(st.restComp)||180)),
     restIso:Math.max(0,Math.min(900,Number(st.restIso)||90)),
     unit:"kg",step:[1,1.25,2,2.5,5].includes(Number(st.step))?Number(st.step):2.5,
-    showRir:st.showRir!==false};
+    showRir:st.showRir!==false,
+    goalMode:!!st.goalMode,autoPip:!!st.autoPip};
   return{enabled:!!w.enabled,updatedAt:Number(w.updatedAt)||0,version:1,
     profile,places,ex,routines,sessions,live:normSession(w.live,true),settings};}
 
@@ -1449,6 +1502,8 @@ function normWorkout(w){w=(w&&typeof w==="object")?w:{};
      jelzők : bitmaszk — 1 = bemelegítő, 2 = elvégezve
      RIR    : hány ismétlés maradt a tankban (0 = bukás), null = nem adtad meg
      lépcsők: vetkőző sorozat / rest-pause lépcsői: [[súly,ism],...]
+     cél    : [súly, ism] — CSAK ha a „cél és tény külön” mód be van kapcsolva,
+              és a tényleges eltér a céltól. A [0],[1] MINDIG a TÉNYLEGES érték.
    A záró null-okat nem tároljuk, ezért a hossz változó. --------------------- */
 const SF_WARM=1,SF_DONE=2;
 function normSet(s){
@@ -1460,7 +1515,11 @@ function normSet(s){
     for(const d of s[4].slice(0,8)){if(!Array.isArray(d))continue;
       dr.push([Number(d[0])||0,Number(d[1])||0]);}
     if(!dr.length)dr=null;}
-  const out=[w,r,f&3,rir,dr];
+  let tg=null;
+  if(Array.isArray(s[5])&&s[5].length>=2){
+    const tw=Number(s[5][0])||0,tr=Number(s[5][1])||0;
+    if(tw||tr)tg=[tw,tr];}
+  const out=[w,r,f&3,rir,dr,tg];
   while(out.length>2&&(out[out.length-1]==null||out[out.length-1]===0))out.pop();
   return out;}
 function stW(s){return Number(s[0])||0;}
@@ -1468,6 +1527,11 @@ function stR(s){return Number(s[1])||0;}
 function stF(s){return Number(s[2])||0;}
 function stRir(s){return s[3]==null?null:Number(s[3]);}
 function stDrops(s){return Array.isArray(s[4])?s[4]:[];}
+/* A cél (ha a „cél és tény külön” módban mást hoztál, mint amit kitűztél). */
+function stTarget(s){const t=s[5];return(Array.isArray(t)&&t.length>=2)?t:null;}
+function stSetTarget(s,tw,tr){
+  while(s.length<6)s.push(s.length===2?0:null);
+  s[5]=(tw||tr)?[Number(tw)||0,Number(tr)||0]:null;}
 function stWarm(s){return!!(stF(s)&SF_WARM);}
 function stDone(s){return!!(stF(s)&SF_DONE);}
 function stSetFlag(s,bit,on){while(s.length<3)s.push(0);
@@ -1781,11 +1845,141 @@ const WRest=(function(){
   return{start,stop,add,left,running,paint,
     test(name){const a=ctx();if(a)schedule(a,a.currentTime+0.05,name);}};})();
 
+/* ---- LEBEGŐ ABLAK (kép a képben) -----------------------------------------
+   „Chatfej” a rendszer saját eszközével: egy rajzolt vászonból (canvas) élő
+   videó-folyamot csinálunk, azt tesszük kép-a-képben módba. Ez a kis ablak a
+   TÖBBI APP FÖLÖTT lebeg — mehet a YouTube, és közben látod a pihenőt meg azt,
+   hol tartasz. Rákoppintva visszaugrasz az appba teljes képernyőn, a videó
+   pedig a háttérben megy tovább.
+
+   Amit a rendszer NEM enged: az ablak méretét mi nem állíthatjuk (a felhasználó
+   húzza), ezért nem „zsugorodik” a pihenő végén — helyette a TARTALOM vált:
+   pihenő közben nagy visszaszámláló, utána tömör állapot-nézet.
+   Ha a böngésző nem tudja (pl. iOS Safari PWA), a gomb meg sem jelenik. ---- */
+const WPip=(function(){
+  let cv=null,vd=null,tid=null,on=false;
+  function ok(){
+    try{return!!(document.pictureInPictureEnabled
+      &&HTMLVideoElement.prototype.requestPictureInPicture
+      &&HTMLCanvasElement.prototype.captureStream);}catch(e){return false;}}
+  function cssv(v,f){try{const x=getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+    return x||f;}catch(e){return f;}}
+  function mmss(s){s=Math.max(0,Math.round(s));
+    return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");}
+  function draw(){
+    if(!cv)return;
+    const g=cv.getContext("2d"),W=cv.width,H=cv.height;
+    const bg=cssv("--surface","#16171b"),gold=cssv("--gold","#e5a83b"),
+          ink=cssv("--ink","#f0efec"),mut=cssv("--muted","#9b9689"),line=cssv("--line","#2c2e34");
+    g.fillStyle=bg;g.fillRect(0,0,W,H);
+    g.fillStyle=line;g.fillRect(0,0,W,3);
+    const L=woLive();
+    const rest=WRest.running()?WRest.left():0;
+    g.textAlign="center";
+    if(rest>0){
+      g.fillStyle=mut;g.font="600 15px system-ui,sans-serif";
+      g.fillText("PIHENŐ",W/2,34);
+      g.fillStyle=gold;g.font="800 68px system-ui,sans-serif";
+      g.fillText(mmss(rest),W/2,H/2+26);
+      /* alul vékony fogyó csík */
+      const tot=Math.max(rest,WPipTot||rest);
+      g.fillStyle=line;g.fillRect(18,H-22,W-36,6);
+      g.fillStyle=gold;g.fillRect(18,H-22,(W-36)*Math.min(1,rest/tot),6);
+      if(L){g.fillStyle=mut;g.font="500 13px system-ui,sans-serif";
+        g.fillText(cut(g,wexName(cur(L)),W-30),W/2,H-34);}
+    }else{
+      g.fillStyle=gold;g.font="700 15px system-ui,sans-serif";
+      g.fillText("Trellis · edzés",W/2,32);
+      if(L){
+        let sets=0;for(const b of L.b)for(const s of b.s)if(stDone(s)&&!stWarm(s))sets++;
+        g.fillStyle=ink;g.font="700 22px system-ui,sans-serif";
+        g.fillText(cut(g,wexName(cur(L)),W-24),W/2,H/2+4);
+        g.fillStyle=mut;g.font="500 15px system-ui,sans-serif";
+        const el=Math.round((Date.now()-(L.startTs||L.ts))/1000);
+        g.fillText(sets+" sorozat · "+Math.floor(el/60)+" perc",W/2,H/2+34);
+      }else{
+        g.fillStyle=mut;g.font="500 15px system-ui,sans-serif";
+        g.fillText("nincs futó edzés",W/2,H/2+6);}}}
+  function cur(L){
+    const i=woCurBlk();
+    if(i>=0&&L.b[i])return L.b[i].x;
+    return L.b.length?L.b[0].x:"";}
+  function cut(g,txt,max){
+    txt=String(txt||"");
+    while(txt.length>4&&g.measureText(txt).width>max)txt=txt.slice(0,-2);
+    return txt;}
+  function startTick(){if(tid)return;tid=setInterval(draw,300);draw();}
+  function stopTick(){if(tid){clearInterval(tid);tid=null;}}
+  function open(){
+    if(!ok()){toast("Ez a böngésző nem tud lebegő ablakot (kép a képben)","warn");return;}
+    try{
+      if(!cv){cv=document.createElement("canvas");cv.width=380;cv.height=214;}
+      if(!vd){
+        vd=document.createElement("video");
+        vd.muted=true;vd.defaultMuted=true;vd.playsInline=true;
+        vd.setAttribute("playsinline","");vd.setAttribute("muted","");
+        vd.style.cssText="position:fixed;left:-9999px;top:0;width:1px;height:1px;opacity:0;pointer-events:none";
+        document.body.appendChild(vd);
+        vd.addEventListener("leavepictureinpicture",()=>{
+          on=false;stopTick();if(curTab==="edzes")renderEdzes();});}
+      draw();
+      if(!vd.srcObject)vd.srcObject=cv.captureStream(8);
+      startTick();
+      const go=()=>vd.requestPictureInPicture()
+        .then(()=>{on=true;if(curTab==="edzes")renderEdzes();})
+        .catch(()=>{stopTick();toast("A lebegő ablakot a rendszer nem engedte megnyitni","warn");});
+      const p=vd.play();
+      if(p&&p.then)p.then(go).catch(go);else go();
+    }catch(e){stopTick();toast("Nem sikerült megnyitni a lebegő ablakot","warn");}}
+  function close(){
+    try{if(document.pictureInPictureElement)document.exitPictureInPicture();}catch(e){}
+    on=false;stopTick();}
+  function toggle(){if(on||document.pictureInPictureElement)close();else open();}
+  /* A pihenő indulásakor magától — csak ha a felhasználó kérte a beállításokban.
+     A koppintás (pipa) még „friss” engedélynek számít, ezért működik. */
+  function autoOpen(){
+    try{if(!on&&S.workout&&S.workout.settings.autoPip&&WRest.running())open();}catch(e){}}
+  return{ok,open,close,toggle,autoOpen,isOn(){return on;}};})();
+let WPipTot=0;
+
 function woRestFor(exId){
   const e=wex(exId),st=S.workout.settings;
   const own=S.workout.ex[exId];
   if(own&&own.rest!=null)return own.rest;
   return(e&&e.c==="comp")?st.restComp:st.restIso;}
+
+/* ---- EGYOLDALAS (oldalankénti) GYAKORLAT ---------------------------------
+   Bolgár kitörés, egykezes evezés, kitörés: egy „sorozat” valójában KÉT
+   munkasorozat — bal és jobb. Ha nem jelöljük, a naplóban a 4 sorozat
+   kétértelmű: négyszer mindkét oldal, vagy kétszer? Ezért a gyakorlathoz
+   tartozik egy kapcsoló: bekapcsolva minden szettsor EGY oldal, a számozás
+   pedig „1 B / 1 J / 2 B / 2 J”. A terv sorozatszáma ilyenkor OLDALANKÉNT
+   értendő (3 sorozat = 3 bal + 3 jobb = 6 sor), és a pihenő is kettéválik:
+   az oldalak közé rendszerint nem kell (átállsz és mész), a körök közé igen. */
+function woUni(exId){const o=S.workout.ex&&S.workout.ex[exId];return!!(o&&o.uni);}
+function woSetUni(exId,on){
+  const w=S.workout;w.ex[exId]=w.ex[exId]||{};
+  if(on)w.ex[exId].uni=true;else delete w.ex[exId].uni;
+  woTouch();}
+/* Nevek, amiknél szinte biztos, hogy egyoldalas — csak JAVASLAT, nem kapcsol be semmit. */
+const WUNI_RE=/(single|one[- ]arm|one arm|one[- ]leg|unilateral|bulgarian|split squat|lunge|step[- ]up|pistol|suitcase|side plank|kickback)/i;
+function woUniSuggest(exId){const e=wex(exId);return!!(e&&WUNI_RE.test(e.n||""));}
+/* Hányadik MUNKA-sorozat ez a soron belül (0-tól, a bemelegítők nem számítanak). */
+function woWorkIdx(b,si){let k=0;for(let i=0;i<si;i++)if(!stWarm(b.s[i]))k++;return k;}
+/* A szett sorszáma a soron: „W”, „3”, vagy egyoldalasnál „2 J”. */
+/* Menü-cím: „3. szett”, egyoldalasnál „2 B oldal”. */
+function woSetTitle(b,si){
+  if(stWarm(b.s[si]))return"Bemelegítő";
+  return woUni(b.x)?(woSetLabel(b,si)+" oldal"):(woSetLabel(b,si)+". szett");}
+function woSetLabel(b,si){
+  if(stWarm(b.s[si]))return"W";
+  const k=woWorkIdx(b,si);
+  if(woUni(b.x))return(Math.floor(k/2)+1)+(k%2?" J":" B");
+  return String(k+1);}
+/* Pihenő az OLDALAK közt (0 = nincs, rögtön jöhet a másik oldal). */
+function woRestSideFor(exId){
+  const own=S.workout.ex&&S.workout.ex[exId];
+  return(own&&own.restSide!=null)?own.restSide:0;}
 
 /* ---- munkamenet-motor ---------------------------------------------------- */
 let woSub="edzes",woNapSeg="sess",woExOpen=null,woSessOpen=null,woStatEx=null;
@@ -1873,9 +2067,13 @@ function woEnsurePlan(exId){
   w.ex[exId]=w.ex[exId]||{};
   w.ex[exId].plan=p;
   return p;}
-/* Üres (még el nem végzett) szettsorok a TERV alapján. */
+/* Üres (még el nem végzett) szettsorok a TERV alapján.
+   Egyoldalasnál minden tervsor KÉT sort ad: bal és jobb. */
 function woBlankSets(exId){
-  return woEnsurePlan(exId).map(()=>[0,0,0]);}
+  const p=woEnsurePlan(exId),out=[];
+  const rows=woUni(exId)?p.length*2:p.length;
+  for(let i=0;i<rows;i++)out.push([0,0,0]);
+  return out;}
 function woAddBlock(exId){
   const L=woLive();if(!L)return;
   L.b.push({x:exId,s:woBlankSets(exId)});
@@ -1884,20 +2082,25 @@ function woAddBlock(exId){
   setTimeout(()=>{const n=document.querySelector('[data-wb="'+(L.b.length-1)+'"]');
     if(n)n.scrollIntoView({behavior:"smooth",block:"center"});},60);}
 function woBlockPlanRow(b,i){
-  const p=woPlan(b.x);return p[i]||p[p.length-1]||[0,0];}
+  const p=woPlan(b.x);
+  let k=woWorkIdx(b,i);
+  if(woUni(b.x))k=Math.floor(k/2);   /* a terv oldalanként értendő */
+  return p[k]||p[p.length-1]||[0,0];}
 /* Előző alkalom szövegesen — ez a referencia edzés közben. */
 function woPrevTxt(exId){
   const h=woExHist(exId,1);if(!h.length)return"";
   const parts=h[0].sets.filter(s=>!stWarm(s)).map(s=>woSetTxt(exId,s));
   return parts.length?(woDateTxt(h[0].d)+": "+parts.join(" · ")):"";}
-function woSetTxt(exId,s){
+function woSetTxt(exId,s,showGoal){
   const e=wex(exId),t=e?e.t:"wr";
-  if(t==="hold")return stR(s)+" mp"+(stW(s)?" +"+woNum(stW(s))+"kg":"");
-  if(t==="dist")return stR(s)+" m";
+  const tg=showGoal?stTarget(s):null;
+  const goal=tg?(" (cél "+((tg[0]?woNum(tg[0])+"×":"")+tg[1])+")"):"";
+  if(t==="hold")return stR(s)+" mp"+(stW(s)?" +"+woNum(stW(s))+"kg":"")+goal;
+  if(t==="dist")return stR(s)+" m"+goal;
   let base=(stW(s)?woNum(stW(s))+"×":"")+stR(s);
   const dr=stDrops(s);
   if(dr.length)base+=" ↓ "+dr.map(d=>(d[0]?woNum(d[0])+"×":"")+d[1]).join(" ↓ ");
-  return base;}
+  return base+goal;}
 function woNum(n){n=Number(n)||0;return(Math.round(n*100)/100).toString();}
 /* Rövid dátum, de évvel, ha nem az idei — egy évvel ezelőtti "aug. 24." különben
    ugyanúgy néz ki, mint a tavalyelőtti. */
@@ -1934,6 +2137,7 @@ function woFinish(){
   S.workout.sessions.unshift(sess);
   S.workout.sessions.sort((a,b)=>(b.ts||0)-(a.ts||0));
   S.workout.live=null;woTouch();
+  WPip.close();
   woSizeCheck();
   woSummaryModal(sess,prs);
   renderEdzes();}
@@ -1973,6 +2177,38 @@ function woConfirm(title,text,onYes,yesLabel,danger){
    +'<button class="btn ghost" id="woNo">Mégse</button></div>',()=>{
     document.getElementById("woNo").onclick=()=>closeScreen();
     document.getElementById("woYes").onclick=()=>{closeScreen();setTimeout(onYes,180);};});}
+/* Nehezített megerősítés: egy koppintással nem lehet edzést törölni. Nyomva
+   kell tartani másfél másodpercig — pont ez hiányzott, amikor egy gyakorlat
+   visszavonása helyett a teljes edzés tűnt el. */
+function woHoldConfirm(title,text,label,onYes){
+  woDlg('<button class="close-x" id="mClose">✕</button><h3>'+esc(title)+'</h3>'
+   +'<p class="hint" style="margin:-2px 0 14px">'+text+'</p>'
+   +'<button class="wo-hold" id="woHold" type="button"><i></i><span>'+esc(label)+'</span></button>'
+   +'<div class="wo-modact"><button class="btn ghost wide" id="woHoldNo">Mégse</button></div>',()=>{
+    const b=document.getElementById("woHold");
+    let t=null,fired=false;
+    const start=ev=>{if(fired)return;if(ev&&ev.cancelable)ev.preventDefault();
+      b.classList.add("holding");
+      t=setTimeout(()=>{fired=true;
+        if(navigator.vibrate)try{navigator.vibrate(45);}catch(e){}
+        closeScreen();setTimeout(onYes,180);},1500);};
+    const cancel=()=>{if(fired)return;clearTimeout(t);b.classList.remove("holding");};
+    b.addEventListener("touchstart",start,{passive:false});
+    b.addEventListener("mousedown",start);
+    ["touchend","touchcancel","mouseup","mouseleave"].forEach(k=>b.addEventListener(k,cancel));
+    document.getElementById("woHoldNo").onclick=()=>closeScreen();});}
+/* Visszavonás-sáv: minden törlés visszahozható 40 másodpercig. */
+let _woUndo=null,_woUndoT=null;
+function woPushUndo(label,fn){
+  _woUndo={label:label,fn:fn};
+  clearTimeout(_woUndoT);
+  _woUndoT=setTimeout(()=>{_woUndo=null;if(curTab==="edzes")renderEdzes();},40000);
+  renderEdzes();}
+function woUndoBarHtml(){
+  if(!_woUndo)return"";
+  return '<div id="woUndoBar" class="wo-undobar"><span>'+esc(_woUndo.label)+'</span>'
+   +'<button id="woUndoGo">↩ Visszavonás</button><button id="woUndoX" class="x">✕</button></div>';}
+function woUndoClear(){_woUndo=null;clearTimeout(_woUndoT);}
 function woAsk(title,label,value,onOk,opts){
   opts=opts||{};
   const multi=!!opts.multiline;
@@ -2114,30 +2350,125 @@ function woSetupModal(exId,after){
   document.getElementById("woSuClr").onclick=()=>save({});}
 
 /* ---- képek ---------------------------------------------------------------
-   Galéria ÉS kamera (a `capture` attribútum korábban kizárta a galériát).
-   Lekicsinyítve, és szándékosan csak az eszközön (sl_woPhotos). ----------- */
-function woImgFile(cb){
+   HÁROM forrás: fénykép készítése · galéria · keresés a neten. Mindhárom
+   ugyanoda érkezik: lekicsinyítve, szándékosan csak az eszközön (sl_woPhotos),
+   mert pár tucat kép szétvinné a szinkron 1 MB-os limitjét. --------------- */
+function woShrink(dataUrl,cb){
+  const img=new Image();
+  img.onload=()=>{
+    const max=560,sc=Math.min(1,max/Math.max(img.width,img.height));
+    const c=document.createElement("canvas");
+    c.width=Math.max(1,Math.round(img.width*sc));c.height=Math.max(1,Math.round(img.height*sc));
+    c.getContext("2d").drawImage(img,0,0,c.width,c.height);
+    try{cb(c.toDataURL("image/jpeg",0.75));}
+    catch(e){toast("Nem sikerült feldolgozni a képet","warn");}};
+  img.onerror=()=>toast("Nem sikerült beolvasni a képet","warn");
+  img.src=dataUrl;}
+/* camera=true esetén a telefon rögtön a kamerát nyitja (capture), különben
+   a rendszer választója jön fel, ahol galéria is van. */
+function woImgFile(cb,camera){
   const inp=document.createElement("input");
   inp.type="file";inp.accept="image/*";
+  if(camera)inp.setAttribute("capture","environment");
   inp.onchange=()=>{const f=inp.files&&inp.files[0];if(!f)return;
     const rd=new FileReader();
-    rd.onload=()=>{const img=new Image();
-      img.onload=()=>{
-        const max=560,sc=Math.min(1,max/Math.max(img.width,img.height));
-        const c=document.createElement("canvas");
-        c.width=Math.round(img.width*sc);c.height=Math.round(img.height*sc);
-        c.getContext("2d").drawImage(img,0,0,c.width,c.height);
-        try{cb(c.toDataURL("image/jpeg",0.75));}
-        catch(e){toast("Nem sikerült beolvasni a képet","warn");}};
-      img.onerror=()=>toast("Nem sikerült beolvasni a képet","warn");
-      img.src=rd.result;};
+    rd.onload=()=>woShrink(rd.result,cb);
+    rd.onerror=()=>toast("Nem sikerült beolvasni a képet","warn");
     rd.readAsDataURL(f);};
   inp.click();}
+function woImgSource(name,cb){
+  openMenu("Kép — "+(name||"gyakorlat"),[
+    {icon:"📷",label:"Fénykép készítése",onClick:()=>woImgFile(cb,true)},
+    {icon:"🖼",label:"Kép a galériából",onClick:()=>woImgFile(cb,false)},
+    {icon:"🔍",label:"Keresés a neten…",onClick:()=>woWebImgOpen(name||"",cb)}]);}
 function woPhotoPick(exId,after){
-  woImgFile(d=>{
+  woImgSource(wexName(exId),d=>{
     try{woSetPhoto(exId,d);toast("Kép mentve (csak ezen az eszközön)");}
     catch(e){toast("Nem fért el a kép az eszköz tárában","warn");return;}
     if(after)after();else renderEdzes();});}
+
+/* ---- KÉPKERESÉS A NETEN ---------------------------------------------------
+   Nincs saját szerverünk és nem kérünk API-kulcsot, ezért két nyílt, CORS-barát
+   képkeresőt hívunk közvetlenül a böngészőből:
+     1) Openverse (openverse.org) — szabad licencű képek Flickrről, Wikimediáról;
+     2) Wikimedia Commons — tartalék, ha az Openverse nem válaszol.
+   A kiválasztott képet LETÖLTJÜK (fetch → blob → data URL), lekicsinyítjük, és
+   ugyanúgy az eszközön tároljuk, mint a fényképet — így offline is megvan, és
+   nem hivatkozunk idegen szerverre. Ha egy kép nem engedi a letöltést (nincs
+   CORS-fejléce), szólunk, hogy válassz másikat. Legvégső mentsvár: kép-URL
+   beillesztése kézzel. ---------------------------------------------------- */
+let woWebImg={q:"",items:[],busy:false,err:"",cb:null};
+function woWebImgOpen(q,cb){
+  woWebImg={q:String(q||"").slice(0,80),items:[],busy:false,err:"",cb:cb||null};
+  openModal(woWebImgHtml());woWebImgBind();
+  if(woWebImg.q)woWebImgSearch();}
+function woWebImgHtml(){
+  const W=woWebImg;
+  let h='<button class="close-x" id="mClose">✕</button><h3>🔍 Kép keresése a neten</h3>'
+   +'<p class="hint" style="margin:-2px 0 12px">Amit nem tudsz lefényképezni (pl. saját testsúlyos gyakorlat), azt itt megkeresed. A találat <b>letöltődik az eszközödre</b> — utána offline is megvan.</p>'
+   +'<div class="wo-soundrow"><input class="input" id="woWiQ" type="search" placeholder="pl. bulgarian split squat" value="'+escA(W.q)+'" autocomplete="off"/>'
+   +'<button class="btn sm" id="woWiGo">Keresés</button></div>';
+  if(W.busy)h+='<div class="card" style="padding:22px 16px"><div class="hint">Keresés…</div></div>';
+  else if(W.err)h+='<div class="card" style="padding:16px"><div class="hint">'+esc(W.err)+'</div></div>';
+  else if(W.items.length){
+    h+='<div class="wo-imgrid">';
+    W.items.forEach((it,i)=>{h+='<button class="wo-imgcell" data-wimg="'+i+'"><img src="'+escA(it.t)+'" alt="" loading="lazy"/></button>';});
+    h+='</div><div class="wo-imgnote">Koppints a képre, és bekerül a gyakorlathoz. A képek szabad licencű gyűjteményekből (Openverse, Wikimedia Commons) származnak — a szerzőt a forrásoldal tünteti fel.</div>';}
+  else if(W.q)h+='<div class="card" style="padding:16px"><div class="hint">Nyomd meg a Keresés gombot.</div></div>';
+  h+='<details class="wo-adv" style="margin-top:12px"><summary>Kép beillesztése URL-ből</summary>'
+   +'<div class="card" style="padding:14px 16px"><label class="wo-lb">Kép címe (https://…)</label>'
+   +'<input class="input" id="woWiU" placeholder="https://…/kep.jpg"/>'
+   +'<button class="btn ghost wide sm" id="woWiUse" style="margin-top:10px">Ezt használom</button>'
+   +'<div class="hint" style="margin-top:8px">Ha a keresés nem hoz jót: nyisd meg a képet böngészőben, másold ki a címét, és illeszd be ide.</div></div></details>';
+  return h;}
+function woWebImgRe(){const s=document.getElementById("modalSheet");if(!s)return;
+  s.innerHTML=woWebImgHtml();woWebImgBind();}
+function woWebImgBind(){
+  const x=document.getElementById("mClose");if(x)x.onclick=()=>closeScreen();
+  const q=document.getElementById("woWiQ");
+  const go=()=>{if(q)woWebImg.q=q.value.slice(0,80);woWebImgSearch();};
+  const gb=document.getElementById("woWiGo");if(gb)gb.onclick=go;
+  if(q)q.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();go();}};
+  document.querySelectorAll("[data-wimg]").forEach(b=>b.onclick=()=>{
+    const it=woWebImg.items[Number(b.dataset.wimg)];if(it)woWebImgUse(it.u||it.t);});
+  const ub=document.getElementById("woWiUse");
+  if(ub)ub.onclick=()=>{const u=(document.getElementById("woWiU").value||"").trim();
+    if(!/^https?:\/\//i.test(u)){toast("Adj meg egy https-sel kezdődő kép-címet","warn");return;}
+    woWebImgUse(u);};}
+function woWebImgSearch(){
+  const q=(woWebImg.q||"").trim();
+  if(!q){toast("Írd be, mit keressek","warn");return;}
+  woWebImg.busy=true;woWebImg.err="";woWebImg.items=[];woWebImgRe();
+  const show=list=>{woWebImg.busy=false;woWebImg.items=list.slice(0,24);
+    if(!list.length)woWebImg.err="Nincs találat erre a szóra. A képgyűjtemények főleg angolul indexelnek — próbáld úgy (pl. „bulgarian split squat”).";
+    woWebImgRe();};
+  const fail=()=>{woWebImg.busy=false;
+    woWebImg.err="Nem sikerült elérni a képkeresőt. Ellenőrizd a netkapcsolatot — vagy illessz be egy kép-címet lent.";
+    woWebImgRe();};
+  woImgSearchOpenverse(q)
+    .then(l=>l.length?show(l):woImgSearchCommons(q).then(show).catch(fail))
+    .catch(()=>woImgSearchCommons(q).then(show).catch(fail));}
+function woImgSearchOpenverse(q){
+  const u="https://api.openverse.org/v1/images/?q="+encodeURIComponent(q)+"&page_size=24&mature=false";
+  return fetch(u,{headers:{Accept:"application/json"}}).then(r=>{if(!r.ok)throw 0;return r.json();})
+    .then(d=>(d.results||[]).map(x=>({t:x.thumbnail||x.url,u:x.thumbnail||x.url,n:x.title||""})).filter(x=>x.t));}
+function woImgSearchCommons(q){
+  const u="https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&generator=search"
+   +"&gsrsearch="+encodeURIComponent(q+" filetype:bitmap")+"&gsrnamespace=6&gsrlimit=24"
+   +"&prop=imageinfo&iiprop=url&iiurlwidth=420";
+  return fetch(u).then(r=>{if(!r.ok)throw 0;return r.json();})
+    .then(d=>{const p=(d.query&&d.query.pages)||{};
+      return Object.keys(p).map(k=>{const ii=(p[k].imageinfo||[])[0]||{};
+        return{t:ii.thumburl,u:ii.thumburl,n:String(p[k].title||"").replace(/^File:/,"")};})
+        .filter(x=>x.t);});}
+function woWebImgUse(url){
+  toast("Kép letöltése…");
+  fetch(url,{mode:"cors"}).then(r=>{if(!r.ok)throw 0;return r.blob();})
+    .then(bl=>new Promise((res,rej)=>{const fr=new FileReader();
+      fr.onload=()=>res(fr.result);fr.onerror=rej;fr.readAsDataURL(bl);}))
+    .then(du=>woShrink(du,d=>{const cb=woWebImg.cb;
+      closeScreen();setTimeout(()=>{if(cb)cb(d);},180);}))
+    .catch(()=>toast("Ezt a képet nem engedi letölteni a forrás. Válassz másikat.","warn"));}
 
 /* ---- szuperszett: MELYIK gyakorlattal? -----------------------------------
    Korábban csak a közvetlenül következővel kötötte össze, és ha nem volt
@@ -2373,9 +2704,27 @@ function woPickDetailHtml(id){
     hist.forEach(x=>{h+='<div class="wo-hrow"><span class="d">'+esc(woDateTxt(x.d))+'</span>'
       +'<span class="v">'+esc(x.sets.filter(s=>!stWarm(s)).map(s=>woSetTxt(id,s)).join(" · "))+'</span></div>';});
     h+='</div>';}
-  h+='<div class="wo-modact"><button class="btn" id="woDetAdd">➕ Hozzáadás az edzéshez</button>'
+  /* Egyoldalas gyakorlat — MÉG A HOZZÁADÁS ELŐTT beállítható. */
+  h+='<label class="wo-unirow"><input type="checkbox" id="woDetUni"'+(woUni(id)?" checked":"")+'/>'
+   +'<span><b>Egy sorozat = egy oldal (bal / jobb)</b>'
+   +'<small>Bekapcsolva minden szettsor <b>egy oldal</b>, és az app így számozza őket: '
+   +'<b>1 B · 1 J · 2 B · 2 J</b>. Így a naplóban nem kétértelmű, hogy a 4 sorozat kétszer '
+   +'mindkét oldalt jelenti-e vagy négyszer. A terv sorozatszáma ilyenkor <b>oldalanként</b> '
+   +'értendő, a pihenőt pedig külön állíthatod az <b>oldalak közé</b> (általában nincs) és a '
+   +'<b>körök közé</b>.</small></span></label>';
+  if(!woUni(id)&&woUniSuggest(id))
+    h+='<div class="hint" style="margin:2px 2px 8px">A neve alapján ez egyoldalas gyakorlat — érdemes bekapcsolni.</div>';
+  /* Ha már van kijelölés, a gomb NEM tesz be semmit azonnal: csak kijelöl és
+     visszavisz a listához. Enélkül a gyakorlat kétszer került az edzésbe. */
+  const multi=woPick.sel.length>0,selIx=woPick.sel.indexOf(id);
+  h+='<div class="wo-modact"><button class="btn" id="woDetAdd">'
+   +(multi?(selIx>=0?"✓ Kijelölve — vissza a listához":"＋ Hozzáadás a kijelöléshez")
+          :"➕ Hozzáadás az edzéshez")+'</button>'
    +'<button class="btn ghost sm" id="woDetPhoto">'+(ph?"🖼 Kép cseréje":"🖼 Kép hozzáadása")+'</button>'
    +'<button class="btn ghost sm" id="woDetNote">📝 Leírás</button></div>';
+  if(multi)h+='<div class="hint" style="margin:2px 2px 0">Most <b>'+woPick.sel.length
+   +'</b> gyakorlat van kijelölve, ezért ez a gomb csak a <b>kijelöléshez</b> ad hozzá. '
+   +'Az edzésbe a lista alján lévő <b>Hozzáadás</b> teszi be mindet, a kijelölés sorrendjében.</div>';
   return h;}
 function woPickRe(){const s=document.getElementById("modalSheet");if(!s)return;
   const sc=document.querySelector(".wo-picklist");const sy=sc?sc.scrollTop:0;
@@ -2390,7 +2739,12 @@ function woPickBind(){
     const im=document.getElementById("woDetImg");
     if(im&&woPhoto(id))im.onclick=()=>{const d=woPick.detail;woPick.detail=null;
       closeScreen();setTimeout(()=>woPhotoView(d),200);};
+    const un=document.getElementById("woDetUni");
+    if(un)un.onchange=()=>{woSetUni(id,un.checked);woPickRe();};
     document.getElementById("woDetAdd").onclick=()=>{
+      if(woPick.sel.length){
+        if(woPick.sel.indexOf(id)<0)woPick.sel.push(id);
+        woPick.detail=null;woPickRe();return;}
       const cb=woPick.onPick;closeScreen();setTimeout(()=>{if(cb)cb(id);},30);};
     document.getElementById("woDetPhoto").onclick=()=>woPhotoPick(id,()=>woPickRe());
     document.getElementById("woDetNote").onclick=()=>{
@@ -2423,7 +2777,9 @@ function woPickBind(){
   const sc=document.getElementById("woSelClr");
   if(sc)sc.onclick=()=>{woPick.sel=[];woPickRe();};
   const sa=document.getElementById("woSelAdd");
-  if(sa)sa.onclick=()=>{const ids=woPick.sel.slice(),cb=woPick.onPick;
+  if(sa)sa.onclick=()=>{
+    const ids=woPick.sel.filter((v,i,a)=>a.indexOf(v)===i),cb=woPick.onPick;
+    woPick.sel=[];
     closeScreen();setTimeout(()=>{if(cb)ids.forEach(id=>cb(id));},30);};
   const ne=document.getElementById("woNewEx");
   if(ne)ne.onclick=()=>{const cb=woPick.onPick;closeScreen();
@@ -2431,35 +2787,56 @@ function woPickBind(){
 
 /* Saját gyakorlat felvétele — első körben CSAK a név és a mérési mód kell,
    minden más a Haladó beállítások alatt. */
+let _woNewDraft=null;
 function woNewExModal(onDone){
+  const D=_woNewDraft||{n:"",meas:"r",p:"chest",e:"other",c:"iso",bw:false,img:null};
+  _woNewDraft=null;
   let h='<button class="close-x" id="mClose">✕</button><h3>Saját gyakorlat</h3>'
    +'<div class="card" style="padding:14px 16px">'
-   +'<label class="wo-lb">Név</label><input class="input" id="wneN" placeholder="pl. Cable Rear Delt Row" maxlength="80"/>'
+   +'<label class="wo-lb">Név</label><input class="input" id="wneN" placeholder="pl. Cable Rear Delt Row" maxlength="80" value="'+escA(D.n)+'"/>'
    +'<label class="wo-lb" style="margin-top:14px">Mit mérünk?</label>'
-   +'<div class="seg" style="margin:0"><button type="button" id="wneMr" class="active">Ismétlés</button>'
-   +'<button type="button" id="wneMt">Idő</button></div>'
+   +'<div class="seg" style="margin:0"><button type="button" id="wneMr"'+(D.meas==="r"?' class="active"':'')+'>Ismétlés</button>'
+   +'<button type="button" id="wneMt"'+(D.meas==="t"?' class="active"':'')+'>Idő</button></div>'
    +'<div class="hint" style="margin-top:6px">Súlyt mindkettőnél megadhatsz — ha nem adsz meg, csak az ismétlés/idő számít.</div>'
    +'</div>'
    +'<details class="wo-adv"><summary>Haladó beállítások</summary><div class="card" style="padding:14px 16px">'
    +'<label class="wo-lb">Fő izom</label><select class="input" id="wneP">';
-  WMUSC_IDS.forEach(m=>{h+='<option value="'+m+'"'+(m==="chest"?" selected":"")+'>'+esc(WMUSC[m].n)+'</option>';});
+  WMUSC_IDS.forEach(m=>{h+='<option value="'+m+'"'+(m===D.p?" selected":"")+'>'+esc(WMUSC[m].n)+'</option>';});
   h+='</select><label class="wo-lb" style="margin-top:12px">Felszerelés</label><select class="input" id="wneE">';
-  for(const k in WEQ)h+='<option value="'+k+'"'+(k==="other"?" selected":"")+'>'+esc(WEQ[k])+'</option>';
+  for(const k in WEQ)h+='<option value="'+k+'"'+(k===D.e?" selected":"")+'>'+esc(WEQ[k])+'</option>';
   h+='</select><label class="wo-lb" style="margin-top:12px">Jelleg</label><select class="input" id="wneC">'
-   +'<option value="iso">Izoláció (rövidebb pihenő)</option>'
-   +'<option value="comp">Alapgyakorlat (hosszabb pihenő)</option></select>'
-   +'<label class="wo-check"><input type="checkbox" id="wneBw"/><span>Saját testsúlyos — a testsúlyod beleszámít a volumenbe</span></label>'
+   +'<option value="iso"'+(D.c==="iso"?" selected":"")+'>Izoláció (rövidebb pihenő)</option>'
+   +'<option value="comp"'+(D.c==="comp"?" selected":"")+'>Alapgyakorlat (hosszabb pihenő)</option></select>'
+   +'<label class="wo-check"><input type="checkbox" id="wneBw"'+(D.bw?" checked":"")+'/><span>Saját testsúlyos — a testsúlyod beleszámít a volumenbe</span></label>'
    +'</div></details>'
-   +'<button class="btn ghost wide" id="wneImg" style="margin-bottom:10px">🖼 Kép hozzáadása (galéria vagy fotó)</button>'
+   +(D.img?'<div class="wo-detimg"><img src="'+D.img+'" alt=""/></div>':'')
+   +'<button class="btn ghost wide" id="wneImg" style="margin-bottom:10px">'
+   +(D.img?"🖼 Másik kép":"🖼 Kép hozzáadása (fotó · galéria · net)")+'</button>'
    +'<button class="btn wide" id="wneSave">Felvétel</button>';
   openModal(h);
   const x=document.getElementById("mClose");if(x)x.onclick=()=>closeScreen();
-  let meas="r",pendingImg=null;
+  let meas=D.meas,pendingImg=D.img;
   const mr=document.getElementById("wneMr"),mt=document.getElementById("wneMt");
   mr.onclick=()=>{meas="r";mr.classList.add("active");mt.classList.remove("active");};
   mt.onclick=()=>{meas="t";mt.classList.add("active");mr.classList.remove("active");};
-  document.getElementById("wneImg").onclick=()=>woImgFile(d=>{pendingImg=d;
-    toast("Kép kiválasztva — a mentéskor kerül be");});
+  /* A netes kereső saját ablakban nyílik, ezért a félkész űrlapot elmentjük,
+     és a kép megérkezése után ugyanígy visszahozzuk. */
+  const grabDraft=()=>({n:document.getElementById("wneN").value,meas:meas,
+    p:document.getElementById("wneP").value,e:document.getElementById("wneE").value,
+    c:document.getElementById("wneC").value,bw:document.getElementById("wneBw").checked,
+    img:pendingImg});
+  document.getElementById("wneImg").onclick=()=>{
+    const nm=document.getElementById("wneN").value.trim();
+    openMenu("Kép — "+(nm||"saját gyakorlat"),[
+      {icon:"📷",label:"Fénykép készítése",onClick:()=>woImgFile(d=>{pendingImg=d;
+        toast("Kép kiválasztva — a mentéskor kerül be");},true)},
+      {icon:"🖼",label:"Kép a galériából",onClick:()=>woImgFile(d=>{pendingImg=d;
+        toast("Kép kiválasztva — a mentéskor kerül be");},false)},
+      {icon:"🔍",label:"Keresés a neten…",onClick:()=>{
+        const dr=grabDraft();
+        closeScreen();
+        setTimeout(()=>woWebImgOpen(dr.n||"",d=>{dr.img=d;_woNewDraft=dr;
+          woNewExModal(onDone);}),200);}}]);};
   document.getElementById("wneSave").onclick=()=>{
     const n=document.getElementById("wneN").value.trim();
     if(!n){toast("Adj nevet a gyakorlatnak","warn");return;}
@@ -2493,7 +2870,9 @@ function renderEdzes(){
   h+='<div id="woRestBar" class="wo-restbar hidden"><button id="woRestM">−15</button>'
    +'<div class="wo-rnum"><span id="woRestNum">0:00</span><small>pihenő</small></div>'
    +'<button id="woRestP">+15</button><button id="woRestX" class="x">Kész</button></div>';
+  h+=woUndoBarHtml();
   el.innerHTML=h;
+  el.classList.toggle("has-undo",!!_woUndo);
   woBind();renderNav();WRest.paint();window.scrollTo(0,_sy);
   if(woLive()&&!woLiveTick)woLiveTick=setInterval(woTickElapsed,1000);
   if(!woLive()&&woLiveTick){clearInterval(woLiveTick);woLiveTick=null;}}
@@ -2569,7 +2948,9 @@ function woLiveHtml(){
   let h='<div class="wo-livehead"><input class="wo-ttl" id="woTtl" value="'+escA(L.ttl)+'" maxlength="60"/>'
    +'<div class="wo-lstats"><span class="mono" id="woElapsed">0:00</span>'
    +'<span>'+sets+' szett</span><span>'+woKg(vol)+'</span>'
-   +'<button class="wo-place" id="woPlace">'+esc(pl?pl.em+" "+pl.n:"Helyszín")+'</button></div>'
+   +'<button class="wo-place" id="woPlace">'+esc(pl?pl.em+" "+pl.n:"Helyszín")+'</button>'
+   +(WPip.ok()?'<button class="wo-pip'+(WPip.isOn()?" on":"")+'" id="woPipBtn" title="Lebegő ablak">⧉ Lebegő</button>':'')
+   +'</div>'
    +'<button class="btn sm" id="woFin">Befejezés</button></div>';
   if(!L.b.length)h+='<div class="card" style="padding:18px 16px"><div class="hint">Üres edzés. Add hozzá az első gyakorlatot — a lista abból indul, amit <b>legutóbb</b> és amit <b>gyakran</b> csinálsz.</div></div>';
   /* szuperszett-blokkok egy keretben: kapocs a bal oldalon + A/B betűjel */
@@ -2586,7 +2967,10 @@ function woLiveHtml(){
       h+='</div>';i=j;
     }else{h+=woBlockHtml(L.b[i],i,cur,null);i++;}}
   h+='<button class="btn ghost wide" id="woAddEx">➕ Gyakorlat hozzáadása</button>';
-  h+='<button class="wo-discard" id="woDiscard">Edzés eldobása</button>';
+  h+='<button class="btn ghost wide" id="woNote" style="margin-top:8px">'
+   +(L.note?'📝 Az edzés jegyzete — megvan':'📝 Jegyzet az egész edzéshez')+'</button>';
+  if(L.note)h+='<div class="wo-bnote" style="margin:8px 0 0">'+esc(L.note)+'</div>';
+  h+='<button class="wo-discard" id="woDiscard">Az egész edzés eldobása</button>';
   return h;}
 /* A gyakorlat FEJLÉCÉRE koppintva nyílik/csukódik a szettek listája. Mindig csak
    az van nyitva, amin éppen dolgozol; pipa után magától továbblép (woAdvance). */
@@ -2606,6 +2990,7 @@ function woBlockHtml(b,bi,cur,ltr){
    +(ph?'<img class="wo-thumb" src="'+ph+'" data-wphoto="'+escA(b.x)+'" alt=""/>':exBodySvg(b.x,"sm"))
    +'<span class="wo-pn"><b>'+esc(wexName(b.x))+'</b>'
    +(sub?'<small'+(open?'':' class="dim"')+'>'+esc(sub)+'</small>':'<small class="dim">első alkalom — a terv szerint</small>')+'</span>'
+   +(woUni(b.x)?'<span class="wo-unitag">⇋ B/J</span>':'')
    +'<span class="wo-bstat'+(tot&&dn>=tot?" full":"")+'">'+dn+'/'+tot+'</span>'
    +'<span class="wo-bchev">'+(open?"▾":"▸")+'</span>'
    +'<button class="wo-bmenu" data-wbm="'+bi+'">⋮</button></div>';
@@ -2630,8 +3015,10 @@ function woSetRowHtml(b,bi,s,si,t,showW){
   const rv=stR(s)?String(stR(s)):"";
   const phW=plan[0]?woNum(plan[0]):"—";
   const phR=plan[1]?String(plan[1]):"—";
+  const uni=woUni(b.x);
+  const lab=woSetLabel(b,si);
   let h='<div class="wo-srow'+(done?" done":"")+(warm?" warm":"")+'">'
-   +'<button class="wo-sn" data-wsm="'+key+'">'+(warm?"W":(woSetNo(b,si)))+'</button>';
+   +'<button class="wo-sn'+(uni&&!warm?" side":"")+'" data-wsm="'+key+'">'+esc(lab)+'</button>';
   if(showW)h+='<input class="wo-in" data-wsw="'+key+'" inputmode="decimal" value="'+escA(wv)+'" placeholder="'+escA(phW)+'"/>';
   h+='<input class="wo-in" data-wsr="'+key+'" inputmode="numeric" value="'+escA(rv)+'" placeholder="'+escA(phR)+'"/>';
   if(S.workout.settings.showRir){
@@ -2639,7 +3026,12 @@ function woSetRowHtml(b,bi,s,si,t,showW){
     h+='<select class="wo-rir" data-wsx="'+key+'"><option value=""'+(rir==null?" selected":"")+'>–</option>';
     [0,1,2,3,4].forEach(v=>{h+='<option value="'+v+'"'+(rir===v?" selected":"")+'>'+(v===0?"0 🔥":v)+'</option>';});
     h+='</select>';}
-  h+='<button class="wo-ok'+(done?" on":"")+'" data-wsd="'+key+'">✔</button></div>';
+  h+='<button class="wo-ok'+(done?" on":"")+'" data-wsd="'+key+'">✔</button>';
+  /* „cél és tény külön” módban itt látod egy sorban, mit tűztél ki és mi ment */
+  const tg=stTarget(s);
+  if(tg)h+='<div class="wo-goalline">cél '+esc((tg[0]?woNum(tg[0])+"×":"")+tg[1])
+   +' · <b>tény '+esc((stW(s)?woNum(stW(s))+"×":"")+stR(s))+'</b></div>';
+  h+='</div>';
   /* vetkőző / rest-pause lépcsők — ugyanannak a szettnek a részei */
   stDrops(s).forEach((d,di)=>{
     h+='<div class="wo-drow"><span class="ar">↓</span>'
@@ -2685,7 +3077,8 @@ function woCommitInputs(){
     if(v!==L.ttl){L.ttl=v;L.ttlAuto=false;}}}
 
 /* ✔ = elvégeztem. Ha üresen hagytad, a TERV értékét veszi át — így egy koppintás
-   az egész szett. A pihenő automatikusan indul. */
+   az egész szett. A pihenő automatikusan indul.
+   „Cél és tény külön” módban a mezőben a CÉL van, és a pipa rákérdez, mi ment. */
 function woToggleDone(bi,si){
   const L=woLive();if(!L)return;
   woCommitInputs();
@@ -2695,17 +3088,62 @@ function woToggleDone(bi,si){
     const plan=woBlockPlanRow(b,si);
     if(!stR(s))s[1]=Number(plan[1])||0;
     if(!stW(s))s[0]=Number(plan[0])||0;
-    if(!stR(s)){toast("Add meg az ismétlésszámot","warn");return;}}
+    if(!stR(s)){toast("Add meg az ismétlésszámot","warn");return;}
+    if(S.workout.settings.goalMode&&!stWarm(s)){
+      const tw=stW(s),tr=stR(s);
+      woActualAsk(b.x,tw,tr,(aw,ar)=>{
+        const L2=woLive();if(!L2)return;
+        const b2=L2.b[bi];if(!b2)return;const s2=b2.s[si];if(!s2)return;
+        s2[0]=aw;s2[1]=ar;
+        stSetTarget(s2,(aw!==tw||ar!==tr)?tw:0,(aw!==tw||ar!==tr)?tr:0);
+        woMarkDone(bi,si,false);});
+      return;}}
+  woMarkDone(bi,si,was);}
+/* A pipa tényleges beállítása — külön, mert a cél/tény kérdés után is ide futunk. */
+function woMarkDone(bi,si,was){
+  const L=woLive();if(!L)return;
+  const b=L.b[bi];if(!b)return;const s=b.s[si];if(!s)return;
   stSetFlag(s,SF_DONE,!was);
   woTouch();
   if(!was&&!stWarm(s)&&S.workout.settings.autoRest){
-    const r=woRestFor(b.x);if(r>0)WRest.start(r);}
+    /* Egyoldalasnál az ELSŐ oldal után rendszerint nem kell pihenő — átállsz és mész. */
+    let r=woRestFor(b.x);
+    if(woUni(b.x)&&woWorkIdx(b,si)%2===0)r=woRestSideFor(b.x);
+    if(r>0){WPipTot=r;WRest.start(r);}else WRest.stop();}
   if(was)WRest.stop();
   if(was)woOpenBlk=bi;else woAdvance(bi);
   renderEdzes();
+  if(!was)WPip.autoOpen();
   if(!was&&woOpenBlk!=null&&woOpenBlk>=0&&woOpenBlk!==bi)setTimeout(()=>{
     const n=document.querySelector('[data-wb="'+woOpenBlk+'"]');
     if(n)n.scrollIntoView({behavior:"smooth",block:"center"});},70);}
+/* „Mi ment ténylegesen?” — a cél marad, mellé kerül a tény. */
+function woActualAsk(exId,tw,tr,cb){
+  const e=wex(exId),t=e?e.t:"wr";
+  const unit=t==="hold"?"másodperc":(t==="dist"?"méter":"ismétlés");
+  const showW=t!=="dist";
+  const goalTxt=(tw?woNum(tw)+" kg × ":"")+tr+" "+unit;
+  let h='<button class="close-x" id="mClose">✕</button><h3>Mi ment ténylegesen?</h3>'
+   +'<p class="hint" style="margin:-2px 0 12px"><b>'+esc(wexName(exId))+'</b> — a kitűzött cél: <b>'+esc(goalTxt)+'</b>. '
+   +'A cél megmarad a naplóban, mellé kerül, amit most tényleg megcsináltál.</p>'
+   +'<div class="card" style="padding:14px 16px"><div class="wo-actrow">'
+   +(showW?'<div><label class="wo-lb">Súly (kg)</label><input class="wo-in" id="woAcW" inputmode="decimal" value="'+escA(tw?woNum(tw):"")+'"/></div>':'')
+   +'<div><label class="wo-lb">'+esc(unit)+'</label><input class="wo-in" id="woAcR" inputmode="numeric" value="'+escA(String(tr))+'"/></div>'
+   +'</div></div>'
+   +'<div class="wo-modact"><button class="btn" id="woAcSame">✓ Pont a célt hoztam</button>'
+   +'<button class="btn ghost" id="woAcOk">Ennyi ment</button></div>';
+  openModal(h);
+  const x=document.getElementById("mClose");if(x)x.onclick=()=>closeScreen();
+  const fin=(aw,ar)=>{closeScreen();setTimeout(()=>cb(aw,ar),180);};
+  document.getElementById("woAcSame").onclick=()=>fin(tw,tr);
+  document.getElementById("woAcOk").onclick=()=>{
+    const wi=document.getElementById("woAcW");
+    const aw=wi?(Number((wi.value||"").replace(",","."))||0):tw;
+    const ar=Number((document.getElementById("woAcR").value||"").replace(",","."))||0;
+    if(!ar){toast("Add meg, hány ment","warn");return;}
+    fin(aw,ar);};
+  setTimeout(()=>{const r=document.getElementById("woAcR");
+    if(r){r.focus();r.select();}},120);}
 
 /* ---- melyik gyakorlat legyen nyitva -------------------------------------
    null = magától az első befejezetlen · -1 = a felhasználó mindent összecsukott
@@ -2757,9 +3195,28 @@ function woBind(){
   on("woAddEx",()=>woPickOpen(id=>woAddBlock(id)));
   on("woFin",()=>{woCommitInputs();woTouch();woFinishConfirm();});
   on("woPlace",()=>woPlaceMenu(true));
-  on("woDiscard",()=>woConfirm("Edzés eldobása",
-    "Amit eddig rögzítettél ebben az edzésben, elveszik. A gyakorlat-terveid megmaradnak.",
-    ()=>{S.workout.live=null;WRest.stop();woTouch();renderEdzes();},"Eldobom",true));
+  on("woDiscard",()=>{
+    const L=woLive();if(!L)return;
+    let dn=0;for(const b of L.b)for(const s of b.s)if(stDone(s))dn++;
+    woHoldConfirm("A TELJES edzés eldobása",
+      "Nem egy gyakorlatot, hanem az <b>egész mai edzést</b> dobod el"
+      +(dn?(" — <b>"+dn+" kipipált sorozattal</b> együtt"):"")+". A gyakorlat-terveid megmaradnak.<br><br>"
+      +"Ha csak egy gyakorlatot akarsz kivenni: a gyakorlat <b>⋮</b> menüjében az <b>„Eltávolítás”</b>. "
+      +"<br><br>A törlés után <b>40 másodpercig visszavonhatod</b>.",
+      "Tartsd nyomva az eldobáshoz",
+      ()=>{const snap=JSON.parse(JSON.stringify(L));
+        S.workout.live=null;WRest.stop();WPip.close();woTouch();
+        woPushUndo("Edzés eldobva — "+esc(snap.ttl||"edzés"),
+          ()=>{S.workout.live=snap;woTouch();toast("Edzés visszaállítva");});});});
+  on("woNote",()=>{const L=woLive();if(!L)return;
+    woAsk("Jegyzet az egész edzéshez","Amit érdemes megjegyezni erről a napról",L.note||"",v=>{
+      const L2=woLive();if(!L2)return;
+      if(v.trim())L2.note=v.trim().slice(0,1000);else delete L2.note;
+      woTouch();renderEdzes();},
+      {multiline:true,max:1000,hint:"Alvás, étkezés, sérülés, hangulat — bármi, ami magyarázza, miért ment jobban vagy rosszabbul."});});
+  on("woPipBtn",()=>WPip.toggle());
+  on("woUndoGo",()=>{const u=_woUndo;woUndoClear();if(u&&u.fn)u.fn();renderEdzes();});
+  on("woUndoX",()=>{woUndoClear();renderEdzes();});
   const t=g("woTtl");if(t)t.onchange=()=>{const L=woLive();
     if(L&&t.value.trim()){L.ttl=t.value.trim().slice(0,60);L.ttlAuto=false;woTouch();}};
   document.querySelectorAll("[data-wsd]").forEach(b=>b.onclick=()=>{
@@ -2835,10 +3292,21 @@ function woRepeatPick(placeId){
   openMenu("Melyik edzést ismételjük?",items);}
 function woRestMenu(bi){
   const L=woLive();if(!L||!L.b[bi])return;const x=L.b[bi].x;
-  woTimeModal("Pihenő — "+wexName(x),woRestFor(x),v=>{
-    S.workout.ex[x]=S.workout.ex[x]||{};S.workout.ex[x].rest=v;woTouch();renderEdzes();
-    toast("Pihenő beállítva ehhez a gyakorlathoz");},
-    "Ez ehhez a gyakorlathoz szól, és megmarad a következő edzésre is.");}
+  if(!woUni(x)){woRestSet(x,false);return;}
+  /* Egyoldalasnál két külön pihenő van értelme. */
+  openMenu("Pihenő — "+wexName(x),[
+    {icon:"⏱",label:"A körök közt — "+woMmss(woRestFor(x)),onClick:()=>woRestSet(x,false)},
+    {icon:"⇋",label:"A két oldal közt — "+(woRestSideFor(x)?woMmss(woRestSideFor(x)):"nincs"),
+      onClick:()=>woRestSet(x,true)}]);}
+function woRestSet(x,side){
+  woTimeModal((side?"Pihenő az oldalak közt — ":"Pihenő — ")+wexName(x),
+    side?woRestSideFor(x):woRestFor(x),v=>{
+      S.workout.ex[x]=S.workout.ex[x]||{};
+      if(side)S.workout.ex[x].restSide=v;else S.workout.ex[x].rest=v;
+      woTouch();renderEdzes();
+      toast(side?"Oldalak közti pihenő beállítva":"Pihenő beállítva ehhez a gyakorlathoz");},
+    side?"Ez a bal és a jobb oldal KÖZÖTT indul. 0:00 = nincs pihenő, rögtön jöhet a másik oldal."
+        :"Ez ehhez a gyakorlathoz szól, és megmarad a következő edzésre is.");}
 
 function woSetMenu(bi,si){
   const L=woLive();if(!L)return;const b=L.b[bi];if(!b)return;const s=b.s[si];if(!s)return;
@@ -2852,7 +3320,7 @@ function woSetMenu(bi,si){
       if(plan.length){woSavePlan(b.x,plan);toast("Terv frissítve");renderEdzes();}}},
     {icon:"✕",label:"Szett törlése",danger:true,onClick:()=>{
       b.s.splice(si,1);if(!b.s.length)b.s.push([0,0,0]);woOpenBlk=bi;woTouch();renderEdzes();}}];
-  openMenu((stWarm(s)?"Bemelegítő":woSetNo(b,si)+". szett")+" — "+wexName(b.x),items);}
+  openMenu(woSetTitle(b,si)+" — "+wexName(b.x),items);}
 
 function woBlockMenu(bi){
   const L=woLive();if(!L)return;const b=L.b[bi];if(!b)return;
@@ -2862,8 +3330,12 @@ function woBlockMenu(bi){
     {head:true,label:"A sorozatról"},
     {icon:"⇄",label:b.ss!=null?"Kivétel a szuperszettből":"Szuperszettbe kötés…",onClick:()=>woSuperMenu(bi)},
     {icon:"↓",label:"Vetkőző sorozat (lépcsők)…",onClick:()=>woDropMenu(bi)},
-    {icon:"⏱",label:"Pihenőidő — "+woMmss(woRestFor(b.x)),onClick:()=>woRestMenu(bi)},
+    {icon:"⏱",label:"Pihenőidő — "+woMmss(woRestFor(b.x))
+      +(woUni(b.x)?(" · oldalak közt "+(woRestSideFor(b.x)?woMmss(woRestSideFor(b.x)):"nincs")):""),
+      onClick:()=>woRestMenu(bi)},
     {head:true,label:"Ehhez a gyakorlathoz"},
+    {icon:"⇋",label:woUni(b.x)?"Egyoldalas: BE — kikapcsolom":"Egyoldalas (bal/jobb külön)",
+      onClick:()=>woUniToggle(b.x,()=>{woOpenBlk=bi;renderEdzes();})},
     {icon:"⚙",label:"Gépbeállítás",onClick:()=>woSetupModal(b.x)},
     {icon:"▣",label:woPhoto(b.x)?"Kép megnyitása / cseréje":"Kép hozzáadása",
       onClick:()=>{if(woPhoto(b.x))woPhotoView(b.x);else woPhotoPick(b.x);}},
@@ -2872,20 +3344,76 @@ function woBlockMenu(bi){
         b.n=v.trim().slice(0,300)||null;woTouch();renderEdzes();},{multiline:true,max:300});}},
     {icon:"▦",label:"Előzmény és csúcsok",onClick:()=>woExModal(b.x)},
     {head:true,label:"Az edzésben"},
+    {icon:"⇆",label:"Gép foglalt — alternatíva ugyanerre az izomra…",onClick:()=>woAltMenu(bi)},
     {icon:"⟳",label:"Csere másik gyakorlatra",onClick:()=>woPickOpen(id=>{
       b.x=id;b.s=woBlankSets(id);woRetitle(L);woTouch();renderEdzes();})},
     {icon:"▲",label:"Feljebb",onClick:()=>{if(bi>0){const t=L.b[bi-1];L.b[bi-1]=L.b[bi];L.b[bi]=t;woOpenBlk=bi-1;woTouch();renderEdzes();}}},
     {icon:"▼",label:"Lejjebb",onClick:()=>{if(bi<L.b.length-1){const t=L.b[bi+1];L.b[bi+1]=L.b[bi];L.b[bi]=t;woOpenBlk=bi+1;woTouch();renderEdzes();}}},
     {icon:"✕",label:"Gyakorlat eltávolítása",danger:true,onClick:()=>{
-      L.b.splice(bi,1);woOpenBlk=null;woRetitle(L);woTouch();renderEdzes();}}];
+      const snap=JSON.parse(JSON.stringify(L.b[bi])),at=bi,nm=wexName(b.x);
+      L.b.splice(bi,1);woOpenBlk=null;woRetitle(L);woTouch();
+      woPushUndo("„"+nm+"” kivéve az edzésből",()=>{
+        const L2=woLive();if(!L2)return;
+        L2.b.splice(Math.min(at,L2.b.length),0,snap);woRetitle(L2);woTouch();
+        toast("Gyakorlat visszatéve");});}}];
   openMenu(wexName(b.x),items);}
+/* ---- „Gép foglalt” — alternatíva egy koppintással ------------------------
+   Ugyanazt az ELSŐDLEGES izmot dolgoztató gyakorlatok, csak amit a mai
+   helyszínen meg tudsz csinálni, és elöl az, amit a legtöbbször csináltál.
+   Ha ebből a gyakorlatból már van kipipált sorozatod, azt NEM írjuk át egy
+   másik gyakorlat nevére: a meglévő munka marad, az alternatíva új blokkban
+   jön alá. --------------------------------------------------------------- */
+function woAltMenu(bi){
+  const L=woLive();if(!L)return;const b=L.b[bi];if(!b)return;
+  const e=wex(b.x),prim=(e&&e.p)||[];
+  if(!prim.length){toast("Ehhez a gyakorlathoz nincs izombesorolás","warn");return;}
+  const eq=woPlaceEq();
+  const inLive={};L.b.forEach((o,j)=>{if(j!==bi)inLive[o.x]=1;});
+  const cnt={};
+  for(const sess of S.workout.sessions)for(const o of sess.b)cnt[o.x]=(cnt[o.x]||0)+1;
+  const cand=wexAll().filter(x=>x.i!==b.x&&!inLive[x.i]
+    &&(x.p||[]).some(m=>prim.indexOf(m)>=0)
+    &&(!eq||eq.indexOf(x.e)>=0));
+  cand.sort((a,c)=>{
+    const sa=(a.p||[]).filter(m=>prim.indexOf(m)>=0).length,
+          sc=(c.p||[]).filter(m=>prim.indexOf(m)>=0).length;
+    if(sa!==sc)return sc-sa;
+    const d=(cnt[c.i]||0)-(cnt[a.i]||0);if(d)return d;
+    return String(a.n).localeCompare(String(c.n));});
+  if(!cand.length){toast("Nem találtam alternatívát erre az izomra ezen a helyszínen","warn");return;}
+  const items=cand.slice(0,10).map(x=>({icon:"⇆",
+    label:x.n+" — "+(WEQ[x.e]||x.e)+(cnt[x.i]?(" · "+cnt[x.i]+"×"):" · új"),
+    onClick:()=>{
+      const L2=woLive();if(!L2||!L2.b[bi])return;
+      const blk=L2.b[bi],done=blk.s.filter(stDone);
+      if(done.length){
+        blk.s=done;
+        L2.b.splice(bi+1,0,{x:x.i,s:woBlankSets(x.i)});
+        woOpenBlk=bi+1;
+        toast("A meglévő sorozatok maradtak — az alternatíva alatta indul");
+      }else{
+        blk.x=x.i;blk.s=woBlankSets(x.i);woOpenBlk=bi;
+        toast("Kicserélve: "+x.n);}
+      woRetitle(L2);woTouch();renderEdzes();}}));
+  items.push({icon:"⟳",label:"Inkább a teljes listából választok…",
+    onClick:()=>woPickOpen(id=>{const L2=woLive();if(!L2||!L2.b[bi])return;
+      L2.b[bi].x=id;L2.b[bi].s=woBlankSets(id);woRetitle(L2);woTouch();renderEdzes();})});
+  openMenu("Ugyanaz az izom — "+prim.map(m=>WMUSC[m]?WMUSC[m].n:m).join(", "),items);}
+
+/* Az egyoldalas kapcsoló egy helyen — a részletnézetből és a blokk-menüből is. */
+function woUniToggle(exId,after){
+  const on=!woUni(exId);
+  woSetUni(exId,on);
+  toast(on?"Egyoldalas: a terv sorozatszáma mostantól OLDALANKÉNT értendő"
+          :"Egyoldalas kikapcsolva");
+  if(after)after();}
 /* Vetkőző sorozat BÁRMELYIK szetthez (nem csak az utolsóhoz) — és annyi lépcsővel,
    amennyit akarsz: 60 → 40 → 20 → … */
 function woDropMenu(bi){
   const L=woLive();if(!L)return;const b=L.b[bi];if(!b)return;
   if(b.s.length<=1){woDropAdd(bi,0);return;}
   const items=b.s.map((s,si)=>{const dn=stDrops(s).length;
-    return{icon:"↓",label:(stWarm(s)?"Bemelegítő":woSetNo(b,si)+". szett")
+    return{icon:"↓",label:woSetTitle(b,si)
       +(stW(s)?" · "+woNum(stW(s))+" kg":"")+(dn?" · már "+dn+" lépcső":""),
       onClick:()=>woDropAdd(bi,si)};});
   openMenu("Melyik szetthez? — "+wexName(b.x),items);}
@@ -2905,11 +3433,21 @@ function woFinishConfirm(){
   woConfirm("Edzés befejezése",msg,woFinish,"Befejezem");}
 function woSummaryModal(sess,prs){
   const vol=woSessVol(sess),sets=woSessSets(sess);
-  const musc={};
+  /* Csak az ELSŐDLEGES izmok, és csak akkor, ha tényleg kaptak munkát. Korábban
+     a legjobb négy izom kérdés nélkül felkerült — így láb-nap után is rákérdezett
+     olyan testtájra, amit alig terheltél. Most küszöb van, és odaírjuk, MIBŐL jött. */
+  const musc={},drv={};
   for(const b of sess.b){const e=wex(b.x);if(!e)continue;
     let n=0;for(const s of b.s)if(!stWarm(s))n++;
-    for(const m of(e.p||[]))musc[m]=(musc[m]||0)+n;}
-  const top=Object.keys(musc).filter(m=>m!=="cardio").sort((a,b)=>musc[b]-musc[a]).slice(0,4);
+    if(!n)continue;
+    for(const m of(e.p||[])){musc[m]=(musc[m]||0)+n;
+      if(!drv[m]||drv[m].n<n)drv[m]={n:n,x:b.x};}}
+  const keys=Object.keys(musc).filter(m=>m!=="cardio");
+  const mx=keys.length?Math.max.apply(null,keys.map(m=>musc[m])):0;
+  /* 3 sorozat már önmagában érdemi munka; 2 sorozatnál még azt is nézzük,
+     hogy a nap egészéhez képest számít-e (a legterheltebb izom harmada). */
+  const top=keys.filter(m=>musc[m]>=3||(musc[m]>=2&&musc[m]>=mx*0.34))
+    .sort((a,b)=>musc[b]-musc[a]).slice(0,6);
   let h='<button class="close-x" id="mClose">✕</button><h3>Kész! 💪</h3>'
    +'<div class="wo-sumgrid">'
    +'<div><b>'+woDur(sess.du)+'</b><small>idő</small></div>'
@@ -2925,9 +3463,10 @@ function woSummaryModal(sess,prs){
     h+='</div>';}
   if(top.length){
     h+='<div class="section-title">Hogy ment?<span class="sub">a regenerációhoz</span></div>'
-     +'<div class="hint" style="margin:0 4px 10px">Ez alapján tudja az app, mikor vagy újra készen — és a következő körben ebből épül az automatikus volumen-szabályozás.</div><div class="card">';
+     +'<div class="hint" style="margin:0 4px 10px">Csak azok az izmok szerepelnek itt, amelyek ma <b>érdemi</b> munkát kaptak — a sorozatszám mellettük látszik. Egy-két elszórt sorozat miatt nem kérdez rá egy testtájra. Ez alapján tudja az app, mikor vagy újra készen.</div><div class="card">';
     top.forEach(m=>{
-      h+='<div class="wo-fbrow"><span class="nm">'+esc(WMUSC[m].n)+'</span><span class="wo-fbbtns">'
+      h+='<div class="wo-fbrow"><span class="nm">'+esc(WMUSC[m].n)
+       +'<small class="wo-fbwhy">'+musc[m]+' sorozat'+(drv[m]?' · '+esc(wexName(drv[m].x)):'')+'</small></span><span class="wo-fbbtns">'
        +'<button data-wfb="'+m+'|low">Bomba forma</button>'
        +'<button data-wfb="'+m+'|ok">Pont jó</button>'
        +'<button data-wfb="'+m+'|high">Sok volt</button></span></div>';});
@@ -3006,14 +3545,17 @@ function woSessModal(id){
   s.b.forEach(b=>{
     h+='<div class="wo-hblk"><div class="wo-hhead">'+exBodySvg(b.x,"sm")+'<b>'+esc(wexName(b.x))+'</b>'
      +(b.ss!=null?'<span class="wo-sstag mini">🔵</span>':'')+'</div>';
-    b.s.forEach((st,i)=>{h+='<div class="wo-hset'+(stWarm(st)?" warm":"")+'"><span>'+(stWarm(st)?"W":woSetNo(b,i))+'</span>'
-      +'<span>'+esc(woSetTxt(b.x,st))+'</span>'
+    b.s.forEach((st,i)=>{h+='<div class="wo-hset'+(stWarm(st)?" warm":"")+'"><span>'+esc(woSetLabel(b,i))+'</span>'
+      +'<span>'+esc(woSetTxt(b.x,st,true))+'</span>'
       +'<span class="dim">'+(stRir(st)!=null?("RIR "+stRir(st)):"")+'</span></div>';});
     if(b.n)h+='<div class="wo-bnote">📝 '+esc(b.n)+'</div>';
     h+='</div>';});
-  h+='</div><div class="wo-modact">'
+  h+='</div>';
+  if(s.note)h+='<div class="wo-bnote" style="margin:10px 0 0">📝 '+esc(s.note)+'</div>';
+  h+='<div class="wo-modact">'
    +'<button class="btn sm" id="woRepeat">🔁 Megismétlem</button>'
    +'<button class="btn ghost sm" id="woToRout">📋 Rutinná mentem</button>'
+   +'<button class="btn ghost sm" id="woSessNote">📝 Jegyzet</button>'
    +'<button class="btn ghost sm danger-t" id="woDelSess">🗑 Törlés</button></div>';
   openModal(h);
   const x=document.getElementById("mClose");if(x)x.onclick=()=>closeScreen();
@@ -3030,12 +3572,26 @@ function woSessModal(id){
       S.workout.routines.push({id:uid(),n:n.trim().slice(0,60),pl:s.pl,
         b:s.b.map(b=>({x:b.x,s:b.s.filter(t=>!stWarm(t)).map(t=>[stW(t),stR(t)]),ss:b.ss}))});
       woTouch();toast("Rutin mentve");renderEdzes();}),200);};
+  document.getElementById("woSessNote").onclick=()=>{
+    closeScreen();
+    setTimeout(()=>woAsk("Jegyzet az edzéshez","Amit érdemes megjegyezni erről a napról",s.note||"",v=>{
+      const t=S.workout.sessions.find(x=>x.id===id);if(!t)return;
+      if(v.trim())t.note=v.trim().slice(0,1000);else delete t.note;
+      woTouch();renderEdzes();},{multiline:true,max:1000}),200);};
   document.getElementById("woDelSess").onclick=()=>{
     closeScreen();
-    setTimeout(()=>woConfirm("Edzés törlése",
-      "Ez az edzés eltűnik a naplóból, és a csúcsaid is újraszámolódnak nélküle. Nem visszavonható.",
-      ()=>{S.workout.sessions=S.workout.sessions.filter(x=>x.id!==id);woTouch();renderEdzes();},
-      "Törlöm",true),200);};}
+    setTimeout(()=>woHoldConfirm("Edzés törlése a naplóból",
+      "<b>"+esc(s.ttl)+"</b> — "+woSessSets(s)+" sorozat tűnik el, és a csúcsaid is újraszámolódnak nélküle."
+      +"<br><br>A törlés után <b>40 másodpercig visszavonhatod</b>.",
+      "Tartsd nyomva a törléshez",
+      ()=>{const at=S.workout.sessions.findIndex(x=>x.id===id);
+        if(at<0)return;
+        const snap=S.workout.sessions[at];
+        S.workout.sessions.splice(at,1);woTouch();
+        woPushUndo("Edzés törölve — "+esc(snap.ttl||""),()=>{
+          S.workout.sessions.push(snap);
+          S.workout.sessions.sort((a,b)=>(b.ts||0)-(a.ts||0));
+          woTouch();toast("Edzés visszaállítva");});}),200);};}
 
 function woRoutineMenu(id){
   const r=S.workout.routines.find(x=>x.id===id);if(!r)return;
@@ -3078,10 +3634,25 @@ function woExModal(exId){
    +'<button class="wo-restbtn" id="woPlanSave">Terv mentése</button></div>';
   h+='<div class="hint" style="margin-top:8px">Pihenő: <b>'+woMmss(woRestFor(exId))+'</b> · '
    +(own.setup?('Beállítás: <b>'+esc(own.setup)+'</b>'):'Gépbeállítás nincs megadva')+'</div></div>';
+  h+='<label class="wo-unirow"><input type="checkbox" id="woExUni"'+(woUni(exId)?" checked":"")+'/>'
+   +'<span><b>Egy sorozat = egy oldal (bal / jobb)</b>'
+   +'<small>A szettek <b>1 B · 1 J · 2 B · 2 J</b> szerint számozódnak, a fenti terv pedig '
+   +'<b>oldalanként</b> értendő. A pihenőt külön állíthatod az oldalak és a körök közé.</small></span></label>';
   h+='<div class="wo-modact"><button class="btn ghost sm" id="woExSetup">🔧 Gépbeállítás</button>'
    +'<button class="btn ghost sm" id="woExPhoto">🖼 Kép</button>'
    +'<button class="btn ghost sm" id="woExRest">⏱ '+woMmss(woRestFor(exId))+'</button>'
    +'<button class="btn ghost sm" id="woExFav">'+(own.fav?"★ Kedvenc":"☆ Kedvencnek")+'</button></div>';
+  /* Becsült 1RM alakulása: alkalmanként a legjobb szett Epley-becslése. A szám
+     eddig is megvolt (max 1RM), de a TREND nem látszott sehol. */
+  const trend=hist.slice(0,14).reverse().map(x=>{
+    let m=0;for(const s of x.sets){if(stWarm(s))continue;
+      const v=wo1RM(stW(s),stR(s));if(v>m)m=v;}
+    return{d:x.d,v:m};}).filter(x=>x.v>0).sort((a,b)=>a.d<b.d?-1:(a.d>b.d?1:0));
+  if(trend.length>=3)
+    h+='<div class="section-title">Becsült 1RM alakulása<span class="sub">utolsó '+trend.length+' alkalom</span></div>'
+     +'<div class="card" style="padding:14px 12px">'
+     +woBarChart(trend.map(x=>x.v),trend.map(x=>woDateTxt(x.d)),v=>woNum(v)+" kg")
+     +'<div class="hint" style="margin-top:8px">Epley-becslés a legjobb sorozatból. 12 ismétlés fölött már nem megbízható, ezért ott nem számol.</div></div>';
   /* előzmény-szalag */
   if(hist.length){
     h+='<div class="section-title">Előzmény</div><div class="card">';
@@ -3120,6 +3691,9 @@ function woExModal(exId){
   document.getElementById("woExFav").onclick=()=>{
     S.workout.ex[exId]=S.workout.ex[exId]||{};
     S.workout.ex[exId].fav=!S.workout.ex[exId].fav;woTouch();
+    closeScreen();setTimeout(()=>woExModal(exId),40);};
+  const eu=document.getElementById("woExUni");
+  if(eu)eu.onchange=()=>{woSetUni(exId,eu.checked);
     closeScreen();setTimeout(()=>woExModal(exId),40);};}
 
 /* ---- STATISZTIKA fül ----------------------------------------------------- */
@@ -3201,6 +3775,14 @@ function woSettingsModal(){
    +'<div class="wo-setrow"><span>Alapgyakorlat</span><button class="btn ghost sm" id="woRc">'+woMmss(st.restComp)+'</button></div>'
    +'<div class="wo-setrow"><span>Izoláció</span><button class="btn ghost sm" id="woRi">'+woMmss(st.restIso)+'</button></div>'
    +'</details></div>';
+  h+='<div class="section-title">Ahogy dolgozol<span class="sub">haladó</span></div><div class="card" style="padding:14px 16px">'
+   +'<label class="wo-check"><input type="checkbox" id="woGoal"'+(st.goalMode?" checked":"")+'/>'
+   +'<span><b>Cél és tény külön</b> — a mezőbe a célt írod, a pipa pedig rákérdez, mi ment ténylegesen</span></label>'
+   +'<div class="hint" style="margin-top:8px">Ha ugyanazt a gyakorlatot hol az edzés elején, hol a végén csinálod, a <b>cél ugyanaz marad</b> (pl. 20 kg × 15) — de az app elmenti azt is, ami tényleg összejött (pl. 20 × 12). Így egy sorban látod a célt és a haladást, a csúcsaid pedig továbbra is a <b>tényleges</b> teljesítményből számolnak. A tervedet ez nem írja át.</div>'
+   +'<label class="wo-check" style="margin-top:12px"><input type="checkbox" id="woPipAuto"'+(st.autoPip?" checked":"")+'/>'
+   +'<span><b>Lebegő ablak</b> nyíljon meg magától, amikor indul a pihenő</span></label>'
+   +'<div class="hint" style="margin-top:8px">A lebegő ablak (kép a képben) a <b>többi app fölött</b> lebeg — mehet a YouTube, és közben látod a pihenőt. Edzés közben a fejlécben lévő <b>⧉ Lebegő</b> gombbal is nyitható, rákoppintva visszaugrasz az appba. Az ablak méretét a rendszer kezeli (te húzhatod nagyobbra), ezért a pihenő végén nem zsugorodik, hanem <b>tömör állapot-nézetre vált</b>.'
+   +(WPip.ok()?'':' <b>Ez a böngésző nem támogatja a lebegő ablakot.</b>')+'</div></div>';
   h+='<div class="section-title">Helyszínek</div><div class="card" style="padding:14px 16px">'
    +'<div class="hint" style="margin-bottom:10px">Edzés indításakor kiválasztod, hol vagy — onnantól csak azt kínálja fel, amit ott meg tudsz csinálni.</div>'
    +'<button class="btn ghost wide" id="woPlacesBtn">📍 Helyszínek és felszerelés</button></div>';
@@ -3229,6 +3811,9 @@ function woSettingsModal(){
   document.getElementById("woVib").onchange=e=>{st.vibrate=e.target.checked;woTouch();
     if(e.target.checked&&navigator.vibrate)try{navigator.vibrate(120);}catch(x){}};
   document.getElementById("woRir").onchange=e=>{st.showRir=e.target.checked;woTouch();};
+  document.getElementById("woGoal").onchange=e=>{st.goalMode=e.target.checked;woTouch();
+    toast(e.target.checked?"A pipa mostantól rákérdez, mi ment ténylegesen":"Kikapcsolva");};
+  document.getElementById("woPipAuto").onchange=e=>{st.autoPip=e.target.checked;woTouch();};
   document.getElementById("woNotif").onclick=()=>{
     if(!window.Notification){toast("Ez a böngésző nem támogatja az értesítést","warn");return;}
     Notification.requestPermission().then(r=>toast(r==="granted"?"Értesítés engedélyezve":"Az értesítés nincs engedélyezve","warn"));};
@@ -4070,8 +4655,13 @@ function showGateModal(days){
   openModal(html);
   const tm=document.getElementById("tab-ma");if(tm)tm.classList.add("gate-blur");
   const leaveGate=()=>{const t=document.getElementById("tab-ma");if(t)t.classList.remove("gate-blur");};
-  document.querySelectorAll("[data-gatejump]").forEach(b=>b.onclick=()=>{selDay=b.dataset.gatejump;closeModal();leaveGate();renderMa();});
-  const gs=document.getElementById("gateSkip");if(gs)gs.onclick=()=>{gateDismissedThisSession=true;closeModal();leaveGate();};
+  /* closeScreen(), nem closeModal(): a modal egy history-bejegyzést használt el,
+     és a puszta elrejtés után a KÖVETKEZŐ vissza-gesztus a semmibe ment. */
+  document.querySelectorAll("[data-gatejump]").forEach(b=>b.onclick=()=>{
+    const d=b.dataset.gatejump;closeScreen();
+    setTimeout(()=>{selDay=d;leaveGate();renderMa();},180);});
+  const gs=document.getElementById("gateSkip");if(gs)gs.onclick=()=>{closeScreen();
+    setTimeout(()=>{gateDismissedThisSession=true;leaveGate();},180);};
 }
 function metricGoodOn(g,metric,k){const d=S.days[k];if(!d)return null;const e=d.entries&&d.entries[g.id];if(!e||e[metric.id]==null)return null;const p=metricPoints(metric,e[metric.id]);return p!=null&&p>0;}
 function metricStreak(gid,mid,refKey){const g=goalById(gid);const m=findMetric(gid,mid);if(!g||!m)return 0;let n=0,d=keyToDate(refKey||TODAY);
@@ -7173,6 +7763,18 @@ function bindCycDay(dayKey){
 
 /* --- „Mi újult meg?" (közérthető változásnapló) --- */
 const CHANGELOG=[
+ {v:10,title:"🏋️ Edzésnapló — oldalanként, célok és lebegő ablak",items:[
+   "<b>Egyoldalas gyakorlat</b> (bolgár kitörés, egykezes evezés…): a gyakorlat megnyitásakor — még a hozzáadás <b>előtt</b> — bekapcsolható, hogy <b>egy sorozat = egy oldal</b>. A szettek onnantól <b>1 B · 1 J · 2 B · 2 J</b> szerint számozódnak, tehát nem kétértelmű, hogy a 4 sorozat kétszer mindkét lábat jelenti-e. A terv sorozatszáma ilyenkor <b>oldalanként</b> értendő, a pihenő pedig kettéválik: külön az <b>oldalak közé</b> (általában nincs) és a <b>körök közé</b>.",
+   "<b>Kép három forrásból</b>: <b>📷 fénykép készítése</b> (visszakerült), <b>🖼 galéria</b>, és új: <b>🔍 keresés a neten</b> — amit nem tudsz lefényképezni (pl. saját testsúlyos gyakorlat), azt megkeresed az appon belül, és egy koppintással beteszed. A kép <b>letöltődik az eszközödre</b>, így offline is megvan.",
+   "Javítva a <b>kétszer bekerülő gyakorlat</b>: ha már ki van jelölve pár gyakorlat, és belépsz egy továbbiba, a gombja már nem az edzésbe tesz, hanem a <b>kijelöléshez</b> ad — és visszavisz a listához. Az edzésbe továbbra is a lista alján lévő <b>Hozzáadás</b> teszi be mindet.",
+   "<b>Az edzés törlését nehezítettük.</b> Az „eldobás” és a naplóbeli törlés mostantól <b>nyomva tartást</b> kér (1,5 mp), és külön kiírja, hány kipipált sorozatot dobsz el, meg azt is, hogy egyetlen gyakorlatot a ⋮ menüből lehet kivenni. Minden törlés (edzés, gyakorlat) után <b>40 másodpercig visszavonható</b> egy alsó sávból.",
+   "Az edzés végi <b>izomcsoport-kérdés</b> már csak azt kérdezi, amit <b>tényleg terheltél</b> (legalább 2 sorozat, és a legterheltebb izom harmada), és odaírja, <b>miből jött</b> („Mell · 4 sorozat · Fekvenyomás”). Láb-nap után nem kérdez rá a mellre.",
+   "Új <b>⧉ Lebegő ablak</b> az edzés fejlécében: kép a képben, ami a <b>többi app fölött</b> lebeg. Mehet a YouTube, és közben látod a <b>pihenő visszaszámlálóját</b>; a pihenő után tömör állapot-nézetre vált (hol tartasz, mennyi ideje). Rákoppintva visszaugrasz az appba. Beállítható, hogy a pihenő indulásakor magától nyíljon.",
+   "Új haladó mód: <b>Cél és tény külön</b> (⚙️ Edzés-beállítások → Ahogy dolgozol). A mezőbe a <b>célt</b> írod (pl. 20 kg × 15), és pipáláskor rákérdez, <b>mi ment ténylegesen</b> (pl. 20 × 12). Mindkettő megmarad, egy sorban látod őket — a csúcsaid pedig a tényleges teljesítményből számolnak.",
+   "Új: <b>jegyzet az egész edzéshez</b> (alvás, étkezés, sérülés) — edzés közben és utólag a naplóból is.",
+   "Új diagram a gyakorlat részleteinél: a <b>becsült 1RM alakulása</b> az utolsó alkalmakon.",
+   "Új a gyakorlat ⋮ menüjében: <b>„Gép foglalt — alternatíva ugyanerre az izomra”</b>. Egy koppintás, és ugyanazt az izmot dolgoztató, a mai helyszínen elérhető gyakorlatot ajánl (elöl az, amit a legtöbbször csináltál). Ha már van kipipált sorozatod, azt <b>nem</b> nevezi át: a meglévő munka marad, az alternatíva alatta indul új blokként.",
+   "A telefon <b>vissza-gesztusa</b> már a napi kapunál, a súgó-ugrásnál és a bemutatónál sem „nyel el” egy lépést."]},
  {v:9,title:"🏋️ Edzésnapló — edzés közben kézre álló",items:[
    "A <b>gyakorlat nevére koppintva</b> nyílik és csukódik a szettek listája (eddig csak kijelölte a szöveget). Mindig <b>csak az van nyitva, amin épp dolgozol</b> — a többi összecsukva mutatja, hány szett van meg.",
    "Amint kipipálod az utolsó szettet, a gyakorlat <b>magától becsukódik</b>, és a következő nyílik ki, oda is görget.",
@@ -7475,7 +8077,7 @@ function askCloudConflict(remote,api){
 /* =========================================================================
    2. RÉTEG — témák, súgó, tutorial, indokok, ünneplés, visszajelzés
    ========================================================================= */
-const APP_VERSION="v21";
+const APP_VERSION="v22";
 
 /* ---- témák ---- */
 const THEMES=[{id:"kert",name:"Üvegház",sw:"#2D6A4F"},{id:"papir",name:"Letisztult",sw:"#1B4332"},{id:"krem",name:"Papír",sw:"#B5852B"},{id:"arany",name:"Arany éj",sw:"#E5A83B"},{id:"erdo",name:"Erdő",sw:"#5FD08A"},{id:"ocean",name:"Óceán",sw:"#4FB0E5"},{id:"naplemente",name:"Naplemente",sw:"#E5744F"},{id:"ejjel",name:"Éjszakai",sw:"#C79A46"},{id:"film",name:"Filmvászon",sw:"#D8D8D8"}];
@@ -7659,7 +8261,8 @@ const INFO={
   reasonsq:{t:"Rákérdezés a miértekre",d:"Ha bekapcsolod, a pontozott mérce bukásakor rákérdez „mi akadályozott?”, sikernél „mi segített?” — és gyűjti a válaszaidat, hogy lásd a mintát. Kikapcsolva csendben pontoz, kérdés nélkül. Szokásonként külön állítható."}
 };
 function ibtn(key){return '<button type="button" class="ib" data-info="'+key+'" title="Súgó">i</button>';}
-function showInfo(key){const i=INFO[key];if(!i)return;openModal('<button class="close-x" id="mClose">✕</button><h3>'+esc(i.t)+'</h3><p>'+i.d+'</p><button class="btn ghost wide sm" id="mMore" style="margin-top:12px">Részletes súgó megnyitása</button>');document.getElementById("mMore").onclick=()=>{closeModal();openHelp(i.help||null);};}
+function showInfo(key){const i=INFO[key];if(!i)return;openModal('<button class="close-x" id="mClose">✕</button><h3>'+esc(i.t)+'</h3><p>'+i.d+'</p><button class="btn ghost wide sm" id="mMore" style="margin-top:12px">Részletes súgó megnyitása</button>');document.getElementById("mMore").onclick=()=>{closeScreen();
+  setTimeout(()=>openHelp(i.help||null),180);};}
 
 /* ---- SÚGÓ tartalom ---- */
 const HELP=[
@@ -7760,7 +8363,8 @@ function startTutorial(){
     +'<p class="hint">Bármikor visszanézheted: Fiók → Súgó.</p>'
     +'<button class="btn wide" id="tutGo" style="margin-top:8px">Csináljuk! ✍️</button>';
   openModal(html);
-  const go=()=>{closeModal();Store.set("sl_tut","1");switchTab("celok");editing="__new__";renderCelok();};
+  const go=()=>{closeScreen();setTimeout(()=>{
+    Store.set("sl_tut","1");switchTab("celok");editing="__new__";renderCelok();},180);};
   document.getElementById("tutGo").onclick=go;const c=document.getElementById("mClose");if(c)c.onclick=go;}
 
 /* ---- visszajelzés küldése ---- */
