@@ -37,6 +37,31 @@ service cloud.firestore {
         && request.resource.data.ref.size() < 60;
       allow update, delete: if false;
     }
+    // KÖZÖS LISTÁK (sharedlists/{listId}/items) — jelenleg egy lista van: "dev",
+    // a közös fejlesztési lista (hibák + ötletek), amit mindenki együtt szerkeszt.
+    //  - OLVASNI bárki tud, belépés nélkül is. Ez szándékos: így a lista kívülről is
+    //    lekérdezhető (a fejlesztéshez), és belépés nélkül is látszik az appban.
+    //    Ha ezt később nem akarod: írd át `allow read: if request.auth != null;`-ra.
+    //  - ÍRNI csak bejelentkezve lehet, és a létrehozó azonosítója kötelező.
+    //  - A lista KÖZÖS: bármelyik belépett felhasználó kipipálhatja/törölheti a tételt.
+    //    Ha szűkíteni akarod a kört, vedd elő az alábbi allowlistet:
+    //      function tag(){ return request.auth != null && request.auth.uid in
+    //        ['UID1','UID2','UID3']; }
+    //    és cseréld a `request.auth != null` feltételeket `tag()`-re.
+    match /sharedlists/{listId}/items/{itemId} {
+      allow read: if true;
+      allow create: if request.auth != null
+        && request.resource.data.by == request.auth.uid
+        && request.resource.data.text is string
+        && request.resource.data.text.size() > 0
+        && request.resource.data.text.size() < 2000;
+      // A szerző azonosítója nem írható át (a kipipálás merge-gel megy, így megmarad).
+      allow update: if request.auth != null
+        && request.resource.data.by == resource.data.by
+        && request.resource.data.text is string
+        && request.resource.data.text.size() < 2000;
+      allow delete: if request.auth != null;
+    }
     // Kérdés-riport: bárki (belépve) LÉTREHOZHAT; olvasni/listázni nem lehet (konzolos moderálás).
     match /quizreports/{doc} {
       allow create: if request.auth != null

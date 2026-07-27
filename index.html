@@ -11284,6 +11284,14 @@ function bindCycDay(dayKey){
 
 /* --- „Mi újult meg?" (közérthető változásnapló) --- */
 const CHANGELOG=[
+ {v:15,title:"🗒️ Közös fejlesztési lista — egy fal, amit mindenki együtt ír",items:[
+   "A <b>Fiók → Visszajelzés a fejlesztőnek</b> űrlap helyére <b>Közös fejlesztési lista</b> került. Eddig egy üzenetet elküldtél, és utána se te, se más nem látta, mi lett vele. Mostantól nem küldesz semmit: <b>felírod a közös falra</b>, és ott is marad, amíg le nem zárjuk.",
+   "<b>Mindenki ugyanazt a listát látja</b>, aki a Trellist használja — és <b>élőben frissül</b>: amit az egyik telefonon beírsz vagy kipipálsz, az a többiek eszközén pár másodpercen belül megjelenik. Nem kell se frissíteni, se szinkronizálni.",
+   "Minden tétel <b>🐞 Hiba</b>, <b>💡 Ötlet</b> vagy <b>❓ Kérdés</b>, és odaírja, <b>ki írta és mikor</b> (csak a keresztneved látszik).",
+   "Ami elkészült, azt bárki <b>kipipálhatja</b> — a kész tételek a lista aljára, egy összecsukható „Kész” részbe kerülnek, tehát nem vesznek el, de nem is lógnak az útban.",
+   "A lista alján a <b>📋 Egész lista másolása</b> gomb kimásolja a teljes listát szövegként — így egy mozdulattal átadható a fejlesztéshez, nem kell újra elmagyarázni, mi hiányzik.",
+   "Az íráshoz <b>be kell jelentkezni</b> (hogy látszódjon, ki mit írt); olvasni belépés nélkül is lehet.",
+   "Ugyanez a megoldás később más közös listákra is jó lesz (pl. közös bevásárlólista) — a váz már készen áll rá."]},
  {v:14,title:"🧮 Tervező — mennyit ehetsz még, étkezésenként",items:[
    "Új fül a Kalória modulban: <b>🧮 Tervező</b>. Ugyanaz a logika, amit régen Excelben vezettél — fogja a <b>mai hátralévő kalóriádat</b>, levonja belőle a <b>fix tételeket</b>, és a maradékot elosztja annyi étkezésre, ahányszor még enni akarsz. Megmondja, hány kcal és mennyi fehérje / szénhidrát / zsír jut <b>egy étkezésre</b>.",
    "A mai adatokat magától hozza: a napi keretet (edzésnapi eltolással és heti bankkal együtt), amit ma már megettél, a hátralévő makrókat és a testsúlyodat. Semmit nem kell átmásolnod.",
@@ -11802,7 +11810,7 @@ function askCloudConflict(remote,api){
 /* =========================================================================
    2. RÉTEG — témák, súgó, tutorial, indokok, ünneplés, visszajelzés
    ========================================================================= */
-const APP_VERSION="v26";
+const APP_VERSION="v27";
 
 /* ---- témák ---- */
 const THEMES=[{id:"kert",name:"Üvegház",sw:"#2D6A4F"},{id:"papir",name:"Letisztult",sw:"#1B4332"},{id:"krem",name:"Papír",sw:"#B5852B"},{id:"arany",name:"Arany éj",sw:"#E5A83B"},{id:"erdo",name:"Erdő",sw:"#5FD08A"},{id:"ocean",name:"Óceán",sw:"#4FB0E5"},{id:"naplemente",name:"Naplemente",sw:"#E5744F"},{id:"ejjel",name:"Éjszakai",sw:"#C79A46"},{id:"film",name:"Filmvászon",sw:"#D8D8D8"}];
@@ -11925,7 +11933,9 @@ function delCustomTheme(id){const t=getCustom(id);if(!t)return;
 
 /* ---- általános modál ---- */
 function openModal(html){const s=document.getElementById("modalSheet");s.innerHTML=html;document.getElementById("modal").classList.remove("hidden");pushScreen();const c=document.getElementById("mClose");if(c)c.onclick=()=>closeScreen();}
-function closeModal(){document.getElementById("modal").classList.add("hidden");}
+function closeModal(){document.getElementById("modal").classList.add("hidden");
+  /* közös lista: bezáráskor leiratkozunk az élő figyelésről */
+  if(typeof nlStop==="function")nlStop();}
 /* Össz-haladás áttekintő: napi-pont trend + cél×nap rács (D) */
 function showOverview(){
   const goals=activeGoals();
@@ -12011,7 +12021,7 @@ const HELP=[
   {id:"telep",title:"Telepítés a kezdőképernyőre",keywords:"telepítés pwa kezdőképernyő ikon iphone android install",html:'<p>Telepítsd appként, hogy ikonról indítsd és offline is menjen.</p><p><b>iPhone (Safari):</b> a megosztás ikon (☐↑) → <b>„Kezdőképernyőhöz adás"</b> → Hozzáadás.</p><p><b>Android (Chrome):</b> a Fiók → „Telepítés a kezdőképernyőre" gomb, vagy a böngésző menüje → <b>„Alkalmazás telepítése"</b>.</p><p>Frissítés után indítsd újra kétszer, hogy a legújabb verzió töltődjön be.</p>'},
   {id:"szinkron",title:"Belépés és szinkron",keywords:"belépés google szinkron felhő firebase eszközök",html:'<p>A <b>Fiók</b> fülön beléphetsz Google-fiókkal. Ekkor az adataid a saját, privát felhő-dokumentumodban szinkronizálnak több eszköz közt — csak te látod őket. Belépés nélkül is minden működik, csak az adott eszközön.</p>'},
   {id:"mentes",title:"Mentés, exportálás, importálás",keywords:"mentés export import biztonsági fájl json átvitel",html:'<p>A <b>Fiók → Mentés</b> alatt letöltheted az összes adatod egy fájlba (biztonsági mentés vagy átvitel másik eszközre), és vissza is tölthetsz. Az „Összes adat törlése" mindent nulláz ezen az eszközön (és belépve a felhőben is).</p>'},
-  {id:"vissza",title:"Visszajelzés a fejlesztőnek",keywords:"visszajelzés feedback hiba ötlet fejlesztő üzenet",html:'<p>A <b>Fiók → Visszajelzés</b> alatt küldhetsz üzenetet a fejlesztőnek (opcionálisan elérhetőséggel). Hosszabb üzenet is mehet. A visszajelzés a fejlesztőhöz jut; a tartalmadat rajta kívül más nem olvassa.</p>'},
+  {id:"vissza",title:"Közös fejlesztési lista",keywords:"visszajelzés feedback hiba ötlet fejlesztő üzenet közös lista jegyzet",html:'<p>A <b>Fiók → Közös fejlesztési lista</b> egy olyan lista, amit <b>mindenki együtt szerkeszt</b>, aki a Trellist használja. Ha hibába futsz, vagy eszedbe jut valami, írd fel ide — nem elküldöd valakinek, hanem felírod a közös falra.</p><ul><li><b>Élőben frissül</b>: amit beírsz, a többiek eszközén pár másodpercen belül megjelenik (és fordítva).</li><li><b>Hiba / Ötlet / Kérdés</b> — válaszd ki, mi az, hogy rendezett maradjon.</li><li>Ami elkészült, azt bárki <b>kipipálhatja</b>; a kész tételek a lista aljára, egy összecsukott részbe kerülnek.</li><li>Az <b>íráshoz be kell jelentkezned</b> (a neved keresztneve látszik a tétel mellett); olvasni belépés nélkül is lehet.</li></ul><p class="hint">A lista tartalma nem titkos — a fejlesztéshez bárki kimásolhatja. Ne írj bele érzékeny személyes adatot.</p>'},
   {id:"privacy",title:"Adatok és adatvédelem",keywords:"adat adatvédelem privát biztonság hol tárolódik",html:'<p>Az adataid alapból a saját eszközödön (böngésző tárhely) maradnak. Belépve a saját, privát felhő-dokumentumodba szinkronizálnak — más felhasználó nem fér hozzá. A Gemini-kulcs sosem szinkronizál. Bármikor exportálhatsz és törölhetsz.</p>'}
 ];
 function openHelp(anchor){renderHelp("");document.getElementById("help").classList.remove("hidden");pushScreen();if(anchor){setTimeout(()=>{const el=document.getElementById("help-"+anchor);if(el)el.scrollIntoView({behavior:"smooth",block:"start"});},80);}}
@@ -12109,6 +12119,146 @@ function sendFeedback(text,contact,btn){text=(text||"").trim();
   if(window.FEEDBACK_WEBHOOK){attempted=true;try{fetch(window.FEEDBACK_WEBHOOK,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)}).catch(()=>{});}catch(e){}}
   if(attempted){toast("Köszönöm a visszajelzést! 🙏","win");const tx=document.getElementById("fbText");if(tx)tx.value="";const ct=document.getElementById("fbContact");if(ct)ct.value="";}
   else{S._fbLocal=(S._fbLocal||[]).concat(payload);persist();toast("Elmentettem helyben — belépve/webhookkal jut el a fejlesztőhöz","warn");}}
+
+/* ============================================================================
+   KÖZÖS LISTA (shared list) — KEZDET
+   ----------------------------------------------------------------------------
+   Egy Firestore-ban tárolt lista, amit MINDEN belépett felhasználó ugyanúgy lát
+   és szerkeszt. Élőben frissül (onSnapshot): amit az egyik telefonon beírsz vagy
+   kipipálsz, az a többiek eszközén pár másodpercen belül megjelenik — nem kell
+   se frissíteni, se szinkronizálni.
+
+   Az első (és egyelőre egyetlen) példány a "dev" lista = KÖZÖS FEJLESZTÉSI LISTA:
+   ide gyűjtjük a hibákat és az ötleteket, ahelyett hogy külön-külön üzengetnénk.
+   A kód szándékosan listId-re van felkészítve, hogy később ugyanez szolgáljon ki
+   más közös listákat is (pl. bevásárlólista) — csak új NL_ID és egy új belépési
+   pont kell hozzá, a logika mehet változatlanul.
+
+   VISSZAÁLLÍTÁS EGY SORBÓL: SHARED_LIST_ON = false → a Fiók fülön visszajön a régi
+   „Visszajelzés a fejlesztőnek" űrlap, és ebből a modulból semmi nem fut. A régi
+   sendFeedback() és a `feedback` kollekció érintetlenül megmaradt.
+   ========================================================================== */
+const SHARED_LIST_ON=true;
+const NL_ID="dev";
+const NL_KINDS=[{k:"bug",e:"🐞",n:"Hiba"},{k:"idea",e:"💡",n:"Ötlet"},{k:"q",e:"❓",n:"Kérdés"}];
+function nlKindOf(k){for(let i=0;i<NL_KINDS.length;i++)if(NL_KINDS[i].k===k)return NL_KINDS[i];return NL_KINDS[1];}
+let nlItems=null,nlErr=null,nlUnsub=null,nlKind="bug",nlBusy=false;
+
+/* A listán csak a keresztnév látszik (nem a teljes Google-név). */
+function nlName(){const n=((cloudUser&&cloudUser.name)||"").trim();return (n.split(/\s+/)[0]||"Névtelen").slice(0,24);}
+function nlCanWrite(){return !!(cloudUser&&window.Cloud&&window.Cloud.listAdd);}
+
+function nlStart(){
+  if(!(window.Cloud&&window.Cloud.listWatch)){nlItems=[];nlErr="a felhő-szinkron nincs beállítva";return;}
+  if(nlUnsub)return;
+  nlUnsub=window.Cloud.listWatch(NL_ID,
+    (arr)=>{nlItems=arr;nlErr=null;nlPaint();},
+    (e)=>{nlErr=(e&&(e.code||e.message))||"ismeretlen hiba";nlPaint();});
+}
+/* A modal bezárásakor leiratkozunk — ne fogyassza a hálózatot a háttérben. */
+function nlStop(){if(nlUnsub){try{nlUnsub();}catch(e){}nlUnsub=null;}}
+
+function nlWhen(ts){if(!ts)return "";
+  const d=new Date(ts),n=new Date(),p=(x)=>String(x).padStart(2,"0");
+  if(dk(d)===dk(n))return "ma "+p(d.getHours())+":"+p(d.getMinutes());
+  if(dk(d)===addDaysKey(dk(n),-1))return "tegnap";
+  return (d.getMonth()+1)+". "+d.getDate()+".";}
+
+function nlOpenPanel(){nlItems=null;nlErr=null;openModal(nlPanelHtml());nlWire();nlStart();}
+
+function nlPanelHtml(){
+  let h='<button class="close-x" id="mClose">✕</button><h3>🗒️ Közös fejlesztési lista</h3>';
+  h+='<p style="margin-top:0;color:var(--muted)">Amit ide beírsz, azt <b>mindenki látja</b>, aki a Trellist használja — és te is látod, amit ők írnak. Élőben frissül, nem kell elküldeni semmit.</p>';
+  if(nlCanWrite()){
+    h+='<div class="card" style="padding:12px;margin-bottom:14px">';
+    h+='<div class="seg" style="margin-top:0">'+NL_KINDS.map(x=>'<button'+(nlKind===x.k?' class="active"':'')+' data-nlk="'+x.k+'">'+x.e+' '+x.n+'</button>').join("")+'</div>';
+    h+='<textarea class="input" id="nlText" placeholder="Mi a hiba, vagy mi legyen a következő? Írd le nyugodtan…" style="min-height:74px"></textarea>';
+    h+='<div class="rub-actions" style="margin-top:8px"><button class="btn sm" id="nlAdd">＋ Felírom a listára</button></div></div>';
+  }else{
+    h+='<div class="card" style="padding:12px;margin-bottom:14px"><div class="hint">A listát belépés nélkül is olvashatod, de az <b>íráshoz be kell jelentkezned</b> (Fiók → Bejelentkezés Google-fiókkal) — így látszik, ki mit írt.</div></div>';
+  }
+  h+='<div id="nlBody">'+nlBodyHtml()+'</div>';
+  return h;}
+
+function nlBodyHtml(){
+  if(nlErr)return '<div class="hint">A közös lista most nem érhető el ('+esc(nlErr)+'). Ha épp nincs net, próbáld később.</div>';
+  if(nlItems===null)return '<div class="hint">Töltés…</div>';
+  const open=nlItems.filter(i=>!i.done).sort((a,b)=>(b.at||0)-(a.at||0));
+  const done=nlItems.filter(i=>i.done).sort((a,b)=>(b.upd||0)-(a.upd||0));
+  let h='<div class="section-title" style="margin-top:0">Nyitott ('+open.length+')</div>';
+  h+= open.length ? open.map(nlRow).join("") : '<div class="hint">Most nincs nyitott tétel — minden le van zárva. 🎉</div>';
+  if(done.length)h+='<details style="margin-top:14px"><summary class="section-title" style="cursor:pointer;list-style:revert">Kész ('+done.length+')</summary>'+done.map(nlRow).join("")+'</details>';
+  h+='<div class="rub-actions" style="margin-top:16px"><button class="btn ghost sm" id="nlCopy">📋 Egész lista másolása</button></div>';
+  h+='<div class="hint" style="margin-top:6px">A másolt szöveget be lehet illeszteni a fejlesztéshez — így nem kell újra elmagyarázni, mi hiányzik.</div>';
+  return h;}
+
+function nlRow(i){const k=nlKindOf(i.kind);
+  return '<div class="card" style="padding:10px 12px;margin-bottom:8px"><div style="display:flex;gap:10px;align-items:flex-start">'
+   +'<button class="todo-box'+(i.done?" on":"")+'" data-nltog="'+escA(i.id)+'" title="'+(i.done?"Visszanyitom":"Kész")+'">'+(i.done?"✓":"")+'</button>'
+   +'<div style="flex:1;min-width:0">'
+   +'<div'+(i.done?' class="todo-strk"':'')+' style="white-space:pre-wrap;word-break:break-word">'+k.e+' '+esc(i.text||"")+'</div>'
+   +'<div class="hint" style="margin-top:4px">'+esc(i.byName||"valaki")+' • '+nlWhen(i.at)+(i.done&&i.doneName?' • kipipálta: '+esc(i.doneName):'')+'</div>'
+   +'</div>'
+   +(nlCanWrite()?'<button class="btn ghost sm" style="padding:4px 9px" data-nldel="'+escA(i.id)+'" title="Törlés">🗑</button>':'')
+   +'</div></div>';}
+
+function nlPaint(){const b=document.getElementById("nlBody");if(!b)return;b.innerHTML=nlBodyHtml();nlWireBody();}
+function nlWire(){
+  document.querySelectorAll("[data-nlk]").forEach(b=>{b.onclick=()=>{nlKind=b.dataset.nlk;
+    document.querySelectorAll("[data-nlk]").forEach(x=>x.classList.toggle("active",x.dataset.nlk===nlKind));};});
+  const a=document.getElementById("nlAdd");if(a)a.onclick=nlAdd;
+  nlWireBody();}
+function nlWireBody(){
+  document.querySelectorAll("[data-nltog]").forEach(b=>{b.onclick=()=>nlToggle(b.dataset.nltog);});
+  document.querySelectorAll("[data-nldel]").forEach(b=>{b.onclick=()=>nlDel(b.dataset.nldel);});
+  const c=document.getElementById("nlCopy");if(c)c.onclick=nlCopy;}
+
+function nlAdd(){
+  const el=document.getElementById("nlText");if(!el)return;
+  const t=(el.value||"").trim();
+  if(t.length<3){toast("Írj pár szót","warn");return;}
+  if(t.length>1500){toast("Kicsit hosszú — max 1500 karakter","warn");return;}
+  if(!nlCanWrite()){toast("Ehhez be kell jelentkezned","warn");return;}
+  if(nlBusy)return;nlBusy=true;
+  window.Cloud.listAdd(NL_ID,{text:t,kind:nlKind,done:false,byName:nlName(),at:Date.now(),upd:Date.now(),app:APP_VERSION})
+    .then(()=>{el.value="";toast("Felírtam a közös listára ✓","win");})
+    .catch(e=>{toast("Nem sikerült elmenteni: "+((e&&(e.code||e.message))||e),"down");})
+    .then(()=>{nlBusy=false;});}
+
+function nlToggle(id){
+  if(!nlCanWrite()){toast("Ehhez be kell jelentkezned","warn");return;}
+  const it=(nlItems||[]).filter(x=>x.id===id)[0];if(!it)return;
+  const nd=!it.done;
+  /* optimista: azonnal átrajzoljuk, a felhő úgyis felülírja a snapshotjával */
+  it.done=nd;it.upd=Date.now();it.doneName=nd?nlName():"";nlPaint();
+  window.Cloud.listSet(NL_ID,id,{done:nd,upd:Date.now(),doneName:nd?nlName():""})
+    .catch(e=>toast("Nem sikerült: "+((e&&(e.code||e.message))||e),"down"));}
+
+function nlDel(id){
+  if(!nlCanWrite()){toast("Ehhez be kell jelentkezned","warn");return;}
+  const it=(nlItems||[]).filter(x=>x.id===id)[0];if(!it)return;
+  if(!confirm("Törlöd ezt a tételt a KÖZÖS listáról?\n\n„"+(it.text||"").slice(0,120)+"”\n\nMindenkinél eltűnik."))return;
+  window.Cloud.listDel(NL_ID,id)
+    .then(()=>toast("Törölve"))
+    .catch(e=>toast("Nem sikerült törölni: "+((e&&(e.code||e.message))||e),"down"));}
+
+function nlCopy(){
+  const arr=nlItems||[];
+  const open=arr.filter(i=>!i.done).sort((a,b)=>(b.at||0)-(a.at||0));
+  const done=arr.filter(i=>i.done).sort((a,b)=>(b.upd||0)-(a.upd||0));
+  const line=(i)=>"- "+nlKindOf(i.kind).e+" ["+(i.byName||"?")+"] "+String(i.text||"").replace(/\s+/g," ");
+  const txt="# Trellis — közös fejlesztési lista ("+dk(new Date())+", app "+APP_VERSION+")\n\n"
+    +"## Nyitott ("+open.length+")\n"+(open.map(line).join("\n")||"—")+"\n\n"
+    +"## Kész ("+done.length+")\n"+(done.map(line).join("\n")||"—")+"\n";
+  if(navigator.clipboard&&navigator.clipboard.writeText)
+    navigator.clipboard.writeText(txt).then(()=>toast("A teljes lista a vágólapon ✓","win"))
+      .catch(()=>nlCopyFallback(txt));
+  else nlCopyFallback(txt);}
+function nlCopyFallback(txt){
+  openModal('<button class="close-x" id="mClose">✕</button><h3>📋 A lista szövege</h3>'
+    +'<p style="margin-top:0;color:var(--muted)">Jelöld ki és másold ki innen.</p>'
+    +'<textarea class="input" style="min-height:260px">'+esc(txt)+'</textarea>');}
+/* ===== KÖZÖS LISTA (shared list) — VÉGE ===== */
 
 /* ---- Ajánlás ismerősnek ---- */
 function shareApp(){
@@ -12262,7 +12412,11 @@ function renderFiok(){const el=document.getElementById("tab-fiok");
     '<button class="btn wide sm" id="bakBtn" style="margin-top:10px">🛟 Biztonsági mentések</button>'+
     '<div class="hint" style="margin-top:8px">Az app magától is készít pillanatképeket (naponta, és minden kockázatos lépés előtt) — innen bármikor visszaállíthatod őket.</div></div>';
   html+='<div class="section-title">AI rubrika '+ibtn('gkey')+'</div><div class="card" style="padding:16px"><div class="field"><label>Saját Gemini API-kulcs (ingyenes)</label><input class="input" id="setGemini" placeholder="AIza…" value="'+escA(GKEY)+'"/><div class="hint">Lépésről lépésre: nyomd meg a fenti „i" ikont vagy a Súgóban a „Gemini-kulcs" részt. A kulcs csak ezen az eszközön tárolódik.</div></div><div class="field"><label>Modell</label><input class="input" id="setModel" placeholder="gemini-2.5-flash" value="'+escA(GMODEL)+'"/><div class="hint">Alap: <b>gemini-2.5-flash</b>. Ha egy modell megszűnik, itt átírhatod; az app magától visszavált flash / flash-lite modellre.</div></div><div class="rub-actions"><button class="btn ghost sm" id="saveGemini">Mentés</button></div></div>';
-  html+='<div class="section-title">Visszajelzés a fejlesztőnek</div><div class="card" style="padding:16px"><div class="field"><label>Üzenet (hiba, ötlet, kérdés)</label><textarea class="input" id="fbText" placeholder="Írd le bátran, hosszabban is…" style="min-height:90px"></textarea></div><div class="field"><label>Elérhetőség (opcionális)</label><input class="input" id="fbContact" placeholder="e-mail, ha választ szeretnél"/></div><div class="rub-actions"><button class="btn sm" id="fbSend">Küldés</button></div><div class="hint" style="margin-top:8px">A visszajelzés a fejlesztőhöz jut. Rajta kívül más nem olvassa.</div></div>';
+  /* KÖZÖS LISTA: a régi „Visszajelzés" űrlap helyén. SHARED_LIST_ON=false → régi űrlap vissza. */
+  if(SHARED_LIST_ON)
+    html+='<div class="section-title">Közös fejlesztési lista</div><div class="card" style="padding:16px"><div class="hint" style="margin-bottom:10px">Egy lista, amit <b>mindenki együtt szerkeszt</b>, aki a Trellist használja. Ha hibába futsz vagy eszedbe jut valami, írd fel ide — a többiek is látják, élőben. Így egy helyen áll össze, mi következik.</div><button class="btn wide" id="openNotes">🗒️ Közös lista megnyitása</button></div>';
+  else
+    html+='<div class="section-title">Visszajelzés a fejlesztőnek</div><div class="card" style="padding:16px"><div class="field"><label>Üzenet (hiba, ötlet, kérdés)</label><textarea class="input" id="fbText" placeholder="Írd le bátran, hosszabban is…" style="min-height:90px"></textarea></div><div class="field"><label>Elérhetőség (opcionális)</label><input class="input" id="fbContact" placeholder="e-mail, ha választ szeretnél"/></div><div class="rub-actions"><button class="btn sm" id="fbSend">Küldés</button></div><div class="hint" style="margin-top:8px">A visszajelzés a fejlesztőhöz jut. Rajta kívül más nem olvassa.</div></div>';
   html+='<div class="section-title">Alkalmazás</div><div class="card" style="padding:16px"><div class="rub-actions"><button class="btn ghost sm" id="installBtn">Telepítés a kezdőképernyőre '+ibtn('telep').replace('data-info="telep"','data-info="telep"')+'</button></div><div class="hint" style="margin-top:10px">Verzió: '+APP_VERSION+'. Skála: 1–'+cfg().scaleMax+', semleges: '+cfg().neutral+'.</div><div class="rub-actions" style="margin-top:12px"><button class="btn ghost sm" id="resetData" style="color:var(--loss)">Összes adat törlése</button></div></div>';
   el.innerHTML=html;
   const si=document.getElementById("signIn");if(si)si.onclick=()=>{window.Cloud.signIn();};
@@ -12277,7 +12431,8 @@ function renderFiok(){const el=document.getElementById("tab-fiok");
   document.getElementById("impBtn").onclick=()=>document.getElementById("importFile").click();
   const bkb=document.getElementById("bakBtn");if(bkb)bkb.onclick=showBackups;
   document.getElementById("saveGemini").onclick=()=>{GKEY=document.getElementById("setGemini").value.trim();Store.set("gemini_key",GKEY);const _m=document.getElementById("setModel");if(_m){GMODEL=_m.value.trim()||GEMINI_MODEL;Store.set("gemini_model",GMODEL);}toast("Mentve");};
-  document.getElementById("fbSend").onclick=(e)=>sendFeedback(document.getElementById("fbText").value,document.getElementById("fbContact").value,e.target);
+  const nb=document.getElementById("openNotes");if(nb)nb.onclick=nlOpenPanel;
+  const fbs=document.getElementById("fbSend");if(fbs)fbs.onclick=(e)=>sendFeedback(document.getElementById("fbText").value,document.getElementById("fbContact").value,e.target);
   document.getElementById("installBtn").onclick=doInstall;
   const wn=document.getElementById("whatsNewBtn");if(wn)wn.onclick=()=>{if(!showWhatsNew(-1))toast("Nincs újdonság");};
   document.getElementById("resetData").onclick=()=>{if(confirm("Biztos törlöd az ÖSSZES adatot ezen az eszközön? (A Biztonsági mentések közül vissza tudod hozni.)")){
@@ -12401,7 +12556,7 @@ function openModulesPanel(){openModal(modulesPanelHtml());wireModulesPanel();}
 function showSoonModal(m){
   openModal('<button class="close-x" id="mClose">✕</button><h3>'+m.em+' '+esc(m.name)+'</h3>'
     +'<p class="hint" style="margin:-2px 0 14px">'+m.desc+'</p>'
-    +'<div class="card" style="padding:15px 16px"><div class="hint">Ez a modul még <b>fejlesztés alatt</b> áll — hamarosan érkezik. Ha van ötleted, mit tudjon, írd meg a <b>Fiók → Visszajelzés a fejlesztőnek</b> résznél!</div></div>'
+    +'<div class="card" style="padding:15px 16px"><div class="hint">Ez a modul még <b>fejlesztés alatt</b> áll — hamarosan érkezik. Ha van ötleted, mit tudjon, írd fel a <b>Fiók → Közös fejlesztési lista</b> alá!</div></div>'
     +'<button class="btn wide" id="soonOk" style="margin-top:12px">Rendben</button>');
   const b=document.getElementById("soonOk");if(b)b.onclick=function(){closeScreen();};}
 
@@ -12522,6 +12677,15 @@ try{
       quizBankGet:(chapterId)=>getDocs(collection(db,"quizbank",chapterId,"questions")).then(s=>{const a=[];s.forEach(d=>a.push(Object.assign({id:d.id},d.data())));return a;}),
       quizBankPut:(chapterId,qid,data)=>uid?setDoc(doc(db,"quizbank",chapterId,"questions",qid),Object.assign({},data,{createdBy:uid,createdAt:serverTimestamp()})):Promise.reject(new Error("no-auth")),
       quizReport:(data)=>uid?addDoc(collection(db,"quizreports"),Object.assign({},data,{uid:uid,ts:serverTimestamp()})):Promise.reject(new Error("no-auth")),
+      /* --- KÖZÖS LISTA: sharedlists/{listId}/items --- (lásd a "KÖZÖS LISTA" blokkot fent)
+         listWatch = ÉLŐ feliratkozás: amit bárki beír vagy kipipál, pár másodpercen
+         belül minden más eszközön is megjelenik. A visszatérési érték a leiratkozó fv. */
+      listWatch:(listId,cb,err)=>onSnapshot(collection(db,"sharedlists",listId,"items"),
+        (s)=>{const a=[];s.forEach(d=>a.push(Object.assign({id:d.id},d.data())));cb(a);},
+        (e)=>{if(err)err(e);}),
+      listAdd:(listId,data)=>uid?addDoc(collection(db,"sharedlists",listId,"items"),Object.assign({},data,{by:uid})):Promise.reject(new Error("no-auth")),
+      listSet:(listId,id,data)=>uid?setDoc(doc(db,"sharedlists",listId,"items",id),Object.assign({},data,{lastBy:uid}),{merge:true}):Promise.reject(new Error("no-auth")),
+      listDel:(listId,id)=>uid?deleteDoc(doc(db,"sharedlists",listId,"items",id)):Promise.reject(new Error("no-auth")),
       signIn:async()=>{const p=new GoogleAuthProvider();if(localStorage.getItem("sl_driveOn")==="1")p.addScope(DRIVE_SCOPE);try{const res=await signInWithPopup(auth,p);driveCapture(res);}catch(e){const c=(e&&e.code)||"";if(c==="auth/popup-blocked"||c==="auth/cancelled-popup-request"||c==="auth/operation-not-supported-in-this-environment"){try{await signInWithRedirect(auth,p);}catch(e2){alert("Belépési hiba: "+((e2&&e2.code)||(e2&&e2.message)||e2));}}else if(c&&c!=="auth/popup-closed-by-user"){alert("Belépési hiba: "+c);}}},
       signOut:()=>signOut(auth),
       // force = a felhasználó KIFEJEZETTEN kérte (pl. "töröld a felhőből is").
