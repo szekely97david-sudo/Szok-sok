@@ -1029,6 +1029,8 @@ nav .nav-in .tabbtn svg{width:20px; height:20px;}
 .wo-check{display:flex; gap:9px; align-items:flex-start; font-size:12.5px; color:var(--muted);
   margin-top:11px; line-height:1.45;}
 .wo-check input{flex:none; width:17px; height:17px; margin-top:1px; accent-color:var(--gold);}
+/* A magyarázó másodsor mindig új sorba kerül — enélkül a címkéhez tapadt. */
+.wo-check>span>small{display:block; font-size:11.5px; color:var(--muted-2); margin-top:2px; line-height:1.4;}
 .wo-eqgrid{display:flex; flex-wrap:wrap; gap:6px;}
 .wo-eqchip{background:var(--surface-2); border:1px solid var(--line); border-radius:999px;
   padding:6px 11px; font-size:12px; color:var(--muted);}
@@ -1224,8 +1226,11 @@ nav .nav-in .tabbtn svg{width:20px; height:20px;}
 .kc-macros{padding:14px 16px 10px;}
 .kc-mrow{display:flex; align-items:center; gap:8px; margin-bottom:9px;}
 .kc-mrow .lb{font-size:12px; color:var(--muted); width:74px; flex:none; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
-.kc-mrow .bar{flex:1; height:8px; background:var(--surface-2); border-radius:99px; overflow:hidden; min-width:30px;}
-.kc-mrow .bar i{display:block; height:100%; background:var(--gold); border-radius:99px;}
+.kc-mrow .bar{position:relative; flex:1; height:8px; background:var(--surface-2); border-radius:99px; overflow:hidden; min-width:30px;}
+.kc-mrow .bar i{display:block; position:relative; height:100%; background:var(--gold); border-radius:99px; z-index:1;}
+/* cél-SÁV (zsír, szénhidrát): a háttérben jelölt „jó" tartomány */
+.kc-mrow .bar u{position:absolute; top:0; bottom:0; text-decoration:none;
+  background:color-mix(in srgb,var(--gold) 26%,transparent);}
 .kc-mrow .bar i.hi{background:var(--loss);}
 .kc-mrow.prot .bar{height:12px;}
 .kc-mrow.prot .lb{color:var(--ink); font-weight:600;}
@@ -1307,6 +1312,86 @@ nav .nav-in .tabbtn svg{width:20px; height:20px;}
 .kc-unit.on{background:var(--gold); color:var(--on-gold); border-color:transparent;}
 .kc-unit small{font-size:10px; opacity:.75;}
 .kc-unit.add{color:var(--muted-2); font-weight:500;}
+/* ---- mennyiség-bevitel: közös fejléc + öt mód ---- */
+.kc-qnum{flex:1; text-align:center; font-family:var(--disp); font-size:30px; font-weight:700;
+  color:var(--ink); background:var(--surface-2); border:1px solid var(--line); border-radius:14px;
+  padding:8px 10px; line-height:1.1;}
+.kc-qnum small{display:block; font-size:12px; font-weight:500; color:var(--muted); margin-top:1px;}
+.kc-qhint{font-size:11px; color:var(--muted-2); text-align:center; margin:-4px 0 10px;}
+.kc-qmodes{display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 12px; justify-content:center;}
+.kc-qmode{background:var(--surface); border:1px solid var(--line); border-radius:999px;
+  padding:6px 11px; font-size:12px; color:var(--muted);}
+.kc-qmode.on{background:var(--gold); color:var(--on-gold); border-color:transparent; font-weight:600;}
+.kc-chipsq{display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:0 0 12px;}
+.kc-chipsq .lb{font-size:11px; color:var(--muted-2);}
+.kc-qchip{background:var(--surface); border:1px solid var(--line); border-radius:999px;
+  padding:6px 11px; font-family:var(--disp); font-size:13px; font-weight:600; color:var(--muted);}
+.kc-qchip small{font-size:10px; opacity:.7; margin-left:3px;}
+.kc-qchip.on{background:var(--gold); color:var(--on-gold); border-color:transparent;}
+/* dupla tekerő */
+.kc-dial2{position:relative; width:230px; max-width:76vw; aspect-ratio:1; margin:2px auto 12px;
+  touch-action:none; user-select:none; -webkit-user-select:none;}
+.kc-dial2 svg{width:100%; height:100%; display:block;}
+.kc-dial2 .rg{fill:none; stroke:var(--surface-2); stroke-width:26;}
+.kc-dial2 .rg.in{stroke-width:22;}
+.kc-dial2 .tk{stroke:var(--muted-2); stroke-width:2.5; opacity:.55;}
+.kc-dial2 .tk.sm{stroke-width:2; opacity:.4;}
+.kc-dial2 .hub{fill:var(--surface); stroke:var(--line);}
+.kc-dial2.act.out .rg.out,.kc-dial2.act.in .rg.in{stroke:var(--gold); opacity:.35;}
+.kc-dial2 .lbl{position:absolute; left:50%; transform:translateX(-50%); font-size:10px; color:var(--muted-2);}
+.kc-dial2 .lbl.out{top:2%;}
+.kc-dial2 .lbl.in{top:26%;}
+/* három görgő */
+.kc-wheel{position:relative; display:flex; gap:8px; justify-content:center; margin:2px 0 12px;}
+.kc-wc{flex:1; max-width:96px;}
+.kc-wl{font-size:10px; color:var(--muted-2); text-align:center; margin-bottom:3px;}
+.kc-wscroll{height:132px; overflow-y:auto; scroll-snap-type:y mandatory; text-align:center;
+  background:var(--surface-2); border:1px solid var(--line); border-radius:14px;
+  scrollbar-width:none; -ms-overflow-style:none;}
+.kc-wscroll::-webkit-scrollbar{display:none;}
+.kc-wscroll span{display:block; height:44px; line-height:44px; scroll-snap-align:center;
+  font-family:var(--disp); font-size:22px; font-weight:600; color:var(--muted-2); opacity:.5;}
+.kc-wscroll span.on{color:var(--gold); opacity:1; font-size:26px;}
+.kc-wscroll i{display:block; height:44px;}
+/* húzás + scrubber */
+.kc-vdrag,.kc-scrub{background:var(--surface-2); border:1px solid var(--line); border-radius:14px;
+  display:flex; align-items:center; justify-content:center; gap:14px; color:var(--muted-2);
+  font-size:12px; touch-action:none; user-select:none; -webkit-user-select:none; margin:2px 0 12px;}
+.kc-vdrag{flex-direction:column; height:130px; gap:6px;}
+.kc-scrub{height:64px;}
+.kc-vdrag .ar,.kc-scrub .ar{font-size:18px; color:var(--muted);}
+.kc-vdrag.act,.kc-scrub.act{border-color:var(--gold); background:color-mix(in srgb,var(--gold) 12%,var(--surface-2));}
+/* beállítás-sorok */
+.kc-mrow2{display:block; width:100%; text-align:left; background:var(--surface-2);
+  border:1px solid var(--line); border-radius:12px; padding:10px 12px; margin-bottom:7px;}
+.kc-mrow2.on{border-color:var(--gold); background:color-mix(in srgb,var(--gold) 10%,var(--surface-2));}
+.kc-mrow2 .nm{display:block; font-weight:600; font-size:13.5px; color:var(--ink);}
+.kc-mrow2 .ds{display:block; font-size:11.5px; color:var(--muted); margin-top:2px; line-height:1.4;}
+.kc-srange{width:100%; margin:6px 0 0;}
+.kc-slab{display:flex; justify-content:space-between; font-size:11px; color:var(--muted-2); margin-top:2px;}
+.kc-nutt{margin:-2px 0 10px 28px;}
+.kc-nutt .input{margin-top:2px;}
+.kc-bcrow{display:flex; gap:8px; align-items:center;}
+.kc-bcrow .input{flex:1; margin:0;}
+.kc-bcrow .btn{flex:none;}
+/* zsír-sáv a Célok alatt */
+.kc-fband{display:flex; align-items:center; gap:8px; font-size:11px; color:var(--muted-2); margin-top:4px;}
+.kc-fband .tr{position:relative; flex:1; height:8px; background:var(--surface-2); border-radius:99px;}
+.kc-fband .tr i{position:absolute; top:-3px; width:14px; height:14px; margin-left:-7px;
+  border-radius:50%; background:var(--gold);}
+.kc-fbtns{display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;}
+/* „fantom kalória" kártya */
+.kc-gap{padding:14px 16px; border-left:3px solid var(--loss);}
+.kc-gap .tt{font-weight:700; font-size:14px; margin-bottom:4px;}
+.kc-gap .ds{font-size:11.5px; color:var(--muted); line-height:1.45;}
+.kc-gap .ds.sm{font-size:11px; margin-top:6px;}
+.kc-gap .lst{margin:8px 0 0;}
+.kc-gap .lst button{display:flex; width:100%; align-items:center; justify-content:space-between;
+  gap:10px; padding:8px 10px; background:var(--surface-2); border:1px solid var(--line);
+  border-radius:10px; margin-bottom:5px; font-size:12.5px; color:var(--ink); text-align:left;}
+.kc-gap .lst .kk{color:var(--loss); font-weight:600; flex:none;}
+.kc-thu{display:block; font-style:italic; opacity:.8;}
+.kc-mrow.nut .bar i{background:var(--muted-2);}
 .kc-qprev{padding:14px 16px; text-align:center;}
 .kc-qbig{font-size:28px; font-weight:700;}
 .kc-qbig small{font-size:13px; color:var(--muted); font-weight:500;}
@@ -4185,9 +4270,41 @@ function woImportPrompt(){
    Az OpenFoodFacts és a magyar címkék is így számolnak.
    ========================================================================= */
 
-/* Étkezés-címkék: alapból négy, de bármikor átnevezhető/törölhető/bővíthető. */
-const KCMEALS_DEF=[{id:"br",l:"Reggeli",em:"🌅"},{id:"lu",l:"Ebéd",em:"☀️"},
-  {id:"sn",l:"Nasi",em:"🍏"},{id:"di",l:"Vacsora",em:"🌙"},{id:"wo",l:"Edzés",em:"🏋️"}];
+/* Étkezés-címkék: alapból a szokásos napi menetrend, de bármikor
+   átnevezhető/törölhető/bővíthető. A sorrend a Ma fülön is ez lesz. */
+const KCMEALS_DEF=[{id:"br",l:"Reggeli",em:"🌅"},{id:"ts",l:"Tízórai",em:"🥐"},
+  {id:"lu",l:"Ebéd",em:"☀️"},{id:"uz",l:"Uzsonna",em:"🍎"},{id:"di",l:"Vacsora",em:"🌙"},
+  {id:"wo",l:"Edzés",em:"🏋️"},{id:"sn",l:"Nasi",em:"🍏"}];
+/* Az étkezés-sorrend „kanonikus” gerince: a migrációnál ez alapján rendezünk.
+   Ami nincs benne (saját étkezés), az a végére kerül, a meglévő sorrendjében. */
+const KCMEAL_ORDER=["br","ts","lu","uz","di","wo","sn"];
+/* Napszak -> melyik étkezést ajánljuk alapból (perc éjféltől, felső határ). */
+const KCMEAL_HM=[["br",600],["ts",660],["lu",900],["uz",1020],["di",1260],["sn",1440]];
+/* ---- Követhető tápanyagok ------------------------------------------------
+   A kalória + fehérje/szénhidrát/zsír MINDIG megy (ezekből él a keret és a
+   gyűrű). Ezen felül a felhasználó választja ki, mit akar még látni és
+   számolni. Az étel-tételeknél csak akkor tárolódnak, ha nem nullák — így a
+   szinkron mérete gyakorlatilag nem nő attól, hogy a lehetőség létezik.
+   key: az étel- és naplómezők neve · lim:true = ennél KEVESEBB a jó (korlát) */
+const KCNUT=[
+  {k:"b", l:"Rost",           sh:"Rost",  u:"g", def:31,  max:120, lim:false},
+  {k:"s", l:"Cukor",          sh:"Cukor", u:"g", def:60,  max:400, lim:true},
+  {k:"sa",l:"Telített zsír",  sh:"Tel.",  u:"g", def:25,  max:200, lim:true},
+  {k:"na",l:"Só",             sh:"Só",    u:"g", def:6,   max:60,  lim:true}];
+function kcNutBy(k){return KCNUT.find(function(x){return x.k===k;})||null;}
+/* ---- Mennyiség-bevitel módjai -------------------------------------------
+   Nem egy „legjobb" van: reggel a 40 g zabpehely másképp jön kézre, mint egy
+   680 g-os fazék. Ezért több mód közül lehet választani, és MINDEGYIKBEN ott
+   a −/+ (a legkisebb lépéssel) és a számra koppintva a billentyűzet. */
+const KCQMODES=[
+  {k:"dial", l:"🎛 Tekerő",       d:"Termosztát-szerű dupla gyűrű: a külső nagyot lép, a belső finomhangol. Egy kézzel, billentyűzet nélkül."},
+  {k:"wheel",l:"🎰 Görgő",        d:"Három oszlop — százas, tízes, egyes. Pörgeted, és pontosan ott áll meg, ahol kell."},
+  {k:"drag", l:"↕️ Húzás",        d:"Megfogod a számot és fel-le húzod. Lassú húzás finom, gyors húzás nagyot lép."},
+  {k:"scrub",l:"↔️ Scrubber",     d:"A számon vízszintesen húzva állítod, a húzás sebességéhez igazodó lépésekkel."},
+  {k:"num",  l:"⌨️ Beírom",       d:"Klasszikus számmező billentyűzettel."}];
+/* Amit épp követünk (a fix négyen felül), a beállítás sorrendjében. */
+function kcNutOn(){const a=(S.food&&S.food.set&&S.food.set.nut)||[];
+  return KCNUT.filter(function(x){return a.indexOf(x.k)>=0;});}
 const KCACT=[{v:1.2,l:"Ülő munka, alig mozgás"},{v:1.375,l:"Könnyű (1–3 edzés/hét)"},
   {v:1.55,l:"Közepes (3–5 edzés/hét)"},{v:1.725,l:"Aktív (6–7 edzés/hét)"},
   {v:1.9,l:"Nagyon aktív (fizikai munka + edzés)"}];
@@ -4202,21 +4319,28 @@ const KCPIECE=/^(db|szelet|adag|doboz|pohár|korsó|gombóc|csésze|marok|golyó
 
 /* ---- állapot ---- */
 function foodBlank(){return{enabled:false,updatedAt:0,version:1,
-  set:{kcal:2200,p:165,c:230,f:70,fb:31,mode:"auto",
-       trainBonus:0,trainMacro:"c",trainDays:3,trainSplit:true,mealsWo:false,
+  set:{kcal:2200,p:165,c:230,f:70,fMin:0,fMax:0,fb:31,mode:"auto",
+       trainBonus:0,trainMacro:"c",trainDays:3,trainSplit:true,mealsWo:false,mealsV3:false,
        weekBank:false,bankCap:500,aiPhoto:true,
+       nut:[],nt:{},qtyMode:"dial",qtySens:3,rememberQty:true,
        calc:{sex:"m",age:30,h:180,w:80,bf:null,act:1.55,aim:"maint",rate:0.4,pkg:2,fkg:0.8,tw:null},
        meals:KCMEALS_DEF.map(function(m){return{id:m.id,l:m.l,em:m.em};})},
-  days:{},tot:{},w:{},td:{},custom:[],rec:[],tpl:[],recent:[]};}
+  days:{},tot:{},w:{},td:{},custom:[],rec:[],tpl:[],recent:[],lastQ:{},fix:[]};}
 
 function kcNum(v,d){const n=Number(v);if(!isFinite(n))return 0;
   const p=Math.pow(10,d||0);return Math.round(n*p)/p;}
 function kcClamp(v,lo,hi,def){const n=Number(v);if(!isFinite(n))return def;
   return Math.max(lo,Math.min(hi,n));}
-/* Makró-négyes tisztítása (per 100 g vagy abszolút — mindkettőre jó). */
+/* Makró-négyes tisztítása (per 100 g vagy abszolút — mindkettőre jó).
+   A választható tápanyagok (cukor, telített zsír, só) csak akkor kerülnek bele,
+   ha nem nullák — üresen egy bájtot sem foglalnak. */
 function normMac(m){m=(m&&typeof m==="object")?m:{};
-  return{k:kcClamp(m.k,0,9000,0),p:kcClamp(m.p,0,200,0),c:kcClamp(m.c,0,200,0),
-         f:kcClamp(m.f,0,200,0),b:kcClamp(m.b,0,100,0)};}
+  const o={k:kcClamp(m.k,0,9000,0),p:kcClamp(m.p,0,200,0),c:kcClamp(m.c,0,200,0),
+         f:kcClamp(m.f,0,200,0),b:kcClamp(m.b,0,100,0)};
+  const s=kcClamp(m.s,0,200,0);if(s)o.s=s;
+  const sa=kcClamp(m.sa,0,200,0);if(sa)o.sa=sa;
+  const na=kcClamp(m.na,0,100,0);if(na)o.na=na;
+  return o;}
 function normUnits(u){const out=[];
   if(Array.isArray(u))for(const x of u){
     if(Array.isArray(x)){const n=String(x[0]||"").slice(0,24).trim(),g=Number(x[1]);
@@ -4230,6 +4354,10 @@ function normFoodItem(f){
   const o={id:String(f.id||f.i||("c"+uid())).slice(0,32),n:n,
     k:kcClamp(f.k,0,9000,0),p:kcClamp(f.p,0,100,0),c:kcClamp(f.c,0,100,0),
     f:kcClamp(f.f,0,100,0),b:kcClamp(f.b,0,100,0),g:Number(f.g)||99};
+  /* választható tápanyagok — csak ha van értékük */
+  const s2=kcClamp(f.s,0,100,0);if(s2)o.s=s2;
+  const sa2=kcClamp(f.sa,0,100,0);if(sa2)o.sa=sa2;
+  const na2=kcClamp(f.na,0,60,0);if(na2)o.na=na2;
   const u=normUnits(f.u);if(u.length)o.u=u;
   if(f.br)o.br=String(f.br).slice(0,40);          /* márka */
   if(f.bc)o.bc=String(f.bc).replace(/\D/g,"").slice(0,20);  /* vonalkód */
@@ -4245,7 +4373,10 @@ function normRecipe(r){
   if(Array.isArray(r.ing))for(const x of r.ing){
     if(!x||!x.i)continue;
     ing.push({i:String(x.i).slice(0,32),q:kcClamp(x.q,0,20000,0),u:String(x.u||"g").slice(0,24)});}
-  const o={id:String(r.id||("r"+uid())).slice(0,32),n:n,serv:Math.max(1,Math.round(Number(r.serv)||1)),
+  /* Az adagszám NEM kötelező: ha nincs megadva, a recept egésze az egység
+     („az egész" + gramm), és nem erőltetünk rá kitalált adag-osztást. */
+  const sv=Math.round(Number(r.serv)||0);
+  const o={id:String(r.id||("r"+uid())).slice(0,32),n:n,serv:(sv>0?sv:0),
     ing:ing.slice(0,40)};
   if(r.fav)o.fav=1;if(r.note)o.note=String(r.note).slice(0,600);
   if(r.cook)o.cook=kcClamp(r.cook,0,20000,0);   /* kész össz-súly, ha lemérted (párolgás!) */
@@ -4274,20 +4405,35 @@ function normFood(fd){
     if(!m||!m.l)continue;const id=String(m.id||("m"+uid())).slice(0,12);
     if(mseen[id])continue;mseen[id]=1;
     meals.push({id:id,l:String(m.l).slice(0,28),em:String(m.em||"🍽").slice(0,4)});}
+  /* Követett tápanyagok + azok céljai/korlátai */
+  const nut=[];
+  if(Array.isArray(s.nut))for(const x of s.nut){
+    const key=String(x||"");if(kcNutBy(key)&&nut.indexOf(key)<0)nut.push(key);}
+  const nt={};
+  if(s.nt&&typeof s.nt==="object")for(const key in s.nt){
+    const d=kcNutBy(key);if(!d)continue;
+    const v=kcClamp(s.nt[key],0,d.max,-1);if(v>=0)nt[key]=kcNum(v,1);}
   const set={
     kcal:Math.round(kcClamp(s.kcal,600,9000,b.set.kcal)),
     p:Math.round(kcClamp(s.p,0,500,b.set.p)),
     c:Math.round(kcClamp(s.c,0,900,b.set.c)),
     f:Math.round(kcClamp(s.f,0,400,b.set.f)),
+    /* Zsír-sáv: 0 = nincs sáv, egyetlen fix érték (a régi viselkedés). */
+    fMin:Math.round(kcClamp(s.fMin,0,400,0)),
+    fMax:Math.round(kcClamp(s.fMax,0,400,0)),
     fb:Math.round(kcClamp(s.fb,0,120,b.set.fb)),
     mode:(s.mode==="manual")?"manual":"auto",
     trainBonus:Math.round(kcClamp(s.trainBonus,0,1500,0)),
     trainMacro:(s.trainMacro==="p"||s.trainMacro==="f")?s.trainMacro:"c",
     trainDays:Math.round(kcClamp(s.trainDays,0,7,3)),
     trainSplit:s.trainSplit!==false,
-    mealsWo:!!s.mealsWo,
+    mealsWo:!!s.mealsWo,mealsV3:!!s.mealsV3,
     weekBank:!!s.weekBank,bankCap:Math.round(kcClamp(s.bankCap,100,2000,500)),
     aiPhoto:s.aiPhoto!==false,
+    nut:nut,nt:nt,
+    qtyMode:KCQMODES.some(function(m){return m.k===s.qtyMode;})?s.qtyMode:"dial",
+    qtySens:Math.round(kcClamp(s.qtySens,1,5,3)),
+    rememberQty:s.rememberQty!==false,
     calc:{sex:(c.sex==="f")?"f":"m",age:Math.round(kcClamp(c.age,10,100,30)),
       h:Math.round(kcClamp(c.h,100,230,180)),w:kcNum(kcClamp(c.w,25,300,80),1),
       bf:(c.bf==null||c.bf==="")?null:kcNum(kcClamp(c.bf,3,70,20),1),
@@ -4304,6 +4450,19 @@ function normFood(fd){
     if(!set.meals.some(function(m){return m.id==="wo";}))
       set.meals=set.meals.concat([{id:"wo",l:"Edzés",em:"🏋️"}]);
     set.mealsWo=true;}
+  /* Egyszeri rendezés a szokásos napi menetrendre: bekerül a Tízórai és az
+     Uzsonna, a Nasi pedig a sor végére csúszik. A saját étkezéseidet nem
+     bántjuk (a végén maradnak, a meglévő sorrendjükben), és a jelző miatt ez
+     nem rendezi át újra, ha később te raktad más sorrendbe. */
+  if(!set.mealsV3){
+    KCMEALS_DEF.forEach(function(d){
+      if(!set.meals.some(function(m){return m.id===d.id;}))
+        set.meals.push({id:d.id,l:d.l,em:d.em});});
+    const ix=function(id){const i=KCMEAL_ORDER.indexOf(id);return i<0?99:i;};
+    set.meals=set.meals.map(function(m,i){return{m:m,i:i};})
+      .sort(function(a,b){return ix(a.m.id)-ix(b.m.id)||a.i-b.i;})
+      .map(function(x){return x.m;});
+    set.mealsV3=true;}
   const mealIds=new Set(set.meals.map(function(m){return m.id;}));
   const custom=[];const cseen={};
   if(Array.isArray(fd.custom))for(const f of fd.custom){
@@ -4325,10 +4484,12 @@ function normFood(fd){
     const o={e:es};
     if(d.note)o.note=String(d.note).slice(0,600);
     if(es.length||d.note)days[k]=o;}
+  /* Napi összeg-cache: [kcal,F,Sz,Zs,rost] + opcionálisan [cukor,tel.zsír,só].
+     A régi, 5 elemű tömbök változatlanul érvényesek. */
   const tot={};
   if(fd.tot&&typeof fd.tot==="object")for(const k in fd.tot){
     if(!validDate(k))continue;const a=fd.tot[k];
-    if(Array.isArray(a)&&a.length>=5)tot[k]=a.slice(0,5).map(function(n){return kcNum(n,1);});}
+    if(Array.isArray(a)&&a.length>=5)tot[k]=a.slice(0,8).map(function(n){return kcNum(n,1);});}
   const w={};
   if(fd.w&&typeof fd.w==="object")for(const k in fd.w){
     if(!validDate(k))continue;const v=Number(fd.w[k]);
@@ -4340,8 +4501,29 @@ function normFood(fd){
   const recent=[];
   if(Array.isArray(fd.recent))for(const id of fd.recent){
     const s2=String(id||"").slice(0,32);if(s2&&recent.indexOf(s2)<0)recent.push(s2);}
+  /* Utoljára rögzített mennyiség ételenként: {id:[q,u]} — hogy legközelebb ezt
+     ajánljuk fel. Legfeljebb 240 étel, hogy ne hízzon el a szinkron. */
+  const lastQ={};
+  if(fd.lastQ&&typeof fd.lastQ==="object"){let n=0;
+    for(const id in fd.lastQ){
+      if(n>=240)break;const a=fd.lastQ[id];
+      if(!Array.isArray(a))continue;const q=kcClamp(a[0],0,20000,0);if(!(q>0))continue;
+      lastQ[String(id).slice(0,32)]=[kcNum(q,2),String(a[1]||"g").slice(0,24)];n++;}}
+  /* Tervező fix tételei (esti fehérje, edzés-shake…) */
+  const fix=[];
+  if(Array.isArray(fd.fix))for(const x of fd.fix){
+    if(!x||typeof x!=="object")continue;
+    const nm=String(x.n||"").slice(0,40).trim();if(!nm)continue;
+    const o={id:String(x.id||("x"+uid())).slice(0,32),n:nm,mc:normMac(x.mc),
+      on:!!x.on,cm:!!x.cm};
+    if(x.i)o.i=String(x.i).slice(0,32);
+    if(x.q)o.q=kcClamp(x.q,0,20000,1);
+    if(x.u)o.u=String(x.u).slice(0,24);
+    if(x.wo)o.wo=1;
+    fix.push(o);if(fix.length>=12)break;}
   return{enabled:!!fd.enabled,updatedAt:Number(fd.updatedAt)||0,version:1,
-    set:set,days:days,tot:tot,w:w,td:td,custom:custom,rec:rec,tpl:tpl,recent:recent.slice(0,40)};}
+    set:set,days:days,tot:tot,w:w,td:td,custom:custom,rec:rec,tpl:tpl,
+    recent:recent.slice(0,40),lastQ:lastQ,fix:fix};}
 
 function kcTouch(){S.food.updatedAt=Date.now();save();kcSizeCheck();}
 let _kcSizeWarned=false;
@@ -4384,16 +4566,24 @@ function kcFood(id){
   return null;}
 /* Egy recept ugyanúgy viselkedik, mint egy étel: per 100 g értékek + "adag" egység. */
 function kcRecipeFood(r){
-  let g=0,k=0,p=0,c=0,f=0,b=0,miss=false;
+  let g=0,k=0,p=0,c=0,f=0,b=0,s=0,sa=0,na=0,miss=false;
   for(const x of r.ing||[]){
     const fo=kcFood(x.i);if(!fo){miss=true;continue;}
     const gg=kcUnitG(fo,x.u)*x.q;g+=gg;const rr=gg/100;
-    k+=fo.k*rr;p+=fo.p*rr;c+=fo.c*rr;f+=fo.f*rr;b+=fo.b*rr;}
+    k+=fo.k*rr;p+=fo.p*rr;c+=fo.c*rr;f+=fo.f*rr;b+=fo.b*rr;
+    s+=(fo.s||0)*rr;sa+=(fo.sa||0)*rr;na+=(fo.na||0)*rr;}
   const tot=(r.cook&&r.cook>0)?r.cook:g;     /* lemért kész súly, ha van */
   const per=tot>0?100/tot:0;
   const o={id:r.id,n:r.n,g:99,rec:1,serv:r.serv,tg:kcNum(tot,0),miss:miss,
     k:kcNum(k*per,1),p:kcNum(p*per,1),c:kcNum(c*per,1),f:kcNum(f*per,1),b:kcNum(b*per,1)};
-  if(tot>0)o.u=[["adag",kcNum(tot/r.serv,1)],["az egész",kcNum(tot,1)]];
+  if(s)o.s=kcNum(s*per,1);
+  if(sa)o.sa=kcNum(sa*per,1);
+  if(na)o.na=kcNum(na*per,1);
+  /* Adag-egység csak akkor, ha meg is adtad, hány adag. Enélkül „az egész”
+     és a gramm marad — nincs kitalált osztás. */
+  if(tot>0){o.u=[];
+    if(r.serv>0)o.u.push(["adag",kcNum(tot/r.serv,1)]);
+    o.u.push(["az egész",kcNum(tot,1)]);}
   if(r.fav)o.fav=1;
   return o;}
 /* Egy mértékegység grammja az ételnél. "g"/"ml" = 1:1. */
@@ -4409,12 +4599,21 @@ function kcEntGrams(e){const fo=e.i?kcFood(e.i):null;
 /* Egy naplósor makrói. Hiányzó ételnél nullát ad és jelzi (miss). */
 function kcEntMac(e){
   if(e.abs){const m=e.mc||{},q=e.q||1;
-    return{k:kcNum(m.k*q,1),p:kcNum(m.p*q,1),c:kcNum(m.c*q,1),f:kcNum(m.f*q,1),b:kcNum(m.b*q,1),g:null,miss:false};}
+    return{k:kcNum(m.k*q,1),p:kcNum(m.p*q,1),c:kcNum(m.c*q,1),f:kcNum(m.f*q,1),b:kcNum(m.b*q,1),
+      s:kcNum((m.s||0)*q,1),sa:kcNum((m.sa||0)*q,1),na:kcNum((m.na||0)*q,2),g:null,miss:false};}
   const fo=kcFood(e.i);
-  if(!fo)return{k:0,p:0,c:0,f:0,b:0,g:0,miss:true};
+  if(!fo)return{k:0,p:0,c:0,f:0,b:0,s:0,sa:0,na:0,g:0,miss:true};
   const g=e.q*kcUnitG(fo,e.u||"g"),r=g/100;
   return{k:kcNum(fo.k*r,1),p:kcNum(fo.p*r,1),c:kcNum(fo.c*r,1),f:kcNum(fo.f*r,1),b:kcNum(fo.b*r,1),
+    s:kcNum((fo.s||0)*r,1),sa:kcNum((fo.sa||0)*r,1),na:kcNum((fo.na||0)*r,2),
     g:kcNum(g,1),miss:false};}
+/* Egy naplósor kalóriájából mennyit FED a fehérje/szénhidrát/zsír (4/4/9)?
+   Ha a kettő érdemben eltér, a tétel makrói hiányosak — ezt a Ma fülön
+   kiírjuk, mert enélkül némán széttart a napi kcal és a makró-összeg. */
+function kcEntGap(e){
+  const m=kcEntMac(e);
+  const mk=m.p*4+m.c*4+m.f*9;
+  return{mac:m,mk:mk,gap:m.k-mk};}
 function kcEntName(e){
   if(e.abs)return e.t||"Gyors bevitel";
   const fo=kcFood(e.i);return fo?fo.n:"(törölt étel)";}
@@ -4430,11 +4629,17 @@ function kcDayTotals(k,noCache){
   const f=S.food;
   if(!noCache){const d=f.days[k];
     if((!d||!(d.e||[]).length)&&f.tot[k]){const a=f.tot[k];
-      return{k:a[0],p:a[1],c:a[2],f:a[3],b:a[4],n:0};}}
-  const d=f.days[k];let k1=0,p=0,c=0,fa=0,b=0,n=0;
-  if(d&&d.e)for(const e of d.e){const m=kcEntMac(e);k1+=m.k;p+=m.p;c+=m.c;fa+=m.f;b+=m.b;n++;}
-  const o={k:kcNum(k1,0),p:kcNum(p,1),c:kcNum(c,1),f:kcNum(fa,1),b:kcNum(b,1),n:n};
-  return noCache?[o.k,o.p,o.c,o.f,o.b]:o;}
+      return{k:a[0],p:a[1],c:a[2],f:a[3],b:a[4],s:a[5]||0,sa:a[6]||0,na:a[7]||0,n:0};}}
+  const d=f.days[k];let k1=0,p=0,c=0,fa=0,b=0,s=0,sa=0,na=0,n=0;
+  if(d&&d.e)for(const e of d.e){const m=kcEntMac(e);
+    k1+=m.k;p+=m.p;c+=m.c;fa+=m.f;b+=m.b;s+=m.s||0;sa+=m.sa||0;na+=m.na||0;n++;}
+  const o={k:kcNum(k1,0),p:kcNum(p,1),c:kcNum(c,1),f:kcNum(fa,1),b:kcNum(b,1),
+    s:kcNum(s,1),sa:kcNum(sa,1),na:kcNum(na,2),n:n};
+  /* A cache-be csak akkor kerül bele a hosszabb forma, ha van mit tárolni. */
+  if(!noCache)return o;
+  const arr=[o.k,o.p,o.c,o.f,o.b];
+  if(o.s||o.sa||o.na)arr.push(o.s,o.sa,o.na);
+  return arr;}
 /* A napi összeg gyorsítótár frissítése — ebből él a statisztika (gyors + tömör). */
 function kcSyncTot(k){const f=S.food;const t=kcDayTotals(k,true);
   if(t[0]||t[1]||t[2]||t[3])f.tot[k]=t;else delete f.tot[k];}
@@ -4491,16 +4696,28 @@ function kcTrainDelta(k){
 function kcTargets(k){
   const s=S.food.set;
   let kcal=s.kcal,p=s.p,c=s.c,f=s.f;
+  let fMin=s.fMin||0,fMax=s.fMax||0;
   const train=kcTrainDay(k);
   const dl=kcTrainDelta(k);
   if(dl){kcal+=dl;
     if(s.trainMacro==="p")p=Math.max(0,p+Math.round(dl/4));
-    else if(s.trainMacro==="f")f=Math.max(0,f+Math.round(dl/9));
+    else if(s.trainMacro==="f"){const d=Math.round(dl/9);
+      f=Math.max(0,f+d);if(fMin)fMin=Math.max(0,fMin+d);if(fMax)fMax=Math.max(0,fMax+d);}
     else c=Math.max(0,c+Math.round(dl/4));}
   let bank=0;
   if(s.weekBank)bank=kcBank(k);
-  return{kcal:Math.round(kcal+bank),base:Math.round(kcal),p:Math.round(p),c:Math.round(c),
-    f:Math.round(f),fb:s.fb,train:train,delta:Math.round(dl),bank:Math.round(bank)};}
+  const o={kcal:Math.round(kcal+bank),base:Math.round(kcal),p:Math.round(p),c:Math.round(c),
+    f:Math.round(f),fb:s.fb,train:train,delta:Math.round(dl),bank:Math.round(bank)};
+  /* Zsír-sáv (ha van) + a belőle következő szénhidrát-sáv. */
+  if(fMin&&fMax&&fMax>fMin){
+    o.fMin=Math.round(fMin);o.fMax=Math.round(fMax);
+    const cAt=function(fg){return Math.max(0,Math.round((o.base-o.p*4-fg*9)/4));};
+    o.cMin=cAt(o.fMax);o.cMax=cAt(o.fMin);}
+  /* Választható tápanyagok célja/korlátja */
+  o.nt={};
+  kcNutOn().forEach(function(d){
+    o.nt[d.k]=(s.nt&&s.nt[d.k]!=null)?s.nt[d.k]:(d.k==="b"?s.fb:d.def);});
+  return o;}
 /* Heti kalória-bank: a hét LEZÁRT (mai nap előtti), rögzített napjainak
    cél-tény egyenlege, ±bankCap-re vágva. Szombaton +600, vasárnap −600 — a hét számít. */
 function kcBank(k){
@@ -4565,9 +4782,18 @@ function kcCalc(c){
   if(c.tw)refW=c.tw;
   else if(c.bf!=null&&((c.sex==="m"&&c.bf>25)||(c.sex==="f"&&c.bf>35)))refW=kcNum(lbm*1.2,1);
   let p=Math.round((c.pkg||2)*refW);
+  /* ZSÍR-SÁV. A zsírnak nincs egyetlen „helyes" értéke, mint a fehérjének:
+     van egy alsó határ, ami alá a hormonális működés miatt nem érdemes menni
+     (a napi energia 20%-a, de legalább 0,5 g/testsúly-kg), és egy felső, ami
+     fölött már csak a szénhidrátot venné el az edzésektől (a napi energia
+     35%-a, de legfeljebb 1,3 g/kg). Diétánál a sáv alja, tömegelésnél a
+     teteje felé érdemes húzni — a `fkg` beállítás ezen belül mozgat. */
+  const fMin=Math.max(Math.round(kcal*0.20/9),Math.round(0.5*c.w));
+  let fMax=Math.min(Math.round(kcal*0.35/9),Math.round(1.3*c.w));
+  if(fMax<fMin+5)fMax=fMin+5;
   let f=Math.round((c.fkg||0.8)*c.w);
-  const fMin=Math.round(kcal*0.2/9);
-  if(f<fMin){f=fMin;warn.push("A zsírt felhoztam "+f+" g-ra: a napi energia 20%-a a hormonális működés miatt javasolt minimum.");}
+  if(f<fMin){f=fMin;warn.push("A zsírt felhoztam "+f+" g-ra: a napi energia 20%-a (de legalább 0,5 g/testsúly-kg) a hormonális működés miatt javasolt minimum.");}
+  if(f>fMax){f=fMax;warn.push("A zsírt levettem "+f+" g-ra: efölött már csak a szénhidráttól venne el, aminek az edzéseknél van szerepe.");}
   let cRem=Math.round((kcal-p*4-f*9)/4);
   if(cRem<30){
     /* Nem fér bele: a fehérjéből engedünk (1,6 g/kg-ig), mert az van a legfeljebb túlállítva. */
@@ -4576,12 +4802,16 @@ function kcCalc(c){
     if(cRem<0){cRem=0;warn.push("A fehérje- és zsírcél önmagában kiadja a kalóriakeretet — nézd át a beállításokat.");}
     else warn.push("A fehérjecélt lejjebb vettem, hogy maradjon szénhidrát az edzésekhez.");}
   const fb=Math.round(kcal/1000*14);
-  return{bmr:bmr,tdee:tdee,kcal:Math.round(kcal),p:p,c:cRem,f:f,fb:fb,refW:kcNum(refW,1),
+  /* A szénhidrát a zsír-sáv TÜKÖRKÉPE: ha a zsír a sáv alján van, több
+     szénhidrát fér bele, és fordítva. */
+  const cAt=function(fg){return Math.max(0,Math.round((kcal-p*4-fg*9)/4));};
+  return{bmr:bmr,tdee:tdee,kcal:Math.round(kcal),p:p,c:cRem,f:f,
+    fMin:fMin,fMax:fMax,cMin:cAt(fMax),cMax:cAt(fMin),fb:fb,refW:kcNum(refW,1),
     lbm:lbm!=null?kcNum(lbm,1):null,delta:delta,warn:warn,
     kFromMac:Math.round(p*4+cRem*4+f*9)};}
 function kcApplyCalc(){
   const r=kcCalc();const s=S.food.set;
-  s.kcal=r.kcal;s.p=r.p;s.c=r.c;s.f=r.f;s.fb=r.fb;s.mode="auto";
+  s.kcal=r.kcal;s.p=r.p;s.c=r.c;s.f=r.f;s.fMin=r.fMin;s.fMax=r.fMax;s.fb=r.fb;s.mode="auto";
   kcTouch();}
 
 /* ---- "mi fér még bele?" — AI nélkül, a saját ételeidből ------------------
@@ -4629,22 +4859,50 @@ function kcFits(k,limit){
 /* ---- keresés (ékezet-független) ---- */
 function kcNorm(s){return(s||"").toString().toLowerCase()
   .normalize("NFD").replace(/[̀-ͯ]/g,"");}
+/* Mennyiszer rögzítetted az egyes ételeket (utolsó 120 nap)? A keresés ezzel
+   emeli előre azt, amit tényleg szoktál enni. Egy renderelésen belül cache-elve,
+   mert a napok végigjárása nem ingyenes. */
+let _kcFreqC=null,_kcFreqT=0;
+function kcFreqMap(){
+  if(_kcFreqC&&Date.now()-_kcFreqT<20000)return _kcFreqC;
+  const f=S.food,cnt={},from=addDaysKey(TODAY,-120);
+  for(const k in f.days){
+    if(k<from)continue;
+    (f.days[k].e||[]).forEach(function(e){if(e.i)cnt[e.i]=(cnt[e.i]||0)+1;});}
+  _kcFreqC=cnt;_kcFreqT=Date.now();return cnt;}
+function kcFreqBonus(id){const n=kcFreqMap()[id]||0;
+  return n?Math.min(24,6+Math.round(Math.log(n+1)*7)):0;}
+/* A keresés SZAVANKÉNT dolgozik: minden beírt szónak szerepelnie kell a névben
+   (bárhol, akár szó belsejében), de a szórend nem számít. Így a „jázmin rizs"
+   megtalálja a „Rizs, jázmin (főtt)"-et is. A pontozás jutalmazza, ha a szó a
+   név elején vagy szóhatáron áll, és a gyakran rögzített ételeket. */
 function kcSearch(q,limit){
   const nq=kcNorm(q).trim();
+  const toks=nq?nq.split(/[\s,._/()-]+/).filter(function(t){return t.length>=1;}):[];
   const out=[];
   const add=function(fo,w){if(!fo)return;out.push({fo:fo,w:w});};
+  const hit=function(hay,t){
+    if(!hay)return -1;
+    const i=hay.indexOf(t);
+    if(i<0)return -1;
+    if(i===0)return 12;                       /* a név elején */
+    if(/[\s,.(/-]/.test(hay.charAt(i-1)))return 9;  /* szó elején */
+    return 5;};                               /* szó belsejében */
   const scan=function(list,base){
     for(const fo of list){
       if(!fo)continue;
       const n=kcNorm(fo.n),al=kcNorm(fo.al||""),br=kcNorm(fo.br||"");
-      if(!nq){if(fo.fav)add(fo,base+50);continue;}
-      let w=-1;
-      if(n.indexOf(nq)===0)w=base+40;
-      else if(n.indexOf(" "+nq)>0)w=base+30;
-      else if(n.indexOf(nq)>0)w=base+20;
-      else if(al&&al.indexOf(nq)>=0)w=base+18;
-      else if(br&&br.indexOf(nq)>=0)w=base+12;
-      if(w>=0)add(fo,w+(fo.fav?15:0));}};
+      if(!toks.length){if(fo.fav)add(fo,base+50);continue;}
+      let w=0,ok=true;
+      for(const t of toks){
+        let s=hit(n,t);
+        if(s<0){const s2=Math.max(hit(al,t),hit(br,t));s=(s2>=0)?Math.max(2,s2-4):-1;}
+        if(s<0){ok=false;break;}
+        w+=s;}
+      if(!ok)continue;
+      /* a teljes kifejezés egyben is szerepel -> erős plusz */
+      if(toks.length>1&&n.indexOf(nq)>=0)w+=10;
+      add(fo,base+w+(fo.fav?15:0)+kcFreqBonus(fo.id));}};
   scan(S.food.custom||[],100);
   scan((S.food.rec||[]).map(kcRecipeFood),90);
   scan(KCDB||[],50);
@@ -4705,13 +4963,53 @@ function kcRingLegend(a){
   return'<div class="kc-mleg"><span><i class="mp"></i>F '+pc(mk.p)+'%</span>'
    +'<span><i class="mc"></i>Sz '+pc(mk.c)+'%</span>'
    +'<span><i class="mf"></i>Zs '+pc(mk.f)+'%</span></div>';}
-function kcBarRow(label,val,tgt,unit,cls){
-  const pct=tgt>0?Math.min(1,val/tgt):0;
+/* opts.min/opts.max: cél-SÁV (zsír, szénhidrát). Ilyenkor a sáv háttere jelöli,
+   hol van a „jó" tartomány, a hátralévő pedig tól-ig.
+   opts.limit: ennél kevesebb a jó (cukor, telített zsír, só) — túllépésnél piros. */
+function kcBarRow(label,val,tgt,unit,cls,opts){
+  opts=opts||{};
+  const band=(opts.min>0&&opts.max>opts.min);
+  const top=band?opts.max:tgt;
+  const pct=top>0?Math.min(1,val/top):0;
   const rem=tgt-val;
+  let bandHtml="";
+  if(band&&top>0)bandHtml='<u style="left:'+(opts.min/top*100).toFixed(1)+'%;right:0"></u>';
+  const over=opts.limit?(val>tgt):(band?(val>opts.max*1.02):(val>tgt*1.05));
+  let vl,rm,rneg;
+  if(band){
+    vl=kcNum(val,0)+'<small>/'+kcNum(opts.min,0)+'–'+kcNum(opts.max,0)+unit+'</small>';
+    if(val<opts.min){rm="+"+Math.round(opts.min-val);rneg=false;}
+    else if(val>opts.max){rm="−"+Math.round(val-opts.max);rneg=true;}
+    else{rm="✓";rneg=false;}}
+  else{
+    vl=kcNum(val,0)+'<small>/'+kcNum(tgt,0)+unit+'</small>';
+    rm=(rem>=0?kcNum(rem,0):("+"+kcNum(-rem,0)));rneg=rem<0;}
   return '<div class="kc-mrow'+(cls?" "+cls:"")+'"><span class="lb">'+label+'</span>'
-   +'<span class="bar"><i style="width:'+(pct*100).toFixed(1)+'%"'+(val>tgt*1.05?' class="hi"':'')+'></i></span>'
-   +'<span class="vl mono">'+kcNum(val,0)+'<small>/'+kcNum(tgt,0)+unit+'</small></span>'
-   +'<span class="rm mono'+(rem<0?" neg":"")+'">'+(rem>=0?rem.toFixed(0):("+"+(-rem).toFixed(0)))+'</span></div>';}
+   +'<span class="bar">'+bandHtml+'<i style="width:'+(pct*100).toFixed(1)+'%"'+(over?' class="hi"':'')+'></i></span>'
+   +'<span class="vl mono">'+vl+'</span>'
+   +'<span class="rm mono'+(rneg?" neg":"")+'">'+rm+'</span></div>';}
+/* A Ma és a Statisztika fül makró-sávjai — egy helyen, hogy a beállított
+   tápanyagok mindkettőben ugyanúgy jelenjenek meg. */
+function kcMacroRows(a,t){
+  let h=kcBarRow("Fehérje",a.p,t.p,"g","prot")
+   +kcBarRow("Szénhidrát",a.c,t.c,"g","",{min:t.cMin,max:t.cMax})
+   +kcBarRow("Zsír",a.f,t.f,"g","",{min:t.fMin,max:t.fMax});
+  kcNutOn().forEach(function(d){
+    h+=kcBarRow(d.l,a[d.k]||0,(t.nt&&t.nt[d.k])||0," "+d.u,(d.k==="b"?"fib":"nut"),{limit:d.lim});});
+  return h;}
+/* „Fantom kalória": a naplózott kcal és a makrókból számolt (4/4/9) energia
+   különbsége. Ha egy tételnél megvan a kalória, de a makró hiányzik (pl. idegen
+   nyelvű címkéből csak a kcal jött át, vagy gyors bevitelnél csak azt írtad be),
+   a napi kcal és a makró-összeg némán széttart. Ezt itt tesszük láthatóvá. */
+function kcGapScan(k){
+  const d=S.food.days[k];const out=[];let sum=0;
+  if(d&&d.e)d.e.forEach(function(e,i){
+    const g=kcEntGap(e);
+    /* Csak az ÉRDEMI hiányt számoljuk: pár kcal eltérés a kerekítésből és a
+       rostból mindig van, az nem hiba. */
+    if(g.gap>25&&g.mk<g.mac.k*0.85){out.push({i:i,e:e,gap:g.gap});sum+=g.gap;}});
+  out.sort(function(x,y){return y.gap-x.gap;});
+  return{sum:sum,items:out};}
 
 function kcMaHtml(){
   const f=S.food,k=kcDate,t=kcTargets(k),a=kcDayTotals(k),d=f.days[k];
@@ -4758,14 +5056,21 @@ function kcMaHtml(){
   if(t.bank)chips.push('<span class="kc-chip'+(t.bank<0?" neg":"")+'" data-info="kcbank">🏦 heti bank '+(t.bank>0?"+":"")+t.bank+'</span>');
   if(f.set.mode==="manual")chips.push('<span class="kc-chip">✍️ kézi cél</span>');
   chips.push('<button class="kc-chip act" id="kcGoalBtn">🎯 Célok</button>');
+  chips.push('<button class="kc-chip act" id="kcSetBtn">⚙️ Beállítások</button>');
   h+='<div class="kc-chips">'+chips.join("")+'</div></div>';
   /* makrók */
-  h+='<div class="card kc-macros">'
-   +kcBarRow("Fehérje",a.p,t.p,"g","prot")
-   +kcBarRow("Szénhidrát",a.c,t.c,"g","")
-   +kcBarRow("Zsír",a.f,t.f,"g","")
-   +kcBarRow("Rost",a.b,t.fb,"g","fib")
+  h+='<div class="card kc-macros">'+kcMacroRows(a,t)
    +'<div class="kc-mlegend"><span>elfogyasztva / cél</span><span>hátra</span></div></div>';
+  /* „fantom kalória" — kalória makrók nélkül */
+  const gp=kcGapScan(k);
+  if(gp.items.length&&gp.sum>Math.max(80,a.k*0.04)){
+    h+='<div class="card kc-gap"><div class="tt">⚠️ '+Math.round(gp.sum)+' kcal makrók nélkül</div>'
+     +'<div class="ds">Ennyi kalóriához nem tartozik fehérje/szénhidrát/zsír, ezért a napi kalóriád és a makró-sávok széttartanak. '
+     +'A makrókból számolt energia ma <b>'+Math.round(a.p*4+a.c*4+a.f*9)+' kcal</b>, a naplózott <b>'+Math.round(a.k)+' kcal</b>.</div>'
+     +'<div class="lst">'+gp.items.slice(0,4).map(function(x){
+       return'<button data-kcgap="'+x.i+'"><span class="nm">'+esc(kcEntName(x.e))+'</span>'
+        +'<span class="kk mono">+'+Math.round(x.gap)+' kcal</span></button>';}).join("")+'</div>'
+     +'<div class="ds sm">Koppints a tételre, és pótold a hiányzó makrókat.</div></div>';}
   /* naplósorok — csak az étkezések, amikbe már rögzítettél */
   const filled=f.set.meals.filter(function(m){return(byMeal[m.id]||[]).length;});
   if(filled.length){
@@ -4777,9 +5082,11 @@ function kcMaHtml(){
        +'<span class="nm">'+esc(m.l)+'</span>'
        +'<span class="sm mono">'+Math.round(mk)+' kcal · '+kcNum(mp,0)+' g P</span></div>';
       h+='<div class="kc-elist">';
-      list.forEach(function(x){const mm=kcEntMac(x.e);
+      list.forEach(function(x){const gg=kcEntGap(x.e),mm=gg.mac;
+        const noMac=(gg.gap>25&&gg.mk<mm.k*0.85);
         h+='<button class="kc-ent" data-kcent="'+x.i+'"><span class="nm">'+esc(kcEntName(x.e))
-         +(x.e.ai?' <span class="kc-tag">AI</span>':'')+(mm.miss?' <span class="kc-tag warn">?</span>':'')+'</span>'
+         +(x.e.ai?' <span class="kc-tag">AI</span>':'')+(mm.miss?' <span class="kc-tag warn">?</span>':'')
+         +(noMac?' <span class="kc-tag warn">makró?</span>':'')+'</span>'
          +'<span class="qt">'+esc(kcEntQty(x.e))+(kcHm(x.e)?' · '+kcHm(x.e):'')+'</span>'
          +'<span class="kk mono">'+Math.round(mm.k)+'</span></button>';});
       h+='</div></div>';});}
@@ -4812,6 +5119,9 @@ function kcBindMa(){
     if(c){try{c.scrollIntoView({behavior:"smooth",block:"center"});}catch(e){c.scrollIntoView();}
       c.classList.add("flash");setTimeout(function(){c.classList.remove("flash");},900);}};});
   const g=document.getElementById("kcGoalBtn");if(g)g.onclick=kcGoalsOpen;
+  const st=document.getElementById("kcSetBtn");if(st)st.onclick=kcSetOpen;
+  el.querySelectorAll("[data-kcgap]").forEach(function(b){b.onclick=function(){
+    kcEntMenu(Number(b.dataset.kcgap));};});
   const me=document.getElementById("kcMealsEd");if(me)me.onclick=kcMealsOpen;
   const td=document.getElementById("kcTdBtn");
   if(td)td.onclick=function(){
@@ -4880,8 +5190,8 @@ function kcSaveAbsAsFood(e){
   const m=e.mc||{};
   woAsk("Mentés saját ételként","Név",e.t||"",function(v){
     const nm=(v||"").trim();if(!nm)return;
-    const fo=normFoodItem({id:"c"+uid(),n:nm,k:m.k,p:m.p,c:m.c,f:m.f,b:m.b,g:99,
-      u:[["adag",100]],src:"man",ts:Date.now()});
+    const fo=normFoodItem({id:"c"+uid(),n:nm,k:m.k,p:m.p,c:m.c,f:m.f,b:m.b,
+      s:m.s,sa:m.sa,na:m.na,g:99,u:[["adag",100]],src:"man",ts:Date.now()});
     S.food.custom.unshift(fo);kcTouch();toast("Mentve a saját ételek közé ✓");},
     {hint:"A megadott értékek <b>1 adagra</b> szólnak — legközelebb egy koppintással hozzáadhatod."});}
 
@@ -4890,9 +5200,12 @@ function kcSaveAbsAsFood(e){
 function kcGuessMeal(){
   const ms=S.food.set.meals;if(!ms.length)return null;
   if(kcDate!==TODAY)return ms[0].id;
-  const m=kcNowMin();
-  let ix=m<630?0:(m<900?1:(m<1020?2:3));
-  return ms[Math.min(ix,ms.length-1)].id;}
+  const now=kcNowMin(),have=new Set(ms.map(function(m){return m.id;}));
+  for(const x of KCMEAL_HM)if(now<x[1]&&have.has(x[0]))return x[0];
+  /* Ha az alap-azonosítókból egy sincs meg (mindet átnevezted/törölted),
+     a napszak arányában választunk a saját listádból. */
+  const ix=Math.min(ms.length-1,Math.floor(now/1440*ms.length));
+  return ms[Math.max(0,ix)].id;}
 function kcAddOpen(mealId){
   /* meal=null: még nem választottál étkezést — előbb azt kell, utána jön a kereső */
   _kcAdd={meal:mealId||null,q:"",more:false};
@@ -4918,18 +5231,29 @@ function kcAddHtml(){
        +'<span class="em">'+m.em+'</span><span class="nm">'+esc(m.l)+'</span></button>';}).join("")+'</div>';}
   if(A.meal)
     h+='<input class="input" id="kcQ" type="search" placeholder="🔍 Étel keresése (pl. csirkemell, zab, skyr)" value="'+escA(A.q)+'" autocomplete="off" style="margin-top:10px"/>';
-  if(!A.toRecipe)
+  /* A beviteli eszközök a RECEPT hozzávalóihoz is kellenek: ha új szószt
+     használsz, azt is be kell tudni szkennelni, nem csak keresni. */
+  if(A.toRecipe)
+  h+='<details class="kc-more" id="kcMore"'+(A.more?" open":"")+'><summary>⋯ Nincs a listában? Vidd fel</summary>'
+   +'<div class="kc-morein">'
+   +'<button class="btn ghost sm" id="kcANew">＋ Saját étel</button>'
+   +'<button class="btn ghost sm" id="kcAQuick">⚡ Gyors bevitel</button>'
+   +'<button class="btn ghost sm" id="kcABar">🔎 Vonalkód</button>'
+   +'<button class="btn ghost sm" id="kcALbl">🏷 Egyszerű címke fotó</button>'
+   +'<button class="btn ghost sm" id="kcATbl">📊 Táblázatos címke fotó</button>'
+   +'<button class="btn ghost sm" id="kcAPlate">🍛 Tányér fotó</button>'
+   +'</div></details>';
+  else
   h+='<details class="kc-more" id="kcMore"'+(A.more?" open":"")+'><summary>⋯ Egyéb bevitel és eszközök</summary>'
    +'<div class="kc-morein">'
    +'<button class="btn ghost sm" id="kcAQuick">⚡ Gyors bevitel</button>'
    +'<button class="btn ghost sm" id="kcANew">＋ Saját étel</button>'
    +'<button class="btn ghost sm" id="kcABar">🔎 Vonalkód</button>'
-   +'<button class="btn ghost sm" id="kcALbl">🏷 Címke fotó</button>'
-   +'<button class="btn ghost sm" id="kcATbl">📊 Táblázat fotó</button>'
+   +'<button class="btn ghost sm" id="kcALbl">🏷 Egyszerű címke fotó</button>'
+   +'<button class="btn ghost sm" id="kcATbl">📊 Táblázatos címke fotó</button>'
    +'<button class="btn ghost sm" id="kcAPlate">🍛 Tányér fotó</button>'
    +'<button class="btn ghost sm" id="kcACopy">📋 Másolás tegnapról</button>'
    +'<button class="btn ghost sm" id="kcATpl">🍽 Sablon</button>'
-   +'<button class="btn ghost sm" id="kcAFits">🎯 Mi fér még bele?</button>'
    +'</div></details>';
   h+='<div id="kcRes">'+kcResHtml()+'</div>';
   return h;}
@@ -4984,6 +5308,19 @@ function kcAddWire(){
     if(s){s.innerHTML=kcAddHtml();kcAddWire();}};});
   const go=function(id,fn){const b=document.getElementById(id);if(!b)return;
     b.onclick=function(){const m=_kcAdd.meal||kcGuessMeal();closeScreen();setTimeout(function(){fn(m);},180);};};
+  if(_kcAdd.toRecipe){
+    /* recept-mód: minden eszköz a HOZZÁVALÓ-mennyiség lapra fut ki */
+    const back=function(id){setTimeout(function(){kcRecIngQty(id);},180);};
+    go("kcABar",function(){kcBarcodeStart(null,back);});
+    go("kcALbl",function(){kcLabelShot(null,back);});
+    go("kcATbl",function(){kcTableShot(null,back);});
+    go("kcANew",function(){kcFoodEdit(null,function(id){back(id);});});
+    go("kcAQuick",function(){kcRecQuick();});
+    /* tányérfotó: több hozzávalót ad egyszerre, mennyiséggel együtt */
+    go("kcAPlate",function(){kcPlateShot(null,function(list){
+      if(list&&list.length)(list).forEach(function(x){_kcRe.ing.push(x);});
+      setTimeout(function(){openModal(kcReHtml());kcReWire();},160);});});
+    kcAddWireRows();return;}
   go("kcAQuick",function(m){kcQuickOpen(m);});
   go("kcABar",function(m){kcBarcodeStart(m);});
   go("kcALbl",function(m){kcLabelShot(m);});
@@ -4992,7 +5329,6 @@ function kcAddWire(){
   go("kcANew",function(m){kcFoodEdit(null,function(id){kcQtyOpen(id,m,null);});});
   go("kcACopy",function(){kcCopyPrev();});
   go("kcATpl",function(){kcTplMenu();});
-  go("kcAFits",function(){kcFitsOpen();});
   kcAddWireRows();}
 function kcAddWireRows(){
   document.querySelectorAll("[data-kcpick]").forEach(function(b){b.onclick=function(){
@@ -5004,20 +5340,119 @@ function kcAddWireRows(){
 
 /* ---- MENNYISÉG lap ------------------------------------------------------ */
 let _kcQty=null;
+/* Mennyit mozdul a szám egy képpontnyi húzásra? Grammnál durvább, darabszerű
+   egységnél sokkal finomabb léptékkel — 2 szelet kenyér és 250 g rizs nem
+   ugyanaz a felbontás. Az érzékenység a beállításból jön (1–5). */
+function kcDialRate(fo,u){
+  const g=kcUnitG(fo,u);
+  const base=(g<=1)?0.5:0.02;
+  const mul=[0.3,0.55,1,1.8,3.2][Math.round(kcClamp(S.food.set.qtySens,1,5,3))-1];
+  return base*mul;}
+/* A kerekítés léptéke: g/ml -> egész, darabszerű -> 0,1. */
+function kcQStep(fo,u){return(kcUnitG(fo,u)<=1)?1:0.1;}
+function kcQSnap(fo,u,v){const st=kcQStep(fo,u);
+  return Math.max(0,kcNum(Math.round(v/st)*st,st<1?2:0));}
+/* Utoljára rögzített mennyiség ételenként. */
+function kcLastQ(id){const a=(S.food.lastQ||{})[id];
+  return(Array.isArray(a)&&a[0]>0)?{q:a[0],u:a[1]||"g"}:null;}
+function kcSetLastQ(id,q,u){
+  if(!id||!(q>0))return;
+  const m=S.food.lastQ=S.food.lastQ||{};
+  m[id]=[kcNum(q,2),u||"g"];
+  const ks=Object.keys(m);
+  if(ks.length>240)delete m[ks[0]];}
 function kcQtyOpen(foodId,mealId,editIdx,preset){
   const fo=kcFood(foodId);
   if(!fo){toast("Ez az étel már nem található","warn");return;}
-  let q=null,u=null;
+  let q=null,u=null,fromLast=false;
   if(editIdx!=null){const e=kcDay(kcDate).e[editIdx];if(e){q=e.q;u=e.u||kcBaseUnit(fo);}}
   if(q==null&&preset&&preset.q>0){q=preset.q;u=preset.u||kcBaseUnit(fo);}
+  /* Amit legutóbb rögzítettél ebből az ételből — általában ugyanannyi lesz. */
+  if(q==null&&S.food.set.rememberQty){
+    const lq=kcLastQ(foodId);
+    if(lq&&(lq.u===kcBaseUnit(fo)||(fo.u||[]).some(function(x){return x[0]===lq.u;}))){
+      q=lq.q;u=lq.u;fromLast=true;}}
   if(q==null){
     /* Alapértelmezés: darabszerű egységnél 1 darab, különben 100 g/ml. Kanálnál
        (ek/tk) a gramm a jobb kiindulás — 1 evőkanál zabpehely senkinek nem alap. */
     const pu=(fo.u||[]).find(function(x){return KCPIECE.test(x[0]);});
     if(pu){u=pu[0];q=1;}
     else{u=kcBaseUnit(fo);q=fo.rec?100:100;}}
-  _kcQty={id:foodId,meal:mealId||S.food.set.meals[0].id,idx:editIdx,q:q,u:u};
+  _kcQty={id:foodId,meal:mealId||S.food.set.meals[0].id,idx:editIdx,q:q,u:u,
+    fromLast:fromLast,typing:(S.food.set.qtyMode==="num")};
   openModal(kcQtyHtml());kcQtyWire();}
+/* Ebből az ételből leggyakrabban rögzített mennyiségek (ugyanabban az
+   egységben), az elmúlt 90 nap naplójából. Nem tanuló algoritmus, csak
+   számlálás — de pont ezért kiszámítható. */
+function kcUsualQty(id,u){
+  const f=S.food,cnt={},from=addDaysKey(TODAY,-90);
+  for(const k in f.days){
+    if(k<from)continue;
+    (f.days[k].e||[]).forEach(function(e){
+      if(e.i!==id)return;
+      if((e.u||kcBaseUnit(kcFood(id)))!==u)return;
+      const v=kcNum(e.q,2);if(v>0)cnt[v]=(cnt[v]||0)+1;});}
+  return Object.keys(cnt).map(Number)
+    .sort(function(a,b){return cnt[b]-cnt[a]||a-b;}).slice(0,4)
+    .sort(function(a,b){return a-b;});}
+/* A tekerő két gyűrűjének „kattanás-értéke": a belső finom, a külső nagy. */
+function kcNotch(fo,u,ring){
+  const st=kcQStep(fo,u);
+  return ring==="out"?(st===1?15:1):st;}
+/* A mennyiség-bevitel felülete. Minden módban ugyanaz a fejléc: −  szám  +
+   (a szám koppintásra billentyűzetet nyit), alatta a választott mód. */
+function kcQtyInput(Q,fo){
+  const st=kcQStep(fo,Q.u);
+  const mode=Q.typing?"num":(S.food.set.qtyMode||"dial");
+  let h='<div class="kc-qwrap"><button class="kc-qstep" id="kcQm" aria-label="Kevesebb">−</button>';
+  if(mode==="num")
+    h+='<input class="input kc-qin mono" id="kcQI" type="number" step="any" inputmode="decimal" value="'+kcNum(Q.q,2)+'"/>';
+  else
+    h+='<button class="kc-qnum mono" id="kcQNum">'+kcNum(Q.q,2)+'<small>'+esc(Q.u)+'</small></button>';
+  h+='<button class="kc-qstep" id="kcQp" aria-label="Több">+</button></div>'
+   +'<div class="kc-qhint">a −/+ '+kcNum(st,st<1?1:0)+' '+esc(Q.u)+'-ot lép · a számra koppintva beírhatod</div>';
+  if(mode==="dial"){
+    /* Dupla tekerő. A KÜLSŐ gyűrű nagyot lép (15 g / 1 db kattanásonként),
+       a BELSŐ finomhangol. Bárhol megfoghatod: a középponttól mért távolság
+       dönti el, melyik gyűrűt tekered. */
+    const tick=function(r,n,cls){let s="";
+      for(let i=0;i<n;i++){const a=i/n*2*Math.PI;
+        s+='<line class="'+cls+'" x1="'+(110+Math.sin(a)*(r-9)).toFixed(1)+'" y1="'+(110-Math.cos(a)*(r-9)).toFixed(1)
+         +'" x2="'+(110+Math.sin(a)*(r+9)).toFixed(1)+'" y2="'+(110-Math.cos(a)*(r+9)).toFixed(1)+'"/>';}
+      return s;};
+    h+='<div class="kc-dial2" id="kcDial"><svg viewBox="0 0 220 220">'
+     +'<circle class="rg out" cx="110" cy="110" r="88"/>'
+     +'<g id="kcDO" style="transform-origin:110px 110px">'+tick(88,24,"tk")+'</g>'
+     +'<circle class="rg in" cx="110" cy="110" r="52"/>'
+     +'<g id="kcDI" style="transform-origin:110px 110px">'+tick(52,24,"tk sm")+'</g>'
+     +'<circle class="hub" cx="110" cy="110" r="30"/></svg>'
+     +'<span class="lbl out">'+kcNum(kcNotch(fo,Q.u,"out"),1)+'-esével</span>'
+     +'<span class="lbl in">'+kcNum(kcNotch(fo,Q.u,"in"),1)+'-esével</span></div>';}
+  else if(mode==="wheel"){
+    /* Három görgő: százas — tízes — egyes (darabszerű egységnél 10 / 1 / 0,1).
+       Pörgetve gyors, és pontosan ott áll meg, ahol elengeded. */
+    const sc=(st===1)?1:10,iv=Math.round(Q.q*sc);
+    const cols=[{w:100,max:19,l:(st===1?"100":"10")},
+                {w:10,max:9,l:(st===1?"10":"1")},
+                {w:1,max:9,l:(st===1?"1":"0,1")}];
+    h+='<div class="kc-wheel" id="kcWheel">';
+    cols.forEach(function(c,ci){
+      const cur=(ci===0)?Math.min(c.max,Math.floor(iv/c.w)):(Math.floor(iv/c.w)%10);
+      let items="";
+      for(let i=0;i<=c.max;i++)items+='<span'+(i===cur?' class="on"':'')+'>'+i+'</span>';
+      h+='<div class="kc-wc"><div class="kc-wl">'+c.l+'</div>'
+       +'<div class="kc-wscroll" data-kcw="'+ci+'" data-cur="'+cur+'"><i></i>'+items+'<i></i></div></div>';});
+    h+='<div class="kc-wmask"></div></div>';}
+  else if(mode==="drag"){
+    h+='<div class="kc-vdrag" id="kcVDrag"><span class="ar">＋</span>'
+     +'<span class="tx">húzd fel-le</span><span class="ar">−</span></div>';}
+  else if(mode==="scrub"){
+    h+='<div class="kc-scrub" id="kcScrub"><span class="ar">◀</span>'
+     +'<span class="tx">húzd oldalra</span><span class="ar">▶</span></div>';}
+  /* mód-váltó — a választás megmarad a beállításokban is */
+  h+='<div class="kc-qmodes">'+KCQMODES.map(function(m){
+    return'<button class="kc-qmode'+(m.k===mode?" on":"")+'" data-kcqmode="'+m.k+'">'+m.l+'</button>';}).join("")+'</div>';
+  return h;}
 function kcQtyHtml(){
   const Q=_kcQty,fo=kcFood(Q.id);
   const units=[[kcBaseUnit(fo),1]].concat((fo.u||[]).filter(function(x){return x[0]!==kcBaseUnit(fo);}));
@@ -5026,48 +5461,188 @@ function kcQtyHtml(){
   const mealsOpt=S.food.set.meals.map(function(m){
     return'<option value="'+m.id+'"'+(m.id===Q.meal?" selected":"")+'>'+esc(m.em+" "+m.l)+'</option>';}).join("");
   let h='<button class="close-x" id="mClose">✕</button><h3>'+esc(fo.n)+'</h3>';
-  if(fo.rec)h+='<p class="hint" style="margin:-2px 0 10px">Recept · '+fo.serv+' adag'+(fo.tg?(' · összesen '+fo.tg+' g'):'')+(fo.miss?' · <b>figyelem:</b> egy hozzávaló törölve lett':'')+'</p>';
+  if(fo.rec)h+='<p class="hint" style="margin:-2px 0 10px">Recept'+(fo.serv>0?(' · '+fo.serv+' adag'):'')+(fo.tg?(' · összesen '+fo.tg+' g'):'')+(fo.miss?' · <b>figyelem:</b> egy hozzávaló törölve lett':'')+'</p>';
   else if(fo.br)h+='<p class="hint" style="margin:-2px 0 10px">'+esc(fo.br)+'</p>';
-  h+='<div class="kc-qwrap"><button class="kc-qstep" id="kcQm">−</button>'
-   +'<input class="input kc-qin mono" id="kcQI" type="number" step="any" inputmode="decimal" value="'+kcNum(Q.q,2)+'"/>'
-   +'<button class="kc-qstep" id="kcQp">+</button></div>';
+  if(Q.fromLast)h+='<p class="hint" style="margin:-2px 0 10px">🕘 Ennyit rögzítettél belőle legutóbb — állítsd át, ha most más.</p>';
+  h+=kcQtyInput(Q,fo);
+  /* Gyakran használt mennyiségek EBBŐL az ételből — egy koppintás, kész.
+     Nem AI: egyszerű statisztika a saját naplódból. */
+  const usual=kcUsualQty(Q.id,Q.u);
+  if(usual.length)
+    h+='<div class="kc-chipsq"><span class="lb">Szoktad:</span>'
+     +usual.map(function(v){return'<button class="kc-qchip'+(Math.abs(v-Q.q)<0.001?" on":"")+'" data-kcqq="'+v+'">'
+       +kcNum(v,2)+'<small>'+esc(Q.u)+'</small></button>';}).join("")+'</div>';
   h+='<div class="kc-units">';
   units.forEach(function(un){h+='<button class="kc-unit'+(un[0]===Q.u?" on":"")+'" data-kcu="'+escA(un[0])+'">'
     +esc(un[0])+(un[1]!==1?'<small>'+kcNum(un[1],1)+' g</small>':'')+'</button>';});
   h+='<button class="kc-unit add" id="kcUAdd">＋ egység</button></div>';
   h+='<div class="card kc-qprev"><div class="kc-qbig mono">'+Math.round(mm.k)+' <small>kcal</small></div>'
-   +'<div class="kc-qmac"><span><b class="mono">'+kcNum(mm.p,1)+'</b> g fehérje</span>'
-   +'<span><b class="mono">'+kcNum(mm.c,1)+'</b> g szénh.</span>'
-   +'<span><b class="mono">'+kcNum(mm.f,1)+'</b> g zsír</span>'
-   +'<span><b class="mono">'+kcNum(mm.b,1)+'</b> g rost</span></div>'
+   +'<div class="kc-qmac">'+kcMacSpans(mm)+'</div>'
    +(g?'<div class="hint" style="margin-top:6px">'+kcNum(g,0)+' '+kcBaseUnit(fo)+' · 100 '+kcBaseUnit(fo)+' = '+Math.round(fo.k)+' kcal</div>':'')+'</div>';
   h+='<div class="card" style="padding:12px 14px"><label class="wo-lb">Étkezés</label>'
    +'<select class="input" id="kcQM">'+mealsOpt+'</select></div>';
   h+='<div class="wo-modact"><button class="btn" id="kcQOk">'+(Q.idx!=null?"Mentés":"Hozzáadás")+'</button>'
    +'<button class="btn ghost" id="kcQEd">Étel szerkesztése</button></div>';
   return h;}
+/* Makró-sor egy tetszőleges makró-objektumból, a beállított tápanyagokkal. */
+function kcMacSpans(mm){
+  let h='<span><b class="mono">'+kcNum(mm.p,1)+'</b> g fehérje</span>'
+   +'<span><b class="mono">'+kcNum(mm.c,1)+'</b> g szénh.</span>'
+   +'<span><b class="mono">'+kcNum(mm.f,1)+'</b> g zsír</span>';
+  kcNutOn().forEach(function(d){
+    h+='<span><b class="mono">'+kcNum(mm[d.k]||0,1)+'</b> '+d.u+' '+d.sh.toLowerCase()+'</span>';});
+  return h;}
 function kcQtyRe(){const s=document.getElementById("modalSheet");if(!s)return;
   s.innerHTML=kcQtyHtml();kcQtyWire();}
+/* Csak az előnézet frissítése — húzás/gépelés közben nem építjük újra a lapot. */
+function kcQtyLive(){
+  const Q=_kcQty,fo=kcFood(Q.id);if(!fo)return;
+  const p=document.getElementById("modalSheet");if(!p)return;
+  const g=Q.q*kcUnitG(fo,Q.u),r=g/100;
+  const big=p.querySelector(".kc-qbig");
+  if(big)big.innerHTML=Math.round(fo.k*r)+' <small>kcal</small>';
+  const mac=p.querySelector(".kc-qmac");
+  if(mac)mac.innerHTML=kcMacSpans({p:fo.p*r,c:fo.c*r,f:fo.f*r,b:fo.b*r,
+    s:(fo.s||0)*r,sa:(fo.sa||0)*r,na:(fo.na||0)*r});
+  const num=document.getElementById("kcQNum");
+  if(num)num.innerHTML=kcNum(Q.q,2)+'<small>'+esc(Q.u)+'</small>';
+  /* tekerő: a gyűrűk elfordulása mutatja, hol tartasz */
+  const go=document.getElementById("kcDO"),gi=document.getElementById("kcDI");
+  if(go)go.style.transform="rotate("+(Q.q/kcNotch(fo,Q.u,"out")*15)+"deg)";
+  if(gi)gi.style.transform="rotate("+(Q.q/kcNotch(fo,Q.u,"in")*15)+"deg)";
+  /* gyakori mennyiség chipek kijelölése */
+  const cw=document.querySelectorAll("[data-kcqq]");
+  cw.forEach(function(b){b.classList.toggle("on",Math.abs(Number(b.dataset.kcqq)-Q.q)<0.001);});}
+/* Apró rezgés a „kattanásoknál" — enélkül a tekerő és a görgő élettelen. */
+function kcBuzz(ms){if(navigator.vibrate)try{navigator.vibrate(ms||4);}catch(e){}}
 function kcQtyWire(){
   const Q=_kcQty,fo=kcFood(Q.id);
   const x=document.getElementById("mClose");if(x)x.onclick=function(){closeScreen();};
   const inp=document.getElementById("kcQI");
-  const step=function(dir){
-    const base=kcUnitG(fo,Q.u);
-    const inc=(base===1)?(fo.liq?10:10):1;
-    Q.q=Math.max(0,kcNum((Number(inp.value)||0)+dir*inc,2));kcQtyRe();};
+  const setQ=function(v,buzz){
+    const nq=Math.max(0,kcNum(v,2));
+    if(nq===Q.q)return false;
+    Q.q=nq;if(inp)inp.value=kcNum(Q.q,2);kcQtyLive();if(buzz)kcBuzz(4);return true;};
+  const step=function(dir){setQ(Q.q+dir*kcQStep(fo,Q.u),false);};
   document.getElementById("kcQm").onclick=function(){step(-1);};
   document.getElementById("kcQp").onclick=function(){step(1);};
-  inp.oninput=function(){Q.q=Math.max(0,Number(inp.value)||0);
-    const p=document.getElementById("modalSheet");
-    /* csak az előnézetet frissítjük, hogy a fókusz megmaradjon a mezőben */
-    const g=Q.q*kcUnitG(fo,Q.u),r=g/100;
-    const big=p.querySelector(".kc-qbig");if(big)big.innerHTML=Math.round(fo.k*r)+' <small>kcal</small>';
-    const mac=p.querySelector(".kc-qmac");
-    if(mac)mac.innerHTML='<span><b class="mono">'+kcNum(fo.p*r,1)+'</b> g fehérje</span>'
-      +'<span><b class="mono">'+kcNum(fo.c*r,1)+'</b> g szénh.</span>'
-      +'<span><b class="mono">'+kcNum(fo.f*r,1)+'</b> g zsír</span>'
-      +'<span><b class="mono">'+kcNum(fo.b*r,1)+'</b> g rost</span>';};
+  /* nyomva tartva folyamatosan pörög, gyorsulva — 600-ig sem kell 60-szor koppintani */
+  [["kcQm",-1],["kcQp",1]].forEach(function(pr){
+    const b=document.getElementById(pr[0]);if(!b)return;
+    let t=null,iv=null,n=0;
+    const stop=function(){clearTimeout(t);clearInterval(iv);t=iv=null;n=0;};
+    b.addEventListener("pointerdown",function(){
+      t=setTimeout(function(){
+        iv=setInterval(function(){n++;
+          const mul=(n>40?10:(n>18?5:1));
+          setQ(Q.q+pr[1]*kcQStep(fo,Q.u)*mul,false);},60);},420);});
+    ["pointerup","pointercancel","pointerleave"].forEach(function(ev){b.addEventListener(ev,stop);});});
+  const num=document.getElementById("kcQNum");
+  if(num)num.onclick=function(){Q.typing=true;Q.fromLast=false;kcQtyRe();};
+  if(inp)inp.oninput=function(){Q.q=Math.max(0,Number(inp.value)||0);kcQtyLive();};
+  /* mód-váltás: azonnal érvényes, és meg is jegyezzük */
+  document.querySelectorAll("[data-kcqmode]").forEach(function(b){b.onclick=function(){
+    const m=b.dataset.kcqmode;
+    S.food.set.qtyMode=m;kcTouch();
+    Q.typing=(m==="num");Q.fromLast=false;kcQtyRe();};});
+  /* gyakori mennyiségek */
+  document.querySelectorAll("[data-kcqq]").forEach(function(b){b.onclick=function(){
+    setQ(Number(b.dataset.kcqq),true);};});
+
+  /* --- DUPLA TEKERŐ ---
+     A középponttól mért távolság dönti el, melyik gyűrűt fogtad meg: kívül a
+     nagy lépés (15 g), belül a finom (1 g). A szöget halmozzuk, így többször
+     körbe is tekerheted — 600 g két és fél fordulat a külső gyűrűn. */
+  const dial=document.getElementById("kcDial");
+  if(dial){
+    let drag=false,ring="out",a0=0,tot=0,q0=0,notch=1,lastN=0;
+    const ang=function(ev){const r=dial.getBoundingClientRect();
+      return Math.atan2(ev.clientX-(r.left+r.width/2),(r.top+r.height/2)-ev.clientY)*180/Math.PI;};
+    dial.addEventListener("pointerdown",function(ev){
+      const r=dial.getBoundingClientRect();
+      const dx=ev.clientX-(r.left+r.width/2),dy=ev.clientY-(r.top+r.height/2);
+      const d=Math.sqrt(dx*dx+dy*dy)/(r.width/2);   /* 0..1 a sugárhoz képest */
+      if(d<0.28)return;                             /* a közepe a szám, nem tekerő */
+      ring=(d>0.62)?"out":"in";
+      notch=kcNotch(fo,Q.u,ring);
+      drag=true;a0=ang(ev);tot=0;q0=Q.q;lastN=Math.round(Q.q/notch);
+      try{dial.setPointerCapture(ev.pointerId);}catch(e){}
+      dial.classList.add("act",ring);ev.preventDefault();});
+    dial.addEventListener("pointermove",function(ev){
+      if(!drag)return;
+      const a=ang(ev);let d=a-a0;
+      while(d>180)d-=360;while(d<-180)d+=360;   /* átfordulás kezelése */
+      a0=a;tot+=d;
+      const raw=q0+(tot/15)*notch;
+      const nq=Math.max(0,kcNum(Math.round(raw/notch)*notch,2));
+      if(nq===Q.q)return;
+      Q.q=nq;kcQtyLive();
+      const n=Math.round(Q.q/notch);
+      if(n!==lastN){lastN=n;kcBuzz(ring==="out"?6:3);}
+      ev.preventDefault();});
+    const dEnd=function(){if(!drag)return;drag=false;dial.classList.remove("act","out","in");};
+    ["pointerup","pointercancel","lostpointercapture"].forEach(function(e){dial.addEventListener(e,dEnd);});}
+
+  /* --- HÁROM GÖRGŐ (százas / tízes / egyes) ---
+     Natív görgetés + scroll-snap: pörgethető, és magától a helyére ugrik.
+     A számot csak akkor írjuk vissza, amikor megállt, különben remegne. */
+  const wheel=document.getElementById("kcWheel");
+  if(wheel){
+    const st=kcQStep(fo,Q.u),sc=(st===1)?1:10;
+    const cols=[100,10,1];
+    const els=[];
+    wheel.querySelectorAll("[data-kcw]").forEach(function(el){
+      const ci=Number(el.dataset.kcw);els[ci]=el;
+      /* a kiinduló állás beállítása — a tétel magasságát a DOM-ból olvassuk */
+      const item=el.querySelector("span");
+      const ih=item?item.offsetHeight:34;
+      el.dataset.ih=ih;
+      el.scrollTop=Number(el.dataset.cur)*ih;
+      let t=null,last=Number(el.dataset.cur);
+      el.addEventListener("scroll",function(){
+        clearTimeout(t);
+        t=setTimeout(function(){
+          const idx=Math.round(el.scrollTop/ih);
+          if(idx!==last){last=idx;kcBuzz(3);}
+          el.querySelectorAll("span").forEach(function(s,i){s.classList.toggle("on",i===idx);});
+          /* mind a három oszlopból új érték */
+          let iv=0;
+          els.forEach(function(e2,i){
+            const h2=Number(e2.dataset.ih)||ih;
+            iv+=Math.round(e2.scrollTop/h2)*cols[i];});
+          const nq=Math.max(0,kcNum(iv/sc,2));
+          if(nq!==Q.q){Q.q=nq;kcQtyLive();}},110);});});}
+
+  /* --- HÚZÁS (fel-le) és SCRUBBER (oldalra) ---
+     Közös motor: a húzás SEBESSÉGE szabja meg a lépésközt, így lassan finoman,
+     gyorsan nagyot lehet állítani ugyanazzal a mozdulattal. */
+  [["kcVDrag","y"],["kcScrub","x"]].forEach(function(pr){
+    const el=document.getElementById(pr[0]);if(!el)return;
+    let drag=false,last=0,acc=0,lastN=0;
+    const st=kcQStep(fo,Q.u);
+    const sens=[0.4,0.7,1,1.6,2.6][Math.round(kcClamp(S.food.set.qtySens,1,5,3))-1];
+    el.addEventListener("pointerdown",function(ev){
+      drag=true;acc=Q.q;lastN=Math.round(Q.q/st);
+      last=(pr[1]==="x")?ev.clientX:ev.clientY;
+      try{el.setPointerCapture(ev.pointerId);}catch(e){}
+      el.classList.add("act");ev.preventDefault();});
+    el.addEventListener("pointermove",function(ev){
+      if(!drag)return;
+      const cur=(pr[1]==="x")?ev.clientX:ev.clientY;
+      let d=cur-last;last=cur;
+      if(pr[1]==="y")d=-d;                       /* felfelé = több */
+      /* gyorsulás: egy eseményen belüli nagy elmozdulás nagyobb lépés */
+      const spd=Math.min(8,Math.max(1,Math.abs(d)/3));
+      acc=Math.max(0,acc+d*st*0.5*spd*sens);
+      const nq=kcQSnap(fo,Q.u,acc);
+      if(nq===Q.q)return;
+      Q.q=nq;kcQtyLive();
+      const n=Math.round(Q.q/st);
+      if(n!==lastN){lastN=n;kcBuzz(3);}
+      ev.preventDefault();});
+    const e2=function(){if(!drag)return;drag=false;el.classList.remove("act");};
+    ["pointerup","pointercancel","lostpointercapture"].forEach(function(e3){el.addEventListener(e3,e2);});});
+
   document.querySelectorAll("[data-kcu]").forEach(function(b){b.onclick=function(){
     const nu=b.dataset.kcu;
     /* mértékegység-váltás grammban azonos mennyiséget tart */
@@ -5081,6 +5656,7 @@ function kcQtyWire(){
     if(!(Q.q>0)){toast("Adj meg mennyiséget","warn");return;}
     const e={i:Q.id,q:Q.q,m:Q.meal};
     if(Q.u&&Q.u!=="g")e.u=Q.u;
+    if(S.food.set.rememberQty)kcSetLastQ(Q.id,Q.q,Q.u);
     closeScreen();
     setTimeout(function(){
       if(Q.idx!=null){const d=kcDay(kcDate);const old=d.e[Q.idx];
@@ -5128,26 +5704,46 @@ function kcQuickOpen(mealId,editIdx,pre){
    +'<div><label class="wo-lb">fehérje g</label><input class="input mono" id="kqP" type="number" step="any" inputmode="decimal" value="'+(m.p||"")+'"/></div>'
    +'<div><label class="wo-lb">szénh. g</label><input class="input mono" id="kqC" type="number" step="any" inputmode="decimal" value="'+(m.c||"")+'"/></div>'
    +'<div><label class="wo-lb">zsír g</label><input class="input mono" id="kqF" type="number" step="any" inputmode="decimal" value="'+(m.f||"")+'"/></div>'
-   +'<div><label class="wo-lb">rost g</label><input class="input mono" id="kqB" type="number" step="any" inputmode="decimal" value="'+(m.b||"")+'"/></div>'
+   +kcNutOn().map(function(d){
+     return'<div><label class="wo-lb">'+esc(d.sh.toLowerCase())+' '+d.u+'</label>'
+      +'<input class="input mono" id="kqN_'+d.k+'" type="number" step="any" inputmode="decimal" value="'+(m[d.k]||"")+'"/></div>';}).join("")
    +'<div><label class="wo-lb">adag</label><input class="input mono" id="kqQ" type="number" step="any" inputmode="decimal" value="'+((e&&e.q)||preQ)+'"/></div>'
    +'</div><label class="wo-lb" style="margin-top:10px">Étkezés</label><select class="input" id="kqM">'+mealsOpt+'</select></div>'
    +'<div class="wo-modact"><button class="btn" id="kqOk">'+(editIdx!=null?"Mentés":"Hozzáadás")+'</button>'
    +'<button class="btn ghost" id="kqC2">Mégse</button></div>',function(){
     document.getElementById("kqC2").onclick=function(){closeScreen();};
     document.getElementById("kqOk").onclick=function(){
-      const gv=function(id){const v=Number(document.getElementById(id).value);return isFinite(v)&&v>0?v:0;};
-      const p=gv("kqP"),c=gv("kqC"),f=gv("kqF"),b=gv("kqB");let k=gv("kqK");
+      const gv=function(id){const el=document.getElementById(id);if(!el)return 0;
+        const v=Number(el.value);return isFinite(v)&&v>0?v:0;};
+      const p=gv("kqP"),c=gv("kqC"),f=gv("kqF");let k=gv("kqK");
+      /* Amit épp nem követsz, azt a mezője sem mutatja — de ha a beolvasásból
+         megjött (pl. rost), ne dobjuk el némán. */
+      const mc={k:0,p:p,c:c,f:f};
+      KCNUT.forEach(function(d){
+        const el=document.getElementById("kqN_"+d.k);
+        mc[d.k]=el?(Number(el.value)>0?Number(el.value):0):(Number(m[d.k])||0);});
       const q=Number(document.getElementById("kqQ").value)||1;
       if(!k)k=Math.round(p*4+c*4+f*9);
       if(!k&&!p&&!c&&!f){toast("Adj meg legalább egy értéket","warn");return;}
+      mc.k=k;
       const nm=(document.getElementById("kqN").value||"").trim()||"Gyors bevitel";
       const meal=document.getElementById("kqM").value;
-      closeScreen();
-      setTimeout(function(){
-        if(editIdx!=null){const en=kcDay(kcDate).e[editIdx];
-          if(en){en.t=nm;en.q=q;en.m=meal;en.mc={k:k,p:p,c:c,f:f,b:b};en.abs=1;}
-          kcSyncTot(kcDate);kcTouch();renderKaloria();toast("Módosítva ✓");}
-        else{kcAddEntry({abs:1,t:nm,q:q,m:meal,mc:{k:k,p:p,c:c,f:f,b:b}});toast("Hozzáadva ✓");}},150);};});}
+      const save=function(){
+        closeScreen();
+        setTimeout(function(){
+          if(editIdx!=null){const en=kcDay(kcDate).e[editIdx];
+            if(en){en.t=nm;en.q=q;en.m=meal;en.mc=mc;en.abs=1;}
+            kcSyncTot(kcDate);kcTouch();renderKaloria();toast("Módosítva ✓");}
+          else{kcAddEntry({abs:1,t:nm,q:q,m:meal,mc:mc});toast("Hozzáadva ✓");}},150);};
+      /* Kalória makrók nélkül: ez a leggyakoribb oka annak, hogy a napi kcal és
+         a makró-sávok széttartanak. Nem tiltjuk, de szólunk. */
+      const mk=p*4+c*4+f*9;
+      if(k>60&&mk<k*0.6)
+        woConfirm("Makrók nélkül mented?",
+          "Ehhez a "+Math.round(k)+" kcal-hoz csak <b>"+Math.round(mk)+" kcal</b>-nyi makró tartozik. "
+          +"A napi kalóriádba beleszámít, a fehérje/szénhidrát/zsír sávokba viszont nem — ezért a kettő el fog térni. "
+          +"Ha tudod a makrókat, írd be őket.",save,"Mentés így");
+      else save();};});}
 
 /* ---- MÁSOLÁS / SABLONOK ------------------------------------------------- */
 function kcCopyPrev(){
@@ -5277,8 +5873,8 @@ function kcFoodsHtml(){
    +'<button class="btn ghost sm" id="kcFNew">＋ Saját étel</button>'
    +'<button class="btn ghost sm" id="kcRNew">📗 Új recept</button>'
    +'<button class="btn ghost sm" id="kcFBar">🔎 Vonalkód</button>'
-   +'<button class="btn ghost sm" id="kcFLbl">🏷 Címke fotó</button>'
-   +'<button class="btn ghost sm" id="kcFTbl">📊 Táblázat fotó</button></div>';
+   +'<button class="btn ghost sm" id="kcFLbl">🏷 Egyszerű címke fotó</button>'
+   +'<button class="btn ghost sm" id="kcFTbl">📊 Táblázatos címke fotó</button></div>';
   if(_kcFq.trim()){
     const res=kcSearch(_kcFq,60);
     h+='<div class="section-title">Találatok <span class="sub">'+res.length+'</span></div><div class="card">';
@@ -5382,6 +5978,7 @@ function kcFoodEdit(id,onSaved,pre){
     _kcFe={id:null,onSaved:onSaved||null,per:"100",serv:100,
       n:pre.n||"",br:pre.br||"",bc:pre.bc||"",
       k:kcNum(pre.k||0,1),p:kcNum(pre.p||0,1),c:kcNum(pre.c||0,1),f:kcNum(pre.f||0,1),b:kcNum(pre.b||0,1),
+      s:pre.s?kcNum(pre.s,1):"",sa:pre.sa?kcNum(pre.sa,1):"",na:pre.na?kcNum(pre.na,2):"",
       liq:!!pre.liq,u:normUnits(pre.u||[]),fav:false,src:pre.src||"man",copyOf:null,fromScan:true};
     openModal(kcFeHtml());kcFeWire();return;}
   const src=id?kcFood(id):null;
@@ -5389,6 +5986,7 @@ function kcFoodEdit(id,onSaved,pre){
   _kcFe={id:own?id:null,onSaved:onSaved||null,per:"100",serv:100,
     n:src?src.n:"",br:src?(src.br||""):"",bc:src?(src.bc||""):"",
     k:src?src.k:"",p:src?src.p:"",c:src?src.c:"",f:src?src.f:"",b:src?src.b:"",
+    s:(src&&src.s)||"",sa:(src&&src.sa)||"",na:(src&&src.na)||"",
     liq:src?!!src.liq:false,u:src&&src.u?JSON.parse(JSON.stringify(src.u)):[],
     fav:src?!!src.fav:false,src:src?(src.src||"man"):"man",
     copyOf:(id&&!own)?id:null};
@@ -5415,8 +6013,14 @@ function kcFeHtml(){
    +'<div><label class="wo-lb">szénh. g</label><input class="input mono" id="feC" type="number" step="any" inputmode="decimal" value="'+E.c+'"/></div>'
    +'<div><label class="wo-lb">zsír g</label><input class="input mono" id="feF" type="number" step="any" inputmode="decimal" value="'+E.f+'"/></div>'
    +'<div><label class="wo-lb">rost g</label><input class="input mono" id="feFb" type="number" step="any" inputmode="decimal" value="'+E.b+'"/></div>'
-   +'<div><label class="wo-lb">vonalkód</label><input class="input mono" id="feBc" inputmode="numeric" value="'+escA(E.bc)+'"/></div>'
-   +'</div><div class="hint" style="margin-top:8px" data-info="kcnetcarb">A magyar és EU-s címkéken a „szénhidrát" már <b>nem</b> tartalmazza a rostot — így add meg te is.</div>'
+   +'<div><label class="wo-lb">cukor g</label><input class="input mono" id="feSu" type="number" step="any" inputmode="decimal" value="'+E.s+'"/></div>'
+   +'<div><label class="wo-lb">tel. zsír g</label><input class="input mono" id="feSa" type="number" step="any" inputmode="decimal" value="'+E.sa+'"/></div>'
+   +'<div><label class="wo-lb">só g</label><input class="input mono" id="feNa" type="number" step="any" inputmode="decimal" value="'+E.na+'"/></div>'
+   +'</div>'
+   +'<label class="wo-lb" style="margin-top:10px">Vonalkód</label>'
+   +'<div class="kc-bcrow"><input class="input mono" id="feBc" inputmode="numeric" placeholder="a csomagoláson lévő számsor" value="'+escA(E.bc)+'"/>'
+   +'<button class="btn ghost sm" id="feScan">📷 Beolvasás</button></div>'
+   +'<div class="hint" style="margin-top:8px" data-info="kcnetcarb">A magyar és EU-s címkéken a „szénhidrát" már <b>nem</b> tartalmazza a rostot — így add meg te is. A cukor, a telített zsír és a só nem kötelező: csak akkor kell, ha követed őket.</div>'
    +'<button class="btn ghost wide sm" id="feCalc" style="margin-top:10px">Kalória számítása a makrókból</button></div>';
   if(E.u.length){h+='<div class="section-title">Mértékegységek</div><div class="card">';
     E.u.forEach(function(un,i){
@@ -5432,6 +6036,7 @@ function kcFeRead(){
   const E=_kcFe,g=function(id){const el=document.getElementById(id);return el?el.value:"";};
   E.n=g("feN");E.br=g("feB");E.bc=g("feBc").replace(/\D/g,"");
   E.k=g("feK");E.p=g("feP");E.c=g("feC");E.f=g("feF");E.b=g("feFb");
+  E.s=g("feSu");E.sa=g("feSa");E.na=g("feNa");
   const l=document.getElementById("feL");if(l)E.liq=l.checked;
   const s=document.getElementById("feS");if(s)E.serv=Number(s.value)||100;}
 function kcFeRe(){kcFeRead();const s=document.getElementById("modalSheet");
@@ -5442,6 +6047,21 @@ function kcFeWire(){
   document.querySelectorAll("[data-kcper]").forEach(function(b){b.onclick=function(){
     E.per=b.dataset.kcper;kcFeRe();};});
   const lc=document.getElementById("feL");if(lc)lc.onchange=function(){kcFeRe();};
+  /* Vonalkód kamerával — nem kell begépelni a számsort. Ha a kód megvan az
+     OpenFoodFactsban és az étel mezői még üresek, fel is ajánljuk a kitöltést. */
+  const sc=document.getElementById("feScan");
+  if(sc)sc.onclick=function(){
+    kcFeRead();closeScreen();
+    setTimeout(function(){
+      kcBarcodeStart(null,false,function(code){
+        _kcFe.bc=code;
+        const empty=!(Number(_kcFe.k)||Number(_kcFe.p)||Number(_kcFe.c)||Number(_kcFe.f));
+        openModal(kcFeHtml());kcFeWire();
+        toast("Vonalkód: "+code+" ✓");
+        if(empty)setTimeout(function(){
+          woConfirm("Kitöltsem az adatokat?","Megkeresem ezt a kódot az <b>OpenFoodFacts</b> nyílt adatbázisában, és kitöltöm belőle a tápértékeket. A nevet és a többi mezőt utána átírhatod.",
+            function(){const cb=_kcFe.onSaved;closeScreen();
+              setTimeout(function(){kcBarcodeLookup(code,null,!cb);},180);},"Keresés");},420);});},180);};
   document.getElementById("feCalc").onclick=function(){kcFeRead();
     const k=Math.round((Number(E.p)||0)*4+(Number(E.c)||0)*4+(Number(E.f)||0)*9);
     E.k=k;kcFeRe();toast(k+" kcal");};
@@ -5470,15 +6090,17 @@ function kcFeWire(){
     const n=(E.n||"").trim();
     if(!n){toast("Adj nevet az ételnek","warn");return;}
     let k=Number(E.k)||0,p=Number(E.p)||0,c=Number(E.c)||0,f=Number(E.f)||0,b=Number(E.b)||0;
+    let su=Number(E.s)||0,sa=Number(E.sa)||0,na=Number(E.na)||0;
     let units=normUnits(E.u);
     if(E.per==="serv"){
       const sv=Number(E.serv)||0;
       if(!(sv>0)){toast("Adj meg adag-méretet grammban","warn");return;}
-      const r=100/sv;k*=r;p*=r;c*=r;f*=r;b*=r;
+      const r=100/sv;k*=r;p*=r;c*=r;f*=r;b*=r;su*=r;sa*=r;na*=r;
       if(!units.some(function(u){return u[0]==="adag";}))units=normUnits([].concat([["adag",sv]],units));}
     if(!k)k=Math.round(p*4+c*4+f*9);
     const obj={id:E.id||("c"+uid()),n:n,br:E.br,bc:E.bc,k:kcNum(k,1),p:kcNum(p,1),c:kcNum(c,1),
-      f:kcNum(f,1),b:kcNum(b,1),g:99,u:units,src:E.src,fav:E.fav?1:0,liq:E.liq?1:0,ts:Date.now()};
+      f:kcNum(f,1),b:kcNum(b,1),s:kcNum(su,1),sa:kcNum(sa,1),na:kcNum(na,2),
+      g:99,u:units,src:E.src,fav:E.fav?1:0,liq:E.liq?1:0,ts:Date.now()};
     const fo=normFoodItem(obj);
     if(!fo){toast("Nem sikerült mentení — nézd át az értékeket","warn");return;}
     const arr=S.food.custom;
@@ -5492,20 +6114,24 @@ function kcFeWire(){
 let _kcRe=null;
 function kcRecEdit(id){
   const r=id?(S.food.rec||[]).find(function(x){return x.id===id;}):null;
-  _kcRe=r?JSON.parse(JSON.stringify(r)):{id:"r"+uid(),n:"",serv:4,ing:[],cook:0};
+  /* Az adagszám alapból ÜRES: sok recept egy adag, és a kitalált „4 adag"
+     többet rontott, mint amennyit segített. */
+  _kcRe=r?JSON.parse(JSON.stringify(r)):{id:"r"+uid(),n:"",serv:0,ing:[],cook:0};
   _kcRe.isNew=!r;
   openModal(kcReHtml());kcReWire();}
 function kcReHtml(){
   const R=_kcRe;
-  const fo=kcRecipeFood({id:R.id,n:R.n||"Recept",serv:Math.max(1,R.serv||1),ing:R.ing,cook:R.cook});
-  const perServ=fo.u?fo.u[0][1]:0;
+  const fo=kcRecipeFood({id:R.id,n:R.n||"Recept",serv:R.serv||0,ing:R.ing,cook:R.cook});
+  const hasServ=(R.serv||0)>0;
+  /* Mire vetítsük az előnézetet: egy adagra, ha megadtad — különben az egészre. */
+  const perServ=hasServ?(fo.tg/R.serv):fo.tg;
   let h='<button class="close-x" id="mClose">✕</button><h3>'+(R.isNew?"Új recept":"Recept szerkesztése")+'</h3>';
   h+='<div class="card" style="padding:14px 16px">'
    +'<label class="wo-lb">Név</label><input class="input" id="reN" maxlength="80" value="'+escA(R.n)+'" placeholder="pl. Csirkés rizs"/>'
    +'<div class="kc-grid2" style="margin-top:10px">'
-   +'<div><label class="wo-lb">Hány adag?</label><input class="input mono" id="reS" type="number" inputmode="numeric" min="1" value="'+(R.serv||1)+'"/></div>'
+   +'<div><label class="wo-lb">Hány adag? (nem kötelező)</label><input class="input mono" id="reS" type="number" inputmode="numeric" min="1" placeholder="—" value="'+(R.serv>0?R.serv:"")+'"/></div>'
    +'<div><label class="wo-lb">Kész súly (g, ha lemérted)</label><input class="input mono" id="reC" type="number" step="any" inputmode="decimal" value="'+(R.cook||"")+'"/></div>'
-   +'</div><div class="hint" style="margin-top:6px">A kész súly a főzés utáni párolgást veszi figyelembe. Ha üresen hagyod, a hozzávalók összegével számolok.</div></div>';
+   +'</div><div class="hint" style="margin-top:6px">Az <b>adagszám</b> csak akkor kell, ha porciózni szoktad — enélkül „az egész" és a gramm marad az egység. A <b>kész súly</b> a főzés utáni párolgást veszi figyelembe; ha üresen hagyod, a hozzávalók összegével számolok.</div></div>';
   h+='<div class="section-title">Hozzávalók <span class="sub">'+R.ing.length+'</span></div>';
   if(!R.ing.length)h+='<div class="card" style="padding:16px"><div class="hint">Még nincs hozzávaló. Az alábbi gombbal keresd meg őket egyenként.</div></div>';
   else{h+='<div class="card">';
@@ -5518,20 +6144,20 @@ function kcReHtml(){
     h+='</div>';}
   h+='<button class="btn ghost wide sm" id="reAdd">＋ Hozzávaló</button>';
   if(R.ing.length){
+    const rr=perServ/100;
     h+='<div class="card kc-qprev" style="margin-top:12px"><div class="kc-qbig mono">'
-     +Math.round(fo.k*perServ/100)+' <small>kcal / adag</small></div>'
-     +'<div class="kc-qmac"><span><b class="mono">'+kcNum(fo.p*perServ/100,1)+'</b> g fehérje</span>'
-     +'<span><b class="mono">'+kcNum(fo.c*perServ/100,1)+'</b> g szénh.</span>'
-     +'<span><b class="mono">'+kcNum(fo.f*perServ/100,1)+'</b> g zsír</span>'
-     +'<span><b class="mono">'+kcNum(fo.b*perServ/100,1)+'</b> g rost</span></div>'
-     +'<div class="hint" style="margin-top:6px">Összesen '+fo.tg+' g · 1 adag = '+kcNum(perServ,0)+' g · 100 g = '+Math.round(fo.k)+' kcal</div></div>';}
+     +Math.round(fo.k*rr)+' <small>kcal / '+(hasServ?"adag":"az egész")+'</small></div>'
+     +'<div class="kc-qmac">'+kcMacSpans({p:fo.p*rr,c:fo.c*rr,f:fo.f*rr,b:fo.b*rr,
+        s:(fo.s||0)*rr,sa:(fo.sa||0)*rr,na:(fo.na||0)*rr})+'</div>'
+     +'<div class="hint" style="margin-top:6px">Összesen '+fo.tg+' g'
+     +(hasServ?(' · 1 adag = '+kcNum(perServ,0)+' g'):'')+' · 100 g = '+Math.round(fo.k)+' kcal</div></div>';}
   h+='<div class="wo-modact" style="margin-top:12px"><button class="btn" id="reOk">Mentés</button>'
    +(R.isNew?'':'<button class="btn ghost wo-danger" id="reDel">Törlés</button>')
    +'<button class="btn ghost" id="reC2">Mégse</button></div>';
   return h;}
 function kcReRead(){const R=_kcRe;
   const g=function(id){const el=document.getElementById(id);return el?el.value:"";};
-  R.n=g("reN");R.serv=Math.max(1,Math.round(Number(g("reS"))||1));R.cook=Number(g("reC"))||0;}
+  R.n=g("reN");R.serv=Math.max(0,Math.round(Number(g("reS"))||0));R.cook=Number(g("reC"))||0;}
 function kcReRe(){kcReRead();const s=document.getElementById("modalSheet");
   if(s){s.innerHTML=kcReHtml();kcReWire();}}
 function kcReWire(){
@@ -5561,6 +6187,35 @@ function kcReWire(){
     if(i>=0)arr[i]=obj;else arr.unshift(obj);
     kcTouch();closeScreen();
     setTimeout(function(){renderKaloria();toast("Recept mentve ✓");},150);};}
+/* Gyors bevitel HOZZÁVALÓKÉNT: csak számok, 100 g-ra. Saját ételként mentődik
+   (különben nem lenne mire hivatkoznia a receptnek), és rögtön bekerül. */
+function kcRecQuick(){
+  woDlg('<button class="close-x" id="mClose">✕</button><h3>⚡ Gyors hozzávaló</h3>'
+   +'<p class="hint" style="margin:-2px 0 12px">Add meg a <b>100 grammra</b> vonatkozó értékeket, és hogy mennyi kerül a receptbe. Saját ételként is elmentem, így legközelebb kereséssel megtalálod.</p>'
+   +'<div class="card" style="padding:14px 16px">'
+   +'<label class="wo-lb">Megnevezés</label><input class="input" id="rqN" maxlength="60" placeholder="pl. házi paradicsomszósz"/>'
+   +'<div class="kc-grid4" style="margin-top:8px">'
+   +'<div><label class="wo-lb">kcal/100 g</label><input class="input mono" id="rqK" type="number" step="any" inputmode="decimal"/></div>'
+   +'<div><label class="wo-lb">fehérje g</label><input class="input mono" id="rqP" type="number" step="any" inputmode="decimal"/></div>'
+   +'<div><label class="wo-lb">szénh. g</label><input class="input mono" id="rqC" type="number" step="any" inputmode="decimal"/></div>'
+   +'<div><label class="wo-lb">zsír g</label><input class="input mono" id="rqF" type="number" step="any" inputmode="decimal"/></div>'
+   +'<div><label class="wo-lb">rost g</label><input class="input mono" id="rqB" type="number" step="any" inputmode="decimal"/></div>'
+   +'<div><label class="wo-lb">mennyi (g)</label><input class="input mono" id="rqG" type="number" step="any" inputmode="decimal" value="100"/></div>'
+   +'</div></div>'
+   +'<div class="wo-modact"><button class="btn" id="rqOk">Hozzáadás</button>'
+   +'<button class="btn ghost" id="rqC2">Mégse</button></div>',function(){
+    const back=function(){closeScreen();setTimeout(function(){openModal(kcReHtml());kcReWire();},160);};
+    document.getElementById("rqC2").onclick=back;
+    document.getElementById("rqOk").onclick=function(){
+      const gv=function(id){const v=Number(document.getElementById(id).value);return isFinite(v)&&v>0?v:0;};
+      const n=(document.getElementById("rqN").value||"").trim();
+      if(!n){toast("Adj nevet a hozzávalónak","warn");return;}
+      const p=gv("rqP"),c=gv("rqC"),f=gv("rqF"),b=gv("rqB"),g=gv("rqG")||100;
+      let k=gv("rqK");if(!k)k=Math.round(p*4+c*4+f*9);
+      if(!k&&!p&&!c&&!f){toast("Adj meg legalább egy értéket","warn");return;}
+      const fo=normFoodItem({id:"c"+uid(),n:n,k:k,p:p,c:c,f:f,b:b,g:99,src:"man",ts:Date.now()});
+      if(!fo){toast("Nem sikerült menteni","warn");return;}
+      S.food.custom.unshift(fo);_kcRe.ing.push({i:fo.id,q:g,u:"g"});kcTouch();back();};});}
 /* A kereső lapról a receptbe visszatérés: mennyiség megadása után. */
 function kcRecIngQty(foodId){
   const fo=kcFood(foodId);if(!fo)return;
@@ -5623,8 +6278,10 @@ function kcQueueRun(){
 
 /* ---- VONALKÓD ----------------------------------------------------------- */
 let _kcCam=null;
-function kcBarcodeStart(mealId,toLib){
-  if(!("BarcodeDetector"in window)){kcBarcodeManual(mealId,toLib);return;}
+/* onCode: ha meg van adva, nem keresünk rá az adatbázisban, hanem visszaadjuk
+   a beolvasott számsort (így tud a saját étel szerkesztője is szkennelni). */
+function kcBarcodeStart(mealId,toLib,onCode){
+  if(!("BarcodeDetector"in window)){kcBarcodeManual(mealId,toLib,onCode);return;}
   openModal('<button class="close-x" id="mClose">✕</button><h3>🔎 Vonalkód</h3>'
    +'<p class="hint" style="margin:-2px 0 10px">Tartsd a vonalkódot a keretbe. Ha nem megy, írd be kézzel.</p>'
    +'<div class="kc-cam"><video id="kcCamV" playsinline muted autoplay></video><div class="kc-camf"></div></div>'
@@ -5634,7 +6291,7 @@ function kcBarcodeStart(mealId,toLib){
   const x=document.getElementById("mClose");if(x)x.onclick=function(){stop();closeScreen();};
   document.getElementById("kcCamX").onclick=function(){stop();closeScreen();};
   document.getElementById("kcCamM").onclick=function(){stop();closeScreen();
-    setTimeout(function(){kcBarcodeManual(mealId,toLib);},180);};
+    setTimeout(function(){kcBarcodeManual(mealId,toLib,onCode);},180);};
   const v=document.getElementById("kcCamV");
   navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"}}}).then(function(st){
     _kcCam=st;v.srcObject=st;
@@ -5649,24 +6306,36 @@ function kcBarcodeStart(mealId,toLib){
           if(code.length<6)return;
           done=true;if(navigator.vibrate)try{navigator.vibrate(40);}catch(e){}
           stop();closeScreen();
-          setTimeout(function(){kcBarcodeLookup(code,mealId,toLib);},180);})
+          setTimeout(function(){if(onCode)onCode(code);else kcBarcodeLookup(code,mealId,toLib);},180);})
         .catch(function(){busy=false;});}
       setTimeout(tick,320);};
     tick();})
   .catch(function(){stop();closeScreen();
-    setTimeout(function(){toast("Nem érhető el a kamera — írd be a kódot","warn");kcBarcodeManual(mealId,toLib);},180);});}
-function kcBarcodeManual(mealId,toLib){
+    setTimeout(function(){toast("Nem érhető el a kamera — írd be a kódot","warn");kcBarcodeManual(mealId,toLib,onCode);},180);});}
+function kcBarcodeManual(mealId,toLib,onCode){
   woAsk("Vonalkód","A csomagoláson lévő számsor","",function(v){
     const code=String(v||"").replace(/\D/g,"");
     if(code.length<6){toast("Túl rövid kód","warn");return;}
+    if(onCode){onCode(code);return;}
     kcBarcodeLookup(code,mealId,toLib);},
     {hint:"A böngésződ nem tud kamerából kódot olvasni, vagy nem sikerült — a számsor kézzel is jó."});}
+/* Mi történjen egy frissen beolvasott/mentett étellel?
+   - toLib FÜGGVÉNY: átadjuk neki az azonosítót (így tud a recept-szerkesztő
+     is vonalkódot és címkét használni a hozzávalókhoz),
+   - toLib igaz: csak bekerül az ételtárba,
+   - különben: rögtön jön a mennyiség-lap, és a naplóba kerül. */
+function kcScanDone(id,toLib,mealId,preset){
+  if(typeof toLib==="function"){toLib(id);return;}
+  if(toLib){renderKaloria();return;}
+  kcQtyOpen(id,mealId,null,preset||null);}
 /* Először a SAJÁT ételeid között keres (offline is), utána az OpenFoodFacts
    nyílt adatbázisában (ingyenes, kulcs nélküli, magyar termékekkel is). */
 function kcBarcodeLookup(code,mealId,toLib){
   const own=(S.food.custom||[]).find(function(f){return f.bc===code;});
   if(own){toast("Megvan a saját ételeid közt ✓");
-    if(toLib)kcFoodEdit(own.id,null);else kcQtyOpen(own.id,mealId,null);return;}
+    if(typeof toLib==="function")toLib(own.id);
+    else if(toLib)kcFoodEdit(own.id,null);
+    else kcQtyOpen(own.id,mealId,null);return;}
   toast("Keresés az OpenFoodFacts adatbázisban…");
   fetch("https://world.openfoodfacts.org/api/v2/product/"+encodeURIComponent(code)
     +".json?fields=product_name,product_name_hu,generic_name,brands,nutriments,serving_size,quantity")
@@ -5685,9 +6354,11 @@ function kcBarcodeLookup(code,mealId,toLib){
         br:String(p.brands||"").split(",")[0]||"",bc:code,liq:liq,src:"off",
         k:kcNum(kcal,1),p:kcNum(Number(n.proteins_100g)||0,1),c:kcNum(Number(n.carbohydrates_100g)||0,1),
         f:kcNum(Number(n.fat_100g)||0,1),b:kcNum(Number(n.fiber_100g)||0,1),
+        s:kcNum(Number(n.sugars_100g)||0,1),sa:kcNum(Number(n["saturated-fat_100g"])||0,1),
+        na:kcNum(Number(n.salt_100g)||(Number(n.sodium_100g)?Number(n.sodium_100g)*2.5:0)||0,2),
         u:sg>0?[["adag",sg]]:[]};
       if(!pre.k&&!pre.p&&!pre.c&&!pre.f)throw new Error("üres");
-      kcFoodEdit(null,function(id){if(toLib)renderKaloria();else kcQtyOpen(id,mealId,null);},pre);
+      kcFoodEdit(null,function(id){kcScanDone(id,toLib,mealId);},pre);
       setTimeout(function(){toast("Megvan — nézd át és mentsd ✓");},200);})
     .catch(function(){
       woConfirm("Nincs találat","Ez a vonalkód (<b>"+esc(code)+"</b>) nincs meg az OpenFoodFacts adatbázisában. Fotózd le a tápérték-táblázatot, és kitöltöm belőle.",
@@ -5711,11 +6382,18 @@ async function kcAiLabel(img,mealId,fromQueue,toLib,code){
   const system="Tápértékcímkét olvasol ki egy fotóról. KIZÁRÓLAG egy JSON objektummal válaszolsz. "
    +"A 'per' mező: '100' ha az értékek 100 g/ml-re szólnak, 'serving' ha egy adagra. "
    +"EU-címkénél a 'carbs' NEM tartalmazza a rostot — így add vissza. Ha egy érték nem látszik, 0. "
-   +"Az energiát kcal-ban add (ha csak kJ látszik, oszd 4,184-gyel). A 'name' a termék neve a képről, magyarul, ha van.";
+   +"Az energiát kcal-ban add (ha csak kJ látszik, oszd 4,184-gyel). "
+   +"A címke BÁRMILYEN NYELVEN lehet — ismerd fel a tápanyagok nevét a saját nyelvén (angol, német, "
+   +"francia, olasz, spanyol, lengyel, cseh, horvát, román, holland, török…), és a 'lang' mezőben "
+   +"írd meg, milyen nyelvű volt. A 'name' a termék neve MAGYARUL (ha idegen nyelvű, fordítsd le), "
+   +"az eredeti nevet pedig add meg a 'nameOrig' mezőben. "
+   +"Add meg a telített zsírt ('sat'), a cukrot ('sugar') és a sót ('salt') is grammban, ha látszanak.";
   const user="Olvasd ki a tápérték-táblázatot. Ha adagra szól, add meg a 'servingG' értéket grammban (vagy ml-ben).";
-  const schema={type:"object",properties:{name:{type:"string"},brand:{type:"string"},
+  const schema={type:"object",properties:{name:{type:"string"},nameOrig:{type:"string"},
+    brand:{type:"string"},lang:{type:"string"},
     per:{type:"string"},servingG:{type:"number"},kcal:{type:"number"},protein:{type:"number"},
-    carbs:{type:"number"},fat:{type:"number"},fiber:{type:"number"},confidence:{type:"number"}},
+    carbs:{type:"number"},fat:{type:"number"},fiber:{type:"number"},
+    sugar:{type:"number"},sat:{type:"number"},salt:{type:"number"},confidence:{type:"number"}},
     required:["name","per","kcal","protein","carbs","fat"]};
   let o=null;
   try{o=await queueGemini(function(){return geminiCall(system,user,{temperature:0.1,responseSchema:schema},[img]);});}
@@ -5724,16 +6402,22 @@ async function kcAiLabel(img,mealId,fromQueue,toLib,code){
   setTimeout(function(){
     const per=(String(o.per||"100").indexOf("serv")>=0)?"serv":"100";
     const sg=Number(o.servingG)||0;
-    const pre={n:String(o.name||"Termék").slice(0,80),br:String(o.brand||"").slice(0,40),
+    const orig=String(o.nameOrig||"").slice(0,40);
+    const br0=String(o.brand||"").slice(0,40);
+    const pre={n:String(o.name||"Termék").slice(0,80),
+      br:br0||(orig&&kcNorm(orig)!==kcNorm(String(o.name||""))?orig:""),
       bc:code||"",src:"ai",k:Number(o.kcal)||0,p:Number(o.protein)||0,c:Number(o.carbs)||0,
-      f:Number(o.fat)||0,b:Number(o.fiber)||0,u:[]};
+      f:Number(o.fat)||0,b:Number(o.fiber)||0,
+      s:Number(o.sugar)||0,sa:Number(o.sat)||0,na:Number(o.salt)||0,u:[]};
     if(per==="serv"&&sg>0){const r=100/sg;
       pre.k=kcNum(pre.k*r,1);pre.p=kcNum(pre.p*r,1);pre.c=kcNum(pre.c*r,1);
-      pre.f=kcNum(pre.f*r,1);pre.b=kcNum(pre.b*r,1);pre.u=[["adag",sg]];}
+      pre.f=kcNum(pre.f*r,1);pre.b=kcNum(pre.b*r,1);
+      pre.s=kcNum(pre.s*r,1);pre.sa=kcNum(pre.sa*r,1);pre.na=kcNum(pre.na*r,2);pre.u=[["adag",sg]];}
+    if(o.lang&&!/magyar|hungar/i.test(String(o.lang)))
+      setTimeout(function(){toast(String(o.lang).slice(0,20)+" nyelvű címke — a nevet lefordítottam");},900);
     kcFoodEdit(null,function(id){
       if(fromQueue){setTimeout(kcQueueRun,400);renderKaloria();}
-      else if(toLib)renderKaloria();
-      else kcQtyOpen(id,mealId,null);},pre);
+      else kcScanDone(id,toLib,mealId);},pre);
     setTimeout(function(){toast("Kiolvastam — nézd át, és mentsd ✓");},200);},170);}
 function kcAiFail(e,kind,img,mealId){
   const msg=(e&&e.message)||"Ismeretlen hiba";
@@ -5755,18 +6439,33 @@ function kcTableShot(mealId,toLib){
   woImgFile(function(small){
     kcAiQueueOrRun("table",small,mealId,function(){kcAiTable(small,mealId,false,toLib);});},
     true,KCIMG_MAX,KCIMG_Q);}
-/* A sor felirata alapján megtippeljük a szerepet — a sorrend számít:
-   a „amelyből cukrok" előbb fusson, mint a „szénhidrát". */
-function kcTGuessRole(label,unit){
+/* A tápérték-címkék szókincse a gyakori európai nyelveken. Egy külföldről
+   hozott édesség címkéje ritkán magyar — az AI a `key` mezőben már megmondja,
+   mit olvasott, ezt a lista csak megerősíti (és kulcs nélkül is működik).
+   A sorrend számít: az „ebből cukor" előbb fusson, mint a „szénhidrát". */
+function kcTGuessRole(label,unit,key){
+  /* Amit az AI maga besorolt — ez a legmegbízhatóbb, mert látta a szövegkörnyezetet. */
+  const K={energy_kcal:"k",energy_kj:"kj",protein:"p",carb:"c",sugar:"sug",
+    fat:"f",sat:"sat",fiber:"b",salt:"salt"};
+  if(key&&K[key])return K[key];
   const s=kcNorm(label||""),u=(unit||"").toLowerCase();
-  if(/telitett|szaturalt|saturate/.test(s))return"sat";
-  if(/ebbol cukor|amelybol cukor|cukrok|cukor|sugar/.test(s))return"sug";
-  if(/energia|energy|kaloria|calorie/.test(s))return(u.indexOf("kj")>=0||/\bkj\b/.test(s))?"kj":"k";
-  if(/feherje|protein/.test(s))return"p";
-  if(/szenhidrat|carbohydrate|carbs/.test(s))return"c";
-  if(/rost|elelmi|fibre|fiber/.test(s))return"b";
-  if(/zsir|fat|lipid/.test(s))return"f";
-  if(/so\b|salt|natrium|sodium/.test(s))return"salt";
+  /* telített zsír: hu, en, de, fr, it, es, pl, ro, cs/sk, hr, nl, tr */
+  if(/telitett|szaturalt|saturate|gesattigt|satur|saturi|saturad|nasycon|nasycen|zasicen|verzadigd|doymus/.test(s))return"sat";
+  /* cukor */
+  if(/cukor|cukrok|sugar|zucker|sucre|zucchero|azucar|acucar|cukr|cukier|secer|zahar|suiker|seker|sacharid.*cukr/.test(s))return"sug";
+  /* energia */
+  if(/energia|energy|energie|energi|valor energetico|kaloria|calorie|kalorien|enerji/.test(s))
+    return(u.indexOf("kj")>=0||/\bkj\b/.test(s))?"kj":"k";
+  /* fehérje */
+  if(/feherje|protein|eiweiss|eiwit|proteine|proteina|bialko|bjelanc|belkovin|protein/.test(s))return"p";
+  /* szénhidrát */
+  if(/szenhidrat|carbohydrate|carbs|kohlenhydrat|glucide|carboidrat|hidratos de carbono|hidrati|sacharid|weglowodan|ugljikohidrat|koolhydra|karbonhidrat/.test(s))return"c";
+  /* rost */
+  if(/rost|elelmi|fibre|fiber|ballaststoff|fibra|vlaknina|blonnik|vlaknin|vezel|lif\b/.test(s))return"b";
+  /* zsír */
+  if(/zsir|fat|fett|matieres grasses|grassi|grasas|gordura|tuk\b|tluszcz|masti|vetten|vet\b|yag\b|lipid/.test(s))return"f";
+  /* só / nátrium */
+  if(/so\b|salt|salz|sel\b|sale\b|sal\b|sol\b|soľ|zout|tuz\b|natrium|sodium|sodio/.test(s))return"salt";
   if(u==="kcal")return"k";
   if(u==="kj")return"kj";
   return"";}
@@ -5782,13 +6481,20 @@ async function kcAiTable(img,mealId,fromQueue,toLib){
    +"'unit' = a mértékegység ahogy ott áll ('g','mg','kcal','kJ' vagy ''), 'values' = a sor számai "
    +"OSZLOP-SORRENDBEN, pontosan annyi elem, ahány oszlop van (üres cella = 0). Tizedesvessző helyett pontot használj.\n"
    +"Ha egy sorban kJ és kcal is szerepel, add vissza két külön sorként. A fejléc-, üres és nem tápérték "
-   +"sorokat hagyd ki. Ha egy szám nem olvasható, adj 0-t — ne találgass.";
-  const user="Olvasd ki a teljes táblázatot sorról sorra, oszlophűen. Add meg a termék nevét is ('name'), ha látszik a képen.";
+   +"sorokat hagyd ki. Ha egy szám nem olvasható, adj 0-t — ne találgass.\n"
+   +"A címke BÁRMILYEN NYELVEN lehet (angol, német, francia, olasz, spanyol, lengyel, cseh, horvát, "
+   +"román, holland, török…). A 'label' MINDIG a képen látható eredeti szöveg maradjon, változtatás nélkül. "
+   +"Emellett minden sornál add meg a 'key' mezőt is — hogy az adott sor MI, a nyelvtől függetlenül: "
+   +"energy_kcal, energy_kj, protein, carb, sugar, fat, sat, fiber, salt, vagy none, ha egyik sem. "
+   +"És add meg a 'hu' mezőt: a felirat magyar fordítása röviden.";
+  const user="Olvasd ki a teljes táblázatot sorról sorra, oszlophűen. Add meg a termék nevét is ('name'), ha látszik a képen. "
+   +"Ha a címke nem magyar, a 'lang' mezőben írd meg, milyen nyelvű.";
   const schema={type:"object",properties:{
-    name:{type:"string"},brand:{type:"string"},
+    name:{type:"string"},brand:{type:"string"},lang:{type:"string"},
     columns:{type:"array",items:{type:"object",properties:{label:{type:"string"},
       basis:{type:"string"},basisG:{type:"number"}},required:["label","basis"]}},
     rows:{type:"array",items:{type:"object",properties:{label:{type:"string"},
+      hu:{type:"string"},key:{type:"string"},
       unit:{type:"string"},values:{type:"array",items:{type:"number"}}},required:["label","values"]}}},
     required:["columns","rows"]};
   let o=null;
@@ -5805,14 +6511,19 @@ async function kcAiTable(img,mealId,fromQueue,toLib){
     while(vals.length<cols.length)vals.push(0);
     const lb=String(r.label||"").slice(0,60);
     const un=String(r.unit||"").slice(0,6);
-    return{l:lb,u:un,v:vals,role:kcTGuessRole(lb,un)};})
+    const hu=String(r.hu||"").slice(0,40);
+    const o={l:lb,u:un,v:vals,role:kcTGuessRole(lb,un,String(r.key||""))};
+    /* a magyar fordítás csak akkor érdekes, ha tényleg mást mond, mint az eredeti */
+    if(hu&&kcNorm(hu)!==kcNorm(lb))o.hu=hu;
+    return o;})
     .filter(function(r){return r.l||r.v.some(function(x){return x;});});
   if(!rows.length){setTimeout(function(){toast("Nem találtam táblázatot a képen — próbáld közelebbről","warn");},150);return;}
   /* alapból az az oszlop, ami 100 g-ra szól — az a legkevésbé félreérthető */
   let ci=cols.findIndex(function(c){return c.basis==="100";});if(ci<0)ci=0;
   _kcT={name:String(o.name||"").slice(0,60),brand:String(o.brand||"").slice(0,40),
+    lang:String(o.lang||"").slice(0,24),
     cols:cols,ci:ci,rows:rows,servG:cols[ci].g||0,liq:false,cInclFib:false,
-    meal:mealId||S.food.set.meals[0].id,toLib:!!toLib,fromQueue:!!fromQueue};
+    meal:mealId||S.food.set.meals[0].id,toLib:(typeof toLib==="function")?toLib:!!toLib,fromQueue:!!fromQueue};
   setTimeout(function(){openModal(kcTHtml());kcTWire();},170);}
 /* A kiválasztott oszlopból 100 g-ra vetített értékek. */
 function kcTCalc(){
@@ -5820,21 +6531,23 @@ function kcTCalc(){
   T.rows.forEach(function(r){if(r.role)g[r.role]=(g[r.role]||0)+(Number(r.v[T.ci])||0);});
   let k=g.k||0;
   if(!k&&g.kj)k=g.kj/4.184;
-  let p=g.p||0,c=g.c||0,f=g.f||0,b=g.b||0;
+  let p=g.p||0,c=g.c||0,f=g.f||0,b=g.b||0,su=g.sug||0,sa=g.sat||0,na=g.salt||0;
   if(T.cInclFib)c=Math.max(0,c-b);
   const basis=T.cols[T.ci]?T.cols[T.ci].basis:"100";
   /* ha az oszlop egy adagra szól és tudjuk az adag grammját, 100-ra váltjuk */
   let sc=1;
   if(basis!=="100"&&T.servG>0)sc=100/T.servG;
-  k*=sc;p*=sc;c*=sc;f*=sc;b*=sc;
+  k*=sc;p*=sc;c*=sc;f*=sc;b*=sc;su*=sc;sa*=sc;na*=sc;
   if(!k)k=p*4+c*4+f*9;
   return{k:kcNum(k,1),p:kcNum(p,1),c:kcNum(c,1),f:kcNum(f,1),b:kcNum(b,1),
+    s:kcNum(su,1),sa:kcNum(sa,1),na:kcNum(na,2),
     per100:basis==="100"||T.servG>0,servG:T.servG};}
 function kcTHtml(){
   const T=_kcT,r=kcTCalc();
   let h='<button class="close-x" id="mClose">✕</button><h3>📊 Kiolvasott táblázat</h3>'
    +'<p class="hint" style="margin:-2px 0 12px">A számokat a képről olvastam ki, de <b>hogy melyik mi</b>, azt te mondod meg. '
-   +'A legördülővel állítsd be a szerepeket, a számokat is átírhatod.</p>';
+   +'A legördülővel állítsd be a szerepeket, a számokat is átírhatod.'
+   +(T.lang?' A címke nyelve: <b>'+esc(T.lang)+'</b> — a feliratok alatt ott a magyar jelentésük.':'')+'</p>';
   if(T.cols.length>1){
     h+='<div class="card" style="padding:12px 14px"><label class="wo-lb">Melyik oszlop kell?</label><div class="kc-tcols">';
     T.cols.forEach(function(c,i){h+='<button class="kc-tcol'+(i===T.ci?" sel":"")+'" data-kctc="'+i+'">'+esc(c.l)+'</button>';});
@@ -5842,7 +6555,8 @@ function kcTHtml(){
   h+='<div class="card" style="padding:6px 14px 10px">';
   T.rows.forEach(function(r2,i){
     h+='<div class="kc-trow'+(r2.role?" used":"")+'"><span class="lbl">'+esc(r2.l||"(felirat nélkül)")
-     +(r2.u?(' <span class="mono">['+esc(r2.u)+']</span>'):'')+'</span>'
+     +(r2.u?(' <span class="mono">['+esc(r2.u)+']</span>'):'')
+     +(r2.hu?('<small class="kc-thu">'+esc(r2.hu)+'</small>'):'')+'</span>'
      +'<select class="input" data-kctrole="'+i+'">'
      +KCT_ROLES.map(function(o){return'<option value="'+o[0]+'"'+(o[0]===r2.role?" selected":"")+'>'+esc(o[1])+'</option>';}).join("")
      +'</select>'
@@ -5910,22 +6624,26 @@ function kcTWire(){
       const after=function(){if(fromQ)setTimeout(kcQueueRun,500);};
       if(toLib||name){
         const pre={n:name||"Termék",br:T.brand||"",src:"ai",k:r.k,p:r.p,c:r.c,f:r.f,b:r.b,
-          u:(T.servG>0?[["adag",T.servG]]:[])};
+          s:r.s,sa:r.sa,na:r.na,u:(T.servG>0?[["adag",T.servG]]:[])};
         kcFoodEdit(null,function(id){
-          if(toLib){renderKaloria();after();}
-          else kcQtyOpen(id,meal,null,T.servG>0?{q:1,u:"adag"}:null);},pre);
+          kcScanDone(id,toLib,meal,T.servG>0?{q:1,u:"adag"}:null);
+          if(toLib===true)after();},pre);
         setTimeout(function(){toast("Kiolvastam — nézd át és mentsd ✓");},200);}
       else{
-        kcQuickOpen(meal,null,{t:"Táblázat (100 g)",k:r.k,p:r.p,c:r.c,f:r.f,b:r.b,q:1});
+        kcQuickOpen(meal,null,{t:"Táblázat (100 g)",k:r.k,p:r.p,c:r.c,f:r.f,b:r.b,
+          s:r.s,sa:r.sa,na:r.na,q:1});
         setTimeout(function(){toast("Az „adag” mezőben add meg, hányszor 100 g fogyott el");},250);
         after();}},170);};}
 
 /* ---- TÁNYÉR-FOTÓ -------------------------------------------------------- */
 let _kcPlate=null;
-function kcPlateShot(mealId){
+/* toRecipe: függvény -> a felismert tételek nem a naplóba, hanem HOZZÁVALÓKÉNT
+   a szerkesztett receptbe kerülnek (mindegyikből saját étel készül). */
+function kcPlateShot(mealId,toRecipe){
   woImgFile(function(small){
+    if(typeof toRecipe==="function"){kcAiPlate(small,mealId,false,toRecipe);return;}
     kcAiQueueOrRun("plate",small,mealId,function(){kcAiPlate(small,mealId,false);});},true,860,0.8);}
-async function kcAiPlate(img,mealId,fromQueue){
+async function kcAiPlate(img,mealId,fromQueue,toRecipe){
   kcAiBusy("🍛 Étel felismerése");
   const system="Ételfotót elemzel táplálkozási naplóhoz. KIZÁRÓLAG egy JSON objektummal válaszolsz, magyar élelmiszernevekkel. "
    +"Bontsd összetevőkre (pl. külön a hús, a köret, a szósz). Minden összetevőnél add meg a becsült tömeget grammban "
@@ -5947,7 +6665,8 @@ async function kcAiPlate(img,mealId,fromQueue){
       lo:Math.max(1,Math.round(Number(x.gMin)||g*0.7)),hi:Math.max(2,Math.round(Number(x.gMax)||g*1.4)),
       k:Number(x.k100)||0,p:Number(x.p100)||0,c:Number(x.c100)||0,f:Number(x.f100)||0,b:Number(x.b100)||0,on:true};});
   if(!items.length){setTimeout(function(){toast("Nem ismertem fel ételt a képen","warn");},150);return;}
-  _kcPlate={items:items,meal:mealId||S.food.set.meals[0].id,note:String(o.note||""),fromQueue:!!fromQueue};
+  _kcPlate={items:items,meal:mealId||S.food.set.meals[0].id,note:String(o.note||""),
+    fromQueue:!!fromQueue,toRecipe:(typeof toRecipe==="function")?toRecipe:null};
   setTimeout(function(){openModal(kcPlateHtml());kcPlateWire();},170);}
 function kcPlateHtml(){
   const P=_kcPlate;
@@ -5968,9 +6687,12 @@ function kcPlateHtml(){
   h+='<div class="card kc-qprev"><div class="kc-qbig mono" id="kcPtot">'+Math.round(tk)+' <small>kcal összesen</small></div>'
    +'<div class="kc-qmac"><span><b class="mono" id="kcPtp">'+kcNum(tp,1)+'</b> g fehérje</span></div></div>';
   if(P.note)h+='<div class="hint" style="margin:0 4px 10px">'+esc(P.note)+'</div>';
-  h+='<div class="card" style="padding:12px 14px"><label class="wo-lb">Étkezés</label>'
-   +'<select class="input" id="kcPM">'+mealsOpt+'</select></div>';
-  h+='<div class="wo-modact"><button class="btn" id="kcPOk">Hozzáadás a naplóhoz</button>'
+  if(!P.toRecipe)
+    h+='<div class="card" style="padding:12px 14px"><label class="wo-lb">Étkezés</label>'
+     +'<select class="input" id="kcPM">'+mealsOpt+'</select></div>';
+  else
+    h+='<div class="hint" style="margin:0 4px 10px">A kijelölt tételek <b>hozzávalóként</b> kerülnek a receptbe, és saját ételként is elmentem őket — így legközelebb kereséssel is megtalálod.</div>';
+  h+='<div class="wo-modact"><button class="btn" id="kcPOk">'+(P.toRecipe?"Hozzáadás a recepthez":"Hozzáadás a naplóhoz")+'</button>'
    +'<button class="btn ghost" id="kcPC">Mégse</button></div>';
   return h;}
 function kcPlateWire(){
@@ -5991,12 +6713,25 @@ function kcPlateWire(){
   document.querySelectorAll("[data-kcpon]").forEach(function(c){c.onchange=function(){
     const i=Number(c.dataset.kcpon);P.items[i].on=c.checked;
     const card=c.closest(".kc-pitem");if(card)card.classList.toggle("off",!c.checked);upd();};});
-  document.getElementById("kcPM").onchange=function(){P.meal=document.getElementById("kcPM").value;};
+  const pm=document.getElementById("kcPM");
+  if(pm)pm.onchange=function(){P.meal=pm.value;};
   document.getElementById("kcPC").onclick=function(){closeScreen();
+    if(P.toRecipe){setTimeout(function(){P.toRecipe(null);},170);return;}
     if(P.fromQueue)setTimeout(kcQueueRun,400);};
   document.getElementById("kcPOk").onclick=function(){
     const on=P.items.filter(function(i){return i.on;});
     if(!on.length){toast("Nincs kiválasztott tétel","warn");return;}
+    /* Recept-mód: minden tételből saját étel lesz (100 g-os értékekkel), és a
+       becsült tömeggel rögtön bekerül hozzávalónak. */
+    if(P.toRecipe){
+      const cb=P.toRecipe;const added=[];
+      on.forEach(function(it){
+        const fo=normFoodItem({id:"c"+uid(),n:it.n,k:it.k,p:it.p,c:it.c,f:it.f,b:it.b,
+          g:99,src:"ai",ts:Date.now()});
+        if(fo){S.food.custom.unshift(fo);added.push({i:fo.id,q:it.g,u:"g"});}});
+      kcTouch();closeScreen();
+      setTimeout(function(){cb(added);toast(added.length+" hozzávaló felvéve ✓");},170);
+      return;}
     closeScreen();
     setTimeout(function(){
       const d=kcDay(kcDate);
@@ -6050,14 +6785,24 @@ function kcGoalsHtml(){
     h+='<div class="kc-grid2" style="margin-top:10px">'
      +'<div><label class="wo-lb">Fehérje (g / testsúly kg)</label><input class="input mono" id="gcPkg" type="number" step="0.1" inputmode="decimal" value="'+c.pkg+'"/></div>'
      +'<div><label class="wo-lb">Zsír (g / testsúly kg)</label><input class="input mono" id="gcFkg" type="number" step="0.1" inputmode="decimal" value="'+c.fkg+'"/></div>'
-     +'</div><div class="hint" style="margin-top:6px" data-info="kcmacro">Fehérje 1,6–2,2 g/kg, zsír 0,6–1,0 g/kg az általános ajánlás. A maradék kalória automatikusan szénhidrát lesz.</div></div>';
+     +'</div><div class="hint" style="margin-top:6px" data-info="kcmacro">Fehérje 1,6–2,2 g/kg, zsír 0,6–1,0 g/kg az általános ajánlás. A maradék kalória automatikusan szénhidrát lesz.</div>'
+     /* Zsír-SÁV: a zsírnak nincs egyetlen helyes értéke — van egy alsó határ
+        (hormonok) és egy felső (efölött már a szénhidráttól venne el). */
+     +'<label class="wo-lb" style="margin-top:12px">Hol legyen a zsír a sávon belül?</label>'
+     +'<div class="kc-fband"><span class="lo">'+r.fMin+' g</span>'
+     +'<span class="tr"><i style="left:'+(((r.f-r.fMin)/Math.max(1,r.fMax-r.fMin))*100).toFixed(1)+'%"></i></span>'
+     +'<span class="hi">'+r.fMax+' g</span></div>'
+     +'<div class="kc-fbtns"><button class="btn ghost sm" data-kcfp="min">Sáv alja — diéta</button>'
+     +'<button class="btn ghost sm" data-kcfp="mid">Közép</button>'
+     +'<button class="btn ghost sm" data-kcfp="max">Sáv teteje — tömegelés</button></div>'
+     +'<div class="hint" style="margin-top:6px">A sáv alja a hormonális működéshez még elég zsír (a napi energia 20%-a, de legalább 0,5 g/kg); a teteje fölött már csak a szénhidráttól venne el, aminek az edzéseknél van szerepe. <b>Diétánál a sáv alja</b>, <b>tömegelésnél a teteje</b> felé érdemes húzni — a szénhidrát ezzel fordítottan mozog ('+r.cMin+'–'+r.cMax+' g).</div></div>';
     h+='<div class="card kc-calcout"><div class="kc-corow"><span>Alapanyagcsere (BMR)</span><b class="mono">'+r.bmr+' kcal</b></div>'
      +'<div class="kc-corow"><span>Napi energiafelhasználás (TDEE)</span><b class="mono">'+r.tdee+' kcal</b></div>'
      +(r.delta&&c.aim!=="maint"?'<div class="kc-corow"><span>'+(c.aim==="cut"?"Deficit":"Többlet")+'</span><b class="mono">'+r.delta+' kcal/nap</b></div>':'')
      +'<div class="kc-corow big"><span>Javasolt keret</span><b class="mono">'+r.kcal+' kcal</b></div>'
      +'<div class="kc-corow"><span>Fehérje ('+kcNum(r.refW,0)+' kg-ra)</span><b class="mono">'+r.p+' g</b></div>'
-     +'<div class="kc-corow"><span>Zsír</span><b class="mono">'+r.f+' g</b></div>'
-     +'<div class="kc-corow"><span>Szénhidrát (maradék)</span><b class="mono">'+r.c+' g</b></div>'
+     +'<div class="kc-corow"><span>Zsír <small>(sáv '+r.fMin+'–'+r.fMax+' g)</small></span><b class="mono">'+r.f+' g</b></div>'
+     +'<div class="kc-corow"><span>Szénhidrát (maradék) <small>(sáv '+r.cMin+'–'+r.cMax+' g)</small></span><b class="mono">'+r.c+' g</b></div>'
      +'<div class="kc-corow"><span>Rost</span><b class="mono">'+r.fb+' g</b></div></div>';
     r.warn.forEach(function(w){h+='<div class="kc-warn">⚠️ '+w+'</div>';});
     h+='<button class="btn wide" id="gcApply">Ezt kérem célnak</button>';}
@@ -6068,7 +6813,10 @@ function kcGoalsHtml(){
      +'<div><label class="wo-lb">Szénhidrát g</label><input class="input mono" id="gmC" type="number" inputmode="numeric" value="'+s.c+'"/></div>'
      +'<div><label class="wo-lb">Zsír g</label><input class="input mono" id="gmF" type="number" inputmode="numeric" value="'+s.f+'"/></div>'
      +'<div><label class="wo-lb">Rost g</label><input class="input mono" id="gmB" type="number" inputmode="numeric" value="'+s.fb+'"/></div>'
-     +'</div><div class="hint" id="gmSum" style="margin-top:8px"></div></div>'
+     +'<div><label class="wo-lb">Zsír min (nem kötelező)</label><input class="input mono" id="gmFn" type="number" inputmode="numeric" placeholder="—" value="'+(s.fMin||"")+'"/></div>'
+     +'<div><label class="wo-lb">Zsír max (nem kötelező)</label><input class="input mono" id="gmFx" type="number" inputmode="numeric" placeholder="—" value="'+(s.fMax||"")+'"/></div>'
+     +'</div><div class="hint" style="margin-top:6px">Ha megadsz zsír min–max sávot, a Ma fülön a zsír és a szénhidrát <b>tartományként</b> jelenik meg egyetlen szám helyett — így nem „hibázol", ha a sávon belül maradsz.</div>'
+     +'<div class="hint" id="gmSum" style="margin-top:8px"></div></div>'
      +'<button class="btn wide" id="gmApply">Mentés</button>';}
   /* extrák */
   h+='<div class="section-title">Finomhangolás</div><div class="card" style="padding:14px 16px">'
@@ -6109,6 +6857,15 @@ function kcGoalsWire(){
   ["gcSex","gcAge","gcH","gcW","gcBf","gcTw","gcAct","gcAim","gcRate","gcPkg","gcFkg"].forEach(function(id){
     const e=document.getElementById(id);if(!e)return;
     e.onchange=function(){kcGoalsRe();};});
+  /* Zsír a sávon belül: a g/kg értéket állítjuk, hogy egyetlen forrás maradjon. */
+  document.querySelectorAll("[data-kcfp]").forEach(function(b){b.onclick=function(){
+    kcGoalsRead();const r=kcCalc(G.c),w=G.c.w||80;
+    const tgt=(b.dataset.kcfp==="min")?r.fMin:((b.dataset.kcfp==="max")?r.fMax:Math.round((r.fMin+r.fMax)/2));
+    G.c.fkg=kcNum(kcClamp(tgt/w,0.3,2,0.8),2);
+    /* A mezőt is át kell írni: a kcGoalsRe() újraolvassa az űrlapot, és a régi
+       érték különben azonnal visszaírná, amit most állítottunk be. */
+    const fk=document.getElementById("gcFkg");if(fk)fk.value=G.c.fkg;
+    kcGoalsRe();};});
   const ap=document.getElementById("gcApply");
   if(ap)ap.onclick=function(){kcGoalsRead();
     S.food.set.calc=normFood({set:{calc:G.c}}).set.calc;
@@ -6132,6 +6889,9 @@ function kcGoalsWire(){
       s.c=Math.round(Number(document.getElementById("gmC").value)||0);
       s.f=Math.round(Number(document.getElementById("gmF").value)||0);
       s.fb=Math.round(Number(document.getElementById("gmB").value)||0);
+      s.fMin=Math.round(Number(document.getElementById("gmFn").value)||0);
+      s.fMax=Math.round(Number(document.getElementById("gmFx").value)||0);
+      if(s.fMax&&s.fMax<=s.fMin){s.fMin=0;s.fMax=0;toast("A zsír-sáv felső értéke nem lehet kisebb az alsónál — sáv nélkül mentettem","warn");}
       s.mode="manual";S.food=normFood(S.food);kcTouch();closeScreen();
       setTimeout(function(){renderKaloria();toast("Mentve ✓");},150);};}
   const bk=document.getElementById("gxBank");
@@ -6144,6 +6904,82 @@ function kcGoalsWire(){
   if(ts)ts.onchange=function(){S.food.set.trainSplit=ts.checked;kcTouch();kcGoalsRe();};
   const tm=document.getElementById("gxTm");
   if(tm)tm.onchange=function(){S.food.set.trainMacro=tm.value;kcTouch();};}
+
+/* =========================================================================
+   MODUL-BEÁLLÍTÁSOK
+   Mit követsz (a kalórián és a három makrón felül), és hogyan adod meg a
+   mennyiséget. Szándékosan NEM a Célok alatt van: a cél az, hogy MENNYIT egyél,
+   ez pedig az, hogy MIT mutasson és hogyan kezeld.
+   ========================================================================= */
+function kcSetOpen(){openModal(kcSetHtml());kcSetWire();}
+function kcSetRe(){const s=document.getElementById("modalSheet");
+  if(s){s.innerHTML=kcSetHtml();kcSetWire();}}
+function kcSetHtml(){
+  const s=S.food.set;
+  let h='<button class="close-x" id="mClose">✕</button><h3>⚙️ Kalória-beállítások</h3>';
+  /* --- mit számolunk --- */
+  h+='<div class="section-title">Mit számoljunk?</div>'
+   +'<div class="card" style="padding:14px 16px">'
+   +'<div class="hint" style="margin:0 0 10px">A <b>kalória, a fehérje, a szénhidrát és a zsír</b> mindig megy — ezekből él a napi keret. Ezen felül csak azt mutatom, amit bejelölsz; ami nincs bejelölve, azt sehol nem kell látnod.</div>';
+  KCNUT.forEach(function(d){
+    const on=(s.nut||[]).indexOf(d.k)>=0;
+    const val=(s.nt&&s.nt[d.k]!=null)?s.nt[d.k]:(d.k==="b"?s.fb:d.def);
+    h+='<label class="wo-check"><input type="checkbox" data-kcnut="'+d.k+'"'+(on?" checked":"")+'/>'
+     +'<span>'+esc(d.l)+'<small>'+(d.lim?"Korlát — ennél kevesebb a jó.":"Cél — ennyit érdemes elérni.")+'</small></span></label>';
+    if(on)h+='<div class="kc-nutt"><label class="wo-lb">'+(d.lim?"Napi felső határ":"Napi cél")+' ('+d.u+')</label>'
+     +'<input class="input mono" type="number" step="any" inputmode="decimal" data-kcnt="'+d.k+'" value="'+val+'"/></div>';});
+  h+='</div>';
+  /* --- mennyiség-bevitel --- */
+  h+='<div class="section-title">Mennyiség megadása</div>'
+   +'<div class="card" style="padding:14px 16px">'
+   +'<div class="hint" style="margin:0 0 10px">Ez az alapértelmezett mód — a mennyiség-lapon bármikor átválthatsz egy koppintással, és a váltás itt is megmarad. Mindegyik módban ott van a <b>−/+</b> (a legkisebb lépéssel, nyomva tartva pörög), és a <b>számra koppintva</b> beírhatod.</div>';
+  KCQMODES.forEach(function(m){
+    h+='<button class="kc-mrow2'+(s.qtyMode===m.k?" on":"")+'" data-kcqm="'+m.k+'">'
+     +'<span class="nm">'+m.l+'</span><span class="ds">'+esc(m.d)+'</span></button>';});
+  h+='<label class="wo-lb" style="margin-top:12px">Húzás érzékenysége <small>(a ↕️ és ↔️ módoknál)</small></label>'
+   +'<input class="kc-srange" type="range" min="1" max="5" step="1" id="kcSens" value="'+s.qtySens+'"/>'
+   +'<div class="kc-slab"><span>finom</span><span id="kcSensV">'+s.qtySens+'/5</span><span>gyors</span></div>'
+   +'<label class="wo-check" style="margin-top:12px"><input type="checkbox" id="kcRem"'+(s.rememberQty?" checked":"")+'/>'
+   +'<span>Emlékezzen a legutóbbi mennyiségre<small>Amikor újra rögzíted ugyanazt az ételt, alapból annyit ajánlok fel, amennyit legutóbb ettél belőle. A mennyiség-lapon a „Szoktad" chipek is megjelennek a leggyakoribb adagjaiddal.</small></span></label>'
+   +'</div>';
+  /* --- étkezések --- */
+  h+='<div class="section-title">Étkezések</div>'
+   +'<div class="card" style="padding:14px 16px">'
+   +'<div class="hint" style="margin:0 0 10px">Jelenlegi sorrend: '
+   +s.meals.map(function(m){return m.em+" "+esc(m.l);}).join(" · ")+'</div>'
+   +'<button class="btn ghost wide sm" id="kcSMeals">🍽 Étkezések szerkesztése</button></div>';
+  /* --- AI --- */
+  h+='<div class="section-title">Fotó-felismerés</div>'
+   +'<div class="card" style="padding:14px 16px">'
+   +'<div class="hint" style="margin:0">A címke-, táblázat- és tányérfotó a <b>saját Gemini-kulcsoddal</b> fut (Fiók fül). A <b>🏷 egyszerű címke</b> egy oszlopos, folyó szövegű címkéhez való, a <b>📊 táblázatos</b> a több oszlopos rácshoz — külön maradtak, mert a táblázatosnál te ellenőrzöd soronként, mi micsoda, és ez adja a pontos eredményt. Mindkettő felismeri az <b>idegen nyelvű</b> címkéket is, és lefordítja a feliratokat.</div></div>';
+  return h;}
+function kcSetWire(){
+  const s=S.food.set;
+  const x=document.getElementById("mClose");if(x)x.onclick=function(){closeScreen();
+    setTimeout(renderKaloria,120);};
+  document.querySelectorAll("[data-kcnut]").forEach(function(b){b.onchange=function(){
+    const k=b.dataset.kcnut,arr=s.nut=s.nut||[],i=arr.indexOf(k);
+    if(b.checked){if(i<0)arr.push(k);
+      /* első bekapcsoláskor legyen értelmes alapérték */
+      s.nt=s.nt||{};if(s.nt[k]==null)s.nt[k]=(k==="b"?s.fb:kcNutBy(k).def);}
+    else if(i>=0)arr.splice(i,1);
+    /* a KCNUT sorrendjét tartjuk, hogy a sávok mindig ugyanúgy álljanak */
+    s.nut=KCNUT.filter(function(d){return arr.indexOf(d.k)>=0;}).map(function(d){return d.k;});
+    kcTouch();kcSetRe();};});
+  document.querySelectorAll("[data-kcnt]").forEach(function(n){n.onchange=function(){
+    const k=n.dataset.kcnt,d=kcNutBy(k);
+    s.nt=s.nt||{};s.nt[k]=kcNum(kcClamp(n.value,0,d.max,d.def),1);
+    if(k==="b")s.fb=Math.round(s.nt[k]);
+    kcTouch();};});
+  document.querySelectorAll("[data-kcqm]").forEach(function(b){b.onclick=function(){
+    s.qtyMode=b.dataset.kcqm;kcTouch();kcSetRe();};});
+  const sn=document.getElementById("kcSens");
+  if(sn)sn.oninput=function(){s.qtySens=Math.round(kcClamp(sn.value,1,5,3));kcTouch();
+    const v=document.getElementById("kcSensV");if(v)v.textContent=s.qtySens+"/5";};
+  const rm=document.getElementById("kcRem");
+  if(rm)rm.onchange=function(){s.rememberQty=rm.checked;kcTouch();};
+  const ms=document.getElementById("kcSMeals");
+  if(ms)ms.onclick=function(){closeScreen();setTimeout(kcMealsOpen,180);};}
 
 /* =========================================================================
    STATISZTIKA
@@ -10119,6 +10955,19 @@ function bindCycDay(dayKey){
 
 /* --- „Mi újult meg?" (közérthető változásnapló) --- */
 const CHANGELOG=[
+ {v:13,title:"🍎 Kalória — ötféle mennyiség-bevitel, zsír-sáv, eszközök közti összefésülés",items:[
+   "<b>Megjavítva a „fantom kalória”.</b> Ha egy tételnél megvan a kalória, de a makrók nem (pl. idegen nyelvű címkéből csak a kcal jött át, vagy gyors bevitelnél csak azt írtad be), eddig NÉMÁN széttartott a napi kalóriád és a fehérje/szénhidrát/zsír sávok. Mostantól a <b>Ma</b> fülön külön kártya írja ki, <b>hány kalóriához nincs makró</b> és <b>melyik tételeknél</b> — egy koppintás, és pótolhatod. A naplósoron is ott a <b>„makró?”</b> jelölés, és gyors bevitelnél előre szólok, ha kalóriát mentenél makrók nélkül.",
+   "<b>Ötféleképpen adhatod meg a mennyiséget</b> — válaszd ki, ami kézre áll (⚙️ Beállítások, vagy egy koppintás a mennyiség-lapon): <b>🎛 Tekerő</b> (termosztát-szerű dupla gyűrű: a külső 15 g-osával lép, a belső 1 g-osával finomhangol), <b>🎰 Görgő</b> (három oszlop — százas, tízes, egyes), <b>↕️ Húzás</b>, <b>↔️ Scrubber</b> (a húzás sebessége szabja a lépésközt) és <b>⌨️ Beírom</b>. Mindegyikben ott a <b>−/+</b>, ami a <b>legkisebb egységgel</b> lép (nem 10-esével, mint eddig), és nyomva tartva folyamatosan pörög, gyorsulva.",
+   "Új: <b>„Szoktad”</b> chipek a mennyiség-lapon — a saját naplód alapján felkínálom a leggyakoribb adagjaidat abból az ételből, egy koppintásra. És ha bekapcsolod, <b>emlékszem a legutóbbi mennyiségre</b>: amikor újra rögzíted ugyanazt az ételt, alapból annyit ajánlok, amennyit legutóbb ettél.",
+   "<b>A zsír mostantól SÁV, nem egyetlen szám.</b> Van egy alsó határ (a napi energia 20%-a, de legalább 0,5 g/testsúly-kg — ez alá a hormonális működés miatt nem érdemes menni) és egy felső (a napi energia 35%-a, legfeljebb 1,3 g/kg — efölött már csak a szénhidráttól venne el). A <b>Célok</b> alatt egy koppintással ráállhatsz a <b>sáv aljára (diéta)</b>, a <b>közepére</b> vagy a <b>tetejére (tömegelés)</b>, és a szénhidrát ezzel fordítottan mozog. A <b>Ma</b> fülön a zsír és a szénhidrát <b>tartományként</b> jelenik meg — ha a sávon belül vagy, az ✓, nem „hiba”.",
+   "<b>Te döntöd el, mit számolsz.</b> Új <b>⚙️ Beállítások</b> a Kalória modulon belül: a kalória, fehérje, szénhidrát és zsír mellé bekapcsolhatod a <b>rostot, a cukrot, a telített zsírt</b> és a <b>sót</b> — mindegyikhez saját céllal vagy felső korláttal. Ami nincs bejelölve, azt sehol nem kell látnod (alapból csak a négy alap megy, rost nélkül).",
+   "<b>Új étkezés-sorrend</b>: Reggeli · Tízórai · Ebéd · Uzsonna · Vacsora · Edzés · Nasi. A hiányzó étkezések egyszer maguktól bekerülnek, a saját elnevezéseid megmaradnak, és utána bármikor átrendezheted.",
+   "<b>A keresés végre megtalálja.</b> Eddig a beírt szöveget egyben kereste, ezért a „jázmin rizs” nem hozta a <b>„Rizs, jázmin (főtt)”</b>-et. Mostantól <b>szavanként</b> keres, a <b>szórend nem számít</b>, és a szó belsejére is illeszkedik — ráadásul előre kerül az, amit a <b>leggyakrabban</b> szoktál rögzíteni.",
+   "<b>Idegen nyelvű címkék.</b> A címke- és táblázat-olvasó mostantól bármilyen nyelven felismeri a tápanyagok nevét (angol, német, francia, olasz, spanyol, lengyel, cseh, horvát, román, holland, török…), <b>lefordítja</b> a feliratokat (a magyar jelentés ott van az eredeti alatt), és a termék nevét is magyarul adja vissza. Ez nem kerül érdemben több AI-hívásba: ugyanaz az egy kérés hozza.",
+   "A két fotó-eszköz egyértelműbb nevet kapott: <b>🏷 Egyszerű címke fotó</b> (egy oszlop, folyó szöveg) és <b>📊 Táblázatos címke fotó</b> (több oszlopos rács, soronkénti ellenőrzéssel). Külön maradtak, mert a táblázatosnál pont az ellenőrzés adja a pontosságot.",
+   "<b>Vonalkód kamerával a saját ételnél is.</b> Eddig az étel szerkesztésekor csak begépelni lehetett a számsort — most ott a <b>📷 Beolvasás</b> gomb, és ha a kód megvan az OpenFoodFactsban, fel is ajánlom, hogy kitöltsem belőle a tápértékeket.",
+   "<b>Receptek</b>: az <b>adagszám már nem kötelező</b> (üresen „az egész” és a gramm az egység), és a hozzávalókhoz is használhatod a beviteli eszközöket — <b>vonalkód, egyszerű és táblázatos címke fotó, gyors bevitel, saját étel</b>, sőt <b>tányér fotó</b>, ami egyszerre több hozzávalót visz fel a becsült tömegükkel.",
+   "<b>Szinkron két eszköz között — most már látod is, mi történik.</b> Eddig minden felhő-hiba némán elnyelődött, ezért úgy tűnhetett, hogy a telefon és a gép „külön életet él”. A <b>Fiók</b> fülön mostantól ott az utolsó fel- és letöltés ideje, a hibaüzenet (ha van), és egy <b>🔄 Szinkronizálás most</b> gomb. Ez megmutatja mindkét oldalt, és felajánlja az <b>összefésülést</b>: a célok, napok, teendők, ételek, receptek, edzések, bibliai haladás és ciklusadatok <b>egyesülnek</b> — semmi nem vész el. Fésülés előtt pillanatkép készül."]},
  {v:12,title:"🍎 Kalóriaszámláló — kompakt Ma-fül, edzésnapi hullámzás, táblázat-olvasás",items:[
    "A <b>Ma</b> fül átépült: a kördiagram <b>balra</b> került, mellette jobb oldalon az <b>étkezéseid</b> — de csak azok, amikbe már rögzítettél. Minden sorban ott a <b>fehérje és a szénhidrát grammban</b>, és hogy az étkezés a napi bevitt kalória <b>hány százaléka</b>. A sorra koppintva a lenti naplórészhez ugrasz.",
    "A gyűrű mostantól <b>makrónként színezett</b>: látod, hogy az eddigi kalóriád mennyit hoz a fehérjéből, a szénhidrátból és a zsírból — alatta a százalékos bontással. A <b>gyűrű közepén</b> az áll, hogy a napi keret hány százalékát etted meg, alatta pedig egy sorban a <b>maradék</b>, az elfogyasztott, a keret és a hátralévő fehérje.",
@@ -10441,7 +11290,156 @@ window.SL={getState:()=>S,
     else if((S.updatedAt||0)>(remote.updatedAt||0))api.upload();
   },
   onCloudState:(u)=>{cloudUser=u;renderHeader();if(curTab==="fiok")renderFiok();},
+  /* A felhő-réteg innentől JELENT: sikert és hibát is. Egy néma catch miatt
+     hittük eddig azt, hogy „nem szinkronizál" — pedig csak nem szólt semmi. */
+  onCloudOk:(kind)=>{
+    if(kind==="push")cloudStat.push=Date.now();else cloudStat.pull=Date.now();
+    if(cloudStat.err){cloudStat.err=null;if(curTab==="fiok")renderFiok();}},
+  onCloudErr:(kind,e)=>{
+    const msg=(e&&(e.code||e.message))||"ismeretlen hiba";
+    cloudStat.err=(kind==="push"?"feltöltés: ":"letöltés: ")+msg;cloudStat.errAt=Date.now();
+    if(curTab==="fiok")renderFiok();
+    /* Csak egyszer szólunk hangosan, hogy ne járjon körbe-körbe a toast. */
+    if(!window.SL._errShown){window.SL._errShown=true;
+      toast("A felhő-szinkron hibára futott — nézd meg a Fiók fület","down");}},
   onCloudReady:()=>{if(curTab==="fiok")renderFiok();}};
+
+/* =========================================================================
+   ÖSSZEFÉSÜLÉS — két eszköz, egy fiók
+   A „melyik nyer?" logika akkor jó, ha egy eszközön dolgozol. Ha viszont a
+   telefonon és a gépen is vittél be adatot, mindkettő értékes: ilyenkor nem
+   választani kell, hanem EGYESÍTENI. A szabály mindenhol ugyanaz:
+     - listák (célok, edzések, receptek): azonosító szerint unió,
+     - naptár-jellegű tárak (napok, naplók): dátumkulcs szerint unió,
+     - ütközésnél (ugyanaz a kulcs mindkét oldalon) a FRISSEBB oldal nyer,
+     - beállítások: a frissebb oldalé.
+   Nem törlünk semmit — a fésülés csak hozzáad. Ha valamit tényleg törölni
+   akarsz, azt utána egyszer, egy eszközön kell megtenni.
+   ========================================================================= */
+function mgObj(a,b,newerIsB){   /* kulcs szerinti unió, ütközésnél a frissebbé */
+  const out={};const A=(a&&typeof a==="object")?a:{},B=(b&&typeof b==="object")?b:{};
+  for(const k in A)out[k]=A[k];
+  for(const k in B){if(!(k in out)||newerIsB)out[k]=B[k];}
+  return out;}
+function mgList(a,b,idKey,newerIsB){  /* azonosító szerinti unió */
+  const A=Array.isArray(a)?a:[],B=Array.isArray(b)?b:[];
+  const out=[],ix={};
+  const put=function(x,over){
+    if(!x||typeof x!=="object")return;
+    const id=String(x[idKey]!=null?x[idKey]:"");
+    if(!id){out.push(x);return;}
+    if(ix[id]==null){ix[id]=out.length;out.push(x);}
+    else if(over)out[ix[id]]=x;};
+  A.forEach(function(x){put(x,false);});
+  B.forEach(function(x){put(x,newerIsB);});
+  return out;}
+function mergeStates(local,remote){
+  const bNewer=(Number(remote&&remote.updatedAt)||0)>(Number(local&&local.updatedAt)||0);
+  const L=local||{},R=remote||{};
+  const top=bNewer?R:L;                 /* skalárok és beállítások a frissebbtől */
+  const out=JSON.parse(JSON.stringify(top));
+  out.updatedAt=Math.max(Number(L.updatedAt)||0,Number(R.updatedAt)||0);
+  out.onboarded=!!(L.onboarded||R.onboarded);
+  /* ---- szokáskövetés ---- */
+  out.goals=mgList(L.goals,R.goals,"id",bNewer);
+  out.days=mgObj(L.days,R.days,bNewer);
+  out.todos=mgList(L.todos,R.todos,"id",bNewer);
+  out.todoFolders=mgList(L.todoFolders,R.todoFolders,"id",bNewer);
+  out.reasons=mgObj(L.reasons,R.reasons,bNewer);
+  out.avoidState=mgObj(L.avoidState,R.avoidState,bNewer);
+  out.quickDailyHistory=mgObj(L.quickDailyHistory,R.quickDailyHistory,bNewer);
+  out.quickWeeklyHistory=mgObj(L.quickWeeklyHistory,R.quickWeeklyHistory,bNewer);
+  if(L.entries||R.entries)out.entries=mgObj(L.entries,R.entries,bNewer);
+  /* ---- Biblia ---- */
+  const lb=L.bible||{},rb=R.bible||{};
+  out.bible=JSON.parse(JSON.stringify((bNewer?rb:lb)||{}));
+  out.bible.enabled=!!(lb.enabled||rb.enabled);
+  if(lb.plan&&rb.plan)out.bible.plan=Object.assign({},bNewer?rb.plan:lb.plan,
+    {read:mgObj(lb.plan.read,rb.plan.read,bNewer)});
+  else out.bible.plan=lb.plan||rb.plan||null;
+  /* ---- ciklus ---- */
+  const lc=L.cycle||{},rc=R.cycle||{};
+  out.cycle=JSON.parse(JSON.stringify((bNewer?rc:lc)||{}));
+  out.cycle.enabled=!!(lc.enabled||rc.enabled);
+  out.cycle.periods=mgList(lc.periods,rc.periods,"start",bNewer);
+  out.cycle.logs=mgObj(lc.logs,rc.logs,bNewer);
+  /* ---- edzésnapló ---- */
+  const lw=L.workout||{},rw=R.workout||{};
+  out.workout=JSON.parse(JSON.stringify((bNewer?rw:lw)||{}));
+  out.workout.enabled=!!(lw.enabled||rw.enabled);
+  out.workout.sessions=mgList(lw.sessions,rw.sessions,"id",bNewer);
+  out.workout.routines=mgList(lw.routines,rw.routines,"id",bNewer);
+  out.workout.ex=mgObj(lw.ex,rw.ex,bNewer);
+  /* Folyamatban lévő edzés: csak akkor tartjuk meg, ha CSAK az egyik oldalon van. */
+  out.workout.live=(lw.live&&rw.live)?(bNewer?rw.live:lw.live):(lw.live||rw.live||null);
+  /* ---- kalória ---- */
+  const lf=L.food||{},rf=R.food||{};
+  out.food=JSON.parse(JSON.stringify((bNewer?rf:lf)||{}));
+  out.food.enabled=!!(lf.enabled||rf.enabled);
+  out.food.days=mgObj(lf.days,rf.days,bNewer);
+  out.food.tot=mgObj(lf.tot,rf.tot,bNewer);
+  out.food.w=mgObj(lf.w,rf.w,bNewer);
+  out.food.td=mgObj(lf.td,rf.td,bNewer);
+  out.food.lastQ=mgObj(lf.lastQ,rf.lastQ,bNewer);
+  out.food.custom=mgList(lf.custom,rf.custom,"id",bNewer);
+  out.food.rec=mgList(lf.rec,rf.rec,"id",bNewer);
+  out.food.tpl=mgList(lf.tpl,rf.tpl,"id",bNewer);
+  out.food.fix=mgList(lf.fix,rf.fix,"id",bNewer);
+  return out;}
+
+/* ---- Szinkron-állapot: ami eddig némán elveszett ----
+   Eddig minden felhő-hiba egy üres catch-ben kötött ki, ezért egy sikertelen
+   írás/olvasás úgy nézett ki, mintha az eszközök „külön életet élnének".
+   Mostantól látszik, mi történt, és kézzel is indítható szinkron. */
+let cloudStat={pull:0,push:0,err:null,errAt:0};
+function cloudStatText(){
+  if(!(window.Cloud&&window.Cloud.configured))return"A felhő-szinkron nincs beállítva.";
+  if(!cloudUser)return"Nem vagy bejelentkezve — az adatok csak ezen az eszközön vannak.";
+  let s="";
+  if(cloudStat.push)s+="Utolsó feltöltés: "+new Date(cloudStat.push).toLocaleString("hu-HU")+". ";
+  if(cloudStat.pull)s+="Utolsó letöltés: "+new Date(cloudStat.pull).toLocaleString("hu-HU")+". ";
+  if(!s)s="Még nem történt szinkron ebben a munkamenetben. ";
+  if(cloudStat.err)s+='<b style="color:var(--loss)">Hiba: '+esc(cloudStat.err)+"</b>";
+  return s;}
+/* Kézi szinkron-panel: megmutatja mindkét oldalt, és te döntöd el, mi legyen. */
+function syncPanel(){
+  if(!(window.Cloud&&window.Cloud.configured)){toast("A felhő-szinkron nincs beállítva","warn");return;}
+  if(!cloudUser){toast("Előbb jelentkezz be Google-fiókkal","warn");return;}
+  openModal('<button class="close-x" id="mClose">✕</button><h3>🔄 Szinkronizálás</h3>'
+   +'<div id="syncBody"><div class="hint">A felhőben lévő adat letöltése…</div></div>');
+  window.Cloud.pullNow().then(function(remote){
+    const body=document.getElementById("syncBody");if(!body)return;
+    if(!remote){
+      body.innerHTML='<div class="hint">A felhőben még nincs adat ehhez a fiókhoz. Töltsd fel a mostani állapotot, és a többi eszköz ezt fogja látni.</div>'
+       +'<button class="btn wide" id="syUp" style="margin-top:12px">📤 Feltöltés a felhőbe</button>';}
+    else{
+      const merged=mergeStates(S,remote);
+      body.innerHTML='<p class="hint" style="margin:-2px 0 12px">Így áll a két oldal. Ha mindkét eszközön vittél be adatot, az <b>összefésülés</b> a helyes választás — az semmit nem dob el.</p>'
+       +'<div class="card" style="padding:12px"><b>📱 Ezen az eszközön</b><div style="margin-top:4px">'+stateSummary(S)+'</div></div>'
+       +'<div class="card" style="padding:12px;margin-top:8px"><b>☁️ A felhőben</b><div style="margin-top:4px">'+stateSummary(remote)+'</div></div>'
+       +'<div class="card" style="padding:12px;margin-top:8px"><b>🔗 Összefésülve</b><div style="margin-top:4px">'+stateSummary(merged)+'</div></div>'
+       +'<button class="btn wide" id="syMerge" style="margin-top:12px">🔗 Összefésülés (ajánlott)</button>'
+       +'<button class="btn ghost wide sm" id="syDown" style="margin-top:8px">☁️→📱 A felhő verzióját kérem</button>'
+       +'<button class="btn ghost wide sm" id="syUp" style="margin-top:8px">📱→☁️ Az eszközön lévőt töltsd fel</button>'
+       +'<div class="hint" style="margin-top:10px">Bármelyiket választod, előtte pillanatkép készül a mostani állapotról — a <b>🛟 Biztonsági mentések</b> alól bármikor visszahozható.</div>';
+      const dn=document.getElementById("syDown");
+      if(dn)dn.onclick=function(){window.SL.applyRemote(remote);closeScreen();};
+      const mg=document.getElementById("syMerge");
+      if(mg)mg.onclick=function(){
+        bakSnapshot("fesules-elott");
+        if(window.Cloud.backupNow)window.Cloud.backupNow(cloudCopy(),"fesules-elott");
+        try{S=normalize(merged);S.updatedAt=Date.now();persist();
+          window.Cloud.pushNow(cloudCopy());
+          closeScreen();switchTab(curTab);toast("Összefésülve ✓");}
+        catch(e){toast("Nem sikerült: "+e.message,"down");}};}
+    const up=document.getElementById("syUp");
+    if(up)up.onclick=function(){S.updatedAt=Date.now();persist();
+      window.Cloud.pushNow(cloudCopy());closeScreen();toast("Feltöltve ✓");};
+  }).catch(function(e){
+    const body=document.getElementById("syncBody");if(!body)return;
+    body.innerHTML='<div class="card" style="padding:14px"><b style="color:var(--loss)">Nem sikerült elérni a felhőt</b>'
+     +'<div class="hint" style="margin-top:6px">'+esc((e&&(e.code||e.message))||"ismeretlen hiba")+'</div>'
+     +'<div class="hint" style="margin-top:8px">Ha ez a hiba tartósan megmarad, az adataid <b>nem</b> szinkronizálnak az eszközeid közt — ilyenkor a Fiók → Mentés → Exportálás a biztos út.</div></div>';});}
 
 /* Ütközés-párbeszéd: a felhasználó választ, semmi nem vész el magától. */
 function askCloudConflict(remote,api){
@@ -10464,7 +11462,7 @@ function askCloudConflict(remote,api){
 /* =========================================================================
    2. RÉTEG — témák, súgó, tutorial, indokok, ünneplés, visszajelzés
    ========================================================================= */
-const APP_VERSION="v24";
+const APP_VERSION="v25";
 
 /* ---- témák ---- */
 const THEMES=[{id:"kert",name:"Üvegház",sw:"#2D6A4F"},{id:"papir",name:"Letisztult",sw:"#1B4332"},{id:"krem",name:"Papír",sw:"#B5852B"},{id:"arany",name:"Arany éj",sw:"#E5A83B"},{id:"erdo",name:"Erdő",sw:"#5FD08A"},{id:"ocean",name:"Óceán",sw:"#4FB0E5"},{id:"naplemente",name:"Naplemente",sw:"#E5744F"},{id:"ejjel",name:"Éjszakai",sw:"#C79A46"},{id:"film",name:"Filmvászon",sw:"#D8D8D8"}];
@@ -10791,7 +11789,8 @@ function shareApp(){
 const DRIVE_FOLDER_NAME="Trellis mentések";
 const BAK_TAGS={napi:"napi automatikus","felho-elott":"felhő-szinkron előtt","import-elott":"importálás előtt",
   "torles-elott":"törlés előtt",utkozes:"eltérés észlelve","visszaallitas-elott":"visszaállítás előtt",
-  "eszkoz-elott":"eszköz felülírása előtt","mento":"mentőoldalról",kezi:"kézi mentés"};
+  "eszkoz-elott":"eszköz felülírása előtt","fesules-elott":"összefésülés előtt",
+  "mento":"mentőoldalról",kezi:"kézi mentés"};
 function bakWhen(ts){try{return new Date(ts).toLocaleString("hu-HU");}catch(e){return"—";}}
 function restoreState(obj,label){
   try{
@@ -10904,7 +11903,12 @@ function renderDriveSection(){
 function renderFiok(){const el=document.getElementById("tab-fiok");
   let html='<div class="section-title" style="margin-top:8px">Fiók & szinkron</div><div class="card" style="padding:16px">';
   if(window.Cloud&&window.Cloud.configured){
-    if(cloudUser)html+='<div class="hint" style="margin-bottom:10px">Bejelentkezve: <b>'+esc(cloudUser.name)+'</b> — az adataid eszközök közt szinkronizálnak.</div><button class="btn ghost sm" id="signOut">Kijelentkezés</button>';
+    if(cloudUser){
+      html+='<div class="hint" style="margin-bottom:10px">Bejelentkezve: <b>'+esc(cloudUser.name)+'</b> — az adataid eszközök közt szinkronizálnak.</div>'
+       +'<div class="hint" style="margin-bottom:10px">'+cloudStatText()+'</div>'
+       +'<button class="btn wide sm" id="syncNow" style="margin-bottom:8px">🔄 Szinkronizálás most</button>'
+       +'<div class="hint" style="margin-bottom:10px">Ha egy másik eszközön (gépen, tableten) nem ugyanazt látod, itt <b>összefésülheted</b> a két oldalt — az összefésülés semmit nem dob el, csak egyesít.</div>'
+       +'<button class="btn ghost sm" id="signOut">Kijelentkezés</button>';}
     else html+='<div class="hint" style="margin-bottom:10px">Jelentkezz be, hogy az adataid több eszköz közt szinkronizáljanak. Csak te látod őket.</div><button class="btn sm" id="signIn">Bejelentkezés Google-fiókkal</button>';
   }else html+='<div class="hint">A felhő-szinkron nincs beállítva ehhez a példányhoz. Enélkül minden helyben, ezen az eszközön működik.</div>';
   html+='</div>';
@@ -10923,6 +11927,7 @@ function renderFiok(){const el=document.getElementById("tab-fiok");
   el.innerHTML=html;
   const si=document.getElementById("signIn");if(si)si.onclick=()=>{window.Cloud.signIn();};
   const so=document.getElementById("signOut");if(so)so.onclick=()=>{if(confirm("Kijelentkezel?"))window.Cloud.signOut();};
+  const sy=document.getElementById("syncNow");if(sy)sy.onclick=syncPanel;
   const om=document.getElementById("openModules");if(om)om.onclick=openModulesPanel;
   const jb=document.getElementById("openJutalmak");if(jb)jb.onclick=showJutalmak;
   const rb=document.getElementById("referBtn");if(rb)rb.onclick=shareApp;
@@ -11189,8 +12194,24 @@ try{
         if(!force&&window.SL.weight(state)===0&&lastRemoteWeight>0)return;
         clearTimeout(pushT);
         pushT=setTimeout(()=>{const ref=doc(db,"users",uid);
-          setDoc(ref,state).then(()=>{lastRemoteWeight=window.SL.weight(state);cloudBackup(state,null);}).catch(()=>{});
+          setDoc(ref,state).then(()=>{lastRemoteWeight=window.SL.weight(state);
+            window.SL.onCloudOk("push");cloudBackup(state,null);})
+          .catch((e)=>{window.SL.onCloudErr("push",e);});
         },1200);},
+      // Kézi szinkronhoz: azonnali olvasás/írás, várólista és késleltetés nélkül.
+      pullNow:()=>{
+        if(!uid)return Promise.reject(new Error("nincs bejelentkezve"));
+        return getDoc(doc(db,"users",uid)).then((s)=>{
+          window.SL.onCloudOk("pull");
+          return s.exists()?s.data():null;})
+        .catch((e)=>{window.SL.onCloudErr("pull",e);throw e;});},
+      pushNow:(state)=>{
+        if(!uid)return Promise.reject(new Error("nincs bejelentkezve"));
+        clearTimeout(pushT);
+        return setDoc(doc(db,"users",uid),state).then(()=>{
+          lastRemoteWeight=window.SL.weight(state);
+          window.SL.onCloudOk("push");cloudBackup(state,null);})
+        .catch((e)=>{window.SL.onCloudErr("push",e);throw e;});},
       // Napi felhő-pillanatkép: users/{uid}/backups/{ÉÉÉÉ-HH-NN}. Naponta egy írás,
       // 14 napig visszamenőleg elérhető (a Fiók fülön), a régieket takarítjuk.
       listBackups:()=>uid?getDocs(collection(db,"users",uid,"backups")).then(s=>{const a=[];s.forEach(d=>a.push({id:d.id,data:d.data()}));return a.sort((x,y)=>((y.data&&y.data.at)||0)-((x.data&&x.data.at)||0));}):Promise.resolve([])};
@@ -11307,19 +12328,22 @@ try{
       if(user){
         try{const ref=doc(db,"users",uid);const snap=await getDoc(ref);
           const remote=snap.exists()?snap.data():null;
+          window.SL.onCloudOk("pull");
           lastRemoteWeight=window.SL.weight(remote);
           // A döntést az app rétege hozza (tartalom-súly + szükség esetén kérdés).
           window.SL.cloudResolve(remote,{upload:()=>{const st=window.SL.getState();
             setDoc(ref,st).then(()=>{lastRemoteWeight=window.SL.weight(st);cloudBackup(st,null);}).catch(()=>{});}});
           unsub=onSnapshot(ref,(s)=>{
             if(!s.exists())return;
+            window.SL.onCloudOk("pull");
             const rem=s.data();
             lastRemoteWeight=Math.max(lastRemoteWeight,window.SL.weight(rem));
             if((rem.updatedAt||0)<=(window.SL.getState().updatedAt||0))return; // saját visszhang
             window.SL.cloudResolve(rem,{upload:()=>{const st=window.SL.getState();
-              setDoc(ref,st).then(()=>{lastRemoteWeight=window.SL.weight(st);}).catch(()=>{});}});
-          });
-        }catch(e){}
+              setDoc(ref,st).then(()=>{lastRemoteWeight=window.SL.weight(st);window.SL.onCloudOk("push");})
+                .catch((e2)=>{window.SL.onCloudErr("push",e2);});}});
+          },(err)=>{window.SL.onCloudErr("pull",err);});
+        }catch(e){window.SL.onCloudErr("pull",e);}
       }
     });
   }else{window.Cloud={configured:false};}
