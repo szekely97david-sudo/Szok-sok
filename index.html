@@ -9013,6 +9013,8 @@ async function geminiCall(system,user,gen,imgs){
       for(let attempt=0;attempt<4;attempt++){
         const url=gGenUrl(ver,model,key);
         let r;try{r=await gFetchJson(url,{method:"POST",headers:{"Content-Type":"application/json"},body:reqBody});}catch(e){lastErr=e;stop=true;break;}
+        /* „limit: 0” = nincs kerete → se újrapróbálkozás, se 10 perces zár; a következő modell viszont mehet (a kvóta modellenkénti). */
+        if(r.status===429&&gQuotaZero(r.data)){lastErr=new Error(gExplain(429,r.data,model));break;}
         if(r.status===429){gLimitedUntil=Date.now()+10*60000;if(attempt<3){await sleep(backoff);backoff*=2;continue;}lastErr=new Error(friendlyLimitMsg());stop=true;break;}
         if(r.status===400||r.status===401){lastErr=new Error(gExplain(r.status,r.data));stop=true;break;}
         if(r.status===404||r.status===403){lastErr=new Error(gExplain(r.status,r.data,model));soft=true;break;}
@@ -9033,10 +9035,13 @@ async function geminiCall(system,user,gen,imgs){
     }
   }
   throw lastErr||new Error("Nem sikerült egyik modellel sem");}
+/* „limit: 0” = a projektnek NINCS ingyenes kerete. Ez nem múlik el várakozással — külön kell kezelni. */
+function gQuotaZero(data){return /limit:\s*0\b/.test(String(((data&&data.error)||{}).message||""));}
 /* Google-hibakód → magyar, cselekvésre fordított mondat (a nyers üzenet a végén marad). */
 function gExplain(status,data,model,keyLevel){
   const err=(data&&data.error)||{};const msg=String(err.message||"");const st=String(err.status||"");
   const raw=msg?" ("+msg.slice(0,180)+")":"";
+  if(status===429&&gQuotaZero(data))return"Ennek a Google-fióknak/projektnek NULLA az ingyenes kerete („limit: 0”)"+(model?" a(z) "+model+" modellre":"")+" — várni hiába fogsz, a keret nem áll vissza magától. Ez fiók-szintű korlátozás.";
   if(/location is not supported/i.test(msg))return"A Gemini ingyenes API ebben az országban/hálózaton nem elérhető. Kapcsold ki a VPN-t, vagy próbáld másik hálózatról."+raw;
   if(status===429)return friendlyLimitMsg();
   if(status===400&&(/API_KEY_INVALID|API key not valid/i.test(msg+st)))return"A Gemini-kulcs érvénytelen (elgépelt vagy hiányos). Másold be újra a Fiók fülön."+raw;
@@ -9073,14 +9078,17 @@ async function geminiSelfTest(btn){
       GKEY=key;Store.set("gemini_key",key);if(inp)inp.value=key;
       const body=JSON.stringify({contents:[{role:"user",parts:[{text:"Válaszolj ennyivel: OK"}]}],generationConfig:{temperature:0,maxOutputTokens:16}});
       /* Nem elég EGY modellt próbálni: ha mind a ~8 elbukik, az már bizonyíték, hogy fiók/projekt-szintű a tiltás. */
-      const cands=[use].concat(list.filter(m=>m!==use&&!/embedding|aqa|vision|image|imagen|tts|audio|live|veo/.test(m)).slice(0,6));
-      let ok=false,last=null,tried=0,okVer=null,okModel=null;
+      /* A pro/preview/exp modelleknek a legszűkebb az ingyenes kerete — ezekkel csak félrevezető hibát kapnánk. */
+      const cands=[use].concat(list.filter(m=>m!==use&&!/embedding|aqa|vision|image|imagen|tts|audio|live|veo|pro|preview|exp/.test(m)).slice(0,6));
+      let ok=false,last=null,lastM=use,lastV="v1beta",tried=0,okVer=null,okModel=null,zeroQuota=false;
       outer:
       for(const m of cands){
         for(const ver of["v1beta","v1"]){
           const r=await gFetchJson(gGenUrl(ver,m,key),{method:"POST",headers:{"Content-Type":"application/json"},body:body});
-          last=r;tried++;
+          last=r;lastM=m;lastV=ver;tried++;
           if(r.ok){ok=true;okVer=ver;okModel=m;break outer;}
+          /* Nulla keret: ezen a modellen nincs mit várni, de a többin még lehet. */
+          if(r.status===429&&gQuotaZero(r.data)){zeroQuota=true;break;}
           if(r.status!==404&&r.status!==403)break outer;
         }
       }
@@ -9091,8 +9099,8 @@ async function geminiSelfTest(btn){
           (okModel!==use?" (a <b>"+esc(okModel)+"</b> modellre álltam át)":"")+(okVer==="v1"?" (a <b>v1</b> API-verzióval)":""));
       }
       if(!ok){
-        lines.push("❌ A próbakérés elakadt: "+esc(gExplain(last.status,last.data,use)));
-        lines.push("🔎 "+cands.length+" különböző modellt próbáltam meg, mindkét API-verzión ("+tried+" kérés) — egyik sem ment át.");
+        lines.push("❌ A próbakérés elakadt: "+esc(gExplain(last.status,last.data,lastM)));
+        lines.push("🔎 "+tried+" kérés ment ki (utolsó: <b>"+esc(lastM)+"</b>, "+lastV+") — egyik sem ment át.");
         /* Döntő különbség-teszt: a modellt EGYENKÉNT is le tudja-e kérni a kulcs (GetModel), vagy csak a katalógust (ListModels)? */
         const gm=await gFetchJson("https://generativelanguage.googleapis.com/v1beta/models/"+use+"?key="+encodeURIComponent(key));
         lines.push(gm.ok?"✅ A modellt egyenként is le tudja kérni (GetModel) — tehát csak a <b>generálást</b> tiltja a Google."
@@ -9100,10 +9108,17 @@ async function geminiSelfTest(btn){
         /* A teljes nyers válasz (details mezővel együtt) — ezt lehet továbbküldeni. */
         const mask=key.slice(0,6)+"…"+key.slice(-4);
         lines.push('<b>🔧 Nyers válasz (ezt küldd át):</b><pre style="white-space:pre-wrap;word-break:break-all;font-size:11px;line-height:1.35;background:rgba(127,127,127,.14);padding:8px;border-radius:8px;max-height:240px;overflow:auto;margin:6px 0 0">'+
-          esc("POST https://generativelanguage.googleapis.com/v1beta/models/"+use+":generateContent?key="+mask+"\nHTTP "+last.status+"\n"+(last.raw||"(üres válasz)").slice(0,1400)+
+          esc("POST https://generativelanguage.googleapis.com/"+lastV+"/models/"+lastM+":generateContent?key="+mask+"\nHTTP "+last.status+"\n"+(last.raw||"(üres válasz)").slice(0,1400)+
               "\n\nGET .../v1beta/models/"+use+"?key="+mask+"\nHTTP "+gm.status+"\n"+(gm.raw||"(üres válasz)").slice(0,600))+"</pre>");
+        /* Nulla ingyenes keret: se új kulcs, se új projekt nem segít — a FIÓK jogosultságát kell rendbe tenni. */
+        if(zeroQuota)
+          lines.push('<b>Mit jelent ez:</b> a kulcs és a projekt is rendben van, de a Google <b>nulla ingyenes keretet</b> ad ehhez a fiókhoz („limit: 0”). Új kulcs és új projekt ezen NEM segít. Amit nézz meg, ebben a sorrendben:<br>'+
+            '1. <b>myaccount.google.com → Személyes adatok → Születésnap.</b> Ha hiányzik vagy 18 év alattit mutat, a Google nem ad API-keretet. Töltsd ki/javítsd, majd 1 nap múlva próbáld újra.<br>'+
+            '2. <b>Ország/régió:</b> a fiók (és a fizetési profil) országa legyen Magyarország — VPN-t kapcsolj ki.<br>'+
+            '3. Ha ezek rendben vannak: a projekthez <b>számlázási fiókot kapcsolva</b> azonnal megnyílik a keret (a mi használatunk pár forint havonta, de bankkártya kell hozzá).<br>'+
+            '4. Vagy: kulcs egy <b>másik Google-fiókkal</b> (pl. egy friss Gmail) — az szinte biztosan menni fog.');
         /* Ez a kombináció (a kulcs LÁTJA a modellt, de generálni nem enged) mindig fiók/projekt-szintű. */
-        if(last.status===404||last.status===403)
+        if(!zeroQuota&&(last.status===404||last.status===403))
           lines.push('<b>Mit jelent ez:</b> a kulcs valódi és a modelleket is látja, csak <b>generálni nem enged a Google ezzel a projekttel</b>. Nem a kulcsot kell újra legyártani — <b>a projektet kell lecserélni</b>:<br>'+
             '1. <b>aistudio.google.com → Get API key → Create API key</b>, és a felugró ablakban <b>„Create API key in new project"</b> (ha csak meglévő projektet kínál, a Google Cloud Console-ban csinálj egy vadonatúj projektet, és abba kérd a kulcsot). Ugyanabba a projektbe gyártott újabb kulcs ugyanígy el fog bukni.<br>'+
             '2. Próbakérdés az <b>aistudio.google.com</b> chatben, ugyanazzal a fiókkal. Ha ott sem válaszol, a <b>fiókkal</b> van a gond: iskolai/céges (Workspace) vagy szülői felügyelet alatti fiók nem használhatja a Gemini API-t — ilyenkor sima, saját Gmail kell.<br>'+
@@ -11463,6 +11478,10 @@ function bindCycDay(dayKey){
 
 /* --- „Mi újult meg?" (közérthető változásnapló) --- */
 const CHANGELOG=[
+ {v:19,title:"🔑 „Nulla a kereted” — most már ezt is megmondja, nem küld várni",items:[
+   "Van olyan Google-fiók, amelyik <b>nulla ingyenes keretet</b> kap az AI-hoz („limit: 0”). Eddig ilyenkor azt írtuk ki, hogy elérted a percenkénti limitet, és várj egy percet — pedig hiába vársz, ez a keret nem áll vissza. Mostantól kimondjuk, mi a helyzet, és azt is, mit lehet vele kezdeni (fiók születési dátuma, ország, számlázási fiók, vagy másik Google-fiók).",
+   "<b>Nem zárjuk le 10 percre az AI-t</b> ilyenkor, és nem is próbálkozunk újra feleslegesen — a keret modellenként külön van, ezért a többi modellel simán mehet tovább.",
+   "A tesztgomb már <b>nem próbál „pro” és „preview” modelleket</b> (ezeknek a legszűkebb a keretük, csak félrevezető hibát adtak), és pontosan kiírja, melyik modellel és melyik API-verzióval futott az utolsó kérés."]},
  {v:18,title:"🔑 Gemini: másik API-verzió és pontosabb tanács, ha elakad",items:[
    "<b>Ha a szokásos API-verzión (v1beta) 404-et kapunk, az app magától újrapróbálja a <i>v1</i>-en</b>, és ha az megy, arra vált. Van fiók/projekt, ahol csak az egyik működik.",
    "<b>Ha a kulcs látja a modelleket, de generálni mégsem enged</b>, most kiírjuk, hogy ez <b>fiók- vagy projekt-szintű</b> gond, és lépésről lépésre, hogy mit nézz meg: próba az aistudio.google.com-on, iskolai/céges vagy gyerek-fiók kizárva, új kulcs ÚJ projektbe, VPN ki.",
@@ -12007,7 +12026,7 @@ function askCloudConflict(remote,api){
 /* =========================================================================
    2. RÉTEG — témák, súgó, tutorial, indokok, ünneplés, visszajelzés
    ========================================================================= */
-const APP_VERSION="v32";
+const APP_VERSION="v33";
 
 /* ---- témák ---- */
 const THEMES=[{id:"kert",name:"Üvegház",sw:"#2D6A4F"},{id:"papir",name:"Letisztult",sw:"#1B4332"},{id:"krem",name:"Papír",sw:"#B5852B"},{id:"arany",name:"Arany éj",sw:"#E5A83B"},{id:"erdo",name:"Erdő",sw:"#5FD08A"},{id:"ocean",name:"Óceán",sw:"#4FB0E5"},{id:"naplemente",name:"Naplemente",sw:"#E5744F"},{id:"ejjel",name:"Éjszakai",sw:"#C79A46"},{id:"film",name:"Filmvászon",sw:"#D8D8D8"}];
