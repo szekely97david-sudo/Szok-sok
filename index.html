@@ -1575,8 +1575,9 @@ const SCALE_OPTS=[3,5,10];
 const BOOL_WIN=10, BOOL_FAIL=5, BOOL_SLIP=10;
 const TALLY_STEP=2, TALLY_CAP=10;
 const TODO_WEIGHTS={kicsi:3,kozepes:6,nagy:9};
-let GKEY=Store.get("gemini_key")||"";
-let GMODEL=Store.get("gemini_model")||GEMINI_MODEL;
+/* A tárolt kulcs/modell megtisztítva (a régi mentésekben lehet sortörés vagy "models/" előtag). */
+let GKEY=gKeyClean(Store.get("gemini_key"));
+let GMODEL=gModelClean(Store.get("gemini_model"))||GEMINI_MODEL;
 let cloudUser=null, deferredPrompt=null;
 
 /* ---- dátum-segédek (hoisted) ---- */
@@ -8967,6 +8968,26 @@ function saveGoal(){if(commitDraft()){toast("Cél mentve ✓");closeScreen();}}
 let GQ=Promise.resolve();let gLimitedUntil=0;
 function friendlyLimitMsg(){const mins=Math.max(1,Math.ceil((gLimitedUntil-Date.now())/60000));return"Elérted a Gemini ingyenes percenkénti limitjét. Amit beírtál, elmentve marad — próbáld újra kb. "+mins+" perc múlva.";}
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+/* A kulcsból minden whitespace kiesik (mobilon a másolás gyakran hoz sortörést/szóközt). */
+function gKeyClean(k){return String(k||"").replace(/\s+/g,"");}
+/* A modell-névből kiesik a "models/" előtag — enélkül .../models/models/... lenne az URL → 404. */
+function gModelClean(m){return String(m||"").trim().replace(/^models\//,"");}
+/* A Google hibaválaszának ÉRDEMI szövege — enélkül csak a státuszkódot látnánk. */
+function gApiMsg(data,status){const e=(data&&data.error)||null;
+  return "HTTP "+status+(e&&e.status?" "+e.status:"")+(e&&e.message?" – "+e.message:"");}
+async function gFetchJson(url,opt){const res=await fetch(url,opt||{});let txt="";try{txt=await res.text();}catch(e){}
+  let data=null;try{data=JSON.parse(txt);}catch(e){}
+  return{ok:res.ok,status:res.status,data:data,raw:txt};}
+/* Milyen modelleket lát EZ a kulcs? (ListModels) — ebből derül ki, kulcs- vagy modell-hiba van-e. */
+async function geminiListModels(key){
+  const r=await gFetchJson("https://generativelanguage.googleapis.com/v1beta/models?pageSize=200&key="+encodeURIComponent(gKeyClean(key||GKEY)));
+  if(!r.ok){const e=new Error(gApiMsg(r.data,r.status));e.status=r.status;e.api=(r.data&&r.data.error)||null;throw e;}
+  return(r.data&&r.data.models||[]).filter(m=>(m.supportedGenerationMethods||[]).indexOf("generateContent")>=0)
+    .map(m=>gModelClean(m.name)).filter(Boolean);}
+/* A listából a nekünk való modell: 2.5 flash → bármi flash → bármi. A pro-t kerüljük (drága/lassú). */
+function gPickModel(list){const L=list||[];
+  return L.find(m=>/2\.5-flash$/.test(m))||L.find(m=>/2\.5-flash-lite$/.test(m))||L.find(m=>/flash/.test(m)&&!/vision|thinking/.test(m))||L.find(m=>!/pro|vision|embedding/.test(m))||L[0]||null;}
+let _gModelOk=null;
 async function geminiCall(system,user,gen,imgs){
   if(!GKEY)throw new Error("Adj meg egy Gemini-kulcsot a Fiók fülön");
   if(Date.now()<gLimitedUntil)throw new Error(friendlyLimitMsg());
@@ -8977,22 +8998,79 @@ async function geminiCall(system,user,gen,imgs){
     const m=/^data:([^;]+);base64,([\s\S]*)$/.exec(d||"");
     if(m)uparts.push({inline_data:{mime_type:m[1],data:m[2]}});});
   const reqBody=JSON.stringify({systemInstruction:{parts:[{text:system}]},contents:[{role:"user",parts:uparts}],generationConfig:generationConfig});
-  const tries=[...new Set([GMODEL,"gemini-2.5-flash","gemini-2.5-flash-lite"].filter(Boolean))];
-  let lastErr=null;
-  for(const model of tries){
+  const key=gKeyClean(GKEY);
+  const tries=[...new Set([_gModelOk,GMODEL,"gemini-2.5-flash","gemini-2.5-flash-lite"].filter(Boolean).map(gModelClean))];
+  let lastErr=null,probed=false;
+  for(let ti=0;ti<tries.length;ti++){
+    const model=tries[ti];
     let backoff=1000;
     for(let attempt=0;attempt<4;attempt++){
-      const url="https://generativelanguage.googleapis.com/v1beta/models/"+model+":generateContent?key="+encodeURIComponent(GKEY);
-      let res;try{res=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:reqBody});}catch(e){lastErr=e;break;}
-      if(res.status===429){gLimitedUntil=Date.now()+10*60000;if(attempt<3){await sleep(backoff);backoff*=2;continue;}lastErr=new Error(friendlyLimitMsg());break;}
-      if(res.status===400)throw new Error("Hibás kulcs vagy kérés (400). Ellenőrizd a Gemini-kulcsot a Fiók fülön.");
-      if(res.status===404||res.status===403){lastErr=new Error(model+" nem elérhető ("+res.status+")");break;}
-      if(!res.ok){lastErr=new Error("HTTP "+res.status);await sleep(backoff);backoff*=2;continue;}
-      const data=await res.json();const parts=(((data.candidates||[])[0]||{}).content||{}).parts||[];let text=parts.map(p=>p.text||"").join("");
-      let obj;try{obj=JSON.parse(text);}catch(e){const a=text.indexOf("{"),b=text.lastIndexOf("}");obj=JSON.parse(text.slice(a,b+1));}return obj;
+      const url="https://generativelanguage.googleapis.com/v1beta/models/"+model+":generateContent?key="+encodeURIComponent(key);
+      let r;try{r=await gFetchJson(url,{method:"POST",headers:{"Content-Type":"application/json"},body:reqBody});}catch(e){lastErr=e;break;}
+      if(r.status===429){gLimitedUntil=Date.now()+10*60000;if(attempt<3){await sleep(backoff);backoff*=2;continue;}lastErr=new Error(friendlyLimitMsg());break;}
+      if(r.status===400||r.status===401){lastErr=new Error(gExplain(r.status,r.data));break;}
+      if(r.status===404||r.status===403){lastErr=new Error(gExplain(r.status,r.data,model));break;}
+      if(!r.ok){lastErr=new Error(gApiMsg(r.data,r.status));await sleep(backoff);backoff*=2;continue;}
+      const data=r.data||{};const parts=(((data.candidates||[])[0]||{}).content||{}).parts||[];let text=parts.map(p=>p.text||"").join("");
+      let obj;try{obj=JSON.parse(text);}catch(e){const a=text.indexOf("{"),b=text.lastIndexOf("}");obj=JSON.parse(text.slice(a,b+1));}
+      _gModelOk=model;return obj;
+    }
+    /* Ha a listánk elfogyott és mindegyik 403/404 volt, megkérdezzük a kulcsot: MIT lát egyáltalán? */
+    if(ti===tries.length-1&&!probed&&lastErr){probed=true;
+      try{const pick=gPickModel(await geminiListModels(key));
+        if(pick&&tries.indexOf(pick)<0)tries.push(pick);
+        else if(!pick)lastErr=new Error("Ez a kulcs egyetlen szöveggeneráló modellt sem lát. Hozz létre új kulcsot az aistudio.google.com oldalon.");}
+      catch(e){lastErr=new Error(gExplain(e.status||0,{error:e.api},null,true));}
     }
   }
   throw lastErr||new Error("Nem sikerült egyik modellel sem");}
+/* Google-hibakód → magyar, cselekvésre fordított mondat (a nyers üzenet a végén marad). */
+function gExplain(status,data,model,keyLevel){
+  const err=(data&&data.error)||{};const msg=String(err.message||"");const st=String(err.status||"");
+  const raw=msg?" ("+msg.slice(0,180)+")":"";
+  if(/location is not supported/i.test(msg))return"A Gemini ingyenes API ebben az országban/hálózaton nem elérhető. Kapcsold ki a VPN-t, vagy próbáld másik hálózatról."+raw;
+  if(status===429)return friendlyLimitMsg();
+  if(status===400&&(/API_KEY_INVALID|API key not valid/i.test(msg+st)))return"A Gemini-kulcs érvénytelen (elgépelt vagy hiányos). Másold be újra a Fiók fülön."+raw;
+  if(status===400)return"A kérést a Gemini elutasította (400). Ellenőrizd a kulcsot a Fiók fülön."+raw;
+  if(status===401)return"A Gemini nem fogadta el a kulcsot (401). Hozz létre újat az aistudio.google.com oldalon."+raw;
+  if(status===403&&/SERVICE_DISABLED|has not been used|is disabled/i.test(msg+st))return"Ehhez a kulcshoz tartozó Google-projektben nincs bekapcsolva a Generative Language API. A legegyszerűbb: az aistudio.google.com-on hozz létre kulcsot ÚJ projektbe."+raw;
+  if(status===403&&/referer|referrer|restrict|blocked/i.test(msg))return"A kulcs korlátozva van (webhely- vagy API-korlátozás). A Google Cloud → Hitelesítő adatok alatt vedd le a korlátozást, vagy hozz létre korlátozás nélküli kulcsot."+raw;
+  if(status===403)return"A kulcs nem jogosult (403)."+raw;
+  if(status===404&&/not found for API version|is not supported for generateContent|is not found/i.test(msg)&&model)return"A(z) "+model+" modellt ez a kulcs nem éri el (404)."+raw;
+  if(status===404)return(keyLevel?"":"404-es hiba. ")+"A Google szerint ez a kulcs nem létezik vagy törölt projekthez tartozik („Requested entity was not found”). Ez általában akkor van, ha a kulcs nem az aistudio.google.com-ról való, vagy közben törölték a projektet. Csinálj újat: aistudio.google.com → Get API key → Create API key."+raw;
+  if(!status)return"Nem sikerült elérni a Gemint (nincs net, vagy a hálózat blokkolja)."+raw;
+  return gApiMsg(data,status);}
+/* Kulcs-öndiagnosztika a Fiók fülön: kulcs → modell-lista → éles próbakérés, magyar magyarázattal. */
+async function geminiSelfTest(btn){
+  const inp=document.getElementById("setGemini"),out=document.getElementById("gTestOut");
+  const key=gKeyClean(inp?inp.value:GKEY);
+  const say=lines=>{if(out){out.innerHTML=lines.map(l=>'<div style="margin:4px 0">'+l+"</div>").join("");out.style.display="block";}};
+  if(!key){say(["Nincs kulcs beírva. Szerezz egyet: <b>aistudio.google.com</b> → Get API key → Create API key."]);return;}
+  const orig=btn.innerHTML;btn.disabled=true;btn.innerHTML='<span class="spin"></span> Tesztelés…';
+  const lines=[];
+  if(!/^AIza[A-Za-z0-9_\-]{30,}$/.test(key))lines.push("⚠️ A kulcs formátuma szokatlan (általában „AIza…”, kb. 39 karakter) — lehet, hogy hiányosan lett bemásolva.");
+  try{
+    const list=await geminiListModels(key);
+    lines.push("✅ A kulcs érvényes, a Gemini válaszol. Elérhető szöveges modell: <b>"+list.length+" db</b>.");
+    const mi=document.getElementById("setModel");
+    const cur=gModelClean((mi&&mi.value)||GMODEL);let use=cur;
+    if(list.indexOf(cur)<0){const pick=gPickModel(list);
+      if(!pick){lines.push("❌ Ez a kulcs egyetlen szöveggeneráló modellt sem lát — hozz létre új kulcsot új projektbe.");use=null;}
+      else{lines.push("⚠️ A beállított <b>"+esc(cur)+"</b> modellt ez a kulcs nem éri el — átállítottam erre: <b>"+esc(pick)+"</b>.");
+        GMODEL=pick;Store.set("gemini_model",pick);if(mi)mi.value=pick;use=pick;}}
+    else lines.push("✅ A beállított modell (<b>"+esc(cur)+"</b>) elérhető.");
+    if(use){
+      GKEY=key;Store.set("gemini_key",key);if(inp)inp.value=key;
+      const r=await gFetchJson("https://generativelanguage.googleapis.com/v1beta/models/"+use+":generateContent?key="+encodeURIComponent(key),
+        {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({contents:[{role:"user",parts:[{text:"Válaszolj ennyivel: OK"}]}],generationConfig:{temperature:0,maxOutputTokens:16}})});
+      if(r.ok){_gModelOk=use;lines.push("✅ Éles próbakérés sikeres — az AI-funkciók működnek. 🎉");}
+      else lines.push("❌ A próbakérés elakadt: "+esc(gExplain(r.status,r.data,use)));
+    }
+  }catch(e){
+    lines.push("❌ "+esc(gExplain(e.status||0,{error:e.api},null,true)));
+    if(e.message)lines.push('<span style="opacity:.7">Nyers hiba: '+esc(e.message)+"</span>");
+  }
+  say(lines);btn.disabled=false;btn.innerHTML=orig;}
 function geminiRubricPrompt(context,label,max,anchors){
   const system="Rövid, önértékelő pontozási rubrikákat írsz magyarul. Kizárólag egy JSON objektummal válaszolsz: kulcsok "+max+"..1 (stringként), értékek rövid magyar leírások (max ~18 szó). A(z) "+max+" a legjobb, 1 a legrosszabb. Konkrét, megfigyelhető, elkülönülő fokozatok.";
   let user="Kontextus: "+(context||"(nincs)")+"\nMérce: "+label+"\nAdj rubrikát "+max+"-tól 1-ig.";
@@ -11331,6 +11409,11 @@ function bindCycDay(dayKey){
 
 /* --- „Mi újult meg?" (közérthető változásnapló) --- */
 const CHANGELOG=[
+ {v:17,title:"🔑 Gemini-kulcs: megmondja, mi a baj — és amit tud, megjavítja",items:[
+   "<b>Új gomb a Fiók fülön: „🔍 Kulcs tesztelése”.</b> Egyetlen koppintás, és megmondja, hogy a <i>kulccsal</i>, a <i>modellel</i> vagy a <i>hálózattal</i> van-e baj — eddig csak annyit láttál, hogy „404”, amiből semmi nem derült ki.",
+   "<b>Magyar, érthető hibaüzenetek.</b> Eddig eldobtuk a Google válaszát, és csak a hibakódot mutattuk. Mostantól kiírjuk, mit üzent valójában: érvénytelen a kulcs, nincs bekapcsolva hozzá a szolgáltatás, korlátozott a kulcs, nem támogatott az ország/VPN, vagy tényleg csak elfogyott a napi ingyenkeret.",
+   "<b>Magától megkeresi a működő modellt.</b> Ha a beállított modellt a te kulcsod nem éri el, az app lekérdezi, milyen modelleket lát a kulcs, és átvált egy olyanra, ami tényleg működik — nem kell kézzel modellnevet írni.",
+   "<b>Elírás-tűrő kulcsmezők.</b> A bemásoláskor beszökő szóköz és sortörés, illetve a modellnév elé ragadt „models/” előtag eddig önmagában 404-hez vezetett; ezeket most levágjuk mentéskor és a régi, elmentett kulcsoknál is."]},
  {v:16,title:"📅 Nem ragad be a tegnap — és húzással is lapozhatsz a Kalóriában",items:[
    "<b>Javítva: az app beragadt a tegnapi napra.</b> A telepített appot a telefon a legtöbbször nem tölti újra, csak előhozza a háttérből — ilyenkor éjfél után is a <i>tegnapi</i> dátumot hitte mainak. A Kalória-napló tegnapon állt, a „következő nap” gomb pedig szürke volt, tehát a mai napra sem lehetett átlépni. Mostantól az app minden előtérbe kerüléskor ránéz a naptárra, és ha közben fordult a nap, magától átvált a mai napra (a Ma fülön is).",
    "<b>Balra-jobbra húzás a Kalória Ma fülén</b> — ugyanúgy lapozol a napok között, mint a célok Ma fülén. A ‹ › gombok maradnak, a húzás csak gyorsabb.",
@@ -11863,7 +11946,7 @@ function askCloudConflict(remote,api){
 /* =========================================================================
    2. RÉTEG — témák, súgó, tutorial, indokok, ünneplés, visszajelzés
    ========================================================================= */
-const APP_VERSION="v28";
+const APP_VERSION="v29";
 
 /* ---- témák ---- */
 const THEMES=[{id:"kert",name:"Üvegház",sw:"#2D6A4F"},{id:"papir",name:"Letisztult",sw:"#1B4332"},{id:"krem",name:"Papír",sw:"#B5852B"},{id:"arany",name:"Arany éj",sw:"#E5A83B"},{id:"erdo",name:"Erdő",sw:"#5FD08A"},{id:"ocean",name:"Óceán",sw:"#4FB0E5"},{id:"naplemente",name:"Naplemente",sw:"#E5744F"},{id:"ejjel",name:"Éjszakai",sw:"#C79A46"},{id:"film",name:"Filmvászon",sw:"#D8D8D8"}];
@@ -12464,7 +12547,7 @@ function renderFiok(){const el=document.getElementById("tab-fiok");
   html+='<div class="section-title">Mentés</div><div class="card" style="padding:16px"><div class="rub-actions"><button class="btn ghost sm" id="expBtn">Exportálás (fájl)</button><button class="btn ghost sm" id="impBtn">Importálás (fájl)</button></div><div class="hint" style="margin-top:8px">Töltsd le biztonsági mentésként, vagy vidd át másik eszközre.</div>'+
     '<button class="btn wide sm" id="bakBtn" style="margin-top:10px">🛟 Biztonsági mentések</button>'+
     '<div class="hint" style="margin-top:8px">Az app magától is készít pillanatképeket (naponta, és minden kockázatos lépés előtt) — innen bármikor visszaállíthatod őket.</div></div>';
-  html+='<div class="section-title">AI rubrika '+ibtn('gkey')+'</div><div class="card" style="padding:16px"><div class="field"><label>Saját Gemini API-kulcs (ingyenes)</label><input class="input" id="setGemini" placeholder="AIza…" value="'+escA(GKEY)+'"/><div class="hint">Lépésről lépésre: nyomd meg a fenti „i" ikont vagy a Súgóban a „Gemini-kulcs" részt. A kulcs csak ezen az eszközön tárolódik.</div></div><div class="field"><label>Modell</label><input class="input" id="setModel" placeholder="gemini-2.5-flash" value="'+escA(GMODEL)+'"/><div class="hint">Alap: <b>gemini-2.5-flash</b>. Ha egy modell megszűnik, itt átírhatod; az app magától visszavált flash / flash-lite modellre.</div></div><div class="rub-actions"><button class="btn ghost sm" id="saveGemini">Mentés</button></div></div>';
+  html+='<div class="section-title">AI rubrika '+ibtn('gkey')+'</div><div class="card" style="padding:16px"><div class="field"><label>Saját Gemini API-kulcs (ingyenes)</label><input class="input" id="setGemini" placeholder="AIza…" value="'+escA(GKEY)+'"/><div class="hint">Lépésről lépésre: nyomd meg a fenti „i" ikont vagy a Súgóban a „Gemini-kulcs" részt. A kulcs csak ezen az eszközön tárolódik.</div></div><div class="field"><label>Modell</label><input class="input" id="setModel" placeholder="gemini-2.5-flash" value="'+escA(GMODEL)+'"/><div class="hint">Alap: <b>gemini-2.5-flash</b>. Ha egy modell megszűnik, itt átírhatod; az app magától visszavált flash / flash-lite modellre.</div></div><div class="rub-actions"><button class="btn ghost sm" id="saveGemini">Mentés</button><button class="btn ghost sm" id="testGemini">🔍 Kulcs tesztelése</button></div><div class="hint" id="gTestOut" style="display:none;margin-top:10px"></div><div class="hint" style="margin-top:8px">Ha az AI-funkciók hibára futnak, nyomd meg a <b>Kulcs tesztelése</b> gombot — megmondja, a kulccsal, a modellel vagy a hálózattal van-e baj, és amit tud, magától megjavít.</div></div>';
   /* KÖZÖS LISTA: a régi „Visszajelzés" űrlap helyén. SHARED_LIST_ON=false → régi űrlap vissza. */
   if(SHARED_LIST_ON)
     html+='<div class="section-title">Közös fejlesztési lista</div><div class="card" style="padding:16px"><div class="hint" style="margin-bottom:10px">Egy lista, amit <b>mindenki együtt szerkeszt</b>, aki a Trellist használja. Ha hibába futsz vagy eszedbe jut valami, írd fel ide — a többiek is látják, élőben. Így egy helyen áll össze, mi következik.</div><button class="btn wide" id="openNotes">🗒️ Közös lista megnyitása</button></div>';
@@ -12483,7 +12566,8 @@ function renderFiok(){const el=document.getElementById("tab-fiok");
   document.getElementById("expBtn").onclick=exportData;
   document.getElementById("impBtn").onclick=()=>document.getElementById("importFile").click();
   const bkb=document.getElementById("bakBtn");if(bkb)bkb.onclick=showBackups;
-  document.getElementById("saveGemini").onclick=()=>{GKEY=document.getElementById("setGemini").value.trim();Store.set("gemini_key",GKEY);const _m=document.getElementById("setModel");if(_m){GMODEL=_m.value.trim()||GEMINI_MODEL;Store.set("gemini_model",GMODEL);}toast("Mentve");};
+  document.getElementById("saveGemini").onclick=()=>{GKEY=gKeyClean(document.getElementById("setGemini").value);Store.set("gemini_key",GKEY);document.getElementById("setGemini").value=GKEY;const _m=document.getElementById("setModel");if(_m){GMODEL=gModelClean(_m.value)||GEMINI_MODEL;_m.value=GMODEL;Store.set("gemini_model",GMODEL);}_gModelOk=null;toast("Mentve");};
+  const tg=document.getElementById("testGemini");if(tg)tg.onclick=(e)=>geminiSelfTest(e.currentTarget);
   const nb=document.getElementById("openNotes");if(nb)nb.onclick=nlOpenPanel;
   const fbs=document.getElementById("fbSend");if(fbs)fbs.onclick=(e)=>sendFeedback(document.getElementById("fbText").value,document.getElementById("fbContact").value,e.target);
   document.getElementById("installBtn").onclick=doInstall;
