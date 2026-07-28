@@ -9093,6 +9093,15 @@ async function geminiSelfTest(btn){
       if(!ok){
         lines.push("❌ A próbakérés elakadt: "+esc(gExplain(last.status,last.data,use)));
         lines.push("🔎 "+cands.length+" különböző modellt próbáltam meg, mindkét API-verzión ("+tried+" kérés) — egyik sem ment át.");
+        /* Döntő különbség-teszt: a modellt EGYENKÉNT is le tudja-e kérni a kulcs (GetModel), vagy csak a katalógust (ListModels)? */
+        const gm=await gFetchJson("https://generativelanguage.googleapis.com/v1beta/models/"+use+"?key="+encodeURIComponent(key));
+        lines.push(gm.ok?"✅ A modellt egyenként is le tudja kérni (GetModel) — tehát csak a <b>generálást</b> tiltja a Google."
+                        :"⚠️ A modellt egyenként lekérni sem tudja (GetModel: HTTP "+gm.status+") — a projekt nincs rendesen felkészítve a Gemini API-ra.");
+        /* A teljes nyers válasz (details mezővel együtt) — ezt lehet továbbküldeni. */
+        const mask=key.slice(0,6)+"…"+key.slice(-4);
+        lines.push('<b>🔧 Nyers válasz (ezt küldd át):</b><pre style="white-space:pre-wrap;word-break:break-all;font-size:11px;line-height:1.35;background:rgba(127,127,127,.14);padding:8px;border-radius:8px;max-height:240px;overflow:auto;margin:6px 0 0">'+
+          esc("POST https://generativelanguage.googleapis.com/v1beta/models/"+use+":generateContent?key="+mask+"\nHTTP "+last.status+"\n"+(last.raw||"(üres válasz)").slice(0,1400)+
+              "\n\nGET .../v1beta/models/"+use+"?key="+mask+"\nHTTP "+gm.status+"\n"+(gm.raw||"(üres válasz)").slice(0,600))+"</pre>");
         /* Ez a kombináció (a kulcs LÁTJA a modellt, de generálni nem enged) mindig fiók/projekt-szintű. */
         if(last.status===404||last.status===403)
           lines.push('<b>Mit jelent ez:</b> a kulcs valódi és a modelleket is látja, csak <b>generálni nem enged a Google ezzel a projekttel</b>. Nem a kulcsot kell újra legyártani — <b>a projektet kell lecserélni</b>:<br>'+
@@ -11459,7 +11468,8 @@ const CHANGELOG=[
    "<b>Ha a kulcs látja a modelleket, de generálni mégsem enged</b>, most kiírjuk, hogy ez <b>fiók- vagy projekt-szintű</b> gond, és lépésről lépésre, hogy mit nézz meg: próba az aistudio.google.com-on, iskolai/céges vagy gyerek-fiók kizárva, új kulcs ÚJ projektbe, VPN ki.",
    "A „kulcs formátuma szokatlan” figyelmeztetés csak akkor jelenik meg, ha a kulcs tényleg el is bukik — eddig akkor is kiírtuk, ha a kulcs valójában hibátlan volt.",
    "<b>A teszt már nem egy modellen dől el:</b> ha az első elakad, sorra próbál <b>hét modellt, mindkét API-verzión</b> — ha bármelyik átmegy, arra állunk át és kész, ha egyik sem, akkor viszont biztos, hogy nem a modellválasztás a gond.",
-   "<b>📋 Eredmény másolása</b> gomb a teszt alatt — egy koppintás, és elküldheted a teljes eredményt, nem kell legépelni."]},
+   "<b>📋 Eredmény másolása</b> gomb a teszt alatt — egy koppintás, és elküldheted a teljes eredményt, nem kell legépelni.",
+   "Ha elakad, a teszt kiírja a <b>Google teljes nyers válaszát</b> (a rejtett <i>details</i> mezővel együtt) és a hívott címet is, kitakart kulccsal — ebből derül ki a valódi ok, ha a szokásos okok egyike sem áll fenn."]},
  {v:17,title:"🔑 Gemini-kulcs: megmondja, mi a baj — és amit tud, megjavítja",items:[
    "<b>Új gomb a Fiók fülön: „🔍 Kulcs tesztelése”.</b> Egyetlen koppintás, és megmondja, hogy a <i>kulccsal</i>, a <i>modellel</i> vagy a <i>hálózattal</i> van-e baj — eddig csak annyit láttál, hogy „404”, amiből semmi nem derült ki.",
    "<b>Magyar, érthető hibaüzenetek.</b> Eddig eldobtuk a Google válaszát, és csak a hibakódot mutattuk. Mostantól kiírjuk, mit üzent valójában: érvénytelen a kulcs, nincs bekapcsolva hozzá a szolgáltatás, korlátozott a kulcs, nem támogatott az ország/VPN, vagy tényleg csak elfogyott a napi ingyenkeret.",
@@ -11997,7 +12007,7 @@ function askCloudConflict(remote,api){
 /* =========================================================================
    2. RÉTEG — témák, súgó, tutorial, indokok, ünneplés, visszajelzés
    ========================================================================= */
-const APP_VERSION="v31";
+const APP_VERSION="v32";
 
 /* ---- témák ---- */
 const THEMES=[{id:"kert",name:"Üvegház",sw:"#2D6A4F"},{id:"papir",name:"Letisztult",sw:"#1B4332"},{id:"krem",name:"Papír",sw:"#B5852B"},{id:"arany",name:"Arany éj",sw:"#E5A83B"},{id:"erdo",name:"Erdő",sw:"#5FD08A"},{id:"ocean",name:"Óceán",sw:"#4FB0E5"},{id:"naplemente",name:"Naplemente",sw:"#E5744F"},{id:"ejjel",name:"Éjszakai",sw:"#C79A46"},{id:"film",name:"Filmvászon",sw:"#D8D8D8"}];
