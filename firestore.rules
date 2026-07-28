@@ -62,6 +62,44 @@ service cloud.firestore {
         && request.resource.data.text.size() < 2000;
       allow delete: if request.auth != null;
     }
+    // KÖZÖS HÁZTARTÁS (households/{hid}) — egy háztartás tagjai közösen használják
+    // a saját ételeiket és receptjeiket. A tagságot az E-MAIL CÍM adja: aki benne van
+    // a `emails` listában, az olvashat/írhat. Így a meghívott appja magától megtalálja
+    // a háztartását (users where emails array-contains <saját e-mail>), kód nélkül.
+    //  - A NAPLÓ, a célok és a súly NEM kerül ide, csak a közös ételtár.
+    //  - A `owner` (a létrehozó uid-je) nem írható át.
+    //  - Legfeljebb 12 tag.
+    match /households/{hid} {
+      function member() {
+        return request.auth != null
+          && request.auth.token.email != null
+          && (request.auth.token.email.lower() in resource.data.emails);
+      }
+      allow read: if member();
+      allow create: if request.auth != null
+        && request.auth.token.email != null
+        && request.resource.data.owner == request.auth.uid
+        && request.resource.data.emails is list
+        && request.resource.data.emails.size() > 0
+        && request.resource.data.emails.size() <= 12
+        && (request.auth.token.email.lower() in request.resource.data.emails)
+        && request.resource.data.name is string
+        && request.resource.data.name.size() < 60;
+      allow update: if member()
+        && request.resource.data.emails is list
+        && request.resource.data.emails.size() <= 12
+        && request.resource.data.owner == resource.data.owner;
+      allow delete: if request.auth != null && resource.data.owner == request.auth.uid;
+
+      // A közös ételtár: saját ételek (t:"f") és receptek (t:"r"), illetve a
+      // törlés-sírkövek (del:1). Csak a háztartás tagjai érik el.
+      match /lib/{itemId} {
+        allow read, write: if request.auth != null
+          && request.auth.token.email != null
+          && (request.auth.token.email.lower()
+              in get(/databases/$(database)/documents/households/$(hid)).data.emails);
+      }
+    }
     // Kérdés-riport: bárki (belépve) LÉTREHOZHAT; olvasni/listázni nem lehet (konzolos moderálás).
     match /quizreports/{doc} {
       allow create: if request.auth != null

@@ -1018,6 +1018,16 @@ nav .nav-in .tabbtn svg{width:20px; height:20px;}
 .wo-exmeta .dim{color:var(--muted-2); font-size:11.5px; margin-top:3px;}
 .wo-modact{display:flex; gap:8px; margin:12px 0 4px; flex-wrap:wrap;}
 .wo-modact .btn{flex:1; min-width:96px;}
+/* A lap ALJÁN lévő gombsor ODARAGAD a képernyő aljához: hosszú űrlapnál sem kell
+   legörgetni a Mentésért. Csak akkor, ha tényleg a lap utolsó eleme — a lap
+   közepén álló gombsorokat (pl. edzés-panelek) nem bántjuk. A negatív alsó margó
+   a lap saját alsó paddingját nyeli el, hogy a sáv pontosan az aljára üljön. */
+.sheet>.wo-modact:last-child{position:sticky;
+  bottom:calc(-1 * (env(safe-area-inset-bottom) + 20px)); z-index:6;
+  margin:14px -18px calc(-1 * (env(safe-area-inset-bottom) + 20px));
+  padding:11px 18px calc(env(safe-area-inset-bottom) + 13px);
+  background:var(--surface); border-top:1px solid var(--line);
+  box-shadow:0 -14px 22px -14px rgba(0,0,0,.55);}
 .wo-planrow{display:grid; grid-template-columns:24px 1fr 1fr 34px; gap:6px; align-items:center; padding:3px 0;}
 .wo-planrow>span{font-size:11.5px; color:var(--muted-2); font-family:var(--disp);}
 .wo-planrow .wo-in{width:100%; height:38px; background:var(--surface-2); border:1px solid var(--line);
@@ -1301,6 +1311,24 @@ nav .nav-in .tabbtn svg{width:20px; height:20px;}
 .kc-rrow .nm small{display:block; font-size:11px; color:var(--muted-2); margin-top:1px;}
 .kc-rrow .kk{font-size:14px; text-align:right; flex:none; color:var(--ink);}
 .kc-rrow .kk small{display:block; font-size:10px; color:var(--muted-2);}
+/* Találati sor + gyors „＋” gomb: a névre koppintva jön a mennyiség-lap,
+   a ＋-ra koppintva a szokásos adagoddal egyből a listára kerül. */
+.kc-rrowx{display:flex; align-items:stretch; gap:6px; margin-bottom:6px;}
+.kc-rrowx .kc-rrow{flex:1; min-width:0; margin:0;}
+.kc-radd{flex:none; width:46px; border-radius:var(--r-sm); background:var(--surface-2);
+  border:1px solid var(--line); color:var(--gold); font-size:20px; line-height:1;}
+.kc-radd:active{background:var(--gold); color:var(--on-gold);}
+/* Bevitel-lista (kosár): amit a mostani rögzítésbe összeválogattál */
+.kc-bask{border:1px solid var(--gold); border-radius:var(--r-sm); background:var(--gold-soft);
+  padding:10px 12px; margin:12px 0 2px;}
+.kc-bask .bh{display:flex; align-items:center; gap:8px; font-family:var(--disp); font-weight:700; font-size:13px; margin-bottom:6px;}
+.kc-bask .bh .sum{margin-left:auto; font-size:12px; color:var(--muted); font-weight:600;}
+.kc-brow{display:flex; align-items:center; gap:8px; font-size:13px; padding:5px 0; border-top:1px solid var(--line);}
+.kc-brow:first-of-type{border-top:0;}
+.kc-brow .n{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.kc-brow .q{color:var(--muted); font-size:11.5px; flex:none;}
+.kc-brow .x{flex:none; width:28px; height:28px; border-radius:8px; background:transparent;
+  border:1px solid var(--line); color:var(--muted); font-size:13px; line-height:1;}
 
 .kc-qwrap{display:flex; align-items:center; gap:8px; margin:6px 0 10px;}
 .kc-qstep{width:48px; height:48px; flex:none; border-radius:14px; background:var(--surface-2);
@@ -4362,10 +4390,13 @@ function foodBlank(){return{enabled:false,updatedAt:0,version:1,
   set:{kcal:2200,p:165,c:230,f:70,fMin:0,fMax:0,fb:31,mode:"auto",
        trainBonus:0,trainMacro:"c",trainDays:3,trainSplit:true,mealsWo:false,mealsV3:false,
        weekBank:false,bankCap:500,aiPhoto:true,
-       nut:[],nt:{},qtyMode:"dial",qtySens:3,rememberQty:true,
+       nut:[],nt:{},qtyMode:"dial",qtySens:3,rememberQty:true,defUnit:"g",
        calc:{sex:"m",age:30,h:180,w:80,bf:null,act:1.55,aim:"maint",rate:0.4,pkg:2,fkg:0.8,tw:null},
        meals:KCMEALS_DEF.map(function(m){return{id:m.id,l:m.l,em:m.em};})},
-  days:{},tot:{},w:{},td:{},custom:[],rec:[],tpl:[],recent:[],lastQ:{},fix:[]};}
+  days:{},tot:{},w:{},td:{},custom:[],rec:[],tpl:[],recent:[],lastQ:{},fix:[],
+  /* közös háztartás (saját ételek + receptek megosztása) — csak az azonosító
+     tárolódik itt, a tagok listája a felhőben van */
+  hh:{id:"",name:"",at:0}};}
 
 function kcNum(v,d){const n=Number(v);if(!isFinite(n))return 0;
   const p=Math.pow(10,d||0);return Math.round(n*p)/p;}
@@ -4474,6 +4505,9 @@ function normFood(fd){
     qtyMode:KCQMODES.some(function(m){return m.k===s.qtyMode;})?s.qtyMode:"dial",
     qtySens:Math.round(kcClamp(s.qtySens,1,5,3)),
     rememberQty:s.rememberQty!==false,
+    /* Melyik mértékegységgel nyíljon a mennyiség-lap? "g" = mindig gramm/ml
+       (alap), "smart" = a régi viselkedés (ha van „db”/„adag”, azzal indul). */
+    defUnit:(s.defUnit==="smart")?"smart":"g",
     calc:{sex:(c.sex==="f")?"f":"m",age:Math.round(kcClamp(c.age,10,100,30)),
       h:Math.round(kcClamp(c.h,100,230,180)),w:kcNum(kcClamp(c.w,25,300,80),1),
       bf:(c.bf==null||c.bf==="")?null:kcNum(kcClamp(c.bf,3,70,20),1),
@@ -4561,11 +4595,18 @@ function normFood(fd){
     if(x.u)o.u=String(x.u).slice(0,24);
     if(x.wo)o.wo=1;
     fix.push(o);if(fix.length>=12)break;}
+  /* Közös háztartás: melyik háztartáshoz tartozik ez a fiók. A tagok (e-mail
+     címek) a felhőben vannak, itt csak az azonosító és a név él. */
+  const hhIn=(fd.hh&&typeof fd.hh==="object")?fd.hh:{};
+  const hh={id:String(hhIn.id||"").slice(0,40),
+    name:String(hhIn.name||"").slice(0,40),at:Number(hhIn.at)||0};
   return{enabled:!!fd.enabled,updatedAt:Number(fd.updatedAt)||0,version:1,
     set:set,days:days,tot:tot,w:w,td:td,custom:custom,rec:rec,tpl:tpl,
-    recent:recent.slice(0,40),lastQ:lastQ,fix:fix};}
+    recent:recent.slice(0,40),lastQ:lastQ,fix:fix,hh:hh};}
 
-function kcTouch(){S.food.updatedAt=Date.now();save();kcSizeCheck();}
+function kcTouch(){S.food.updatedAt=Date.now();save();kcSizeCheck();
+  /* közös háztartás: ha változott saját étel/recept, felmegy a közös tárba */
+  if(typeof hhPushSoon==="function")hhPushSoon();}
 let _kcSizeWarned=false;
 function kcSizeCheck(){
   if(_kcSizeWarned)return;let n=0;try{n=JSON.stringify(S).length;}catch(e){return;}
@@ -5290,8 +5331,70 @@ function kcGuessMeal(){
   return ms[Math.max(0,ix)].id;}
 function kcAddOpen(mealId){
   /* meal=null: még nem választottál étkezést — előbb azt kell, utána jön a kereső */
-  _kcAdd={meal:mealId||null,q:"",more:false};
+  _kcAdd={meal:mealId||null,q:"",more:false,bask:[]};
   openModal(kcAddHtml());kcAddWire();}
+/* ---- BEVITEL-LISTA („kosár") --------------------------------------------
+   Egy vacsorához ritkán eszel egyetlen dolgot. Eddig minden falatért végig
+   kellett menni a hozzáadás → mennyiség → vissza a naplóhoz köríven. Mostantól
+   a keresőben összeválogatod, ami a tányéron van, és a végén EGYSZER rögzíted.
+   A lista addig él, amíg a kereső-lap nyitva van. */
+function kcBaskArr(){const A=_kcAdd;if(!A)return[];if(!Array.isArray(A.bask))A.bask=[];return A.bask;}
+/* Alapmennyiség a gyors „＋"-hoz: amit legutóbb ettél belőle, különben 100 g
+   (a beállított alap-egység szerint). Ugyanaz a logika, mint a mennyiség-lapon. */
+function kcBaskDefQ(fo){
+  const base=kcBaseUnit(fo),gramFirst=(S.food.set.defUnit!=="smart");
+  if(S.food.set.rememberQty){
+    const lq=kcLastQ(fo.id);
+    if(lq&&(lq.u===base||(fo.u||[]).some(function(x){return x[0]===lq.u;}))){
+      if(gramFirst&&lq.u!==base)return{q:kcQSnap(fo,base,lq.q*kcUnitG(fo,lq.u)),u:base};
+      return{q:lq.q,u:lq.u};}}
+  const pu=gramFirst?null:(fo.u||[]).find(function(x){return KCPIECE.test(x[0]);});
+  if(pu)return{q:1,u:pu[0]};
+  return{q:100,u:base};}
+function kcBaskAdd(id,q,u){
+  const fo=kcFood(id);if(!fo||!(q>0))return;
+  const arr=kcBaskArr();
+  if(arr.length>=30){toast("Egyszerre legfeljebb 30 tétel","warn");return;}
+  arr.push({i:id,q:kcNum(q,2),u:u||kcBaseUnit(fo)});
+  if(S.food.set.rememberQty)kcSetLastQ(id,q,u);
+  kcBuzz(6);}
+function kcBaskMac(){
+  let k=0,p=0,c=0,f=0;
+  kcBaskArr().forEach(function(x){const m=kcEntMac({i:x.i,q:x.q,u:x.u});
+    k+=m.k;p+=m.p;c+=m.c;f+=m.f;});
+  return{k:k,p:p,c:c,f:f};}
+function kcBaskHtml(){
+  const arr=kcBaskArr();if(!arr.length)return"";
+  const A=_kcAdd,mm=S.food.set.meals.find(function(m){return m.id===A.meal;});
+  const t=kcBaskMac();
+  let h='<div class="kc-bask"><div class="bh"><span>🧺 Ebbe a bevitelbe</span>'
+   +'<span class="sum mono">'+Math.round(t.k)+' kcal · F '+kcNum(t.p,0)+' g</span></div>';
+  arr.forEach(function(x,i){
+    const fo=kcFood(x.i);
+    h+='<div class="kc-brow"><span class="n">'+esc(fo?fo.n:"(törölt étel)")+'</span>'
+     +'<span class="q mono">'+kcNum(x.q,(x.q<10?1:0))+' '+esc(x.u)+'</span>'
+     +'<button class="x" data-kcbx="'+i+'" aria-label="Kivétel">✕</button></div>';});
+  h+='<div class="hint" style="margin-top:6px">Ezek egyszerre kerülnek be ide: <b>'
+   +esc(mm?(mm.em+" "+mm.l):"étkezés")+'</b>. A lista addig él, amíg ez a lap nyitva van — az alsó gombbal rögzíted.</div></div>';
+  return h;}
+/* A lista naplóba írása. Visszaadja, hány tétel ment be. Nem rajzol újra —
+   a hívó dönti el, mikor van itt az ideje. */
+function kcBaskFlush(){
+  const arr=kcBaskArr();if(!arr.length)return 0;
+  const meal=_kcAdd.meal,list=arr.slice();_kcAdd.bask=[];
+  const d=kcDay(kcDate),hm=(kcDate===TODAY)?kcNowMin():null;
+  list.forEach(function(x){
+    const e={i:x.i,q:x.q,m:meal};
+    if(x.u&&x.u!=="g")e.u=x.u;
+    if(hm!=null)e.hm=hm;
+    d.e.push(e);kcPushRecent(x.i);});
+  kcSyncTot(kcDate);kcTouch();
+  return list.length;}
+function kcBaskCommit(){
+  if(!kcBaskArr().length){toast("Előbb válassz ételeket","warn");return;}
+  closeScreen();
+  setTimeout(function(){const n=kcBaskFlush();renderKaloria();
+    toast(n+" tétel hozzáadva ✓");},150);}
 /* A kiválasztott étkezésbe LEGGYAKRABBAN rögzített ételeid, a napló alapján
    (utolsó 90 nap). Így reggelinél reggeli-ételek jönnek fel, nem a napi kevert lista. */
 function kcFreqForMeal(mealId,n){
@@ -5340,7 +5443,16 @@ function kcAddHtml(){
    +'<button class="btn ghost sm" id="kcATpl">🍽 Sablon</button>'
    +'</div></details>';
   h+='<div id="kcRes">'+kcResHtml()+'</div>';
+  /* Bevitel-lista + a lap alján odaragadó „Hozzáadás" (csak a naplóhoz vitelnél) */
+  if(!A.toRecipe&&!A.onPick&&A.meal){
+    h+=kcBaskHtml();
+    const n=kcBaskArr().length,t=kcBaskMac();
+    h+='<div class="wo-modact"><button class="btn'+(n?"":" ghost")+'" id="kcBOk">'
+     +(n?('✓ Hozzáadás — '+n+' tétel · '+Math.round(t.k)+' kcal'):'Válassz ételeket a listához')+'</button></div>';}
   return h;}
+/* A kereső-lap újrarajzolása a görgetés megtartásával (kosár-változás után). */
+function kcAddRe(){const s=document.getElementById("modalSheet");if(!s)return;
+  const sc=s.scrollTop;s.innerHTML=kcAddHtml();kcAddWire();s.scrollTop=sc;}
 function kcResHtml(){
   const A=_kcAdd,f=S.food;
   /* étkezés nélkül nincs találati lista — előbb azt kell választani */
@@ -5368,12 +5480,16 @@ function kcResHtml(){
   if(!res.length)return '<div class="hint" style="padding:14px 4px">Nincs találat. Vidd fel <b>saját ételként</b>, vagy fotózd le a <b>címkéjét</b> — utána mentheted.</div>';
   return kcResGroup("Találatok",res);}
 function kcResGroup(title,list){
+  const A=_kcAdd||{},quick=(!A.toRecipe&&!A.onPick);
   let h='<div class="kc-rgrp">'+esc(title)+'</div>';
   list.forEach(function(fo){
-    h+='<button class="kc-rrow" data-kcpick="'+escA(fo.id)+'"><span class="nm">'+esc(fo.n)
+    const row='<button class="kc-rrow" data-kcpick="'+escA(fo.id)+'"><span class="nm">'+esc(fo.n)
      +(fo.br?' <small>'+esc(fo.br)+'</small>':'')+(fo.rec?' <span class="kc-tag">recept</span>':'')
      +(fo.src==="off"?' <span class="kc-tag">vonalkód</span>':'')+'</span>'
-     +'<span class="kk mono">'+Math.round(fo.k)+'<small> kcal/100'+kcBaseUnit(fo)+'</small></span></button>';});
+     +'<span class="kk mono">'+Math.round(fo.k)+'<small> kcal/100'+kcBaseUnit(fo)+'</small></span></button>';
+    /* naplózásnál a sor mellé egy gyors ＋ kerül: a szokásos adagoddal egyből
+       a listára teszi, mennyiség-lap nélkül */
+    h+=quick?('<div class="kc-rrowx">'+row+'<button class="kc-radd" data-kcqadd="'+escA(fo.id)+'" aria-label="Listához">＋</button></div>'):row;});
   return h+'</div>';}
 function kcAddWire(){
   const x=document.getElementById("mClose");if(x)x.onclick=function(){closeScreen();};
@@ -5392,7 +5508,11 @@ function kcAddWire(){
     if(s){s.innerHTML=kcAddHtml();kcAddWire();}};});
   if(_kcAdd.onPick){kcAddWireRows();return;}
   const go=function(id,fn){const b=document.getElementById(id);if(!b)return;
-    b.onclick=function(){const m=_kcAdd.meal||kcGuessMeal();closeScreen();setTimeout(function(){fn(m);},180);};};
+    b.onclick=function(){const m=_kcAdd.meal||kcGuessMeal();
+      /* Ha már összeválogattál valamit a listára, azt nem hagyjuk elveszni:
+         az eszköz megnyitása előtt bekerül a naplóba. */
+      const n=_kcAdd.toRecipe?0:kcBaskFlush();
+      closeScreen();setTimeout(function(){if(n)toast(n+" tétel rögzítve ✓");fn(m);},180);};};
   if(_kcAdd.toRecipe){
     /* recept-mód: minden eszköz a HOZZÁVALÓ-mennyiség lapra fut ki */
     const back=function(id){setTimeout(function(){kcRecIngQty(id);},180);};
@@ -5423,7 +5543,19 @@ function kcAddWireRows(){
     /* recept-szerkesztésből nyitva a találat a receptbe kerül, nem a naplóba */
     if(_kcAdd.toRecipe){kcRecIngQty(id);return;}
     closeScreen();
-    setTimeout(function(){kcQtyOpen(id,m,null);},180);};});}
+    /* a mennyiség-lap innen a BEVITEL-LISTÁBA dolgozik, nem egyenest a naplóba */
+    setTimeout(function(){kcQtyOpen(id,m,null,null,true);},180);};});
+  /* gyors ＋: a szokásos adagoddal, mennyiség-lap nélkül a listára */
+  document.querySelectorAll("[data-kcqadd]").forEach(function(b){b.onclick=function(){
+    const fo=kcFood(b.dataset.kcqadd);if(!fo)return;
+    const d=kcBaskDefQ(fo);kcBaskAdd(fo.id,d.q,d.u);
+    toast(fo.n+" · "+kcNum(d.q,(d.q<10?1:0))+" "+d.u+" a listán");
+    kcAddRe();};});
+  /* tétel kivétele a listából */
+  document.querySelectorAll("[data-kcbx]").forEach(function(b){b.onclick=function(){
+    kcBaskArr().splice(Number(b.dataset.kcbx),1);kcAddRe();};});
+  const ok=document.getElementById("kcBOk");
+  if(ok)ok.onclick=function(){kcBaskCommit();};}
 
 /* ---- MENNYISÉG lap ------------------------------------------------------ */
 let _kcQty=null;
@@ -5448,25 +5580,34 @@ function kcSetLastQ(id,q,u){
   m[id]=[kcNum(q,2),u||"g"];
   const ks=Object.keys(m);
   if(ks.length>240)delete m[ks[0]];}
-function kcQtyOpen(foodId,mealId,editIdx,preset){
+function kcQtyOpen(foodId,mealId,editIdx,preset,toBasket){
   const fo=kcFood(foodId);
   if(!fo){toast("Ez az étel már nem található","warn");return;}
   let q=null,u=null,fromLast=false;
   if(editIdx!=null){const e=kcDay(kcDate).e[editIdx];if(e){q=e.q;u=e.u||kcBaseUnit(fo);}}
   if(q==null&&preset&&preset.q>0){q=preset.q;u=preset.u||kcBaseUnit(fo);}
+  /* GRAMM AZ ALAPÉRTELMEZETT (beállítható: Kalória-beállítások → Mennyiség).
+     A gramm az egyetlen mérce, ami minden ételnél ugyanazt jelenti; az „adag”,
+     a „db” és a többi csak másodlagos — egy koppintással váltható a lapon. */
+  const base=kcBaseUnit(fo);
+  const gramFirst=(S.food.set.defUnit!=="smart");
   /* Amit legutóbb rögzítettél ebből az ételből — általában ugyanannyi lesz. */
   if(q==null&&S.food.set.rememberQty){
     const lq=kcLastQ(foodId);
-    if(lq&&(lq.u===kcBaseUnit(fo)||(fo.u||[]).some(function(x){return x[0]===lq.u;}))){
-      q=lq.q;u=lq.u;fromLast=true;}}
+    if(lq&&(lq.u===base||(fo.u||[]).some(function(x){return x[0]===lq.u;}))){
+      q=lq.q;u=lq.u;fromLast=true;
+      /* Ugyanannyi étel, csak grammban kiírva (1 adag -> 250 g). */
+      if(gramFirst&&u!==base){q=kcQSnap(fo,base,lq.q*kcUnitG(fo,lq.u));u=base;}}}
   if(q==null){
-    /* Alapértelmezés: darabszerű egységnél 1 darab, különben 100 g/ml. Kanálnál
-       (ek/tk) a gramm a jobb kiindulás — 1 evőkanál zabpehely senkinek nem alap. */
-    const pu=(fo.u||[]).find(function(x){return KCPIECE.test(x[0]);});
+    /* Ha kikapcsolod a gramm-alapot: darabszerű egységnél 1 darab, különben
+       100 g/ml. Kanálnál (ek/tk) így is a gramm a jobb kiindulás. */
+    const pu=gramFirst?null:(fo.u||[]).find(function(x){return KCPIECE.test(x[0]);});
     if(pu){u=pu[0];q=1;}
-    else{u=kcBaseUnit(fo);q=fo.rec?100:100;}}
+    else{u=base;q=100;}}
   _kcQty={id:foodId,meal:mealId||S.food.set.meals[0].id,idx:editIdx,q:q,u:u,
-    fromLast:fromLast,typing:(S.food.set.qtyMode==="num")};
+    fromLast:fromLast,typing:(S.food.set.qtyMode==="num"),
+    /* bevitel-listás mód: a „Hozzáadás" nem zár be, hanem visszavisz a keresőbe */
+    bask:!!toBasket};
   openModal(kcQtyHtml());kcQtyWire();}
 /* Ebből az ételből leggyakrabban rögzített mennyiségek (ugyanabban az
    egységben), az elmúlt 90 nap naplójából. Nem tanuló algoritmus, csak
@@ -5566,9 +5707,15 @@ function kcQtyHtml(){
   h+='<div class="card kc-qprev"><div class="kc-qbig mono">'+Math.round(mm.k)+' <small>kcal</small></div>'
    +'<div class="kc-qmac">'+kcMacSpans(mm)+'</div>'
    +(g?'<div class="hint" style="margin-top:6px">'+kcNum(g,0)+' '+kcBaseUnit(fo)+' · 100 '+kcBaseUnit(fo)+' = '+Math.round(fo.k)+' kcal</div>':'')+'</div>';
-  h+='<div class="card" style="padding:12px 14px"><label class="wo-lb">Étkezés</label>'
+  /* Bevitel-listás módban az étkezést a kereső-lapon választottad ki — itt csak
+     kiírjuk, hogy ne lehessen tételenként szétcsúszni. */
+  if(Q.bask){const mm2=S.food.set.meals.find(function(m){return m.id===Q.meal;});
+    h+='<div class="hint" style="margin:10px 2px 0">A bevitel-listára kerül, ide: <b>'
+     +esc(mm2?(mm2.em+" "+mm2.l):"étkezés")+'</b> — a kereső-lap alján rögzíted az egészet egyszerre.</div>';}
+  else h+='<div class="card" style="padding:12px 14px"><label class="wo-lb">Étkezés</label>'
    +'<select class="input" id="kcQM">'+mealsOpt+'</select></div>';
-  h+='<div class="wo-modact"><button class="btn" id="kcQOk">'+(Q.idx!=null?"Mentés":"Hozzáadás")+'</button>'
+  h+='<div class="wo-modact"><button class="btn" id="kcQOk">'
+   +(Q.idx!=null?"Mentés":(Q.bask?"＋ A listához":"Hozzáadás"))+'</button>'
    +'<button class="btn ghost" id="kcQEd">Étel szerkesztése</button></div>';
   return h;}
 /* Makró-sor egy tetszőleges makró-objektumból, a beállított tápanyagokkal. */
@@ -5736,11 +5883,21 @@ function kcQtyWire(){
     const g=Q.q*kcUnitG(fo,Q.u);Q.u=nu;
     const ng=kcUnitG(fo,nu);Q.q=kcNum(g/ng,2)||1;kcQtyRe();};});
   document.getElementById("kcUAdd").onclick=function(){kcUnitAdd(Q.id);};
-  document.getElementById("kcQM").onchange=function(){Q.meal=document.getElementById("kcQM").value;};
+  const qm=document.getElementById("kcQM");
+  if(qm)qm.onchange=function(){Q.meal=qm.value;};
   document.getElementById("kcQEd").onclick=function(){const id=Q.id;closeScreen();
-    setTimeout(function(){kcFoodEdit(id,function(){kcQtyOpen(id,Q.meal,Q.idx);});},180);};
+    setTimeout(function(){kcFoodEdit(id,function(){kcQtyOpen(id,Q.meal,Q.idx,null,Q.bask);});},180);};
   document.getElementById("kcQOk").onclick=function(){
     if(!(Q.q>0)){toast("Adj meg mennyiséget","warn");return;}
+    /* bevitel-listás mód: nem a naplóba megy, hanem vissza a keresőbe, a listára */
+    if(Q.bask&&Q.idx==null){
+      kcBaskAdd(Q.id,Q.q,Q.u);const m2=Q.meal;
+      closeScreen();
+      setTimeout(function(){
+        if(!_kcAdd)_kcAdd={meal:m2,q:"",more:false,bask:[]};
+        openModal(kcAddHtml());kcAddWire();
+        toast(kcBaskArr().length+" tétel a listán");},150);
+      return;}
     const e={i:Q.id,q:Q.q,m:Q.meal};
     if(Q.u&&Q.u!=="g")e.u=Q.u;
     if(S.food.set.rememberQty)kcSetLastQ(Q.id,Q.q,Q.u);
@@ -7315,6 +7472,8 @@ function kcSetHtml(){
    +'<div class="kc-slab"><span>finom</span><span id="kcSensV">'+s.qtySens+'/5</span><span>gyors</span></div>'
    +'<label class="wo-check" style="margin-top:12px"><input type="checkbox" id="kcRem"'+(s.rememberQty?" checked":"")+'/>'
    +'<span>Emlékezzen a legutóbbi mennyiségre<small>Amikor újra rögzíted ugyanazt az ételt, alapból annyit ajánlok fel, amennyit legutóbb ettél belőle. A mennyiség-lapon a „Szoktad" chipek is megjelennek a leggyakoribb adagjaiddal.</small></span></label>'
+   +'<label class="wo-check" style="margin-top:10px"><input type="checkbox" id="kcDefG"'+(s.defUnit!=="smart"?" checked":"")+'/>'
+   +'<span>Mindig grammal induljon<small>A mennyiség-lap alapból <b>grammban</b> (folyadéknál ml-ben) nyílik, akkor is, ha az ételhez tartozik „adag" vagy „db" egység — azok másodlagosak, egy koppintással válthatók. Kikapcsolva a régi viselkedés jön vissza (ha van darabszerű egység, azzal indul).</small></span></label>'
    +'</div>';
   /* --- étkezések --- */
   h+='<div class="section-title">Étkezések</div>'
@@ -7352,6 +7511,8 @@ function kcSetWire(){
     const v=document.getElementById("kcSensV");if(v)v.textContent=s.qtySens+"/5";};
   const rm=document.getElementById("kcRem");
   if(rm)rm.onchange=function(){s.rememberQty=rm.checked;kcTouch();};
+  const dg=document.getElementById("kcDefG");
+  if(dg)dg.onchange=function(){s.defUnit=dg.checked?"g":"smart";kcTouch();};
   const ms=document.getElementById("kcSMeals");
   if(ms)ms.onclick=function(){closeScreen();setTimeout(kcMealsOpen,180);};}
 
@@ -11478,6 +11639,13 @@ function bindCycDay(dayKey){
 
 /* --- „Mi újult meg?" (közérthető változásnapló) --- */
 const CHANGELOG=[
+ {v:20,title:"🍽 Kalória: egyszerre több étel, mindig gramm — és közös háztartás",items:[
+   "<b>Több ételt egyszerre vihetsz be.</b> Eddig minden falatért végig kellett menni a hozzáadás → mennyiség → vissza a naplóhoz körön. Mostantól kiválasztod, <b>hova</b> rögzítsd (pl. Vacsora), és utána <b>összeválogatod a tányért</b>: a lista alján gyűlnek a tételek, a végén egyetlen <b>„✓ Hozzáadás”</b> gombbal kerül be az egész. A gomb odaragad a képernyő aljára, és kiírja, hány tétel és hány kcal van a listán.",
+   "Minden találat mellett ott egy <b>＋</b> gomb: azzal a <b>szokásos adagoddal</b> kerül a listára, a mennyiség-lap megnyitása nélkül. Ha másik mennyiség kell, a nevére koppintasz — ott állítod be, és onnan is a listára kerül.",
+   "<b>A mennyiség mostantól mindig grammal indul</b> (folyadéknál ml-lel), akkor is, ha az ételhez tartozik „adag” vagy „db”. Azok megmaradnak, egy koppintással válthatók — csak nem ők az alap. Ha a legutóbbi mennyiséged „1 adag” volt, azt is grammra váltva mutatjuk (ugyanannyi étel). Visszakapcsolható: <b>Kalória → ⚙️ Beállítások → Mennyiség megadása → „Mindig grammal induljon”</b>.",
+   "<b>A Mentés gombért nem kell többé görgetni.</b> A hosszú beviteli lapok (étel-szerkesztő, mennyiség, recept, beállítások) alján a gombsor <b>odaragad a képernyő aljához</b> — a lap fölötte görög tovább.",
+   "<b>Új: 👨‍👩‍👧 Közös háztartás</b> (Fiók fül). Aki egy háztartásban él, ugyanazt eszi — mostantól a <b>saját ételeitek és receptjeitek közösek</b> lehetnek. Amit te felviszel (új csoki vonalkóddal, saját recept, címke-fotóból mentett termék), az pár másodpercen belül megjelenik a többiek keresőjében is, és a <b>vonalkód is felismeri</b> náluk.",
+   "A háztartáshoz a <b>Google-fiók e-mail címével</b> veszed fel a többieket — nekik semmit nem kell beírniuk, az appjuk a következő indításkor magától csatlakozik. A <b>naplód, a céljaid, a súlyod és a statisztikád nem közös</b>: azt továbbra is csak te látod."]},
  {v:19,title:"🔑 „Nulla a kereted” — most már ezt is megmondja, nem küld várni",items:[
    "Van olyan Google-fiók, amelyik <b>nulla ingyenes keretet</b> kap az AI-hoz („limit: 0”). Eddig ilyenkor azt írtuk ki, hogy elérted a percenkénti limitet, és várj egy percet — pedig hiába vársz, ez a keret nem áll vissza. Mostantól kimondjuk, mi a helyzet, és azt is, mit lehet vele kezdeni (fiók születési dátuma, ország, számlázási fiók, vagy másik Google-fiók).",
    "<b>Nem zárjuk le 10 percre az AI-t</b> ilyenkor, és nem is próbálkozunk újra feleslegesen — a keret modellenként külön van, ezért a többi modellel simán mehet tovább.",
@@ -11853,7 +12021,9 @@ window.SL={getState:()=>S,
     if(remoteNewer)window.SL.applyRemote(remote);
     else if((S.updatedAt||0)>(remote.updatedAt||0))api.upload();
   },
-  onCloudState:(u)=>{cloudUser=u;renderHeader();if(curTab==="fiok")renderFiok();},
+  onCloudState:(u)=>{cloudUser=u;renderHeader();if(curTab==="fiok")renderFiok();
+    /* közös háztartás: belépéskor csatlakozunk (vagy megkeressük, hívtak-e) */
+    if(typeof hhStart==="function"){if(u)setTimeout(hhStart,400);else hhStop();}},
   /* A felhő-réteg innentől JELENT: sikert és hibát is. Egy néma catch miatt
      hittük eddig azt, hogy „nem szinkronizál" — pedig csak nem szólt semmi. */
   onCloudOk:(kind)=>{
@@ -12026,7 +12196,7 @@ function askCloudConflict(remote,api){
 /* =========================================================================
    2. RÉTEG — témák, súgó, tutorial, indokok, ünneplés, visszajelzés
    ========================================================================= */
-const APP_VERSION="v33";
+const APP_VERSION="v34";
 
 /* ---- témák ---- */
 const THEMES=[{id:"kert",name:"Üvegház",sw:"#2D6A4F"},{id:"papir",name:"Letisztult",sw:"#1B4332"},{id:"krem",name:"Papír",sw:"#B5852B"},{id:"arany",name:"Arany éj",sw:"#E5A83B"},{id:"erdo",name:"Erdő",sw:"#5FD08A"},{id:"ocean",name:"Óceán",sw:"#4FB0E5"},{id:"naplemente",name:"Naplemente",sw:"#E5744F"},{id:"ejjel",name:"Éjszakai",sw:"#C79A46"},{id:"film",name:"Filmvászon",sw:"#D8D8D8"}];
@@ -12476,6 +12646,242 @@ function nlCopyFallback(txt){
     +'<textarea class="input" style="min-height:260px">'+esc(txt)+'</textarea>');}
 /* ===== KÖZÖS LISTA (shared list) — VÉGE ===== */
 
+/* ============================================================================
+   KÖZÖS HÁZTARTÁS (hh*) — egy hűtő, egy ételszekrény
+   ----------------------------------------------------------------------------
+   Aki egy háztartásban él, ugyanazt eszi. Eddig viszont mindenkinek külön fel
+   kellett vinnie ugyanazt a csokit, ugyanazt a rakott krumplit. Mostantól a
+   háztartás tagjai KÖZÖSEN használják a saját ételeiket és receptjeiket:
+   amit az egyik felvisz (kézzel, vonalkóddal vagy címke-fotóval), az pár
+   másodpercen belül megjelenik a másik keresőjében, vonalkóddal együtt.
+
+   Mi közös és mi NEM:
+     KÖZÖS  – saját ételek (S.food.custom) és receptek (S.food.rec).
+     SAJÁT  – a napló, a célok, a súly, a statisztika. Azt senki más nem látja.
+
+   Hogyan működik:
+     households/{hid}              -> {name, emails:[...], owner}
+     households/{hid}/lib/{itemId} -> {t:"f"|"r", d:{...}} vagy {del:1} sírkő
+   A tagságot az e-mail cím adja: ha valakit felveszel, az ő appja a következő
+   indításnál MAGÁTÓL megtalálja a háztartást (nincs kód, nincs meghívó-link).
+   A jogosultságot a firestore.rules ellenőrzi (a tagok e-mail listája alapján).
+
+   Feltöltés-védelem: minden eszköz nyilvántartja (localStorage), melyik tételt
+   milyen tartalommal töltötte fel utoljára — így csak a TÉNYLEG megváltozott
+   tételekre megy írás, és a felhőből érkező tétel nem indít visszhang-írást.
+   ========================================================================== */
+let hhDoc=null,hhUnsub=null,hhErr=null,hhPushT=null,hhSynced=false,hhLastN=0;
+function hhId(){return (S.food&&S.food.hh&&S.food.hh.id)||"";}
+function hhEmail(){return ((cloudUser&&cloudUser.email)||"").trim().toLowerCase();}
+function hhCan(){return !!(cloudUser&&window.Cloud&&window.Cloud.hhWatch);}
+function hhMirKey(){return "sl_hh_m_"+hhId();}
+function hhMir(){try{return JSON.parse(Store.get(hhMirKey())||"{}")||{};}catch(e){return{};}}
+function hhMirSet(m){try{Store.setSafe(hhMirKey(),JSON.stringify(m));}catch(e){}}
+function hhHash(s){let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return String(h);}
+function hhSig(o){return hhHash(JSON.stringify(o));}
+function hhValidEmail(s){return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(s||"").trim());}
+
+/* Belépéskor (és app-indításkor, ha már be vagy lépve) fut. Ha még nincs
+   háztartásod, megnézzük, hívott-e valaki — az e-mail címed alapján. */
+function hhStart(){
+  if(!hhCan())return;
+  if(hhId()){hhAttach(hhId());return;}
+  const em=hhEmail();if(!em)return;
+  window.Cloud.hhFind(em).then(function(list){
+    if(!list||!list.length)return;
+    const h=list[0];
+    S.food.hh={id:h.id,name:h.name||"Közös háztartás",at:Date.now()};
+    save();hhAttach(h.id);
+    toast("Csatlakoztál a közös háztartáshoz: "+(h.name||"")+" ✓","win");
+    if(curTab==="fiok")renderFiok();
+  }).catch(function(e){hhErr=(e&&(e.code||e.message))||"ismeretlen hiba";});}
+function hhStop(){if(hhUnsub){try{hhUnsub();}catch(e){}hhUnsub=null;}
+  hhDoc=null;hhSynced=false;clearTimeout(hhPushT);}
+function hhAttach(hid){
+  if(!hhCan()||!hid)return;
+  hhStop();
+  window.Cloud.hhGet(hid).then(function(d){
+    if(!d){/* a háztartást törölték vagy kikerültél belőle */ hhForgetLocal();return;}
+    hhDoc=d;hhErr=null;hhRe();if(curTab==="fiok")renderFiok();
+  }).catch(function(e){hhErr=(e&&(e.code||e.message))||"ismeretlen hiba";
+    hhRe();if(curTab==="fiok")renderFiok();});
+  hhUnsub=window.Cloud.hhWatch(hid,function(items){hhApply(items);},
+    function(e){hhErr=(e&&(e.code||e.message))||"ismeretlen hiba";
+      if(curTab==="fiok")renderFiok();});}
+/* Helyi leválás: a közösen kapott ételek MEGMARADNAK (a naplód hivatkozik rájuk),
+   csak a szinkron áll le. */
+function hhForgetLocal(){
+  const k=hhMirKey();
+  S.food.hh={id:"",name:"",at:0};save();
+  try{Store.del(k);}catch(e){}
+  hhStop();if(curTab==="fiok")renderFiok();}
+
+/* A felhőből érkező közös tár beolvasztása a saját ételek/receptek közé. */
+function hhApply(items){
+  if(!Array.isArray(items))return;
+  const mir=hhMir();let ch=0;
+  const cust=S.food.custom=S.food.custom||[],rec=S.food.rec=S.food.rec||[];
+  items.forEach(function(it){
+    if(!it||!it.id)return;
+    if(it.del){
+      const i=cust.findIndex(function(x){return x.id===it.id;});
+      if(i>=0){cust.splice(i,1);ch++;}
+      const j=rec.findIndex(function(x){return x.id===it.id;});
+      if(j>=0){rec.splice(j,1);ch++;}
+      mir[it.id]="DEL";return;}
+    const d=it.d;if(!d||typeof d!=="object")return;
+    if(it.t==="r"){
+      const o=normRecipe(Object.assign({},d,{id:it.id}));if(!o)return;
+      const sig=hhSig(o);
+      const j=rec.findIndex(function(x){return x.id===o.id;});
+      if(j<0){rec.unshift(o);ch++;}
+      else if(hhSig(rec[j])!==sig){rec[j]=o;ch++;}
+      mir[it.id]=sig;}
+    else{
+      const o=normFoodItem(Object.assign({},d,{id:it.id}));if(!o)return;
+      const sig=hhSig(o);
+      const i=cust.findIndex(function(x){return x.id===o.id;});
+      if(i<0){cust.unshift(o);ch++;}
+      else if(hhSig(cust[i])!==sig){cust[i]=o;ch++;}
+      mir[it.id]=sig;}});
+  hhMirSet(mir);
+  hhSynced=true;hhLastN=items.filter(function(x){return x&&!x.del;}).length;
+  hhRe();
+  if(ch){S.food.updatedAt=Date.now();save();
+    if(curTab==="kaloria")renderKaloria();
+    if(curTab==="fiok")renderFiok();}
+  /* ami helyben van, de a közös tárban még nincs (vagy változott) -> fel */
+  hhPushSoon();}
+
+/* Feltöltés — csak a ténylegesen megváltozott tételekre. kcTouch() hívja,
+   tehát minden étel-/recept-változás után magától elindul. */
+function hhPushSoon(){
+  if(!hhId()||!hhCan()||!hhSynced)return;
+  clearTimeout(hhPushT);hhPushT=setTimeout(hhPushNow,2500);}
+function hhPushNow(){
+  const hid=hhId();if(!hid||!hhCan()||!hhSynced)return;
+  const mir=hhMir();let n=0;const seen={};
+  const put=function(o,t){
+    seen[o.id]=1;
+    const sig=hhSig(o);
+    if(mir[o.id]===sig||n>=40)return;
+    n++;mir[o.id]=sig;
+    window.Cloud.hhPut(hid,o.id,{t:t,d:o}).catch(function(e){
+      delete mir[o.id];hhMirSet(mir);
+      hhErr=(e&&(e.code||e.message))||"feltöltési hiba";});};
+  (S.food.custom||[]).forEach(function(f){put(f,"f");});
+  (S.food.rec||[]).forEach(function(r){put(r,"r");});
+  /* helyben törölt, de korábban általunk feltöltött tétel -> sírkő mindenkinek */
+  for(const id in mir){
+    if(seen[id]||mir[id]==="DEL")continue;
+    mir[id]="DEL";
+    window.Cloud.hhDel(hid,id).catch(function(){});}
+  hhMirSet(mir);}
+
+/* ---- Fiók → Közös háztartás panel ---- */
+function hhStatusLine(){
+  if(!(window.Cloud&&window.Cloud.configured))return "A felhő-szinkron nincs beállítva, ezért a megosztás sem működik.";
+  if(!cloudUser)return "Jelentkezz be Google-fiókkal, utána állítható be.";
+  if(!hhId())return "Még nem vagy közös háztartásban — a saját ételeid csak nálad vannak.";
+  const nm=(S.food.hh&&S.food.hh.name)||"Közös háztartás";
+  const mem=(hhDoc&&hhDoc.emails)?hhDoc.emails.length:0;
+  return "<b>"+esc(nm)+"</b>"+(mem?(" · "+mem+" tag"):"")
+    +(hhSynced?(" · "+hhLastN+" közös tétel"):" · kapcsolódás…")
+    +(hhErr?(' · <b style="color:var(--loss)">'+esc(hhErr)+'</b>'):"");}
+function hhOpenPanel(){
+  if(!(window.Cloud&&window.Cloud.configured)){toast("A felhő-szinkron nincs beállítva","warn");return;}
+  if(!cloudUser){toast("Előbb jelentkezz be Google-fiókkal","warn");return;}
+  if(hhId()&&!hhDoc&&window.Cloud.hhGet)
+    window.Cloud.hhGet(hhId()).then(function(d){hhDoc=d;hhRe();}).catch(function(){});
+  openModal(hhPanelHtml());hhWire();}
+function hhRe(){const s=document.getElementById("modalSheet");
+  if(s&&document.getElementById("hhPanel")){s.innerHTML=hhPanelHtml();hhWire();}}
+/* Almodál (kérdés/megerősítés) UTÁN: a lap bezárult, ezért újra kell nyitni —
+   ugyanaz a minta, mint a többi beágyazott párbeszédnél a modulokban. */
+function hhReopen(){openModal(hhPanelHtml());hhWire();}
+function hhPanelHtml(){
+  let h='<div id="hhPanel"></div><button class="close-x" id="mClose">✕</button><h3>👨‍👩‍👧 Közös háztartás</h3>';
+  h+='<p style="margin-top:0;color:var(--muted)">Egy háztartásban ugyanaz van a hűtőben. Ha itt összekötitek a fiókjaitokat, a <b>saját ételeitek és receptjeitek közösek</b> lesznek: amit az egyikőtök felvisz — kézzel, vonalkóddal vagy címke-fotóval —, az a másik keresőjében is megjelenik, pár másodpercen belül.</p>';
+  h+='<div class="card" style="padding:12px 14px;margin-bottom:12px"><div class="hint" style="margin:0">'
+   +'<b>Közös:</b> saját ételek + receptek (névvel, vonalkóddal, tápértékkel együtt).<br>'
+   +'<b>Nem közös:</b> a naplód, a céljaid, a súlyod, a statisztikád — azt csak te látod.</div></div>';
+  if(!hhId()){
+    h+='<div class="card" style="padding:14px 16px"><label class="wo-lb">A háztartás neve</label>'
+     +'<input class="input" id="hhName" maxlength="40" placeholder="pl. Székely-konyha"/>'
+     +'<div class="hint" style="margin-top:8px">Létrehozod, aztán felveszed a többiek <b>Google-fiókjának e-mail címét</b>. Nekik semmit nem kell beírniuk: a következő indításkor az appjuk magától csatlakozik.</div></div>'
+     +'<div class="wo-modact"><button class="btn" id="hhCreate">＋ Háztartás létrehozása</button></div>';
+    return h;}
+  const nm=(S.food.hh&&S.food.hh.name)||"Közös háztartás";
+  const em=(hhDoc&&Array.isArray(hhDoc.emails))?hhDoc.emails:[];
+  const me=hhEmail(),owner=!!(hhDoc&&cloudUser&&hhDoc.owner===cloudUser.uid);
+  h+='<div class="section-title">'+esc(nm)+'</div><div class="card">';
+  if(!hhDoc)h+='<div class="hint" style="padding:12px 14px">Tagok betöltése…</div>';
+  else if(!em.length)h+='<div class="hint" style="padding:12px 14px">Még nincs tag.</div>';
+  else em.forEach(function(e){
+    h+='<div class="mod-row"><span class="em">'+(e===me?"🙋":"👤")+'</span><span style="min-width:0;flex:1">'
+     +'<span class="nm">'+esc(e)+'</span><span class="ds">'
+     +((hhDoc&&hhDoc.owner&&e===me&&owner)?"te (létrehozó)":(e===me?"te":"tag"))+'</span>'
+     +'<span class="mod-acts">'+((e!==me)?('<button class="btn ghost sm" data-hhdel="'+escA(e)+'">🗑</button>'):"")
+     +'</span></span></div>';});
+  h+='</div>';
+  h+='<button class="btn ghost wide sm" id="hhAdd" style="margin-top:10px">＋ Tag hozzáadása (Google e-mail cím)</button>';
+  h+='<div class="hint" style="margin:10px 4px">Fontos: pontosan azt az e-mail címet írd be, amivel a másik <b>belép az appba</b> (Google-fiók). Ha elgépeled, nála semmi nem fog történni.</div>';
+  h+='<div class="card" style="padding:12px 14px;margin-top:10px"><div class="hint" style="margin:0">'
+   +(hhSynced?('Közös tár: <b>'+hhLastN+'</b> tétel. Ami nálad készül, magától felkerül.')
+     :'Kapcsolódás a közös tárhoz…')
+   +(hhErr?('<br><b style="color:var(--loss)">Hiba: '+esc(hhErr)+'</b>'):"")+'</div></div>';
+  h+='<div class="hint" style="margin:10px 4px">Ha valaki <b>törli</b> a közös listáról az egyik ételt, az mindenkinél eltűnik a keresőből — a már naplózott napok összesítése viszont megmarad.</div>';
+  h+='<div class="wo-modact"><button class="btn ghost" id="hhLeave" style="color:var(--loss)">Kilépés a háztartásból</button></div>';
+  return h;}
+function hhWire(){
+  const x=document.getElementById("mClose");if(x)x.onclick=function(){closeScreen();
+    setTimeout(function(){if(curTab==="fiok")renderFiok();},150);};
+  const cr=document.getElementById("hhCreate");
+  if(cr)cr.onclick=function(){
+    const nmEl=document.getElementById("hhName");
+    const nm=((nmEl&&nmEl.value)||"").trim()||"Közös háztartás";
+    const me=hhEmail();
+    if(!me){toast("A fiókodhoz nem tartozik e-mail cím","warn");return;}
+    cr.disabled=true;
+    window.Cloud.hhCreate(nm,[me]).then(function(hid){
+      S.food.hh={id:hid,name:nm,at:Date.now()};save();
+      hhAttach(hid);hhRe();toast("Háztartás létrehozva ✓","win");
+    }).catch(function(e){cr.disabled=false;
+      toast("Nem sikerült: "+((e&&(e.code||e.message))||"hiba"),"down");});};
+  const ad=document.getElementById("hhAdd");
+  if(ad)ad.onclick=function(){
+    woAsk("Tag hozzáadása","Google e-mail cím","",function(v){
+      const em=String(v||"").trim().toLowerCase();
+      if(!hhValidEmail(em)){toast("Ez nem érvényes e-mail cím","warn");return;}
+      const cur=(hhDoc&&Array.isArray(hhDoc.emails))?hhDoc.emails.slice():[];
+      if(cur.indexOf(em)>=0){toast("Ő már tag");return;}
+      if(cur.length>=12){toast("Legfeljebb 12 tag","warn");return;}
+      cur.push(em);
+      window.Cloud.hhSetMembers(hhId(),cur,(S.food.hh&&S.food.hh.name)||"Közös háztartás")
+        .then(function(){hhDoc=Object.assign({},hhDoc||{},{emails:cur});hhReopen();
+          toast("Hozzáadva ✓ — nála a következő indításkor jelenik meg","win");})
+        .catch(function(e){hhReopen();toast("Nem sikerült: "+((e&&(e.code||e.message))||"hiba"),"down");});},
+      {hint:"Azt a címet írd be, amivel a másik <b>bejelentkezik</b> az appba. Amint felveszed, az ő appja magától csatlakozik — neki nem kell semmit beírnia."});};
+  document.querySelectorAll("[data-hhdel]").forEach(function(b){b.onclick=function(){
+    const em=b.dataset.hhdel;
+    woConfirm("Tag eltávolítása","Biztosan kiveszed a háztartásból: <b>"+esc(em)+"</b>? A nála lévő ételek megmaradnak, de innentől nem kaptok egymástól újat.",function(){
+      const cur=((hhDoc&&hhDoc.emails)||[]).filter(function(e){return e!==em;});
+      window.Cloud.hhSetMembers(hhId(),cur,(S.food.hh&&S.food.hh.name)||"Közös háztartás")
+        .then(function(){hhDoc=Object.assign({},hhDoc||{},{emails:cur});hhReopen();toast("Eltávolítva");})
+        .catch(function(e){hhReopen();toast("Nem sikerült: "+((e&&(e.code||e.message))||"hiba"),"down");});},"Eltávolítás",true);};});
+  const lv=document.getElementById("hhLeave");
+  if(lv)lv.onclick=function(){
+    woConfirm("Kilépés a háztartásból","A közösen kapott ételek és receptek <b>megmaradnak</b> nálad (a naplód hivatkozik rájuk), de innentől nem szinkronizálnak. Bármikor visszavehetnek.",function(){
+      const me=hhEmail();
+      const cur=((hhDoc&&hhDoc.emails)||[]).filter(function(e){return e!==me;});
+      /* a megerősítő párbeszéd már bezárta a lapot — itt csak takarítunk */
+      const done=function(){hhForgetLocal();
+        if(curTab==="fiok")renderFiok();toast("Kiléptél a háztartásból");};
+      if(window.Cloud.hhSetMembers&&cur.length)
+        window.Cloud.hhSetMembers(hhId(),cur,(S.food.hh&&S.food.hh.name)||"Közös háztartás").then(done).catch(done);
+      else done();},"Kilépés",true);};}
+/* ===== KÖZÖS HÁZTARTÁS — VÉGE ===== */
+
 /* ---- Ajánlás ismerősnek ---- */
 function shareApp(){
   // TODO: ajánlás-követés — a ?ref=<uid> beérkezéskor Firestore-ba menthető, és N (pl. 5) ajánlásnál funkció nyílhat meg.
@@ -12618,6 +13024,10 @@ function renderFiok(){const el=document.getElementById("tab-fiok");
     else html+='<div class="hint" style="margin-bottom:10px">Jelentkezz be, hogy az adataid több eszköz közt szinkronizáljanak. Csak te látod őket.</div><button class="btn sm" id="signIn">Bejelentkezés Google-fiókkal</button>';
   }else html+='<div class="hint">A felhő-szinkron nincs beállítva ehhez a példányhoz. Enélkül minden helyben, ezen az eszközön működik.</div>';
   html+='</div>';
+  html+='<div class="section-title">Közös háztartás</div><div class="card" style="padding:16px">'
+   +'<div class="hint" style="margin-bottom:10px">Egy háztartásban ugyanaz van a hűtőben: ha összekötitek a fiókjaitokat, a <b>saját ételeitek és receptjeitek közösek</b> lesznek. Amit te felviszel (új csoki vonalkóddal, saját recept), az a többiek keresőjében is megjelenik. A naplód, a céljaid és a súlyod <b>nem</b> közös.</div>'
+   +'<div class="hint" style="margin-bottom:10px">'+hhStatusLine()+'</div>'
+   +'<button class="btn wide" id="openHh">👨‍👩‍👧 Közös háztartás beállítása</button></div>';
   html+='<div class="section-title">Modulok</div><div class="card" style="padding:16px"><div class="hint" style="margin-bottom:10px">A Trellis modulokból áll: a <b>Szokáskövetés</b> mellé bekapcsolhatod a <b>Bibliaolvasást</b>, a <b>Ciklusnaptárt</b> és a később érkező modulokat. A bekapcsoltak a bal alsó <b>☰</b> menüből érhetők el, és te döntöd el a sorrendjüket.</div><button class="btn wide" id="openModules">🧩 Aktiválható modulok</button></div>';
   html+='<div class="section-title">Jutalmak</div><div class="card" style="padding:16px"><div class="hint" style="margin-bottom:10px">Érmék, jelvények és kihívások a szintlépéseidért — hamarosan.</div><button class="btn wide" id="openJutalmak">🏆 Jutalmak megnyitása</button></div>';
   html+='<div class="section-title">Ajánld ismerősnek</div><div class="card" style="padding:16px"><div class="hint" style="margin-bottom:10px">Tetszik a Trellis? Küldd el egy barátodnak egyetlen koppintással — Messenger, e-mail, bármi.</div><button class="btn wide" id="referBtn">🎁 Ajánld ismerősnek</button></div>';
@@ -12638,6 +13048,7 @@ function renderFiok(){const el=document.getElementById("tab-fiok");
   const si=document.getElementById("signIn");if(si)si.onclick=()=>{window.Cloud.signIn();};
   const so=document.getElementById("signOut");if(so)so.onclick=()=>{if(confirm("Kijelentkezel?"))window.Cloud.signOut();};
   const sy=document.getElementById("syncNow");if(sy)sy.onclick=syncPanel;
+  const hb=document.getElementById("openHh");if(hb)hb.onclick=hhOpenPanel;
   const om=document.getElementById("openModules");if(om)om.onclick=openModulesPanel;
   const jb=document.getElementById("openJutalmak");if(jb)jb.onclick=showJutalmak;
   const rb=document.getElementById("referBtn");if(rb)rb.onclick=shareApp;
@@ -12909,7 +13320,7 @@ try{
   if(ok){
     const {initializeApp}=await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js");
     const {getAuth,GoogleAuthProvider,signInWithPopup,signInWithRedirect,getRedirectResult,onAuthStateChanged,signOut}=await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js");
-    const {getFirestore,doc,setDoc,getDoc,onSnapshot,collection,addDoc,getDocs,deleteDoc,serverTimestamp}=await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js");
+    const {getFirestore,doc,setDoc,getDoc,onSnapshot,collection,addDoc,getDocs,deleteDoc,serverTimestamp,query,where}=await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js");
     const app=initializeApp(cfg);const auth=getAuth(app);const db=getFirestore(app);const provider=new GoogleAuthProvider();
     let uid=null,unsub=null,pushT=null;
     // Google Drive mentés — a token itt kapható el (a belépés eredményéből).
@@ -12931,6 +13342,26 @@ try{
       listAdd:(listId,data)=>uid?addDoc(collection(db,"sharedlists",listId,"items"),Object.assign({},data,{by:uid})):Promise.reject(new Error("no-auth")),
       listSet:(listId,id,data)=>uid?setDoc(doc(db,"sharedlists",listId,"items",id),Object.assign({},data,{lastBy:uid}),{merge:true}):Promise.reject(new Error("no-auth")),
       listDel:(listId,id)=>uid?deleteDoc(doc(db,"sharedlists",listId,"items",id)):Promise.reject(new Error("no-auth")),
+      /* --- KÖZÖS HÁZTARTÁS: households/{hid} + households/{hid}/lib/{itemId} ---
+         A tagságot az e-mail cím adja (a Google-fiók e-mailje), így a meghívott
+         a következő indításkor MAGÁTÓL megtalálja a háztartását — nem kell kód.
+         A `lib` alkollekcióban a közös saját ételek és receptek élnek. */
+      hhFind:(email)=>getDocs(query(collection(db,"households"),where("emails","array-contains",String(email||"").toLowerCase())))
+        .then(s=>{const a=[];s.forEach(d=>a.push(Object.assign({id:d.id},d.data())));return a;}),
+      hhGet:(hid)=>getDoc(doc(db,"households",hid)).then(s=>s.exists()?Object.assign({id:s.id},s.data()):null),
+      hhCreate:(name,emails)=>uid?addDoc(collection(db,"households"),
+        {name:String(name||"Közös háztartás").slice(0,40),emails:emails,owner:uid,at:Date.now()}).then(r=>r.id)
+        :Promise.reject(new Error("no-auth")),
+      hhSetMembers:(hid,emails,name)=>uid?setDoc(doc(db,"households",hid),
+        {emails:emails,name:String(name||"Közös háztartás").slice(0,40),at:Date.now()},{merge:true})
+        :Promise.reject(new Error("no-auth")),
+      hhWatch:(hid,cb,err)=>onSnapshot(collection(db,"households",hid,"lib"),
+        (s)=>{const a=[];s.forEach(d=>a.push(Object.assign({id:d.id},d.data())));cb(a);},
+        (e)=>{if(err)err(e);}),
+      hhPut:(hid,id,data)=>uid?setDoc(doc(db,"households",hid,"lib",id),
+        Object.assign({},data,{by:uid,at:Date.now()})):Promise.reject(new Error("no-auth")),
+      hhDel:(hid,id)=>uid?setDoc(doc(db,"households",hid,"lib",id),
+        {del:1,by:uid,at:Date.now()}):Promise.reject(new Error("no-auth")),
       signIn:async()=>{const p=new GoogleAuthProvider();if(localStorage.getItem("sl_driveOn")==="1")p.addScope(DRIVE_SCOPE);try{const res=await signInWithPopup(auth,p);driveCapture(res);}catch(e){const c=(e&&e.code)||"";if(c==="auth/popup-blocked"||c==="auth/cancelled-popup-request"||c==="auth/operation-not-supported-in-this-environment"){try{await signInWithRedirect(auth,p);}catch(e2){alert("Belépési hiba: "+((e2&&e2.code)||(e2&&e2.message)||e2));}}else if(c&&c!=="auth/popup-closed-by-user"){alert("Belépési hiba: "+c);}}},
       signOut:()=>signOut(auth),
       // force = a felhasználó KIFEJEZETTEN kérte (pl. "töröld a felhőből is").
@@ -13072,7 +13503,8 @@ try{
     onAuthStateChanged(auth,async(user)=>{
       uid=user?user.uid:null;
       lastRemoteWeight=0;
-      window.SL.onCloudState(user?{name:user.displayName||user.email||"fiók",uid:user.uid}:null);
+      window.SL.onCloudState(user?{name:user.displayName||user.email||"fiók",uid:user.uid,
+        email:(user.email||"").toLowerCase()}:null);
       if(unsub){unsub();unsub=null;}
       if(user){
         try{const ref=doc(db,"users",uid);const snap=await getDoc(ref);
