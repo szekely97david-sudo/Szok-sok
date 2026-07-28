@@ -1591,7 +1591,11 @@ function daysBetween(a,b){return Math.round((keyToDate(b)-keyToDate(a))/86400000
 function addDaysKey(k,n){const d=keyToDate(k);d.setDate(d.getDate()+n);return dk(d);}
 function validDate(k){return typeof k==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(k);}
 
-const TODAY=todayKey();
+/* A MAI nap kulcsa. Szándékosan NEM const: a telepített appot a rendszer csak
+   „előhozza” a háttérből (nem tölti újra), így éjfél után a betöltéskori dátum
+   bent ragadt volna — a Ma fül és a Kalória-napló tegnapon állt, és előre nem
+   lehetett lépni. A dayRollover() minden előtérbe kerüléskor frissíti. */
+let TODAY=todayKey();
 let selDay=TODAY;
 function isSelToday(){return selDay===TODAY;}
 
@@ -4647,8 +4651,21 @@ function kcEntMac(e){
    kiírjuk, mert enélkül némán széttart a napi kcal és a makró-összeg. */
 function kcEntGap(e){
   const m=kcEntMac(e);
-  const mk=m.p*4+m.c*4+m.f*9;
-  return{mac:m,mk:mk,gap:m.k-mk};}
+  const mk=kcMacEnergy(m);
+  const gap=m.k-mk;
+  /* Csak akkor szólunk, ha a kalória ÉRDEMI része mögött tényleg nincs makró
+     (tipikusan a csak-kcal-os gyors bevitel). Egy rendesen kitöltött ételnél a
+     címke energiája és a 4/4/9 sosem egyezik pontosan (kerekítés, cukoralkohol,
+     más Atwater-tényezők) — azért nem nyaggatunk 10-15%-os eltérésnél. */
+  const flag=(gap>40&&mk<m.k*0.6);
+  /* 1 kcal = 4,184 kJ — a leggyakoribb címke-elgépelés, hogy a kJ kerül a kcal helyére. */
+  const kj=(mk>0&&m.k/mk>3.5&&m.k/mk<5);
+  return{mac:m,mk:mk,gap:gap,flag:flag,kj:kj};}
+/* Makrókból számolt energia. A ROSTOT is beleszámoljuk (~2 kcal/g): a magyar és
+   EU-s címkéken a szénhidrát már nem tartalmazza a rostot, így nélküle egy
+   rostdús, hibátlanul kitöltött étel is „hiányos makróknak" látszana. */
+function kcMacEnergy(m){
+  return(m.p||0)*4+(m.c||0)*4+(m.f||0)*9+(m.b||0)*2;}
 function kcEntName(e){
   if(e.abs)return e.t||"Gyors bevitel";
   const fo=kcFood(e.i);return fo?fo.n:"(törölt étel)";}
@@ -5037,15 +5054,36 @@ function kcMacroRows(a,t){
    nyelvű címkéből csak a kcal jött át, vagy gyors bevitelnél csak azt írtad be),
    a napi kcal és a makró-összeg némán széttart. Ezt itt tesszük láthatóvá. */
 function kcGapScan(k){
-  const d=S.food.days[k];const out=[];let sum=0;
+  const d=S.food.days[k];const out=[];let sum=0,kj=false;
   if(d&&d.e)d.e.forEach(function(e,i){
     const g=kcEntGap(e);
-    /* Csak az ÉRDEMI hiányt számoljuk: pár kcal eltérés a kerekítésből és a
-       rostból mindig van, az nem hiba. */
-    if(g.gap>25&&g.mk<g.mac.k*0.85){out.push({i:i,e:e,gap:g.gap});sum+=g.gap;}});
+    if(g.flag){out.push({i:i,e:e,gap:g.gap});sum+=g.gap;if(g.kj)kj=true;}});
   out.sort(function(x,y){return y.gap-x.gap;});
-  return{sum:sum,items:out};}
+  return{sum:sum,items:out,kj:kj};}
 
+/* Meddig lehet előre lépni? Egy év bőven elég az előre-tervezéshez, és véd a
+   véletlen „2098" elgépeléstől. */
+function KC_MAXDAY(){return addDaysKey(TODAY,365);}
+function kcDayLabel(k){
+  if(k===TODAY)return"Ma";
+  if(k===addDaysKey(TODAY,-1))return"Tegnap";
+  if(k===addDaysKey(TODAY,1))return"Holnap";
+  return pretty(keyToDate(k));}
+/* Napváltás a Kalória Ma fülön — a ‹ › gombok és a balra/jobbra húzás közös útja. */
+function kcGoDay(n){
+  const nk=addDaysKey(kcDate,n);
+  if(nk>KC_MAXDAY())return;
+  kcDate=nk;renderKaloria();}
+/* Balra/jobbra húzás = napváltás, ugyanúgy, mint a Ma (célok) fülön. */
+let _kcSwX=null,_kcSwY=null;
+function kcBindSwipe(){
+  const el=document.getElementById("tab-kaloria");if(!el)return;
+  el.ontouchstart=function(e){if(e.touches.length!==1){_kcSwX=null;return;}
+    _kcSwX=e.touches[0].clientX;_kcSwY=e.touches[0].clientY;};
+  el.ontouchend=function(e){
+    if(_kcSwX==null)return;
+    const t=e.changedTouches[0],dx=t.clientX-_kcSwX,dy=t.clientY-_kcSwY;_kcSwX=null;
+    if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.6)kcGoDay(dx<0?1:-1);};}
 function kcMaHtml(){
   const f=S.food,k=kcDate,t=kcTargets(k),a=kcDayTotals(k),d=f.days[k];
   const rem=t.kcal-a.k;
@@ -5055,9 +5093,10 @@ function kcMaHtml(){
   /* dátum-sáv */
   const isT=(k===TODAY);
   h+='<div class="kc-dbar"><button data-kcd="-1" aria-label="Előző nap">‹</button>'
-   +'<button class="mid" id="kcToday"><b>'+(isT?"Ma":(k===addDaysKey(TODAY,-1)?"Tegnap":pretty(keyToDate(k))))+'</b>'
+   +'<button class="mid" id="kcToday"><b>'+kcDayLabel(k)+'</b>'
    +'<small>'+keyToDate(k).toLocaleDateString("hu-HU",{month:"short",day:"numeric",weekday:"short"})+'</small></button>'
-   +'<button data-kcd="1" aria-label="Következő nap"'+(k>=TODAY?" disabled":"")+'>›</button></div>';
+   +'<button data-kcd="1" aria-label="Következő nap"'+(k>=KC_MAXDAY()?" disabled":"")+'>›</button></div>'
+   +'<div class="swipe-hint">← húzd balra/jobbra a napváltáshoz →</div>';
   /* étkezés-bontás — a gyűrű mellé, jobbra (csak amibe már rögzítettél) */
   const byMeal={};(d&&d.e||[]).forEach(function(e,i){const m=e.m||f.set.meals[0].id;
     (byMeal[m]=byMeal[m]||[]).push({e:e,i:i});});
@@ -5101,7 +5140,8 @@ function kcMaHtml(){
   if(gp.items.length&&gp.sum>Math.max(80,a.k*0.04)){
     h+='<div class="card kc-gap"><div class="tt">⚠️ '+Math.round(gp.sum)+' kcal makrók nélkül</div>'
      +'<div class="ds">Ennyi kalóriához nem tartozik fehérje/szénhidrát/zsír, ezért a napi kalóriád és a makró-sávok széttartanak. '
-     +'A makrókból számolt energia ma <b>'+Math.round(a.p*4+a.c*4+a.f*9)+' kcal</b>, a naplózott <b>'+Math.round(a.k)+' kcal</b>.</div>'
+     +'A makrókból számolt energia ma <b>'+Math.round(kcMacEnergy(a))+' kcal</b>, a naplózott <b>'+Math.round(a.k)+' kcal</b>.'
+     +(gp.kj?' <b>Tipp:</b> az arány pont annyi, mint a kJ és a kcal közti váltószám (1 kcal = 4,184 kJ) — könnyen lehet, hogy a címkéről a <b>kJ</b> értéke került a kcal helyére. Az étel szerkesztésénél a „Kalória számítása a makrókból" gomb egy koppintással helyreteszi.':'')+'</div>'
      +'<div class="lst">'+gp.items.slice(0,4).map(function(x){
        return'<button data-kcgap="'+x.i+'"><span class="nm">'+esc(kcEntName(x.e))+'</span>'
         +'<span class="kk mono">+'+Math.round(x.gap)+' kcal</span></button>';}).join("")+'</div>'
@@ -5118,7 +5158,7 @@ function kcMaHtml(){
        +'<span class="sm mono">'+Math.round(mk)+' kcal · '+kcNum(mp,0)+' g P</span></div>';
       h+='<div class="kc-elist">';
       list.forEach(function(x){const gg=kcEntGap(x.e),mm=gg.mac;
-        const noMac=(gg.gap>25&&gg.mk<mm.k*0.85);
+        const noMac=gg.flag;
         h+='<button class="kc-ent" data-kcent="'+x.i+'"><span class="nm">'+esc(kcEntName(x.e))
          +(x.e.ai?' <span class="kc-tag">AI</span>':'')+(mm.miss?' <span class="kc-tag warn">?</span>':'')
          +(noMac?' <span class="kc-tag warn">makró?</span>':'')+'</span>'
@@ -5141,8 +5181,8 @@ function kcMaHtml(){
 function kcBindMa(){
   const el=document.getElementById("tab-kaloria");if(!el)return;
   el.querySelectorAll("[data-kcd]").forEach(function(b){b.onclick=function(){
-    const n=Number(b.dataset.kcd);const nk=addDaysKey(kcDate,n);
-    if(nk>TODAY)return;kcDate=nk;renderKaloria();};});
+    kcGoDay(Number(b.dataset.kcd));};});
+  kcBindSwipe();
   const tb=document.getElementById("kcToday");if(tb)tb.onclick=function(){
     if(kcDate!==TODAY){kcDate=TODAY;renderKaloria();}else kcPickDate();};
   el.querySelectorAll("[data-kcadd]").forEach(function(b){b.onclick=function(){kcAddOpen(b.dataset.kcadd);};});
@@ -5168,13 +5208,13 @@ function kcBindMa(){
 function kcPickDate(){
   woDlg('<button class="close-x" id="mClose">✕</button><h3>Melyik napra?</h3>'
    +'<div class="card" style="padding:14px 16px"><label class="wo-lb">Dátum</label>'
-   +'<input class="input" type="date" id="kcDI" max="'+TODAY+'" value="'+kcDate+'"/></div>'
+   +'<input class="input" type="date" id="kcDI" max="'+KC_MAXDAY()+'" value="'+kcDate+'"/></div>'
    +'<div class="wo-modact"><button class="btn" id="kcDOk">Megnyitás</button>'
    +'<button class="btn ghost" id="kcDC">Mégse</button></div>',function(){
     document.getElementById("kcDC").onclick=function(){closeScreen();};
     document.getElementById("kcDOk").onclick=function(){
       const v=document.getElementById("kcDI").value;closeScreen();
-      if(validDate(v)&&v<=TODAY){kcDate=v;setTimeout(renderKaloria,150);}};});}
+      if(validDate(v)&&v<=KC_MAXDAY()){kcDate=v;setTimeout(renderKaloria,150);}};});}
 
 /* ---- naplósor mentése/törlése ---- */
 function kcAddEntry(e){
@@ -5205,6 +5245,12 @@ function kcEntMenu(i){
     openMenu("Melyik étkezésbe?",S.food.set.meals.map(function(m){
       return{icon:m.em,label:m.l,onClick:function(){e.m=m.id;kcTouch();renderKaloria();}};}));}});
   if(!e.abs&&e.i){const fo=kcFood(e.i);
+    /* A hiányzó makrót az ÉTELNÉL kell pótolni, nem a naplósornál — enélkül a
+       „koppints a tételre, és pótold" tanács sehová nem vezetett. */
+    const own=(S.food.custom||[]).some(function(x){return x.id===e.i;});
+    if(fo&&!fo.rec&&own)items.push({icon:"🥗",label:"Az étel tápértékei",onClick:function(){
+      kcFoodEdit(e.i,function(){kcSyncTot(kcDate);renderKaloria();});}});
+    if(fo&&fo.rec)items.push({icon:"📗",label:"Recept szerkesztése",onClick:function(){kcRecEdit(e.i);}});
     if(fo&&!fo.fav)items.push({icon:"⭐",label:"Kedvencnek jelölés",onClick:function(){kcToggleFav(e.i);}});}
   if(e.abs)items.push({icon:"💾",label:"Mentés saját ételként",onClick:function(){kcSaveAbsAsFood(e);}});
   items.push({icon:"🗑",label:"Törlés",danger:true,onClick:function(){kcDelEntry(i);}});
@@ -5777,7 +5823,7 @@ function kcQuickOpen(mealId,editIdx,pre){
           else{kcAddEntry({abs:1,t:nm,q:q,m:meal,mc:mc});toast("Hozzáadva ✓");}},150);};
       /* Kalória makrók nélkül: ez a leggyakoribb oka annak, hogy a napi kcal és
          a makró-sávok széttartanak. Nem tiltjuk, de szólunk. */
-      const mk=p*4+c*4+f*9;
+      const mk=kcMacEnergy(mc);
       if(k>60&&mk<k*0.6)
         woConfirm("Makrók nélkül mented?",
           "Ehhez a "+Math.round(k)+" kcal-hoz csak <b>"+Math.round(mk)+" kcal</b>-nyi makró tartozik. "
@@ -7433,6 +7479,7 @@ function renderKaloria(){
   else h+=kcMaHtml();
   h+=kcUndoBarHtml();
   el.innerHTML=h;
+  el.ontouchstart=null;el.ontouchend=null;   /* a napváltó húzást csak a Ma fül kapja vissza */
   el.classList.toggle("has-undo",!!_kcUndo);
   const rt=document.getElementById("kcRetry");
   if(rt)rt.onclick=function(){_kcdbErr=false;_kcdbLoad=null;renderKaloria();};
@@ -11284,6 +11331,12 @@ function bindCycDay(dayKey){
 
 /* --- „Mi újult meg?" (közérthető változásnapló) --- */
 const CHANGELOG=[
+ {v:16,title:"📅 Nem ragad be a tegnap — és húzással is lapozhatsz a Kalóriában",items:[
+   "<b>Javítva: az app beragadt a tegnapi napra.</b> A telepített appot a telefon a legtöbbször nem tölti újra, csak előhozza a háttérből — ilyenkor éjfél után is a <i>tegnapi</i> dátumot hitte mainak. A Kalória-napló tegnapon állt, a „következő nap” gomb pedig szürke volt, tehát a mai napra sem lehetett átlépni. Mostantól az app minden előtérbe kerüléskor ránéz a naptárra, és ha közben fordult a nap, magától átvált a mai napra (a Ma fülön is).",
+   "<b>Balra-jobbra húzás a Kalória Ma fülén</b> — ugyanúgy lapozol a napok között, mint a célok Ma fülén. A ‹ › gombok maradnak, a húzás csak gyorsabb.",
+   "<b>Előre is léphetsz</b> a Kalória-naplóban (eddig a mai nap volt a fal): a holnapi vagy a hétvégi napot előre meg tudod tervezni, be tudod jelölni edzésnapnak, és előre felviheted, mit fogsz enni. A dátumválasztóban is választható jövőbeli nap (egy évig előre).",
+   "<b>Nem szól többé feleslegesen a „makró?” figyelmeztetés.</b> Eddig a rostot nem számolta bele az energiába, ezért egy rostdús, hibátlanul kitöltött saját ételnél is kitette a piros jelzést. Mostantól a rost is beleszámít (2 kcal/g), és csak akkor szólunk, ha a kalória tényleg jelentős része mögött nincs makró — a címke-kerekítés miatti pár százalékos eltérés nem elég hozzá.",
+   "Ha mégis félrecsúszott egy tápérték, a naplósorra koppintva már ott az <b>„🥗 Az étel tápértékei”</b> menüpont, és rögtön javíthatod. Ha az eltérés pont a kJ↔kcal váltószám (4,184), az app ki is írja, hogy alighanem a kilojoule került a kalória helyére."]},
  {v:15,title:"🗒️ Közös fejlesztési lista — egy fal, amit mindenki együtt ír",items:[
    "A <b>Fiók → Visszajelzés a fejlesztőnek</b> űrlap helyére <b>Közös fejlesztési lista</b> került. Eddig egy üzenetet elküldtél, és utána se te, se más nem látta, mi lett vele. Mostantól nem küldesz semmit: <b>felírod a közös falra</b>, és ott is marad, amíg le nem zárjuk.",
    "<b>Mindenki ugyanazt a listát látja</b>, aki a Trellist használja — és <b>élőben frissül</b>: amit az egyik telefonon beírsz vagy kipipálsz, az a többiek eszközén pár másodpercen belül megjelenik. Nem kell se frissíteni, se szinkronizálni.",
@@ -11810,7 +11863,7 @@ function askCloudConflict(remote,api){
 /* =========================================================================
    2. RÉTEG — témák, súgó, tutorial, indokok, ünneplés, visszajelzés
    ========================================================================= */
-const APP_VERSION="v27";
+const APP_VERSION="v28";
 
 /* ---- témák ---- */
 const THEMES=[{id:"kert",name:"Üvegház",sw:"#2D6A4F"},{id:"papir",name:"Letisztult",sw:"#1B4332"},{id:"krem",name:"Papír",sw:"#B5852B"},{id:"arany",name:"Arany éj",sw:"#E5A83B"},{id:"erdo",name:"Erdő",sw:"#5FD08A"},{id:"ocean",name:"Óceán",sw:"#4FB0E5"},{id:"naplemente",name:"Naplemente",sw:"#E5744F"},{id:"ejjel",name:"Éjszakai",sw:"#C79A46"},{id:"film",name:"Filmvászon",sw:"#D8D8D8"}];
@@ -12577,6 +12630,34 @@ function startupOpen(){
   if(m&&m.tabs&&modOn(m)){openModule(m.id);return;}
   switchTab("home");}
 startupOpen();
+/* ---- napváltás futás közben ---------------------------------------------
+   A telepített appot a rendszer általában nem tölti újra, csak előhozza a
+   háttérből. Ezért éjfél után a betöltéskori TODAY bent ragadt: a Ma fül és a
+   Kalória-napló tegnapon állt, és a „következő nap" gomb tiltva maradt.
+   Itt minden előtérbe kerüléskor (és percenként) megnézzük, fordult-e a nap. */
+function rerenderCurTab(){
+  const t=curTab;
+  if(t==="home")renderHome();else if(t==="ma")renderMa();else if(t==="celok")renderCelok();
+  else if(t==="haladas")renderHaladas();else if(t==="kuldetesek")renderKuldetesek();
+  else if(t==="biblia")renderBiblia();else if(t==="ciklus")renderCiklus();
+  else if(t==="edzes")renderEdzes();else if(t==="kaloria")renderKaloria();
+  else if(t==="fiok")renderFiok();
+  try{renderHeader();renderNav();}catch(e){}}
+function dayRollover(){
+  const t=todayKey();if(t===TODAY)return false;
+  const prev=TODAY;TODAY=t;
+  /* Ami tegnap „ma" volt, az lépjen át az új mai napra — a szándékosan
+     visszalapozott napot viszont hagyjuk békén. */
+  if(selDay===prev)selDay=TODAY;
+  if(typeof kcDate!=="undefined"&&kcDate===prev)kcDate=TODAY;
+  try{ensureQuick();}catch(e){}
+  try{bakDaily();}catch(e){}
+  try{rerenderCurTab();}catch(e){}
+  return true;}
+setInterval(dayRollover,60000);
+document.addEventListener("visibilitychange",function(){if(!document.hidden)dayRollover();});
+window.addEventListener("focus",dayRollover);
+window.addEventListener("pageshow",dayRollover);
 /* ---- splash: videó azonnal, végigjátszás -> fade; koppintás bárhová = a végére ugrik ---- */
 (function(){
   var sp=document.getElementById("splash"); if(!sp) return;
