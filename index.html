@@ -9072,23 +9072,33 @@ async function geminiSelfTest(btn){
     if(use){
       GKEY=key;Store.set("gemini_key",key);if(inp)inp.value=key;
       const body=JSON.stringify({contents:[{role:"user",parts:[{text:"Válaszolj ennyivel: OK"}]}],generationConfig:{temperature:0,maxOutputTokens:16}});
-      let ok=false,last=null;
-      for(const ver of["v1beta","v1"]){
-        const r=await gFetchJson(gGenUrl(ver,use,key),{method:"POST",headers:{"Content-Type":"application/json"},body:body});
-        last=r;
-        if(r.ok){ok=true;_gModelOk=use;_gVerOk=ver;
-          lines.push("✅ Éles próbakérés sikeres"+(ver==="v1"?" (a <b>v1</b> API-verzióval — erre álltam át)":"")+" — az AI-funkciók működnek. 🎉");break;}
-        if(r.status!==404&&r.status!==403)break;
+      /* Nem elég EGY modellt próbálni: ha mind a ~8 elbukik, az már bizonyíték, hogy fiók/projekt-szintű a tiltás. */
+      const cands=[use].concat(list.filter(m=>m!==use&&!/embedding|aqa|vision|image|imagen|tts|audio|live|veo/.test(m)).slice(0,6));
+      let ok=false,last=null,tried=0,okVer=null,okModel=null;
+      outer:
+      for(const m of cands){
+        for(const ver of["v1beta","v1"]){
+          const r=await gFetchJson(gGenUrl(ver,m,key),{method:"POST",headers:{"Content-Type":"application/json"},body:body});
+          last=r;tried++;
+          if(r.ok){ok=true;okVer=ver;okModel=m;break outer;}
+          if(r.status!==404&&r.status!==403)break outer;
+        }
+      }
+      if(ok){
+        _gModelOk=okModel;_gVerOk=okVer;
+        if(okModel!==use){GMODEL=okModel;Store.set("gemini_model",okModel);if(mi)mi.value=okModel;}
+        lines.push("✅ Éles próbakérés sikeres — az AI-funkciók működnek. 🎉"+
+          (okModel!==use?" (a <b>"+esc(okModel)+"</b> modellre álltam át)":"")+(okVer==="v1"?" (a <b>v1</b> API-verzióval)":""));
       }
       if(!ok){
         lines.push("❌ A próbakérés elakadt: "+esc(gExplain(last.status,last.data,use)));
+        lines.push("🔎 "+cands.length+" különböző modellt próbáltam meg, mindkét API-verzión ("+tried+" kérés) — egyik sem ment át.");
         /* Ez a kombináció (a kulcs LÁTJA a modellt, de generálni nem enged) mindig fiók/projekt-szintű. */
         if(last.status===404||last.status===403)
-          lines.push('<b>Mit jelent ez:</b> a kulcs valódi és a modelleket is látja, csak <b>generálni nem enged a Google ezzel a fiókkal/projekttel</b>. Sorrendben ezt érdemes megnézni:<br>'+
-            '1. Nyisd meg ugyanazzal a Google-fiókkal az <b>aistudio.google.com</b>-ot, és írj be egy próbamondatot. Ha ott sem válaszol, a <b>fiókkal</b> van a gond, nem az appal.<br>'+
-            '2. <b>Iskolai/céges (Workspace) vagy gyerek-fiók (Family Link) nem használhatja a Gemini API-t</b> — ilyenkor sima, saját Gmail-fiókkal kell kulcsot csinálni.<br>'+
-            '3. Az AI Studio-ban <b>„Create API key" → új projektbe</b> (ne a meglévőbe), és a friss kulcs pár percig érhet be.<br>'+
-            '4. VPN-t kapcsold ki — van ország, ahonnan a Google nem enged generálni.');
+          lines.push('<b>Mit jelent ez:</b> a kulcs valódi és a modelleket is látja, csak <b>generálni nem enged a Google ezzel a projekttel</b>. Nem a kulcsot kell újra legyártani — <b>a projektet kell lecserélni</b>:<br>'+
+            '1. <b>aistudio.google.com → Get API key → Create API key</b>, és a felugró ablakban <b>„Create API key in new project"</b> (ha csak meglévő projektet kínál, a Google Cloud Console-ban csinálj egy vadonatúj projektet, és abba kérd a kulcsot). Ugyanabba a projektbe gyártott újabb kulcs ugyanígy el fog bukni.<br>'+
+            '2. Próbakérdés az <b>aistudio.google.com</b> chatben, ugyanazzal a fiókkal. Ha ott sem válaszol, a <b>fiókkal</b> van a gond: iskolai/céges (Workspace) vagy szülői felügyelet alatti fiók nem használhatja a Gemini API-t — ilyenkor sima, saját Gmail kell.<br>'+
+            '3. VPN ki — van ország, ahonnan a Google nem enged generálni.');
       }
     }
   }catch(e){
@@ -9096,7 +9106,16 @@ async function geminiSelfTest(btn){
     if(fmtWarn)lines.push(fmtWarn);
     if(e.message)lines.push('<span style="opacity:.7">Nyers hiba: '+esc(e.message)+"</span>");
   }
-  say(lines);btn.disabled=false;btn.innerHTML=orig;}
+  /* Az eredményt egy koppintással el lehessen küldeni — telefonon senki nem gépeli le. */
+  const report=lines.map(l=>l.replace(/<br>/g,"\n").replace(/<[^>]+>/g,"")
+    .replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&amp;/g,"&")).join("\n");
+  lines.push('<button class="btn ghost sm" id="gTestCopy" style="margin-top:6px">📋 Eredmény másolása</button>');
+  say(lines);
+  const cp=document.getElementById("gTestCopy");
+  if(cp)cp.onclick=()=>{const t="Trellis "+APP_VERSION+" — Gemini-teszt\n"+report;
+    if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(()=>toast("Az eredmény a vágólapon ✓","win"),()=>toast("Nem sikerült a másolás","warn"));
+    else toast("Ez a böngésző nem enged másolni","warn");};
+  btn.disabled=false;btn.innerHTML=orig;}
 function geminiRubricPrompt(context,label,max,anchors){
   const system="Rövid, önértékelő pontozási rubrikákat írsz magyarul. Kizárólag egy JSON objektummal válaszolsz: kulcsok "+max+"..1 (stringként), értékek rövid magyar leírások (max ~18 szó). A(z) "+max+" a legjobb, 1 a legrosszabb. Konkrét, megfigyelhető, elkülönülő fokozatok.";
   let user="Kontextus: "+(context||"(nincs)")+"\nMérce: "+label+"\nAdj rubrikát "+max+"-tól 1-ig.";
@@ -11438,7 +11457,9 @@ const CHANGELOG=[
  {v:18,title:"🔑 Gemini: másik API-verzió és pontosabb tanács, ha elakad",items:[
    "<b>Ha a szokásos API-verzión (v1beta) 404-et kapunk, az app magától újrapróbálja a <i>v1</i>-en</b>, és ha az megy, arra vált. Van fiók/projekt, ahol csak az egyik működik.",
    "<b>Ha a kulcs látja a modelleket, de generálni mégsem enged</b>, most kiírjuk, hogy ez <b>fiók- vagy projekt-szintű</b> gond, és lépésről lépésre, hogy mit nézz meg: próba az aistudio.google.com-on, iskolai/céges vagy gyerek-fiók kizárva, új kulcs ÚJ projektbe, VPN ki.",
-   "A „kulcs formátuma szokatlan” figyelmeztetés csak akkor jelenik meg, ha a kulcs tényleg el is bukik — eddig akkor is kiírtuk, ha a kulcs valójában hibátlan volt."]},
+   "A „kulcs formátuma szokatlan” figyelmeztetés csak akkor jelenik meg, ha a kulcs tényleg el is bukik — eddig akkor is kiírtuk, ha a kulcs valójában hibátlan volt.",
+   "<b>A teszt már nem egy modellen dől el:</b> ha az első elakad, sorra próbál <b>hét modellt, mindkét API-verzión</b> — ha bármelyik átmegy, arra állunk át és kész, ha egyik sem, akkor viszont biztos, hogy nem a modellválasztás a gond.",
+   "<b>📋 Eredmény másolása</b> gomb a teszt alatt — egy koppintás, és elküldheted a teljes eredményt, nem kell legépelni."]},
  {v:17,title:"🔑 Gemini-kulcs: megmondja, mi a baj — és amit tud, megjavítja",items:[
    "<b>Új gomb a Fiók fülön: „🔍 Kulcs tesztelése”.</b> Egyetlen koppintás, és megmondja, hogy a <i>kulccsal</i>, a <i>modellel</i> vagy a <i>hálózattal</i> van-e baj — eddig csak annyit láttál, hogy „404”, amiből semmi nem derült ki.",
    "<b>Magyar, érthető hibaüzenetek.</b> Eddig eldobtuk a Google válaszát, és csak a hibakódot mutattuk. Mostantól kiírjuk, mit üzent valójában: érvénytelen a kulcs, nincs bekapcsolva hozzá a szolgáltatás, korlátozott a kulcs, nem támogatott az ország/VPN, vagy tényleg csak elfogyott a napi ingyenkeret.",
@@ -11976,7 +11997,7 @@ function askCloudConflict(remote,api){
 /* =========================================================================
    2. RÉTEG — témák, súgó, tutorial, indokok, ünneplés, visszajelzés
    ========================================================================= */
-const APP_VERSION="v30";
+const APP_VERSION="v31";
 
 /* ---- témák ---- */
 const THEMES=[{id:"kert",name:"Üvegház",sw:"#2D6A4F"},{id:"papir",name:"Letisztult",sw:"#1B4332"},{id:"krem",name:"Papír",sw:"#B5852B"},{id:"arany",name:"Arany éj",sw:"#E5A83B"},{id:"erdo",name:"Erdő",sw:"#5FD08A"},{id:"ocean",name:"Óceán",sw:"#4FB0E5"},{id:"naplemente",name:"Naplemente",sw:"#E5744F"},{id:"ejjel",name:"Éjszakai",sw:"#C79A46"},{id:"film",name:"Filmvászon",sw:"#D8D8D8"}];

@@ -4,7 +4,7 @@
    - statikus fájlok -> STALE-WHILE-REVALIDATE (azonnal cache-ből, közben frissít háttérben)
    - Firebase/Google -> sose cache, mindig hálózat
    A cache-verziót MINDEN kiadásnál léptesd (v12 -> v13 ...), így az app-shell frissül. */
-const VERSION = "v68";
+const VERSION = "v69";
 const CACHE = "trellis-" + VERSION;
 
 const CORE = [
