@@ -1513,6 +1513,35 @@ nav .nav-in .tabbtn svg{width:20px; height:20px;}
 .kc-tprev b{color:var(--ink); font-size:13px;}
 #tab-kaloria.has-undo{padding-bottom:54px;}
 
+/* ===== KÖZÖS LISTÁK modul ===== */
+.lst-head{display:flex; align-items:center; gap:10px; margin:2px 0 10px;}
+.lst-head .em{font-size:24px; flex:none;}
+.lst-head .nm{display:block; font-family:var(--disp); font-weight:700; font-size:17px; color:var(--ink);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.lst-head .ds{display:block; font-size:11.5px; color:var(--muted-2); margin-top:1px;}
+.lst-shop{background:var(--gold-soft); border:1px solid var(--gold); border-radius:var(--r-sm);
+  padding:9px 12px; font-size:12.5px; color:var(--ink); margin-bottom:10px;}
+.lst-undo{display:flex; align-items:center; gap:10px; background:var(--surface-2); border:1px solid var(--line);
+  border-radius:var(--r-sm); padding:8px 12px; font-size:12.5px; margin-bottom:10px;}
+.lst-undo span{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.lst-undo button{color:var(--gold); font-family:var(--disp); font-weight:700; font-size:12.5px; flex:none;}
+.lst-sug{display:flex; flex-wrap:wrap; gap:6px; margin-top:10px;}
+.lst-sug button{background:var(--surface-2); border:1px solid var(--line); border-radius:999px;
+  padding:6px 11px; font-size:12px; color:var(--muted);}
+.lst-sug button:active{background:var(--gold); border-color:var(--gold); color:var(--on-gold);}
+.lst-bar{display:flex; align-items:center; gap:12px; margin:14px 2px 6px; font-size:12.5px; color:var(--muted);}
+.lst-bar b{color:var(--ink);}
+.lst-bar .lnk{margin-left:auto; color:var(--gold); font-size:12px; font-family:var(--disp); font-weight:600;}
+.lst-row{display:flex; align-items:flex-start; gap:10px; background:var(--surface); border:1px solid var(--line);
+  border-radius:var(--r-sm); padding:10px 12px; margin-bottom:6px;}
+.lst-row.done{opacity:.6;}
+.lst-mid{flex:1; min-width:0; text-align:left; background:none; border:0; padding:0;}
+.lst-mid .t{display:block; font-size:14px; color:var(--ink); word-break:break-word;}
+.lst-mid .t .q{font-family:var(--mono); font-size:12.5px; color:var(--gold); margin-left:4px;}
+.lst-mid .nt{display:block; font-size:12px; color:var(--muted); margin-top:2px;}
+.lst-mid .sb{display:block; font-size:11px; color:var(--muted-2); margin-top:3px;}
+.lst-cat{flex:none; font-size:15px; opacity:.75;}
+
 </style>
 <header>
   <div class="wrap"><div class="hdr">
@@ -1538,6 +1567,7 @@ nav .nav-in .tabbtn svg{width:20px; height:20px;}
   <section id="tab-ciklus" class="hidden"></section>
   <section id="tab-edzes" class="hidden"></section>
   <section id="tab-kaloria" class="hidden"></section>
+  <section id="tab-listak" class="hidden"></section>
   <section id="tab-fiok" class="hidden"></section>
 </main>
 
@@ -1670,6 +1700,9 @@ const MODULES=[
  {id:"workout",name:"Edzésnapló",short:"Edzés",em:"🏋️",flag:"workout",
   desc:"Edzések, sorozatok és súlyok rögzítése. A terv és a tény külön él, ezért egy kihagyott sorozat nem törli a programodat. Pihenő-stopper hanggal, regeneráció-becsléssel.",
   tabs:[{t:"edzes",sub:"edzes",label:"Ma",ico:"dumb"},{t:"edzes",sub:"naplo",label:"Napló",ico:"cal"},{t:"edzes",sub:"stat",label:"Statisztika",ico:"bars"}]},
+ {id:"lists",name:"Közös listák",short:"Listák",em:"📝",flag:"lists",
+  desc:"Közösen szerkeszthető listák: bevásárlás, pakolás, kemping, költözés. Amit felírsz, a lista tagjai azonnal látják — és ők is írhatnak bele. A pontrendszeredbe nem számít bele.",
+  tabs:[{t:"listak",label:"Listák",ico:"list"}]},
  {id:"challenge",name:"Szokás-kihívások",short:"Kihívás",em:"🎯",soon:true,
   desc:"Előre megtervezett, végigvezetett programok (pl. 30 napos kihívás), amit csak követned kell nap mint nap."}];
 const MOD_ACCOUNT={id:"account",name:"Fiók",short:"Fiók",em:"⚙️",
@@ -1680,6 +1713,7 @@ function modOn(m){if(!m)return false;if(m.soon)return false;if(m.core)return tru
   if(m.flag==="cycle")return !!(S.cycle&&S.cycle.enabled);
   if(m.flag==="workout")return !!(S.workout&&S.workout.enabled);
   if(m.flag==="food")return !!(S.food&&S.food.enabled);
+  if(m.flag==="lists")return !!(S.lists&&S.lists.enabled);
   return false;}
 /* mentett sorrend (alulról felfelé), a még nem ismert modulok a végére kerülnek */
 function modOrder(){const saved=(S.ui&&Array.isArray(S.ui.modOrder))?S.ui.modOrder:[];
@@ -4384,6 +4418,9 @@ const KCGRP={1:"Hús, hal, tojás",2:"Tejtermék",3:"Gabona, pékáru, köret",4
 const KCKEEP=180;                /* ennyi napnál régebbi napok tételei kiürülnek */
 /* "Darabszerű" egységek: ezeknél 1 darab a természetes alapértelmezés. */
 const KCPIECE=/^(db|szelet|adag|doboz|pohár|korsó|gombóc|csésze|marok|golyó|kupica|mérőkanál|tányér|közepes|az egész|kocka|gerezd)/i;
+/* Ezekből EGÉSZ darabokat eszünk: itt a mennyiség 1-esével lép, nem tizedesével.
+   (Az „adag", a „pohár" és a kanalak szándékosan kimaradtak — fél adag létezik.) */
+const KCWHOLEU=/^(db|szelet|tojás|gerezd|kocka|doboz|golyó|gombóc|közepes|az egész|karika|cikk)/i;
 
 /* ---- állapot ---- */
 function foodBlank(){return{enabled:false,updatedAt:0,version:1,
@@ -5345,9 +5382,8 @@ function kcBaskDefQ(fo){
   const base=kcBaseUnit(fo),gramFirst=(S.food.set.defUnit!=="smart");
   if(S.food.set.rememberQty){
     const lq=kcLastQ(fo.id);
-    if(lq&&(lq.u===base||(fo.u||[]).some(function(x){return x[0]===lq.u;}))){
-      if(gramFirst&&lq.u!==base)return{q:kcQSnap(fo,base,lq.q*kcUnitG(fo,lq.u)),u:base};
-      return{q:lq.q,u:lq.u};}}
+    if(lq&&(lq.u===base||(fo.u||[]).some(function(x){return x[0]===lq.u;})))
+      return{q:lq.q,u:lq.u};}   /* amilyen egységben legutóbb: adag/db is maradhat */
   const pu=gramFirst?null:(fo.u||[]).find(function(x){return KCPIECE.test(x[0]);});
   if(pu)return{q:1,u:pu[0]};
   return{q:100,u:base};}
@@ -5483,9 +5519,17 @@ function kcResGroup(title,list){
   const A=_kcAdd||{},quick=(!A.toRecipe&&!A.onPick);
   let h='<div class="kc-rgrp">'+esc(title)+'</div>';
   list.forEach(function(fo){
+    /* Alsó sor: márka, és — ha van emlékünk — az a mennyiség, amit a ＋ hozzáad.
+       Így látod előre, mit fogsz rögzíteni, nem kell megnyitni a mennyiség-lapot. */
+    let sub=fo.br?esc(fo.br):"";
+    if(quick&&S.food.set.rememberQty){
+      const lq=kcLastQ(fo.id);
+      if(lq&&(lq.u===kcBaseUnit(fo)||(fo.u||[]).some(function(x){return x[0]===lq.u;})))
+        sub+=(sub?" · ":"")+"legutóbb "+kcNum(lq.q,(lq.q<10?1:0))+" "+esc(lq.u);}
     const row='<button class="kc-rrow" data-kcpick="'+escA(fo.id)+'"><span class="nm">'+esc(fo.n)
-     +(fo.br?' <small>'+esc(fo.br)+'</small>':'')+(fo.rec?' <span class="kc-tag">recept</span>':'')
-     +(fo.src==="off"?' <span class="kc-tag">vonalkód</span>':'')+'</span>'
+     +(fo.rec?' <span class="kc-tag">recept</span>':'')
+     +(fo.src==="off"?' <span class="kc-tag">vonalkód</span>':'')
+     +(sub?'<small>'+sub+'</small>':'')+'</span>'
      +'<span class="kk mono">'+Math.round(fo.k)+'<small> kcal/100'+kcBaseUnit(fo)+'</small></span></button>';
     /* naplózásnál a sor mellé egy gyors ＋ kerül: a szokásos adagoddal egyből
        a listára teszi, mennyiség-lap nélkül */
@@ -5567,8 +5611,12 @@ function kcDialRate(fo,u){
   const base=(g<=1)?0.5:0.02;
   const mul=[0.3,0.55,1,1.8,3.2][Math.round(kcClamp(S.food.set.qtySens,1,5,3))-1];
   return base*mul;}
-/* A kerekítés léptéke: g/ml -> egész, darabszerű -> 0,1. */
-function kcQStep(fo,u){return(kcUnitG(fo,u)<=1)?1:0.1;}
+/* A kerekítés léptéke: g/ml -> egész; darabszerű (db, szelet, tojás) -> szintén
+   EGÉSZ, mert 1,2 db tojást senki nem eszik; a többinél (adag, pohár, kanál)
+   marad a tized, ott a fél adagnak van értelme. */
+function kcQStep(fo,u){
+  if(kcUnitG(fo,u)<=1)return 1;
+  return KCWHOLEU.test(u)?1:0.1;}
 function kcQSnap(fo,u,v){const st=kcQStep(fo,u);
   return Math.max(0,kcNum(Math.round(v/st)*st,st<1?2:0));}
 /* Utoljára rögzített mennyiség ételenként. */
@@ -5584,8 +5632,10 @@ function kcQtyOpen(foodId,mealId,editIdx,preset,toBasket){
   const fo=kcFood(foodId);
   if(!fo){toast("Ez az étel már nem található","warn");return;}
   let q=null,u=null,fromLast=false;
-  if(editIdx!=null){const e=kcDay(kcDate).e[editIdx];if(e){q=e.q;u=e.u||kcBaseUnit(fo);}}
-  if(q==null&&preset&&preset.q>0){q=preset.q;u=preset.u||kcBaseUnit(fo);}
+  /* Az előre megadott mennyiség (pl. most felvitt új egység) MINDIG erősebb,
+     mint a szerkesztett naplósor régi értéke — különben eltűnik, amit épp kértél. */
+  if(preset&&preset.q>0){q=preset.q;u=preset.u||kcBaseUnit(fo);}
+  if(q==null&&editIdx!=null){const e=kcDay(kcDate).e[editIdx];if(e){q=e.q;u=e.u||kcBaseUnit(fo);}}
   /* GRAMM AZ ALAPÉRTELMEZETT (beállítható: Kalória-beállítások → Mennyiség).
      A gramm az egyetlen mérce, ami minden ételnél ugyanazt jelenti; az „adag”,
      a „db” és a többi csak másodlagos — egy koppintással váltható a lapon. */
@@ -5595,9 +5645,10 @@ function kcQtyOpen(foodId,mealId,editIdx,preset,toBasket){
   if(q==null&&S.food.set.rememberQty){
     const lq=kcLastQ(foodId);
     if(lq&&(lq.u===base||(fo.u||[]).some(function(x){return x[0]===lq.u;}))){
-      q=lq.q;u=lq.u;fromLast=true;
-      /* Ugyanannyi étel, csak grammban kiírva (1 adag -> 250 g). */
-      if(gramFirst&&u!==base){q=kcQSnap(fo,base,lq.q*kcUnitG(fo,lq.u));u=base;}}}
+      /* AMILYEN EGYSÉGBEN LEGUTÓBB RÖGZÍTETTED, ABBAN NYÍLIK. Egy tojást
+         darabban visz fel az ember, nem 58 grammban — a gramm-alap csak arra
+         vonatkozik, amiről még nincs emlékünk. */
+      q=lq.q;u=lq.u;fromLast=true;}}
   if(q==null){
     /* Ha kikapcsolod a gramm-alapot: darabszerű egységnél 1 darab, különben
        100 g/ml. Kanálnál (ek/tk) így is a gramm a jobb kiindulás. */
@@ -5626,7 +5677,8 @@ function kcUsualQty(id,u){
 /* A tekerő két gyűrűjének „kattanás-értéke": a belső finom, a külső nagy. */
 function kcNotch(fo,u,ring){
   const st=kcQStep(fo,u);
-  return ring==="out"?(st===1?15:1):st;}
+  /* külső gyűrű: grammnál 15, egész darabnál 5, tizedes egységnél 1 */
+  return ring==="out"?(st===1?(kcUnitG(fo,u)<=1?15:5):1):st;}
 /* A mennyiség-bevitel felülete. Minden módban ugyanaz a fejléc: −  szám  +
    (a szám koppintásra billentyűzetet nyit), alatta a választott mód. */
 function kcQtyInput(Q,fo){
@@ -5928,7 +5980,10 @@ function kcUnitAdd(foodId){
         ||(S.food.rec||[]).find(function(r){return r.id===foodId;});
       if(!tgt){toast("Nem sikerült mentení","warn");return;}
       tgt.u=normUnits([].concat(tgt.u||[],[[n,g]]));kcTouch();closeScreen();
-      setTimeout(function(){_kcQty.u=n;_kcQty.q=1;kcQtyOpen(foodId,_kcQty.meal,_kcQty.idx);},180);};});}
+      /* Az imént felvitt egység legyen rögtön a kiválasztott — 1 × az új egység.
+         (Preset nélkül a lap a 100 g-os alapértelmezéssel nyílt vissza.) */
+      const M=_kcQty||{};
+      setTimeout(function(){kcQtyOpen(foodId,M.meal,M.idx,{q:1,u:n},M.bask);},180);};});}
 
 /* ---- GYORS BEVITEL ------------------------------------------------------
    Csak számok. Ha a kalóriát nem adod meg, a makrókból számoljuk (4/4/9). */
@@ -6396,6 +6451,7 @@ function kcReHtml(){
      +'<div class="hint" style="margin-top:6px">Összesen '+fo.tg+' g'
      +(hasServ?(' · 1 adag = '+kcNum(perServ,0)+' g'):'')+' · 100 g = '+Math.round(fo.k)+' kcal</div></div>';}
   h+='<div class="wo-modact" style="margin-top:12px"><button class="btn" id="reOk">Mentés</button>'
+   +((!R.isNew&&R.ing.length&&S.lists&&S.lists.enabled)?'<button class="btn ghost" id="reList">🛒 Hozzávalók listára</button>':'')
    +(R.isNew?'':'<button class="btn ghost wo-danger" id="reDel">Törlés</button>')
    +'<button class="btn ghost" id="reC2">Mégse</button></div>';
   return h;}
@@ -6416,6 +6472,10 @@ function kcReWire(){
     const s=document.getElementById("modalSheet");
     s.innerHTML=kcAddHtml();kcAddWire();};
   document.getElementById("reC2").onclick=function(){closeScreen();};
+  /* A recept hozzávalói egyenest a közös bevásárlólistára — ez az a pont, ahol
+     a két modul tényleg segít egymásnak, nem csak egymás mellett él. */
+  const rl=document.getElementById("reList");
+  if(rl)rl.onclick=function(){const id=R.id;lstFromRecipe(id);};
   const dl=document.getElementById("reDel");
   if(dl)dl.onclick=function(){const id=R.id;
     woConfirm("Recept törlése","A naplóban már rögzített adagok kérdőjelesek lesznek, a napi összegek megmaradnak.",function(){
@@ -7671,7 +7731,20 @@ function blank(){return{version:10,onboarded:false,updatedAt:0,settings:{...DEF}
   quickWeekly:{weekMon:weekMonKey(),items:[]},quickWeeklyHistory:{},
   reasons:{},todos:[],todoFolders:[],metaLevelSeen:null,avoidState:{},missFrom:TODAY,
   bible:{enabled:false,plan:null,calib:{wpm:null,runs:[]},updatedAt:0},
-  cycle:cycleBlank(),workout:workoutBlank(),food:foodBlank(),ui:{modOrder:MODULES.map(function(m){return m.id;}),start:"home"}};}
+  cycle:cycleBlank(),workout:workoutBlank(),food:foodBlank(),lists:listsBlank(),
+  ui:{modOrder:MODULES.map(function(m){return m.id;}),start:"home"}};}
+/* ---- Közös listák modul állapota (a felhőben csak a listák élnek; itt a
+   bekapcsolás, a listáim gyorsítótára és a saját gyakori tételeim vannak) ---- */
+function listsBlank(){return{enabled:false,updatedAt:0,cache:[],freq:{},group:true,last:""};}
+function normLists(l){l=(l&&typeof l==="object")?l:{};
+  const cache=(Array.isArray(l.cache)?l.cache:[]).slice(0,40).map(function(x){
+    return{id:String((x&&x.id)||"").slice(0,40),name:String((x&&x.name)||"Lista").slice(0,60),
+      em:String((x&&x.em)||"📝").slice(0,4),at:Number(x&&x.at)||0,n:Number(x&&x.n)||1};})
+    .filter(function(x){return !!x.id;});
+  const freq={};
+  if(l.freq&&typeof l.freq==="object")for(const k in l.freq){const v=Number(l.freq[k]);if(v>0)freq[String(k).slice(0,60)]=v;}
+  return{enabled:!!l.enabled,updatedAt:Number(l.updatedAt)||0,cache:cache,freq:freq,
+    group:l.group!==false,last:String(l.last||"").slice(0,40)};}
 
 /* ---- Ciklus (menstruációs naptár) modul állapota ----
    A felhasználói adat része (S.cycle) -> a meglévő úton szinkronizál és
@@ -7894,6 +7967,7 @@ function normalize(s){const b=blank();if(!s)return b;
   o.cycle=normCycle(s.cycle);
   o.workout=normWorkout(s.workout);
   o.food=normFood(s.food);
+  o.lists=normLists(s.lists);
   o.ui=normUi(s.ui);
   o.version=10;
   return o;}
@@ -8561,7 +8635,7 @@ function goalDetailHtml(g){const dobj=ensureDay(selDay);const e=(dobj.entries&&d
     /* ---- EGY ALCÉL RÉSZLETE ---- */
     if(!single)html+='<button class="btn ghost sm wide" type="button" data-mback style="margin-bottom:10px">‹ Alcélok</button>';
     html+='<div class="section-title">'+(single?"Rögzítés":esc(cur.label||g.title))+'<span class="sub">'+shortDate(selDay)+'</span></div>';
-    html+='<div class="card" style="padding:12px 14px"><div class="day-pick"><button class="btn ghost sm" id="dDayPrev">‹</button><input type="date" class="input" id="dDaySel" value="'+selDay+'"/><button class="btn ghost sm" id="dDayNext">›</button><button class="btn ghost sm" id="dDayToday"'+(isToday?' disabled':'')+'>Ma</button></div></div>';
+    html+='<div class="card" style="padding:12px 14px"><div class="day-pick"><button class="btn ghost sm" id="dDayPrev">‹</button><input type="date" class="input" id="dDaySel" value="'+selDay+'"/><button class="btn ghost sm" id="dDayNext">›</button><button class="btn ghost sm" id="dDayToday"'+(isToday?' disabled':'')+'>Ma</button></div></div><div class="swipe-hint">← húzd balra/jobbra a napváltáshoz →</div>';
     html+='<div class="card"><div class="g-body" style="display:block;border-top:0">';
     if(single)html+='<label class="vac-goal"><input type="checkbox" data-gvac="'+g.id+'"'+(e._vac?' checked':'')+'/> Szünet ma ehhez a célhoz (nem töri a szériát)</label>';
     html+=(cur.cadence.type==="avoid"?avoidDetailBlock(g,cur,e):metricBlock(g,cur,dobj,e));
@@ -8571,7 +8645,7 @@ function goalDetailHtml(g){const dobj=ensureDay(selDay);const e=(dobj.entries&&d
   /* ---- ALCÉLOK: minden rögzítő egy helyen, egymás alatt (lapos, nem drill-down) ---- */
   if((g.desc||"").trim())html+='<details class="acc" style="margin-top:2px"><summary class="acc-sum"><span class="acc-n">📖</span><span><span class="acc-t">Leírás</span><div class="acc-sub">Részletes kifejtés</div></span><span class="acc-chev">›</span></summary><div class="acc-body"><div style="white-space:pre-wrap;font-size:14px;line-height:1.55;color:var(--ink)">'+esc(g.desc)+'</div></div></details>';
   html+='<div class="section-title">Rögzítés<span class="sub">'+shortDate(selDay)+'</span></div>';
-  html+='<div class="card" style="padding:12px 14px"><div class="day-pick"><button class="btn ghost sm" id="dDayPrev">‹</button><input type="date" class="input" id="dDaySel" value="'+selDay+'"/><button class="btn ghost sm" id="dDayNext">›</button><button class="btn ghost sm" id="dDayToday"'+(isToday?' disabled':'')+'>Ma</button></div></div>';
+  html+='<div class="card" style="padding:12px 14px"><div class="day-pick"><button class="btn ghost sm" id="dDayPrev">‹</button><input type="date" class="input" id="dDaySel" value="'+selDay+'"/><button class="btn ghost sm" id="dDayNext">›</button><button class="btn ghost sm" id="dDayToday"'+(isToday?' disabled':'')+'>Ma</button></div></div><div class="swipe-hint">← húzd balra/jobbra a napváltáshoz →</div>';
   html+='<label class="vac-goal" style="margin:2px 2px 10px"><input type="checkbox" data-gvac="'+g.id+'"'+(e._vac?' checked':'')+'/> Szünet ma ehhez a célhoz (nem töri a szériát)</label>';
   if(!vis.length){html+='<div class="hint">Erre a napra nincs aktív alcél ehhez a célhoz.</div>';return html;}
   /* ---- forma-tudatos megjelenítés ------------------------------------------
@@ -8616,7 +8690,9 @@ function avoidDetailBlock(g,m,e){const since=avoidSince(g.id,m.id);const streak=
     +'<div class="hint" style="margin-top:8px">Alapból fut a számláló. Ha megcsúsztál, nyomd meg — nullázódik és újraindul. Egy napon többször is rögzítheted.</div>'
     +'<details class="advanced" style="margin-top:10px"><summary>⏱ Számláló kezdésének pontos beállítása<span class="chev">›</span></summary><div class="adv-body"><input class="input" type="datetime-local" step="1" data-avoidstart="'+g.id+'|'+m.id+'" value="'+localDTStr(new Date(since))+'"/><div class="hint" style="margin-top:6px">Állítsd be pontosan (nap, óra, perc, másodperc), mióta fut tisztán — a számláló erre az időpontra igazodik.</div></div></details></div>';}
 function bindGoalDetail(gid){
-  const t0=document.getElementById("tab-ma");if(t0){t0.ontouchstart=null;t0.ontouchend=null;}
+  /* A napváltó húzás a cél-részletben is él: ugyanaz a mozdulat, mint a Ma
+     fülön, és a renderMa a megnyitott célon belül marad. */
+  bindSwipe();
   const bk=document.querySelector("#tab-ma [data-back]");if(bk)bk.onclick=()=>closeScreen();
   document.querySelectorAll("#tab-ma [data-menter]").forEach(b=>b.onclick=()=>{maMetric=b.dataset.menter;pushScreen();window.scrollTo(0,0);renderMa();updateDayFoot();});
   const mb=document.querySelector("#tab-ma [data-mback]");if(mb)mb.onclick=()=>closeScreen();
@@ -11639,6 +11715,24 @@ function bindCycDay(dayKey){
 
 /* --- „Mi újult meg?" (közérthető változásnapló) --- */
 const CHANGELOG=[
+ {v:22,title:"📝 Új modul: Közös listák — és megjavult a szinkron",items:[
+   "<b>A szinkron-hiba oka megvan.</b> Aki felvitt egy saját mértékegységet egy ételhez (pl. „1 adag = 500 g”), annál a <b>teljes felhő-szinkron elhasalt</b>: a Firestore nem fogadja el a tömbben lévő tömböt, és a hibát ráadásul „letöltés”-ként írtuk ki, pedig feltöltés volt. Mostantól kódolva megy fel, és a Szinkronizálás panel gombjai is megmondják, ha valami nem sikerült — eddig némán nem történt semmi.",
+   "<b>Új modul: 📝 Közös listák</b> (Fiók → Aktiválható modulok). Közösen szerkesztett listák: <b>amit felírsz, a többiek azonnal látják</b>, és ők is írhatnak bele. Nem csak bevásárlás: pakolás, kemping, költözés, nagytakarítás — négy <b>sablon</b> egy koppintással.",
+   "<b>Több tétel egyszerre:</b> beillesztesz egy egész listát (soronként egyet), és felismeri a mennyiséget is — „2 kg paradicsom”, „tej 2 l”. Amit gyakran szoktál felírni, azt <b>javaslat-gombként</b> kínálja.",
+   "<b>Bolti sorrend:</b> a tételek maguktól kategóriába kerülnek (zöldség, pékáru, tejtermék, háztartás…), így nem kell a bolt egyik végéből a másikba rohangálni. A kategória egy koppintással átírható, a csoportosítás kikapcsolható.",
+   "Látszik, <b>ki írta fel és ki vette meg</b>; a tételhez tartozhat mennyiség, jegyzet és ár (a lista alján az összeg). A <b>törlés visszavonható</b>, a lista <b>szövegként másolható</b> vagy <b>CSV-be exportálható</b>.",
+   "<b>🛒 „A boltban vagyok”</b>: jelezheted a többieknek, hogy most van itt az ideje hozzáírni valamit (a listán látszik — valódi push-értesítés külön kör lesz).",
+   "<b>Receptből bevásárlólista:</b> a Kalória modul recept-szerkesztőjében egy gombbal az összes hozzávaló a listára kerül, mennyiséggel együtt.",
+   "A meghívás <b>e-mail címmel</b> megy, mint a közös háztartásnál: akit felveszel, annak az appja magától megtalálja a listát."]},
+ {v:21,title:"🔧 Sok apró javítás a közös listáról",items:[
+   "<b>A mennyiség abban az egységben nyílik, ahogy legutóbb rögzítetted.</b> Ha egy tojást „1 db”-ként vitted fel, legközelebb is 1 db-ot kínálunk, nem 58 grammot. A gramm-alap megmarad — de csak arra, amiről még nincs emlékünk.",
+   "<b>Darabnál egész számok.</b> A db, szelet, gerezd, kocka és társaik mostantól egyesével lépnek: nincs többé 1,1 vagy 1,2 tojás. Az „adag” és a „pohár” maradt tizedes, mert fél adag létezik.",
+   "<b>Új mértékegység felvétele után rögtön azt kínáljuk.</b> Eddig, ha felvitted, hogy „1 adag = 500 g”, a lap mégis 100 grammal jött vissza — így könnyű volt rossz mennyiséget rögzíteni.",
+   "<b>A keresőben látod, mit ad hozzá a ＋.</b> Az ismerős ételek alatt ott a legutóbbi mennyiséged (pl. „legutóbb 150 g”), és pontosan azt teszi a listára egy koppintás.",
+   "<b>Közös háztartás: nem vész el, amit utólag írsz hozzá.</b> Ha egy már megosztott ételhez később adtál vonalkódot vagy javítottad a tápértékét, előfordult, hogy a közös tárból visszaérkező régi változat csendben felülírta. Mostantól a frissebb helyi módosítás nyer, és az megy fel mindenkihez.",
+   "<b>A célon belül is lapozhatsz a napok között</b> — balra-jobbra húzással, ugyanúgy, mint a Ma fülön.",
+   "<b>A közös fejlesztési listán megjelölheted, melyik részhez szól</b> a hiba vagy az ötlet (Szokások, Kalória, Edzés, Biblia, Ciklus…), és a nyitott tételek modulonként, blokkokban jelennek meg. Így egyszerre egy terület javítható végig.",
+   "<b>Modul-parancsikonok.</b> Az app ikonját hosszan nyomva (telepített appnál) egyből a Kalóriára, Edzésre, Bibliára, Ciklusra vagy a Szokásokra ugorhatsz — a parancsikon külön ikonként ki is húzható a kezdőképernyőre."]},
  {v:20,title:"🍽 Kalória: egyszerre több étel, mindig gramm — és közös háztartás",items:[
    "<b>Több ételt egyszerre vihetsz be.</b> Eddig minden falatért végig kellett menni a hozzáadás → mennyiség → vissza a naplóhoz körön. Mostantól kiválasztod, <b>hova</b> rögzítsd (pl. Vacsora), és utána <b>összeválogatod a tányért</b>: a lista alján gyűlnek a tételek, a végén egyetlen <b>„✓ Hozzáadás”</b> gombbal kerül be az egész. A gomb odaragad a képernyő aljára, és kiírja, hány tétel és hány kcal van a listán.",
    "Minden találat mellett ott egy <b>＋</b> gomb: azzal a <b>szokásos adagoddal</b> kerül a listára, a mennyiség-lap megnyitása nélkül. Ha másik mennyiség kell, a nevére koppintasz — ott állítod be, és onnan is a listára kerül.",
@@ -11830,13 +11924,14 @@ function maybeShowWhatsNew(){
 
 /* ---- NAV: modul-fiók (☰) + az aktuális modul alsó fülei ---- */
 let curTab="ma",curMod="habit",_modLastTab={},_drawerOpen=false,_pendingModOpen=null;
-const TAB_IDS=["home","ma","celok","haladas","kuldetesek","biblia","ciklus","edzes","kaloria","fiok"];
+const TAB_IDS=["home","ma","celok","haladas","kuldetesek","biblia","ciklus","edzes","kaloria","listak","fiok"];
 function curSub(){return curTab==="biblia"?bibleTab:(curTab==="ciklus"?cycTab:(curTab==="edzes"?woSub:(curTab==="kaloria"?kcSub:null)));}
 function switchTab(t,sub){curTab=t;
   if(t==="biblia"){if(sub)bibleTab=sub;bibleBookOpen=null;}else bibleBookOpen=null;
   if(t==="ciklus"&&sub)cycTab=sub;
   if(t==="edzes"&&sub)woSub=sub;
   if(t==="kaloria"&&sub)kcSub=sub;
+  if(t!=="listak"){lstStop();lstOpen=null;lstItems=null;lstMeta=null;}
   if(t!=="ma"){maGoal=null;maMetric=null;}
   if(t!=="celok"){editing=null;formDraft=null;formMetricIdx=null;}
   if(t!=="haladas"){statGoal=null;statMetric=null;}
@@ -11844,7 +11939,7 @@ function switchTab(t,sub){curTab=t;
   curMod=tabModule(t).id;
   TAB_IDS.forEach(x=>{const s=document.getElementById("tab-"+x);if(s)s.classList.toggle("hidden",x!==t);});
   if(t==="home")renderHome();
-  if(t==="ma")renderMa();if(t==="celok")renderCelok();if(t==="haladas")renderHaladas();if(t==="kuldetesek")renderKuldetesek();if(t==="biblia")renderBiblia();if(t==="ciklus")renderCiklus();if(t==="edzes")renderEdzes();if(t==="kaloria")renderKaloria();if(t==="fiok")renderFiok();
+  if(t==="ma")renderMa();if(t==="celok")renderCelok();if(t==="haladas")renderHaladas();if(t==="kuldetesek")renderKuldetesek();if(t==="biblia")renderBiblia();if(t==="ciklus")renderCiklus();if(t==="edzes")renderEdzes();if(t==="kaloria")renderKaloria();if(t==="listak"){renderListak();if(cloudUser)lstRefreshLists();}if(t==="fiok")renderFiok();
   renderNav();updateDayFoot();window.scrollTo(0,0);}
 /* Az alsó sáv az aktuális modulból épül: ☰ + a modul fülei. */
 function renderNav(){const el=document.getElementById("navIn");if(!el)return;
@@ -11929,7 +12024,8 @@ function anyScreenOpen(){
     || (curTab==="haladas"&&!!statGoal)
     || (curTab==="celok"&&!!editing)
     || (curTab==="edzes"&&typeof woSub!=="undefined"&&woSub!=="edzes")
-    || (curTab==="kaloria"&&typeof kcSub!=="undefined"&&kcSub!=="ma");}
+    || (curTab==="kaloria"&&typeof kcSub!=="undefined"&&kcSub!=="ma")
+    || (curTab==="listak"&&typeof lstOpen!=="undefined"&&!!lstOpen);}
 function goBack(){
   // a legfelső nyitott alnézetet zárja; igazat ad, ha kezelt valamit
   if(_drawerOpen){closeDrawer();const mo=_pendingModOpen;_pendingModOpen=null;
@@ -11957,6 +12053,8 @@ function goBack(){
   /* Kalória modul: az Ételek / Statisztika fülről a Ma fülre lépünk vissza. */
   if(curTab==="kaloria"&&typeof kcSub!=="undefined"&&kcSub!=="ma"){
     kcSub="ma";renderKaloria();updateDayFoot();pushScreen();return true;}
+  /* Közös listák: a megnyitott listából a lista-választóra lépünk vissza. */
+  if(curTab==="listak"&&typeof lstOpen!=="undefined"&&lstOpen){lstCloseList();return true;}
   return false;}
 /* Egységes záró útvonal: ha van history-buffer, azon keresztül lép (a gesztussal
    szinkronban marad); különben közvetlenül zár. */
@@ -12002,7 +12100,8 @@ window.SL={getState:()=>S,
     // pillanatképként), hogy egy esetleg még nem szinkronizált érték se vesszen el.
     if(contentWeight(S)>0&&window.Cloud&&window.Cloud.backupNow)window.Cloud.backupNow(cloudCopy(),"eszkoz-elott");
     S=normalize(r);persist();renderHeader();switchTab(curTab);toast("Szinkronizálva");
-  }catch(e){}},
+  }catch(e){/* eddig néma volt: úgy nézett ki, a gomb nem csinál semmit */
+    toast("Nem sikerült alkalmazni a felhő verzióját: "+((e&&(e.code||e.message))||e),"down");}},
 
   /* A felhő-modul EZT hívja belépéskor és élő változáskor. Itt dől el, mi történjen.
      Szabályok (a 2026-07-24-i adatvesztés után):
@@ -12023,7 +12122,11 @@ window.SL={getState:()=>S,
   },
   onCloudState:(u)=>{cloudUser=u;renderHeader();if(curTab==="fiok")renderFiok();
     /* közös háztartás: belépéskor csatlakozunk (vagy megkeressük, hívtak-e) */
-    if(typeof hhStart==="function"){if(u)setTimeout(hhStart,400);else hhStop();}},
+    if(typeof hhStart==="function"){if(u)setTimeout(hhStart,400);else hhStop();}
+    /* közös listák: belépéskor megnézzük, melyik listákba hívtak meg */
+    if(typeof lstRefreshLists==="function"&&S.lists&&S.lists.enabled){
+      if(u)setTimeout(function(){lstRefreshLists();},600);
+      else{lstStop();lstOpen=null;lstItems=null;lstMeta=null;if(curTab==="listak")renderListak();}}},
   /* A felhő-réteg innentől JELENT: sikert és hibát is. Egy néma catch miatt
      hittük eddig azt, hogy „nem szinkronizál" — pedig csak nem szólt semmi. */
   onCloudOk:(kind)=>{
@@ -12135,6 +12238,17 @@ function cloudStatText(){
   if(!s)s="Még nem történt szinkron ebben a munkamenetben. ";
   if(cloudStat.err)s+='<b style="color:var(--loss)">Hiba: '+esc(cloudStat.err)+"</b>";
   return s;}
+/* Feltöltés a kézi panelről: a sikert ÉS a hibát is kimondjuk. Eddig a
+   pushNow hibája (pl. érvénytelen adat) elnyelődött, és a „Feltöltve ✓" akkor
+   is kiírta magát, amikor semmi nem ment fel. */
+function syPush(okMsg){
+  let p;
+  try{p=window.Cloud.pushNow(cloudCopy());}
+  catch(e){toast("A feltöltés nem sikerült: "+((e&&(e.code||e.message))||e),"down");return;}
+  toast("Feltöltés…");
+  Promise.resolve(p)
+    .then(function(){toast(okMsg||"Feltöltve ✓","win");})
+    .catch(function(e){toast("A feltöltés nem sikerült: "+((e&&(e.code||e.message))||e),"down");});}
 /* Kézi szinkron-panel: megmutatja mindkét oldalt, és te döntöd el, mi legyen. */
 function syncPanel(){
   if(!(window.Cloud&&window.Cloud.configured)){toast("A felhő-szinkron nincs beállítva","warn");return;}
@@ -12163,12 +12277,12 @@ function syncPanel(){
         bakSnapshot("fesules-elott");
         if(window.Cloud.backupNow)window.Cloud.backupNow(cloudCopy(),"fesules-elott");
         try{S=normalize(merged);S.updatedAt=Date.now();persist();
-          window.Cloud.pushNow(cloudCopy());
-          closeScreen();switchTab(curTab);toast("Összefésülve ✓");}
-        catch(e){toast("Nem sikerült: "+e.message,"down");}};}
+          syPush("Összefésülve ✓");
+          closeScreen();switchTab(curTab);}
+        catch(e){toast("Nem sikerült: "+((e&&(e.code||e.message))||e),"down");}};}
     const up=document.getElementById("syUp");
     if(up)up.onclick=function(){S.updatedAt=Date.now();persist();
-      window.Cloud.pushNow(cloudCopy());closeScreen();toast("Feltöltve ✓");};
+      syPush("Feltöltve ✓");closeScreen();};
   }).catch(function(e){
     const body=document.getElementById("syncBody");if(!body)return;
     body.innerHTML='<div class="card" style="padding:14px"><b style="color:var(--loss)">Nem sikerült elérni a felhőt</b>'
@@ -12196,7 +12310,7 @@ function askCloudConflict(remote,api){
 /* =========================================================================
    2. RÉTEG — témák, súgó, tutorial, indokok, ünneplés, visszajelzés
    ========================================================================= */
-const APP_VERSION="v34";
+const APP_VERSION="v36";
 
 /* ---- témák ---- */
 const THEMES=[{id:"kert",name:"Üvegház",sw:"#2D6A4F"},{id:"papir",name:"Letisztult",sw:"#1B4332"},{id:"krem",name:"Papír",sw:"#B5852B"},{id:"arany",name:"Arany éj",sw:"#E5A83B"},{id:"erdo",name:"Erdő",sw:"#5FD08A"},{id:"ocean",name:"Óceán",sw:"#4FB0E5"},{id:"naplemente",name:"Naplemente",sw:"#E5744F"},{id:"ejjel",name:"Éjszakai",sw:"#C79A46"},{id:"film",name:"Filmvászon",sw:"#D8D8D8"}];
@@ -12528,7 +12642,17 @@ const SHARED_LIST_ON=true;
 const NL_ID="dev";
 const NL_KINDS=[{k:"bug",e:"🐞",n:"Hiba"},{k:"idea",e:"💡",n:"Ötlet"},{k:"q",e:"❓",n:"Kérdés"}];
 function nlKindOf(k){for(let i=0;i<NL_KINDS.length;i++)if(NL_KINDS[i].k===k)return NL_KINDS[i];return NL_KINDS[1];}
+/* MELYIK MODULHOZ szól a tétel. A fejlesztés modulonként megy egy körben, ezért
+   a lista is modulonként csoportosítva mutatja a nyitott tételeket — így egy
+   blokk egyben elvégezhető. Az azonosítók a MODULES id-jeit követik, plusz két
+   olyan kosár, amihez nincs saját modul (szinkron/fiók és általános). */
+const NL_MODS=[{k:"habit",e:"🌱",n:"Szokások"},{k:"bible",e:"📖",n:"Biblia"},
+ {k:"cycle",e:"🌸",n:"Ciklus"},{k:"calories",e:"🍎",n:"Kalória"},
+ {k:"workout",e:"🏋️",n:"Edzés"},{k:"list",e:"🗒️",n:"Közös lista"},
+ {k:"sync",e:"☁️",n:"Szinkron, fiók"},{k:"gen",e:"✨",n:"Általános, megjelenés"}];
+function nlModOf(k){for(let i=0;i<NL_MODS.length;i++)if(NL_MODS[i].k===k)return NL_MODS[i];return null;}
 let nlItems=null,nlErr=null,nlUnsub=null,nlKind="bug",nlBusy=false;
+let nlMod=Store.get("nlMod")||"";
 
 /* A listán csak a keresztnév látszik (nem a teljes Google-név). */
 function nlName(){const n=((cloudUser&&cloudUser.name)||"").trim();return (n.split(/\s+/)[0]||"Névtelen").slice(0,24);}
@@ -12558,6 +12682,8 @@ function nlPanelHtml(){
   if(nlCanWrite()){
     h+='<div class="card" style="padding:12px;margin-bottom:14px">';
     h+='<div class="seg" style="margin-top:0">'+NL_KINDS.map(x=>'<button'+(nlKind===x.k?' class="active"':'')+' data-nlk="'+x.k+'">'+x.e+' '+x.n+'</button>').join("")+'</div>';
+    h+='<select class="input" id="nlMod" style="margin-bottom:8px"><option value="">Melyik részhez? (nem kötelező)</option>'
+     +NL_MODS.map(x=>'<option value="'+x.k+'"'+(nlMod===x.k?' selected':'')+'>'+x.e+' '+x.n+'</option>').join("")+'</select>';
     h+='<textarea class="input" id="nlText" placeholder="Mi a hiba, vagy mi legyen a következő? Írd le nyugodtan…" style="min-height:74px"></textarea>';
     h+='<div class="rub-actions" style="margin-top:8px"><button class="btn sm" id="nlAdd">＋ Felírom a listára</button></div></div>';
   }else{
@@ -12572,17 +12698,27 @@ function nlBodyHtml(){
   const open=nlItems.filter(i=>!i.done).sort((a,b)=>(b.at||0)-(a.at||0));
   const done=nlItems.filter(i=>i.done).sort((a,b)=>(b.upd||0)-(a.upd||0));
   let h='<div class="section-title" style="margin-top:0">Nyitott ('+open.length+')</div>';
-  h+= open.length ? open.map(nlRow).join("") : '<div class="hint">Most nincs nyitott tétel — minden le van zárva. 🎉</div>';
-  if(done.length)h+='<details style="margin-top:14px"><summary class="section-title" style="cursor:pointer;list-style:revert">Kész ('+done.length+')</summary>'+done.map(nlRow).join("")+'</details>';
+  if(!open.length)h+='<div class="hint">Most nincs nyitott tétel — minden le van zárva. 🎉</div>';
+  else{
+    /* Modulonként egy blokk (a modul-sorrend szerint), a végén a besorolatlanok. */
+    const keys=NL_MODS.map(x=>x.k).concat([""]);
+    keys.forEach(function(k){
+      const g=open.filter(i=>((nlModOf(i.mod)||{}).k||"")===k);
+      if(!g.length)return;
+      const m=nlModOf(k);
+      h+='<div class="kc-rgrp" style="margin-top:10px">'+(m?m.e+" "+esc(m.n):"❔ Nincs megjelölve")+' · '+g.length+'</div>';
+      h+=g.map(x=>nlRow(x,false)).join("");});}
+  if(done.length)h+='<details style="margin-top:14px"><summary class="section-title" style="cursor:pointer;list-style:revert">Kész ('+done.length+')</summary>'+done.map(x=>nlRow(x,true)).join("")+'</details>';
   h+='<div class="rub-actions" style="margin-top:16px"><button class="btn ghost sm" id="nlCopy">📋 Egész lista másolása</button></div>';
   h+='<div class="hint" style="margin-top:6px">A másolt szöveget be lehet illeszteni a fejlesztéshez — így nem kell újra elmagyarázni, mi hiányzik.</div>';
   return h;}
 
-function nlRow(i){const k=nlKindOf(i.kind);
+function nlRow(i,showMod){const k=nlKindOf(i.kind);const m=showMod?nlModOf(i.mod):null;
   return '<div class="card" style="padding:10px 12px;margin-bottom:8px"><div style="display:flex;gap:10px;align-items:flex-start">'
    +'<button class="todo-box'+(i.done?" on":"")+'" data-nltog="'+escA(i.id)+'" title="'+(i.done?"Visszanyitom":"Kész")+'">'+(i.done?"✓":"")+'</button>'
    +'<div style="flex:1;min-width:0">'
-   +'<div'+(i.done?' class="todo-strk"':'')+' style="white-space:pre-wrap;word-break:break-word">'+k.e+' '+esc(i.text||"")+'</div>'
+   +'<div'+(i.done?' class="todo-strk"':'')+' style="white-space:pre-wrap;word-break:break-word">'+k.e+' '+esc(i.text||"")
+   +(m?' <span class="kc-tag">'+m.e+' '+esc(m.n)+'</span>':'')+'</div>'
    +'<div class="hint" style="margin-top:4px">'+esc(i.byName||"valaki")+' • '+nlWhen(i.at)+(i.done&&i.doneName?' • kipipálta: '+esc(i.doneName):'')+'</div>'
    +'</div>'
    +(nlCanWrite()?'<button class="btn ghost sm" style="padding:4px 9px" data-nldel="'+escA(i.id)+'" title="Törlés">🗑</button>':'')
@@ -12606,7 +12742,12 @@ function nlAdd(){
   if(t.length>1500){toast("Kicsit hosszú — max 1500 karakter","warn");return;}
   if(!nlCanWrite()){toast("Ehhez be kell jelentkezned","warn");return;}
   if(nlBusy)return;nlBusy=true;
-  window.Cloud.listAdd(NL_ID,{text:t,kind:nlKind,done:false,byName:nlName(),at:Date.now(),upd:Date.now(),app:APP_VERSION})
+  const ms=document.getElementById("nlMod");
+  nlMod=(ms&&nlModOf(ms.value))?ms.value:"";
+  Store.set("nlMod",nlMod);            /* a következő tételnél ez lesz felkínálva */
+  const rec={text:t,kind:nlKind,done:false,byName:nlName(),at:Date.now(),upd:Date.now(),app:APP_VERSION};
+  if(nlMod)rec.mod=nlMod;
+  window.Cloud.listAdd(NL_ID,rec)
     .then(()=>{el.value="";toast("Felírtam a közös listára ✓","win");})
     .catch(e=>{toast("Nem sikerült elmenteni: "+((e&&(e.code||e.message))||e),"down");})
     .then(()=>{nlBusy=false;});}
@@ -12633,8 +12774,16 @@ function nlCopy(){
   const open=arr.filter(i=>!i.done).sort((a,b)=>(b.at||0)-(a.at||0));
   const done=arr.filter(i=>i.done).sort((a,b)=>(b.upd||0)-(a.upd||0));
   const line=(i)=>"- "+nlKindOf(i.kind).e+" ["+(i.byName||"?")+"] "+String(i.text||"").replace(/\s+/g," ");
+  /* A nyitottak modulonként, ahogy a képernyőn is — így a másolt szöveg
+     már fejlesztési blokkokra bontva érkezik. */
+  let openTxt="";
+  NL_MODS.map(x=>x.k).concat([""]).forEach(function(k){
+    const g=open.filter(i=>((nlModOf(i.mod)||{}).k||"")===k);
+    if(!g.length)return;
+    const m=nlModOf(k);
+    openTxt+="### "+(m?m.e+" "+m.n:"❔ Nincs megjelölve")+" ("+g.length+")\n"+g.map(line).join("\n")+"\n\n";});
   const txt="# Trellis — közös fejlesztési lista ("+dk(new Date())+", app "+APP_VERSION+")\n\n"
-    +"## Nyitott ("+open.length+")\n"+(open.map(line).join("\n")||"—")+"\n\n"
+    +"## Nyitott ("+open.length+")\n"+(openTxt||"—\n\n")
     +"## Kész ("+done.length+")\n"+(done.map(line).join("\n")||"—")+"\n";
   if(navigator.clipboard&&navigator.clipboard.writeText)
     navigator.clipboard.writeText(txt).then(()=>toast("A teljes lista a vágólapon ✓","win"))
@@ -12645,6 +12794,513 @@ function nlCopyFallback(txt){
     +'<p style="margin-top:0;color:var(--muted)">Jelöld ki és másold ki innen.</p>'
     +'<textarea class="input" style="min-height:260px">'+esc(txt)+'</textarea>');}
 /* ===== KÖZÖS LISTA (shared list) — VÉGE ===== */
+
+/* ============================================================================
+   KÖZÖS LISTÁK MODUL (lst*) — 2026-07-29
+   ----------------------------------------------------------------------------
+   A közös fejlesztési lista motorja bevált, ezért nem „bevásárlólistát" építünk,
+   hanem ÁLTALÁNOS közös listát: a bevásárlás csak az egyik használati mód
+   (pakolás, kemping, költözés, nagytakarítás ugyanez).
+
+   MI VAN A FELHŐBEN
+     sharedlists/{listId}            -> {name, em, kind, emails:[…], owner, at, shop}
+     sharedlists/{listId}/items/{id} -> {text, q, cat, note, price, done, by,
+                                         byName, doneName, at, upd}
+   A tagságot — mint a közös háztartásnál — az E-MAIL CÍM adja: akit felveszel,
+   annak az appja a következő indításkor magától megtalálja a listát. Nincs kód,
+   nincs link, nincs meghívó-kezelés.
+
+   MIT NEM ÉPÍTÜNK BELE (szándékosan, nem feledékenységből)
+     - „élő jelenlét" (ki gépel épp) és avatár-sor: percenkénti írásokat jelent
+       mindenkitől, a Firestore ingyenes keretét erre elégetni kettő-három
+       felhasználóért értelmetlen. A tételen ott van, KI írta és KI vette meg —
+       ez adja a hasznot, ingyen.
+     - fotó a tételhez: ahhoz Firebase Storage (fizetős) kellene; base64-ben a
+       dokumentum 1 MB-os korlátjába futnánk.
+     - push-értesítés („a boltban vagyok"): valódi push FCM-mel külön kör. Addig
+       a lista fejlécében látszik, ha valaki épp boltban van — ha megnyitja a
+       másik az appot.
+     - drag&drop kézi sorrend: a kategória szerinti csoportosítás ugyanazt a
+       problémát oldja meg (bolti útvonal), sokkal kevesebb kóddal.
+   ========================================================================== */
+const LST_CATS=[
+ {k:"zold",e:"🥦",n:"Zöldség, gyümölcs"},
+ {k:"pek", e:"🥖",n:"Pékáru"},
+ {k:"tej", e:"🧀",n:"Tejtermék, tojás"},
+ {k:"hus", e:"🥩",n:"Hús, hal, felvágott"},
+ {k:"szar",e:"🍝",n:"Száraz áru, konzerv"},
+ {k:"fagy",e:"🧊",n:"Fagyasztott"},
+ {k:"ital",e:"🥤",n:"Ital"},
+ {k:"edes",e:"🍫",n:"Édesség, snack"},
+ {k:"haz", e:"🧻",n:"Háztartás"},
+ {k:"drog",e:"🧴",n:"Drogéria"},
+ {k:"egye",e:"📦",n:"Egyéb"}];
+function lstCatOf(k){for(let i=0;i<LST_CATS.length;i++)if(LST_CATS[i].k===k)return LST_CATS[i];return null;}
+/* Kategória-tipp kulcsszavakból. Nem tanuló algoritmus és nem is akar az lenni:
+   egy átlátható szótár, amit a tételen egy koppintással felül tudsz bírálni. */
+const LST_CATWORDS=[
+ ["zold",/alma|banán|körte|szőlő|barack|szilva|dinnye|eper|málna|citrom|narancs|mandarin|avokád|paradicsom|paprika|uborka|hagyma|fokhagyma|burgonya|krumpli|répa|saláta|spenót|brokkoli|karfiol|cukkini|padlizsán|gomba|zeller|retek|káposzta|kukorica|zöldbab|borsó|gyümölcs|zöldség/i],
+ ["pek", /kenyér|zsemle|kifli|bagett|kalács|croissant|briós|péksüt|toast|tortilla|pita|lepény|bucik|buci/i],
+ ["tej", /tej\b|tejföl|tejszín|joghurt|kefir|túró|sajt|vaj|margarin|tojás|mozzarella|mascarpone|ricotta|krémsajt|parmezán/i],
+ ["hus", /csirke|marha|sertés|pulyka|hal\b|lazac|tonhal|darált|comb|mell\b|tarja|karaj|szalonna|sonka|kolbász|virsli|felvágott|párizsi|szalámi/i],
+ ["szar",/liszt|cukor|rizs|tészta|spagetti|makaróni|olaj|ecet|só\b|bors|fűszer|konzerv|bab\b|lencse|csicseriborsó|zabpehely|müzli|méz|lekvár|mogyoróvaj|kakaó|kávé|tea\b|keksz|paszta|szósz|ketchup|majonéz|mustár|élesztő|szódabikarbóna|sütőpor/i],
+ ["fagy",/fagyaszt|jégkrém|fagylalt|mirelit|jég\b/i],
+ ["ital",/víz\b|ásványvíz|üdítő|kóla|cola|szörp|gyümölcslé|juice|sör|bor\b|pezsgő|whisky|vodka|pálinka|energiaital|limonádé/i],
+ ["edes",/csoki|csokoládé|nápolyi|cukorka|rágó|chips|ropi|snack|sütemény|torta|desszert|gumicukor|müzliszelet/i],
+ ["haz", /mosogató|mosószer|öblítő|tisztítószer|szivacs|szemetes|zsák|alufólia|papírtörlő|wc[- ]?papír|toalettpapír|szalvéta|gyertya|elem\b|izzó|fóli/i],
+ ["drog",/sampon|tusfürdő|szappan|fogkrém|fogkefe|dezodor|borotva|krém\b|papírzseb|zsebkendő|pelenka|betét|tampon|vatta|fültisztító|napozó/i]];
+function lstGuessCat(txt){
+  const s=String(txt||"").toLowerCase();
+  for(const p of LST_CATWORDS)if(p[1].test(s))return p[0];
+  return "egye";}
+/* Sablonok: üres lappal indulni a legrosszabb élmény. Szándékosan KEVÉS van
+   belőlük, mert a húsz elemű sablon-galéria már megint csak keresgélés. */
+const LST_TPL=[
+ {k:"bev",em:"🛒",name:"Heti bevásárlás",kind:"shop",
+  items:["kenyér","tej 2 l","tojás 10 db","vaj","sajt","csirkemell 1 kg","paradicsom","alma","banán","rizs","tészta","mosogatószer"]},
+ {k:"uta",em:"🧳",name:"Utazás — pakolás",kind:"todo",
+  items:["útlevél / személyi","töltő + powerbank","gyógyszerek","fogkefe, fogkrém","fehérnemű","zokni","pólók","nadrág","pizsama","cipő","esőkabát","napszemüveg"]},
+ {k:"kem",em:"🏕",name:"Kemping",kind:"todo",
+  items:["sátor","hálózsák","polifoam","fejlámpa + elem","gázfőző","evőeszköz, bogrács","gyufa / öngyújtó","szúnyogriasztó","elsősegély-csomag","szemeteszsák","víz 5 l"]},
+ {k:"tak",em:"🧹",name:"Nagytakarítás",kind:"todo",
+  items:["ablakok","szekrény átnézése","hűtő kipakolása","porszívózás, felmosás","fürdő fugák","szellőzők","kidobandó dolgok kupaca","függönymosás"]}];
+
+let lstOpen=null,lstItems=null,lstMeta=null,lstErr=null,lstUnsub=null,lstUnsubMeta=null;
+let lstBusy=false,lstUndo=null,lstListsErr=null,lstLoading=false;
+function lstState(){const s=S.lists=S.lists||{};
+  if(!Array.isArray(s.cache))s.cache=[];
+  if(!s.freq||typeof s.freq!=="object")s.freq={};
+  if(typeof s.group!=="boolean")s.group=true;
+  return s;}
+function lstTouch(){lstState();S.lists.updatedAt=Date.now();save();}
+function lstCan(){return !!(cloudUser&&window.Cloud&&window.Cloud.listCreate);}
+function lstMe(){const n=((cloudUser&&cloudUser.name)||"").trim();return (n.split(/\s+/)[0]||"Névtelen").slice(0,24);}
+function lstEmail(){return ((cloudUser&&cloudUser.email)||"").trim().toLowerCase();}
+function lstIsEmail(s){return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(s||"").trim());}
+/* A jogosultsági hiba itt szinte mindig ugyanaz: a Firestore-szabályok még nincsenek
+   közzétéve. Mondjuk ki, ne a felhasználó találgassa. */
+function lstErrText(e){
+  const c=(e&&(e.code||e.message))||"ismeretlen hiba";
+  if(/permission|denied/i.test(String(c)))
+    return "nincs jogosultság — a Firestore-szabályokat még közzé kell tenni (Firebase Console → Firestore → Rules → Publish)";
+  return String(c);}
+
+/* ---- felhő-műveletek ---------------------------------------------------- */
+function lstRefreshLists(cb){
+  if(!lstCan()){lstListsErr="belépés kell";if(cb)cb();return;}
+  lstLoading=true;
+  window.Cloud.listsFind(lstEmail()).then(function(arr){
+    lstLoading=false;lstListsErr=null;
+    const s=lstState();
+    s.cache=(arr||[]).map(function(x){return{id:x.id,name:x.name||"Lista",em:x.em||"📝",at:Number(x.at)||0,n:(x.emails||[]).length};})
+      .sort(function(a,b){return (b.at||0)-(a.at||0);});
+    lstTouch();
+    if(curTab==="listak")renderListak();
+    if(cb)cb();
+  }).catch(function(e){lstLoading=false;lstListsErr=lstErrText(e);
+    if(curTab==="listak")renderListak();if(cb)cb();});}
+function lstStart(id){
+  lstStop();
+  if(!(window.Cloud&&window.Cloud.listWatch))return;
+  lstUnsub=window.Cloud.listWatch(id,
+    function(arr){lstItems=arr;lstErr=null;if(curTab==="listak")renderListak();},
+    function(e){lstErr=lstErrText(e);if(curTab==="listak")renderListak();});
+  if(window.Cloud.listMetaWatch)
+    lstUnsubMeta=window.Cloud.listMetaWatch(id,
+      function(m){lstMeta=m;if(curTab==="listak")renderListak();},function(){});}
+function lstStop(){
+  if(lstUnsub){try{lstUnsub();}catch(e){}lstUnsub=null;}
+  if(lstUnsubMeta){try{lstUnsubMeta();}catch(e){}lstUnsubMeta=null;}}
+function lstOpenList(id){
+  lstOpen=id;lstItems=null;lstMeta=null;lstErr=null;lstUndo=null;
+  lstState().last=id;lstTouch();
+  pushScreen();lstStart(id);renderListak();window.scrollTo(0,0);}
+function lstCloseList(){lstStop();lstOpen=null;lstItems=null;lstMeta=null;renderListak();}
+
+/* ---- egy sor értelmezése ------------------------------------------------
+   „2 kg paradicsom", „tej 2 l", „- kenyér" — mind ugyanaz a szándék. Nem AI,
+   csak két minta; pont ezért kiszámítható és offline is működik. */
+const LST_UNITS="kg|dkg|g|l|dl|cl|ml|db|cs|csom|csomag|doboz|üveg|tábla|tekercs|szelet|fej|csokor|gerezd|zacskó|karton|rekesz|adag|marék|kanál|evőkanál|kávéskanál";
+function lstParseLine(raw){
+  let t=String(raw||"").replace(/\s+/g," ").trim();
+  t=t.replace(/^[-–—•*·]+\s*/,"").replace(/^\[[ xX]\]\s*/,"");
+  if(!t)return null;
+  let q="";
+  let m=t.match(new RegExp("^(\\d+(?:[.,]\\d+)?)\\s*("+LST_UNITS+")?\\s+(.+)$","i"));
+  if(m&&m[3]){q=(m[1]+(m[2]?" "+m[2]:"")).trim();t=m[3].trim();}
+  else{
+    m=t.match(new RegExp("^(.+?)\\s+(\\d+(?:[.,]\\d+)?)\\s*("+LST_UNITS+")$","i"));
+    if(m){t=m[1].trim();q=(m[2]+" "+m[3]).trim();}}
+  if(!t)return null;
+  return{text:t.slice(0,200),q:q.slice(0,24)};}
+function lstFreqBump(txt){
+  const s=lstState(),k=String(txt||"").toLowerCase().trim();
+  if(k.length<2)return;
+  s.freq[k]=(s.freq[k]||0)+1;
+  const ks=Object.keys(s.freq);
+  if(ks.length>400){ks.sort(function(a,b){return s.freq[a]-s.freq[b];});delete s.freq[ks[0]];}}
+/* A leggyakoribb tételeim, amik MOST nincsenek a listán. */
+function lstSuggest(){
+  const s=lstState(),on={};
+  (lstItems||[]).forEach(function(i){if(!i.done)on[String(i.text||"").toLowerCase()]=1;});
+  return Object.keys(s.freq).filter(function(k){return !on[k]&&s.freq[k]>=2;})
+    .sort(function(a,b){return s.freq[b]-s.freq[a];}).slice(0,8);}
+
+function lstAddOne(text,q,cat,extra){
+  if(!lstOpen||!lstCan())return Promise.reject(new Error("no-auth"));
+  const rec=Object.assign({text:String(text).slice(0,200),q:q||"",cat:cat||lstGuessCat(text),
+    done:false,byName:lstMe(),at:Date.now(),upd:Date.now(),app:APP_VERSION},extra||{});
+  lstFreqBump(text);
+  return window.Cloud.listAdd(lstOpen,rec);}
+/* Több sor egyszerre: a bevásárlás nem egyesével jut eszünkbe. */
+function lstAddMulti(raw){
+  const lines=String(raw||"").split(/[\n;]+/).map(lstParseLine).filter(Boolean);
+  if(!lines.length){toast("Írj be legalább egy tételt","warn");return;}
+  if(lines.length>40){toast("Egyszerre legfeljebb 40 tétel","warn");return;}
+  if(lstBusy)return;lstBusy=true;
+  Promise.all(lines.map(function(x){return lstAddOne(x.text,x.q);}))
+    .then(function(){lstTouch();toast(lines.length===1?"Felírva ✓":(lines.length+" tétel felírva ✓"),"win");})
+    .catch(function(e){toast("Nem sikerült: "+lstErrText(e),"down");})
+    .then(function(){lstBusy=false;const t=document.getElementById("lstIn");if(t)t.value="";});}
+function lstToggle(id){
+  const it=(lstItems||[]).filter(function(x){return x.id===id;})[0];if(!it)return;
+  if(!lstCan()){toast("Ehhez be kell jelentkezned","warn");return;}
+  const nd=!it.done;
+  it.done=nd;it.upd=Date.now();it.doneName=nd?lstMe():"";renderListak();   /* optimista */
+  window.Cloud.listSet(lstOpen,id,{done:nd,upd:Date.now(),doneName:nd?lstMe():""})
+    .catch(function(e){toast("Nem sikerült: "+lstErrText(e),"down");});}
+function lstDelete(id){
+  const it=(lstItems||[]).filter(function(x){return x.id===id;})[0];if(!it)return;
+  if(!lstCan()){toast("Ehhez be kell jelentkezned","warn");return;}
+  /* A törlés mindenkinél azonnal eltűnik — ezért kap visszavonást, nem kérdést. */
+  lstUndo={text:it.text,q:it.q||"",cat:it.cat||"",note:it.note||"",price:it.price||0};
+  window.Cloud.listDel(lstOpen,id)
+    .then(function(){renderListak();})
+    .catch(function(e){lstUndo=null;toast("Nem sikerült törölni: "+lstErrText(e),"down");});}
+function lstUndoDel(){
+  if(!lstUndo)return;const u=lstUndo;lstUndo=null;
+  lstAddOne(u.text,u.q,u.cat,{note:u.note||"",price:u.price||0})
+    .then(function(){toast("Visszahoztam ✓","win");})
+    .catch(function(e){toast("Nem sikerült: "+lstErrText(e),"down");});
+  renderListak();}
+
+/* ---- lista-kezelés (létrehozás, tagok, törlés) --------------------------- */
+function lstCreate(name,em,kind,items,after){
+  if(!lstCan()){toast("Ehhez be kell jelentkezned","warn");return;}
+  const meta={name:String(name||"Lista").slice(0,60),em:em||"📝",kind:kind||"shop",
+    emails:[lstEmail()]};
+  window.Cloud.listCreate(meta).then(function(id){
+    const s=lstState();s.cache.unshift({id:id,name:meta.name,em:meta.em,at:Date.now(),n:1});lstTouch();
+    if(items&&items.length){
+      lstOpen=id;
+      return Promise.all(items.slice(0,40).map(function(line){
+        const p=lstParseLine(line);return p?lstAddOne(p.text,p.q):null;}).filter(Boolean))
+        .then(function(){return id;});}
+    return id;
+  }).then(function(id){
+    toast("Lista létrehozva ✓","win");
+    closeScreen();setTimeout(function(){lstOpenList(id);if(after)after(id);},180);
+  }).catch(function(e){toast("Nem sikerült: "+lstErrText(e),"down");});}
+function lstNewDlg(tpl){
+  woDlg('<button class="close-x" id="mClose">✕</button><h3>'+(tpl?tpl.em+" "+esc(tpl.name):"📝 Új közös lista")+'</h3>'
+   +'<p class="hint" style="margin:-2px 0 12px">'+(tpl?"A sablon tételeit utána szabadon szerkesztheted, törölheted.":"A lista neve bármi lehet: „Bevásárlás”, „Nyaralás”, „Költözés”.")+'</p>'
+   +'<div class="card" style="padding:14px 16px"><label class="wo-lb">Név</label>'
+   +'<input class="input" id="lnN" maxlength="60" value="'+escA(tpl?tpl.name:"")+'" placeholder="pl. Heti bevásárlás"/>'
+   +'<label class="wo-lb" style="margin-top:10px">Ikon</label>'
+   +'<input class="input" id="lnE" maxlength="4" value="'+escA(tpl?tpl.em:"🛒")+'" style="max-width:90px;text-align:center;font-size:20px"/>'
+   +'</div>'
+   +'<div class="wo-modact"><button class="btn" id="lnOk">Létrehozom</button>'
+   +'<button class="btn ghost" id="lnC">Mégse</button></div>',function(){
+    document.getElementById("lnC").onclick=function(){closeScreen();};
+    document.getElementById("lnOk").onclick=function(){
+      const n=(document.getElementById("lnN").value||"").trim();
+      const e=(document.getElementById("lnE").value||"📝").trim();
+      if(n.length<2){toast("Adj nevet a listának","warn");return;}
+      lstCreate(n,e,tpl?tpl.kind:"shop",tpl?tpl.items:null);};});}
+function lstMembersDlg(){
+  if(!lstMeta){toast("A lista adatai még töltődnek","warn");return;}
+  const em=Array.isArray(lstMeta.emails)?lstMeta.emails:[];
+  let h='<button class="close-x" id="mClose">✕</button><h3>👥 Kik látják ezt a listát?</h3>'
+   +'<p class="hint" style="margin:-2px 0 12px">A tagságot a <b>Google-fiók e-mail címe</b> adja. Akit felveszel, annak az appja a következő indításkor magától megtalálja a listát — nem kell se kód, se link.</p>'
+   +'<div class="card" style="padding:12px 14px">';
+  em.forEach(function(x){
+    h+='<div class="mod-row" style="padding:8px 0"><span class="em">👤</span><span style="flex:1;min-width:0">'
+     +'<span class="nm" style="word-break:break-all">'+esc(x)+(x===lstEmail()?' <span class="kc-tag">te</span>':'')+'</span></span>'
+     +((x===lstEmail())?'':'<button class="btn ghost sm" data-lstrm="'+escA(x)+'">Kivesz</button>')+'</div>';});
+  h+='<label class="wo-lb" style="margin-top:10px">Új tag e-mail címe</label>'
+   +'<input class="input" id="lmE" inputmode="email" placeholder="valaki@gmail.com"/>'
+   +'<div class="rub-actions" style="margin-top:8px"><button class="btn sm" id="lmAdd">＋ Hozzáadom</button></div></div>';
+  woDlg(h,function(){
+    document.getElementById("lmAdd").onclick=function(){
+      const v=(document.getElementById("lmE").value||"").trim().toLowerCase();
+      if(!lstIsEmail(v)){toast("Ez nem érvényes e-mail cím","warn");return;}
+      if(em.indexOf(v)>=0){toast("Ő már tag");return;}
+      if(em.length>=12){toast("Legfeljebb 12 tag","warn");return;}
+      window.Cloud.listMetaSet(lstOpen,{emails:em.concat([v])})
+        .then(function(){toast("Felvéve ✓","win");closeScreen();})
+        .catch(function(e){toast("Nem sikerült: "+lstErrText(e),"down");});};
+    document.querySelectorAll("[data-lstrm]").forEach(function(b){b.onclick=function(){
+      const v=b.dataset.lstrm;
+      window.Cloud.listMetaSet(lstOpen,{emails:em.filter(function(x){return x!==v;})})
+        .then(function(){toast("Kivéve");closeScreen();})
+        .catch(function(e){toast("Nem sikerült: "+lstErrText(e),"down");});};});});}
+function lstListMenu(){
+  const items=[];
+  items.push({icon:"👥",label:"Tagok (kik látják)",onClick:lstMembersDlg});
+  items.push({icon:"✏️",label:"Átnevezés",onClick:function(){
+    woDlg('<button class="close-x" id="mClose">✕</button><h3>✏️ Lista átnevezése</h3>'
+     +'<div class="card" style="padding:14px 16px"><input class="input" id="lrN" maxlength="60" value="'+escA((lstMeta&&lstMeta.name)||"")+'"/>'
+     +'<label class="wo-lb" style="margin-top:10px">Ikon</label>'
+     +'<input class="input" id="lrE" maxlength="4" value="'+escA((lstMeta&&lstMeta.em)||"📝")+'" style="max-width:90px;text-align:center;font-size:20px"/></div>'
+     +'<div class="wo-modact"><button class="btn" id="lrOk">Mentés</button><button class="btn ghost" id="lrC">Mégse</button></div>',function(){
+      document.getElementById("lrC").onclick=function(){closeScreen();};
+      document.getElementById("lrOk").onclick=function(){
+        const n=(document.getElementById("lrN").value||"").trim();
+        const e=(document.getElementById("lrE").value||"📝").trim();
+        if(n.length<2){toast("Adj nevet","warn");return;}
+        window.Cloud.listMetaSet(lstOpen,{name:n,em:e})
+          .then(function(){toast("Mentve ✓");closeScreen();lstRefreshLists();})
+          .catch(function(er){toast("Nem sikerült: "+lstErrText(er),"down");});};});}});
+  items.push({icon:"🧹",label:"Kipipáltak törlése",onClick:function(){
+    const done=(lstItems||[]).filter(function(i){return i.done;});
+    if(!done.length){toast("Nincs kipipált tétel");return;}
+    woConfirm("Kipipáltak törlése",done.length+" kész tétel tűnik el <b>mindenkinél</b>. A nyitott tételek maradnak.",function(){
+      Promise.all(done.map(function(i){return window.Cloud.listDel(lstOpen,i.id);}))
+        .then(function(){toast("Kitakarítva ✓","win");})
+        .catch(function(e){toast("Nem sikerült: "+lstErrText(e),"down");});},"Törlés",true);}});
+  items.push({icon:"📋",label:"Lista másolása (szöveg)",onClick:lstCopyText});
+  items.push({icon:"📊",label:"Exportálás CSV-be",onClick:lstCsv});
+  items.push({icon:"🗑",label:"A lista törlése",onClick:function(){
+    const own=lstMeta&&cloudUser&&lstMeta.owner===cloudUser.uid;
+    if(!own){toast("A listát csak az törölheti, aki létrehozta","warn");return;}
+    woConfirm("Lista törlése","A <b>teljes lista</b> eltűnik mindenkinél, a tételeivel együtt. Ez nem vonható vissza.",function(){
+      const items2=(lstItems||[]).slice();
+      Promise.all(items2.map(function(i){return window.Cloud.listDel(lstOpen,i.id).catch(function(){});}))
+        .then(function(){return window.Cloud.listRemove(lstOpen);})
+        .then(function(){
+          const s=lstState();s.cache=s.cache.filter(function(x){return x.id!==lstOpen;});lstTouch();
+          toast("Törölve");lstCloseList();})
+        .catch(function(e){toast("Nem sikerült: "+lstErrText(e),"down");});},"Törlés",true);}});
+  openMenu((lstMeta&&lstMeta.name)||"Lista",items);}
+
+/* ---- tétel-szerkesztő ---------------------------------------------------- */
+function lstItemDlg(id){
+  const it=(lstItems||[]).filter(function(x){return x.id===id;})[0];if(!it)return;
+  let h='<button class="close-x" id="mClose">✕</button><h3>✏️ Tétel</h3>'
+   +'<div class="card" style="padding:14px 16px">'
+   +'<label class="wo-lb">Mi az?</label><input class="input" id="liT" maxlength="200" value="'+escA(it.text||"")+'"/>'
+   +'<div class="kc-grid2" style="margin-top:10px">'
+   +'<div><label class="wo-lb">Mennyiség</label><input class="input" id="liQ" maxlength="24" value="'+escA(it.q||"")+'" placeholder="2 kg"/></div>'
+   +'<div><label class="wo-lb">Ár (Ft, ha tudod)</label><input class="input mono" id="liP" type="number" inputmode="numeric" value="'+(it.price>0?it.price:"")+'" placeholder="—"/></div>'
+   +'</div>'
+   +'<label class="wo-lb" style="margin-top:10px">Kategória</label><select class="input" id="liC">';
+  LST_CATS.forEach(function(c){h+='<option value="'+c.k+'"'+(((it.cat||"egye")===c.k)?" selected":"")+'>'+c.e+' '+c.n+'</option>';});
+  h+='</select>'
+   +'<label class="wo-lb" style="margin-top:10px">Jegyzet</label>'
+   +'<input class="input" id="liN" maxlength="140" value="'+escA(it.note||"")+'" placeholder="pl. 2,8%-os, a felső polcon"/>'
+   +'</div>'
+   +'<div class="wo-modact"><button class="btn" id="liOk">Mentés</button>'
+   +'<button class="btn ghost wo-danger" id="liD">Törlés</button>'
+   +'<button class="btn ghost" id="liC2">Mégse</button></div>';
+  woDlg(h,function(){
+    document.getElementById("liC2").onclick=function(){closeScreen();};
+    document.getElementById("liD").onclick=function(){closeScreen();setTimeout(function(){lstDelete(id);},180);};
+    document.getElementById("liOk").onclick=function(){
+      const t=(document.getElementById("liT").value||"").trim();
+      if(t.length<1){toast("A tétel nem lehet üres","warn");return;}
+      const patch={text:t.slice(0,200),q:(document.getElementById("liQ").value||"").trim().slice(0,24),
+        cat:document.getElementById("liC").value,note:(document.getElementById("liN").value||"").trim().slice(0,140),
+        price:Math.max(0,Number(document.getElementById("liP").value)||0),upd:Date.now()};
+      window.Cloud.listSet(lstOpen,id,patch)
+        .then(function(){toast("Mentve ✓");closeScreen();})
+        .catch(function(e){toast("Nem sikerült: "+lstErrText(e),"down");});};});}
+
+/* ---- export ------------------------------------------------------------- */
+function lstLines(){
+  const arr=(lstItems||[]).slice();
+  const open=arr.filter(function(i){return !i.done;}),done=arr.filter(function(i){return i.done;});
+  return{open:open,done:done};}
+function lstCopyText(){
+  const g=lstLines();
+  const line=function(i){return "- "+(i.done?"[x] ":"[ ] ")+String(i.text||"")+(i.q?" ("+i.q+")":"")+(i.note?" — "+i.note:"");};
+  const txt=((lstMeta&&lstMeta.em)||"📝")+" "+((lstMeta&&lstMeta.name)||"Lista")+" — "+dk(new Date())+"\n\n"
+   +g.open.map(line).join("\n")+(g.done.length?("\n\nKÉSZ:\n"+g.done.map(line).join("\n")):"")+"\n";
+  if(navigator.clipboard&&navigator.clipboard.writeText)
+    navigator.clipboard.writeText(txt).then(function(){toast("A lista a vágólapon ✓","win");}).catch(function(){nlCopyFallback(txt);});
+  else nlCopyFallback(txt);}
+function lstCsv(){
+  const rows=[["tetel","mennyiseg","kategoria","ar","kesz","felirta","megvette","jegyzet"]];
+  (lstItems||[]).forEach(function(i){
+    const c=lstCatOf(i.cat);
+    rows.push([i.text||"",i.q||"",c?c.n:"",i.price>0?i.price:"",i.done?"1":"0",i.byName||"",i.doneName||"",i.note||""]);});
+  const csv="﻿"+rows.map(function(r){return r.map(function(v){
+    const s=String(v==null?"":v);return /[";\n]/.test(s)?('"'+s.replace(/"/g,'""')+'"'):s;}).join(";");}).join("\r\n");
+  try{
+    const b=new Blob([csv],{type:"text/csv;charset=utf-8"});
+    const a=document.createElement("a");a.href=URL.createObjectURL(b);
+    a.download=((lstMeta&&lstMeta.name)||"lista").replace(/[^\wáéíóöőúüű -]/gi,"")+"-"+dk(new Date())+".csv";
+    a.click();setTimeout(function(){URL.revokeObjectURL(a.href);},4000);
+    toast("CSV letöltve ✓","win");
+  }catch(e){toast("Nem sikerült a letöltés","down");}}
+
+/* ---- „boltban vagyok" ---------------------------------------------------
+   Nem push-értesítés (az külön kör, FCM-mel). Csak annyi, hogy aki megnyitja a
+   listát, lássa: a másik épp vásárol — érdemes MOST hozzáírni, amit szeretne. */
+function lstShopOn(){const sh=lstMeta&&lstMeta.shop;
+  return (sh&&sh.at&&(Date.now()-sh.at)<2*3600*1000)?sh:null;}
+function lstShopToggle(){
+  const sh=lstShopOn();
+  const mine=sh&&cloudUser&&sh.by===cloudUser.uid;
+  const val=mine?{by:"",name:"",at:0}:{by:(cloudUser&&cloudUser.uid)||"",name:lstMe(),at:Date.now()};
+  window.Cloud.listMetaSet(lstOpen,{shop:val})
+    .then(function(){toast(mine?"Kijelentkeztél a boltból":"Szóltam a többieknek, hogy a boltban vagy ✓","win");})
+    .catch(function(e){toast("Nem sikerült: "+lstErrText(e),"down");});}
+
+/* ---- receptből bevásárlólista ------------------------------------------- */
+function lstFromRecipe(recId){
+  const r=(S.food&&S.food.rec||[]).filter(function(x){return x.id===recId;})[0];
+  if(!r||!(r.ing||[]).length){toast("Ehhez a recepthez nincs hozzávaló","warn");return;}
+  if(!lstCan()){toast("Ehhez be kell jelentkezned","warn");return;}
+  const s=lstState();
+  const go=function(id){
+    lstOpen=id;
+    const jobs=r.ing.map(function(x){
+      const fo=kcFood(x.i);if(!fo)return null;
+      const q=kcNum(x.q,2)+" "+(x.u||"g");
+      return lstAddOne(fo.n,q,lstGuessCat(fo.n));}).filter(Boolean);
+    Promise.all(jobs).then(function(){
+      lstTouch();closeScreen();
+      setTimeout(function(){openModule("lists");lstOpenList(id);
+        toast(jobs.length+" hozzávaló a listán ✓","win");},180);})
+      .catch(function(e){toast("Nem sikerült: "+lstErrText(e),"down");});};
+  const items=s.cache.map(function(x){return{icon:x.em||"📝",label:x.name,onClick:function(){go(x.id);}};});
+  items.push({icon:"＋",label:"Új lista ehhez",onClick:function(){
+    lstCreate(r.n||"Bevásárlás",'🛒',"shop",null,function(id){go(id);});}});
+  openMenu("Melyik listára?",items);}
+
+/* ---- megjelenítés -------------------------------------------------------- */
+function renderListak(){
+  const el=document.getElementById("tab-listak");if(!el)return;
+  const _sy=window.scrollY;
+  if(!(window.Cloud&&window.Cloud.configured)){
+    el.innerHTML='<div class="empty"><div class="big">Nincs beállítva a felhő</div>A közös listákhoz felhő-szinkron kell.</div>';return;}
+  if(!cloudUser){
+    el.innerHTML='<div class="section-title" style="margin-top:8px">📝 Közös listák</div>'
+     +'<div class="card" style="padding:16px"><div class="hint">Ez a modul közös: a listáidat másokkal együtt szerkesztitek, ezért <b>be kell jelentkezned</b> Google-fiókkal (Fiók fül). Belépés után a listáid minden eszközödön ott lesznek.</div></div>';
+    return;}
+  el.innerHTML=lstOpen?lstViewHtml():lstPickerHtml();
+  if(lstOpen)lstWireView();else lstWirePicker();
+  updateDayFoot();window.scrollTo(0,_sy);}
+
+function lstPickerHtml(){
+  const s=lstState();
+  let h='<div class="section-title" style="margin-top:8px">📝 Közös listák</div>';
+  h+='<p class="hint" style="margin:-2px 2px 12px">Amit ide felírsz, azt a lista tagjai <b>azonnal látják</b>, és ők is írhatnak bele. Bevásárlás, pakolás, költözés, kemping — ugyanaz a lista, más tartalommal.</p>';
+  if(lstListsErr)h+='<div class="card" style="padding:12px 14px;margin-bottom:10px"><div class="hint"><b style="color:var(--loss)">Nem sikerült lekérni a listáidat</b><br>'+esc(lstListsErr)+'</div></div>';
+  if(lstLoading&&!s.cache.length)h+='<div class="hint" style="padding:10px 4px">Listák betöltése…</div>';
+  if(s.cache.length){
+    h+='<div class="card">';
+    s.cache.forEach(function(x){
+      h+='<div class="mod-row"><span class="em">'+esc(x.em||"📝")+'</span>'
+       +'<button class="home-card" data-lstopen="'+escA(x.id)+'" style="flex:1;min-width:0;text-align:left">'
+       +'<span style="min-width:0"><span class="nm">'+esc(x.name||"Lista")+'</span>'
+       +'<span class="ds">'+((x.n||1)>1?(x.n+" tag"):"csak te")+'</span></span><span class="chev">›</span></button></div>';});
+    h+='</div>';}
+  else if(!lstLoading)h+='<div class="empty"><div class="big">Még nincs közös listád</div>Indíts egyet alul — sablonból a leggyorsabb.</div>';
+  h+='<div class="rub-actions" style="margin-top:12px"><button class="btn" id="lstNew">＋ Új lista</button>'
+   +'<button class="btn ghost" id="lstReload">↻ Frissítés</button></div>';
+  h+='<div class="section-title">Sablonból</div><div class="card">';
+  LST_TPL.forEach(function(t){
+    h+='<div class="mod-row"><span class="em">'+t.em+'</span><span style="flex:1;min-width:0">'
+     +'<span class="nm">'+esc(t.name)+'</span><span class="ds">'+t.items.length+' tétel, szabadon szerkeszthető</span></span>'
+     +'<button class="btn ghost sm" data-lsttpl="'+t.k+'">Létrehozom</button></div>';});
+  h+='</div>';
+  h+='<div class="hint" style="margin:14px 4px 0">A <b>Fiók → Közös fejlesztési lista</b> ugyanezen a motoron fut. Ha egy recept hozzávalóit akarod listára tenni: <b>Kalória → Ételek → Receptek</b>, a recept szerkesztőjében a 🛒 gomb.</div>';
+  return h;}
+function lstWirePicker(){
+  document.querySelectorAll("[data-lstopen]").forEach(function(b){b.onclick=function(){lstOpenList(b.dataset.lstopen);};});
+  document.querySelectorAll("[data-lsttpl]").forEach(function(b){b.onclick=function(){
+    const t=LST_TPL.filter(function(x){return x.k===b.dataset.lsttpl;})[0];if(t)lstNewDlg(t);};});
+  const n=document.getElementById("lstNew");if(n)n.onclick=function(){lstNewDlg(null);};
+  const r=document.getElementById("lstReload");if(r)r.onclick=function(){lstRefreshLists();toast("Frissítés…");};}
+
+function lstItemRow(i){
+  const c=lstCatOf(i.cat);
+  const sub=[];
+  if(i.done&&i.doneName)sub.push("megvette: "+esc(i.doneName));
+  else if(i.byName)sub.push(esc(i.byName));
+  if(i.at)sub.push(nlWhen(i.at));
+  if(i.price>0)sub.push('<b>'+Math.round(i.price)+' Ft</b>');
+  return '<div class="lst-row'+(i.done?" done":"")+'">'
+   +'<button class="todo-box'+(i.done?" on":"")+'" data-lsttog="'+escA(i.id)+'">'+(i.done?"✓":"")+'</button>'
+   +'<button class="lst-mid" data-lstedit="'+escA(i.id)+'">'
+   +'<span class="t'+(i.done?" todo-strk":"")+'">'+esc(i.text||"")
+   +(i.q?' <span class="q">'+esc(i.q)+'</span>':'')+'</span>'
+   +(i.note?'<span class="nt">'+esc(i.note)+'</span>':'')
+   +'<span class="sb">'+sub.join(" · ")+'</span></button>'
+   +'<span class="lst-cat" title="'+escA(c?c.n:"")+'">'+(c?c.e:"")+'</span>'
+   +'</div>';}
+function lstViewHtml(){
+  const meta=lstMeta||{},nm=meta.name||"Lista";
+  let h='<div class="detail-back"><button data-lstback>‹ Listák</button></div>';
+  h+='<div class="lst-head"><span class="em">'+esc(meta.em||"📝")+'</span>'
+   +'<span style="flex:1;min-width:0"><span class="nm">'+esc(nm)+'</span>'
+   +'<span class="ds">'+((meta.emails||[]).length>1?((meta.emails||[]).length+" tag"):"csak te")+' · élőben frissül</span></span>'
+   +'<button class="iconbtn" id="lstMenu">⋯</button></div>';
+  if(lstErr)h+='<div class="card" style="padding:12px 14px;margin-bottom:10px"><div class="hint"><b style="color:var(--loss)">A lista most nem érhető el</b><br>'+esc(lstErr)+'</div></div>';
+  const sh=lstShopOn();
+  if(sh&&sh.name)h+='<div class="lst-shop">🛒 <b>'+esc(sh.name)+'</b> épp a boltban van ('+nlWhen(sh.at)+') — most érdemes hozzáírni, amit szeretnél.</div>';
+  if(lstUndo)h+='<div class="lst-undo"><span>🗑 Törölve: <b>'+esc(lstUndo.text)+'</b></span><button id="lstUndoGo">↩ Visszavonás</button></div>';
+  /* bevitel */
+  h+='<div class="card" style="padding:12px">'
+   +'<textarea class="input" id="lstIn" placeholder="Mit írjak fel? Több sor = több tétel (pl. „2 kg paradicsom")" style="min-height:52px"></textarea>'
+   +'<div class="rub-actions" style="margin-top:8px"><button class="btn sm" id="lstAdd">＋ Felírom</button>'
+   +'<button class="btn ghost sm" id="lstShop">'+(sh&&cloudUser&&sh.by===cloudUser.uid?"🛒 Kész, nem vagyok boltban":"🛒 A boltban vagyok")+'</button></div>';
+  const sug=lstSuggest();
+  if(sug.length){
+    h+='<div class="lst-sug">';
+    sug.forEach(function(k){h+='<button data-lstsug="'+escA(k)+'">＋ '+esc(k)+'</button>';});
+    h+='</div><div class="hint" style="margin-top:4px">Amit gyakran szoktál felírni — egy koppintás.</div>';}
+  h+='</div>';
+  if(lstItems===null){h+='<div class="hint" style="padding:14px 4px">Tételek betöltése…</div>';return h;}
+  const g=lstLines();
+  const price=g.open.concat(g.done).reduce(function(a,i){return a+(Number(i.price)||0);},0);
+  h+='<div class="lst-bar"><span>Nyitott: <b>'+g.open.length+'</b></span>'
+   +(price>0?'<span>Összesen: <b>'+Math.round(price).toLocaleString("hu-HU")+' Ft</b></span>':'')
+   +'<button class="lnk" id="lstGrp">'+(lstState().group?"☰ csoportosítva":"☰ egy listában")+'</button></div>';
+  if(!g.open.length&&!g.done.length)h+='<div class="empty"><div class="big">Üres a lista</div>Írd be fent, mi kell — vagy illessz be egy egész listát egyszerre.</div>';
+  else if(lstState().group){
+    LST_CATS.forEach(function(c){
+      const gg=g.open.filter(function(i){return (i.cat||"egye")===c.k;});
+      if(!gg.length)return;
+      h+='<div class="kc-rgrp" style="margin-top:10px">'+c.e+' '+esc(c.n)+' · '+gg.length+'</div>';
+      h+=gg.map(lstItemRow).join("");});}
+  else h+=g.open.map(lstItemRow).join("");
+  if(g.done.length)
+    h+='<details style="margin-top:14px"><summary class="section-title" style="cursor:pointer;list-style:revert">Kész ('+g.done.length+')</summary>'
+     +g.done.map(lstItemRow).join("")+'</details>';
+  return h;}
+function lstWireView(){
+  const b=document.querySelector("#tab-listak [data-lstback]");if(b)b.onclick=function(){closeScreen();};
+  const mn=document.getElementById("lstMenu");if(mn)mn.onclick=lstListMenu;
+  const ad=document.getElementById("lstAdd");
+  if(ad)ad.onclick=function(){const t=document.getElementById("lstIn");if(t)lstAddMulti(t.value);};
+  const sp=document.getElementById("lstShop");if(sp)sp.onclick=lstShopToggle;
+  const ug=document.getElementById("lstUndoGo");if(ug)ug.onclick=lstUndoDel;
+  const gr=document.getElementById("lstGrp");
+  if(gr)gr.onclick=function(){const s=lstState();s.group=!s.group;lstTouch();renderListak();};
+  document.querySelectorAll("[data-lstsug]").forEach(function(x){x.onclick=function(){
+    lstAddOne(x.dataset.lstsug,"").then(function(){lstTouch();toast("Felírva ✓");})
+      .catch(function(e){toast("Nem sikerült: "+lstErrText(e),"down");});};});
+  document.querySelectorAll("[data-lsttog]").forEach(function(x){x.onclick=function(){lstToggle(x.dataset.lsttog);};});
+  document.querySelectorAll("[data-lstedit]").forEach(function(x){x.onclick=function(){lstItemDlg(x.dataset.lstedit);};});}
+function lstHomeSummary(){
+  const s=lstState();
+  if(!cloudUser)return "Belépés után használható (közös modul)";
+  if(!s.cache.length)return "Még nincs közös listád — indíts egyet";
+  if(lstOpen&&lstItems)return (lstItems.filter(function(i){return !i.done;}).length)+" nyitott tétel: "+((lstMeta&&lstMeta.name)||"lista");
+  return s.cache.length+" közös listád van";}
+/* ===== KÖZÖS LISTÁK MODUL — VÉGE ===== */
 
 /* ============================================================================
    KÖZÖS HÁZTARTÁS (hh*) — egy hűtő, egy ételszekrény
@@ -12730,19 +13386,28 @@ function hhApply(items){
       if(j>=0){rec.splice(j,1);ch++;}
       mir[it.id]="DEL";return;}
     const d=it.d;if(!d||typeof d!=="object")return;
+    /* HÁROMUTAS ÖSSZEVETÉS. A `mir` azt őrzi, amit LEGUTÓBB kicseréltünk a
+       felhővel — ez a közös kiindulópont. Ha a helyi példány ettől eltér, akkor
+       helyben módosítottuk (pl. utólag beírt vonalkód), és még nem ment fel:
+       ilyenkor a HELYI marad, és a záró hhPushSoon() viszi fel. Enélkül egy
+       közbejövő pillanatkép csendben visszaírta a régi felhő-verziót, és a
+       módosítás nemcsak el nem ment — el is veszett. */
+    const keepLocal=function(id,localObj){
+      const base=mir[id];
+      return base!==undefined&&base!=="DEL"&&hhSig(localObj)!==base;};
     if(it.t==="r"){
       const o=normRecipe(Object.assign({},d,{id:it.id}));if(!o)return;
       const sig=hhSig(o);
       const j=rec.findIndex(function(x){return x.id===o.id;});
       if(j<0){rec.unshift(o);ch++;}
-      else if(hhSig(rec[j])!==sig){rec[j]=o;ch++;}
+      else if(hhSig(rec[j])!==sig&&!keepLocal(it.id,rec[j])){rec[j]=o;ch++;}
       mir[it.id]=sig;}
     else{
       const o=normFoodItem(Object.assign({},d,{id:it.id}));if(!o)return;
       const sig=hhSig(o);
       const i=cust.findIndex(function(x){return x.id===o.id;});
       if(i<0){cust.unshift(o);ch++;}
-      else if(hhSig(cust[i])!==sig){cust[i]=o;ch++;}
+      else if(hhSig(cust[i])!==sig&&!keepLocal(it.id,cust[i])){cust[i]=o;ch++;}
       mir[it.id]=sig;}});
   hhMirSet(mir);
   hhSynced=true;hhLastN=items.filter(function(x){return x&&!x.del;}).length;
@@ -13079,6 +13744,7 @@ function renderFiok(){const el=document.getElementById("tab-fiok");
 function homeSummary(m){
   try{
     if(m.id==="calories")return kcHomeSummary();
+    if(m.id==="lists")return lstHomeSummary();
     if(m.id==="habit"){
       const goals=applicableGoalsOn(TODAY);
       const done=goals.filter(function(g){return goalDayComplete(g,TODAY);}).length;
@@ -13176,6 +13842,8 @@ function modToggle(id){
     if(S.workout.enabled&&!WEX&&!_wexErr)loadWorkoutData();}
   else if(m.flag==="food"){S.food.enabled=!S.food.enabled;kcTouch();
     if(S.food.enabled&&!KCDB&&!_kcdbErr)loadFoodData();}
+  else if(m.flag==="lists"){lstState().enabled=!S.lists.enabled;lstTouch();
+    if(S.lists.enabled&&cloudUser)lstRefreshLists();}
   const on=modOn(m);
   if(!on&&curMod===m.id)switchTab("home");
   renderNav();modulesPanelRe();
@@ -13199,6 +13867,18 @@ kcCollapse();   /* a 180 napnál régebbi étkezés-tételek napi összeggé zsu
 if(S.metaLevelSeen==null){S.metaLevelSeen=metaProgFor(metaPoints()).L;persist();}
 function startupOpen(){
   if(!S.onboarded){showOnboarding();switchTab("ma");return;}
+  /* PARANCSIKON: a kezdőképernyőre kitett modul-ikon „./?m=<modul>"-lel indít,
+     és rögtön az a modul nyílik. (A manifest `shortcuts` listája adja őket; a
+     rendszer ikonjait hosszan nyomva húzhatók ki külön ikonként.) */
+  try{
+    const p=new URLSearchParams(location.search).get("m");
+    if(p){
+      const sm=modById(p);
+      /* a paraméter ne ragadjon bent: egy sima frissítés már a szokásos kezdést hozza */
+      try{history.replaceState(null,"",location.pathname+location.hash);}catch(e2){}
+      if(sm&&sm.tabs&&modOn(sm)){openModule(sm.id);return;}
+      if(sm&&!modOn(sm))setTimeout(function(){toast(sm.name+": ez a modul nincs bekapcsolva (Fiók → Modulok)","warn");},600);}
+  }catch(e){}
   let id=(S.ui&&S.ui.start)||"home";
   if(id==="last")id=Store.get("sl_lastMod")||"home";
   const m=modById(id);
@@ -13216,6 +13896,7 @@ function rerenderCurTab(){
   else if(t==="haladas")renderHaladas();else if(t==="kuldetesek")renderKuldetesek();
   else if(t==="biblia")renderBiblia();else if(t==="ciklus")renderCiklus();
   else if(t==="edzes")renderEdzes();else if(t==="kaloria")renderKaloria();
+  else if(t==="listak")renderListak();
   else if(t==="fiok")renderFiok();
   try{renderHeader();renderNav();}catch(e){}}
 function dayRollover(){
@@ -13322,6 +14003,30 @@ try{
     const {getAuth,GoogleAuthProvider,signInWithPopup,signInWithRedirect,getRedirectResult,onAuthStateChanged,signOut}=await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js");
     const {getFirestore,doc,setDoc,getDoc,onSnapshot,collection,addDoc,getDocs,deleteDoc,serverTimestamp,query,where}=await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js");
     const app=initializeApp(cfg);const auth=getAuth(app);const db=getFirestore(app);const provider=new GoogleAuthProvider();
+    /* ===== FIRESTORE-KÓDOLÁS — miért kell =====================================
+       A Firestore NEM ismeri a tömbben lévő tömböt („Nested arrays are not
+       supported"), és a setDoc ezt AZONNAL, kivétellel jelzi — nem ígéret-hibával.
+       Az állapotban viszont van ilyen: a saját ételek mértékegységei
+       (`food.custom[].u = [["adag",500],["db",58]]`). Amint valaki felvitt egy
+       saját egységet, a teljes szinkron elhasalt: „invalid-argument", és mivel a
+       kivétel a letöltő ág try-blokkjában csapódott le, még „letöltés"-nek is
+       látszott. Ugyanez ölte meg a közös háztartás feltöltését.
+       Megoldás: a felhő felé menet minden beágyazott tömböt {__a:[…]}-be
+       csomagolunk, visszafelé kibontjuk. A régi, kódolatlan dokumentumok
+       változatlanul olvashatók (nincs bennük __a), tehát visszafelé kompatibilis.
+       A NaN/Infinity nullára, az undefined kihagyásra kerül — azokat sem szereti. */
+    function clEnc(v){
+      if(Array.isArray(v))return v.map(x=>Array.isArray(x)?{__a:clEnc(x)}:clEnc(x));
+      if(v&&typeof v==="object"){
+        const o={};for(const k in v){const t=clEnc(v[k]);if(t!==undefined)o[k]=t;}return o;}
+      if(typeof v==="number"&&!isFinite(v))return null;
+      return v;}
+    function clDec(v){
+      if(Array.isArray(v))return v.map(clDec);
+      if(v&&typeof v==="object"){
+        if(Array.isArray(v.__a))return v.__a.map(clDec);
+        const o={};for(const k in v)o[k]=clDec(v[k]);return o;}
+      return v;}
     let uid=null,unsub=null,pushT=null;
     // Google Drive mentés — a token itt kapható el (a belépés eredményéből).
     const DRIVE_SCOPE="https://www.googleapis.com/auth/drive.file";
@@ -13339,9 +14044,20 @@ try{
       listWatch:(listId,cb,err)=>onSnapshot(collection(db,"sharedlists",listId,"items"),
         (s)=>{const a=[];s.forEach(d=>a.push(Object.assign({id:d.id},d.data())));cb(a);},
         (e)=>{if(err)err(e);}),
-      listAdd:(listId,data)=>uid?addDoc(collection(db,"sharedlists",listId,"items"),Object.assign({},data,{by:uid})):Promise.reject(new Error("no-auth")),
-      listSet:(listId,id,data)=>uid?setDoc(doc(db,"sharedlists",listId,"items",id),Object.assign({},data,{lastBy:uid}),{merge:true}):Promise.reject(new Error("no-auth")),
+      listAdd:(listId,data)=>uid?addDoc(collection(db,"sharedlists",listId,"items"),clEnc(Object.assign({},data,{by:uid}))):Promise.reject(new Error("no-auth")),
+      listSet:(listId,id,data)=>uid?setDoc(doc(db,"sharedlists",listId,"items",id),clEnc(Object.assign({},data,{lastBy:uid})),{merge:true}):Promise.reject(new Error("no-auth")),
       listDel:(listId,id)=>uid?deleteDoc(doc(db,"sharedlists",listId,"items",id)):Promise.reject(new Error("no-auth")),
+      /* --- TÖBB LISTA: a lista MAGA is dokumentum (sharedlists/{id}), a tagságot
+         — mint a közös háztartásnál — az e-mail cím adja. Így a meghívott appja
+         magától megtalálja a listát, nem kell se kód, se link. --- */
+      listsFind:(email)=>getDocs(query(collection(db,"sharedlists"),where("emails","array-contains",String(email||"").toLowerCase())))
+        .then(s=>{const a=[];s.forEach(d=>a.push(Object.assign({id:d.id},clDec(d.data()))));return a;}),
+      listMetaGet:(id)=>getDoc(doc(db,"sharedlists",id)).then(s=>s.exists()?Object.assign({id:s.id},clDec(s.data())):null),
+      listMetaWatch:(id,cb,err)=>onSnapshot(doc(db,"sharedlists",id),
+        (s)=>{cb(s.exists()?Object.assign({id:s.id},clDec(s.data())):null);},(e)=>{if(err)err(e);}),
+      listCreate:(meta)=>uid?addDoc(collection(db,"sharedlists"),clEnc(Object.assign({},meta,{owner:uid,at:Date.now()}))).then(r=>r.id):Promise.reject(new Error("no-auth")),
+      listMetaSet:(id,patch)=>uid?setDoc(doc(db,"sharedlists",id),clEnc(Object.assign({},patch)),{merge:true}):Promise.reject(new Error("no-auth")),
+      listRemove:(id)=>uid?deleteDoc(doc(db,"sharedlists",id)):Promise.reject(new Error("no-auth")),
       /* --- KÖZÖS HÁZTARTÁS: households/{hid} + households/{hid}/lib/{itemId} ---
          A tagságot az e-mail cím adja (a Google-fiók e-mailje), így a meghívott
          a következő indításkor MAGÁTÓL megtalálja a háztartását — nem kell kód.
@@ -13356,10 +14072,14 @@ try{
         {emails:emails,name:String(name||"Közös háztartás").slice(0,40),at:Date.now()},{merge:true})
         :Promise.reject(new Error("no-auth")),
       hhWatch:(hid,cb,err)=>onSnapshot(collection(db,"households",hid,"lib"),
-        (s)=>{const a=[];s.forEach(d=>a.push(Object.assign({id:d.id},d.data())));cb(a);},
+        (s)=>{const a=[];s.forEach(d=>a.push(Object.assign({id:d.id},clDec(d.data()))));cb(a);},
         (e)=>{if(err)err(e);}),
-      hhPut:(hid,id,data)=>uid?setDoc(doc(db,"households",hid,"lib",id),
-        Object.assign({},data,{by:uid,at:Date.now()})):Promise.reject(new Error("no-auth")),
+      /* Az ételek mértékegység-listája beágyazott tömb — kódolás nélkül a setDoc
+         azonnal kivételt dob, és a közös háztartás feltöltése némán elhal. */
+      hhPut:(hid,id,data)=>{if(!uid)return Promise.reject(new Error("no-auth"));
+        try{return setDoc(doc(db,"households",hid,"lib",id),
+          clEnc(Object.assign({},data,{by:uid,at:Date.now()})));}
+        catch(e){return Promise.reject(e);}},
       hhDel:(hid,id)=>uid?setDoc(doc(db,"households",hid,"lib",id),
         {del:1,by:uid,at:Date.now()}):Promise.reject(new Error("no-auth")),
       signIn:async()=>{const p=new GoogleAuthProvider();if(localStorage.getItem("sl_driveOn")==="1")p.addScope(DRIVE_SCOPE);try{const res=await signInWithPopup(auth,p);driveCapture(res);}catch(e){const c=(e&&e.code)||"";if(c==="auth/popup-blocked"||c==="auth/cancelled-popup-request"||c==="auth/operation-not-supported-in-this-environment"){try{await signInWithRedirect(auth,p);}catch(e2){alert("Belépési hiba: "+((e2&&e2.code)||(e2&&e2.message)||e2));}}else if(c&&c!=="auth/popup-closed-by-user"){alert("Belépési hiba: "+c);}}},
@@ -13374,27 +14094,35 @@ try{
         if(!force&&window.SL.weight(state)===0&&lastRemoteWeight>0)return;
         clearTimeout(pushT);
         pushT=setTimeout(()=>{const ref=doc(db,"users",uid);
-          setDoc(ref,state).then(()=>{lastRemoteWeight=window.SL.weight(state);
-            window.SL.onCloudOk("push");cloudBackup(state,null);})
-          .catch((e)=>{window.SL.onCloudErr("push",e);});
+          /* a setDoc AZONNAL dobhat (érvénytelen adat) — ezért try, nem csak catch */
+          try{
+            setDoc(ref,clEnc(state)).then(()=>{lastRemoteWeight=window.SL.weight(state);
+              window.SL.onCloudOk("push");cloudBackup(state,null);})
+            .catch((e)=>{window.SL.onCloudErr("push",e);});
+          }catch(e){window.SL.onCloudErr("push",e);}
         },1200);},
       // Kézi szinkronhoz: azonnali olvasás/írás, várólista és késleltetés nélkül.
       pullNow:()=>{
         if(!uid)return Promise.reject(new Error("nincs bejelentkezve"));
         return getDoc(doc(db,"users",uid)).then((s)=>{
           window.SL.onCloudOk("pull");
-          return s.exists()?s.data():null;})
+          return s.exists()?clDec(s.data()):null;})
         .catch((e)=>{window.SL.onCloudErr("pull",e);throw e;});},
       pushNow:(state)=>{
         if(!uid)return Promise.reject(new Error("nincs bejelentkezve"));
         clearTimeout(pushT);
-        return setDoc(doc(db,"users",uid),state).then(()=>{
+        let p;
+        /* Szinkron kivétel is ígéret-hibaként jöjjön vissza, különben a hívó
+           gomb-kezelője némán megáll (ez volt a „rákattintok, nem történik semmi"). */
+        try{p=setDoc(doc(db,"users",uid),clEnc(state));}
+        catch(e){window.SL.onCloudErr("push",e);return Promise.reject(e);}
+        return p.then(()=>{
           lastRemoteWeight=window.SL.weight(state);
           window.SL.onCloudOk("push");cloudBackup(state,null);})
         .catch((e)=>{window.SL.onCloudErr("push",e);throw e;});},
       // Napi felhő-pillanatkép: users/{uid}/backups/{ÉÉÉÉ-HH-NN}. Naponta egy írás,
       // 14 napig visszamenőleg elérhető (a Fiók fülön), a régieket takarítjuk.
-      listBackups:()=>uid?getDocs(collection(db,"users",uid,"backups")).then(s=>{const a=[];s.forEach(d=>a.push({id:d.id,data:d.data()}));return a.sort((x,y)=>((y.data&&y.data.at)||0)-((x.data&&x.data.at)||0));}):Promise.resolve([])};
+      listBackups:()=>uid?getDocs(collection(db,"users",uid,"backups")).then(s=>{const a=[];s.forEach(d=>a.push({id:d.id,data:clDec(d.data())}));return a.sort((x,y)=>((y.data&&y.data.at)||0)-((x.data&&x.data.at)||0));}):Promise.resolve([])};
     let lastRemoteWeight=0;
     // Felhő-pillanatkép. tag nélkül = napi (a mai dátum a kulcs); tag-gel = kritikus
     // pillanat előtti, időbélyeges kulcs. Két erős szabály:
@@ -13411,7 +14139,7 @@ try{
           const ex=await getDoc(ref).catch(()=>null);
           if(ex&&ex.exists()&&window.SL.weight((ex.data()||{}).state)>w)return;
         }
-        await setDoc(ref,{at:Date.now(),weight:w,state:state});
+        await setDoc(ref,clEnc({at:Date.now(),weight:w,state:state}));
         // Napi mentésnél a Drive-ra is (ha be van kapcsolva és van érvényes token).
         if(!tag&&localStorage.getItem("sl_driveOn")==="1"&&driveReady())driveBackup(state).catch(()=>{});
         // Takarítás: a 30 legfrissebb pillanatkép marad (idő szerint).
@@ -13507,22 +14235,28 @@ try{
         email:(user.email||"").toLowerCase()}:null);
       if(unsub){unsub();unsub=null;}
       if(user){
+        /* A FELTÖLTÉS SAJÁT HIBAKEZELÉST KAP. Korábban ez a hívás a letöltő ág
+           try-blokkjában futott, ezért egy feltöltési kivétel „letöltés: …"
+           néven jelent meg a Fiók fülön — pont a rossz helyre küldve a keresést. */
+        const upNow=(ref)=>{const st=window.SL.getState();
+          try{
+            setDoc(ref,clEnc(st)).then(()=>{lastRemoteWeight=window.SL.weight(st);
+              window.SL.onCloudOk("push");cloudBackup(st,null);})
+            .catch((e2)=>{window.SL.onCloudErr("push",e2);});
+          }catch(e2){window.SL.onCloudErr("push",e2);}};
         try{const ref=doc(db,"users",uid);const snap=await getDoc(ref);
-          const remote=snap.exists()?snap.data():null;
+          const remote=snap.exists()?clDec(snap.data()):null;
           window.SL.onCloudOk("pull");
           lastRemoteWeight=window.SL.weight(remote);
           // A döntést az app rétege hozza (tartalom-súly + szükség esetén kérdés).
-          window.SL.cloudResolve(remote,{upload:()=>{const st=window.SL.getState();
-            setDoc(ref,st).then(()=>{lastRemoteWeight=window.SL.weight(st);cloudBackup(st,null);}).catch(()=>{});}});
+          window.SL.cloudResolve(remote,{upload:()=>upNow(ref)});
           unsub=onSnapshot(ref,(s)=>{
             if(!s.exists())return;
             window.SL.onCloudOk("pull");
-            const rem=s.data();
+            const rem=clDec(s.data());
             lastRemoteWeight=Math.max(lastRemoteWeight,window.SL.weight(rem));
             if((rem.updatedAt||0)<=(window.SL.getState().updatedAt||0))return; // saját visszhang
-            window.SL.cloudResolve(rem,{upload:()=>{const st=window.SL.getState();
-              setDoc(ref,st).then(()=>{lastRemoteWeight=window.SL.weight(st);window.SL.onCloudOk("push");})
-                .catch((e2)=>{window.SL.onCloudErr("push",e2);});}});
+            window.SL.cloudResolve(rem,{upload:()=>upNow(ref)});
           },(err)=>{window.SL.onCloudErr("pull",err);});
         }catch(e){window.SL.onCloudErr("pull",e);}
       }

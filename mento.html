@@ -134,6 +134,16 @@ function dl(text,name){
 }
 
 /* ---------- 2. FELHŐ ---------- */
+/* Az app 2026-07-29 óta {__a:[…]}-be csomagolva küldi a beágyazott tömböket a
+   Firestore-ba (a Firestore nem ismeri a tömbben lévő tömböt). Itt kibontjuk,
+   különben a visszaállított mentésben pl. az ételek mértékegységei sérülnének.
+   A régi, kódolatlan dokumentumokat érintetlenül hagyja. */
+function clDec(v){
+  if(Array.isArray(v))return v.map(clDec);
+  if(v&&typeof v==="object"){
+    if(Array.isArray(v.__a))return v.__a.map(clDec);
+    const o={};for(const k in v)o[k]=clDec(v[k]);return o;}
+  return v;}
 let cloudData=null;
 try{
   const cfg=window.FIREBASE_CONFIG;
@@ -154,7 +164,7 @@ try{
     try{
       const snap=await getDoc(doc(db,"users",user.uid));
       if(!snap.exists()){box.className="card bad";box.innerHTML='<b>A felhőben NINCS dokumentum ehhez a fiókhoz.</b>';return;}
-      cloudData=snap.data();
+      cloudData=clDec(snap.data());
       const d=describe(JSON.stringify(cloudData));
       box.className="card "+(weight(d)>0?"ok":"bad");
       box.innerHTML='<div class="big">'+(weight(d)>0?"✅ VAN ADAT a felhőben":"❌ A felhőben ÜRES állapot van")+'</div>'+
@@ -166,7 +176,7 @@ try{
         const bs=await getDocs(collection(db,"users",user.uid,"backups"));
         if(!bs.empty){
           let h='<div class="card warn"><b>Felhő-biztonsági mentések ('+bs.size+' db):</b><div class="meta">';
-          const rows=[];bs.forEach(s=>{const x=s.data();const dd=describe(JSON.stringify(x.state||x));rows.push(s.id+" → "+dd.goals+" cél, "+dd.days+" nap ("+fmt(dd.updatedAt)+")");});
+          const rows=[];bs.forEach(s=>{const x=clDec(s.data());const dd=describe(JSON.stringify(x.state||x));rows.push(s.id+" → "+dd.goals+" cél, "+dd.days+" nap ("+fmt(dd.updatedAt)+")");});
           rows.sort().reverse();h+=rows.join("<br>")+'</div></div>';
           box.insertAdjacentHTML("afterend",h);
           window.__backups=bs;

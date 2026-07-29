@@ -48,19 +48,57 @@ service cloud.firestore {
     //      function tag(){ return request.auth != null && request.auth.uid in
     //        ['UID1','UID2','UID3']; }
     //    és cseréld a `request.auth != null` feltételeket `tag()`-re.
+    //
+    // 2026-07-29 óta a lista MAGA is dokumentum: sharedlists/{listId} ->
+    //   {name, em, kind, emails:[...], owner, at}
+    // A tagságot — mint a közös háztartásnál — az E-MAIL CÍM adja, így a
+    // meghívott appja magától megtalálja a listát (kód és link nélkül).
+    // A "dev" lista KIVÉTEL: az a nyilvános fejlesztési lista, nincs (és nem is
+    // kell) hozzá meta-dokumentum, bárki olvashatja, belépve bárki írhatja.
+    function devList(listId) { return listId == 'dev'; }
+    function listMember(listId) {
+      return request.auth != null
+        && request.auth.token.email != null
+        && (request.auth.token.email.lower()
+            in get(/databases/$(database)/documents/sharedlists/$(listId)).data.emails);
+    }
+    match /sharedlists/{listId} {
+      allow get, list: if devList(listId)
+        || (request.auth != null && request.auth.token.email != null
+            && (request.auth.token.email.lower() in resource.data.emails));
+      allow create: if request.auth != null
+        && request.auth.token.email != null
+        && request.resource.data.owner == request.auth.uid
+        && request.resource.data.emails is list
+        && request.resource.data.emails.size() > 0
+        && request.resource.data.emails.size() <= 12
+        && (request.auth.token.email.lower() in request.resource.data.emails)
+        && request.resource.data.name is string
+        && request.resource.data.name.size() < 60;
+      // Bármelyik tag átnevezheti a listát és hívhat meg másokat; a tulaj nem írható át.
+      allow update: if request.auth != null
+        && request.auth.token.email != null
+        && (request.auth.token.email.lower() in resource.data.emails)
+        && request.resource.data.emails is list
+        && request.resource.data.emails.size() <= 12
+        && request.resource.data.owner == resource.data.owner;
+      allow delete: if request.auth != null && resource.data.owner == request.auth.uid;
+    }
     match /sharedlists/{listId}/items/{itemId} {
-      allow read: if true;
+      allow read: if devList(listId) || listMember(listId);
       allow create: if request.auth != null
         && request.resource.data.by == request.auth.uid
         && request.resource.data.text is string
         && request.resource.data.text.size() > 0
-        && request.resource.data.text.size() < 2000;
+        && request.resource.data.text.size() < 2000
+        && (devList(listId) || listMember(listId));
       // A szerző azonosítója nem írható át (a kipipálás merge-gel megy, így megmarad).
       allow update: if request.auth != null
         && request.resource.data.by == resource.data.by
         && request.resource.data.text is string
-        && request.resource.data.text.size() < 2000;
-      allow delete: if request.auth != null;
+        && request.resource.data.text.size() < 2000
+        && (devList(listId) || listMember(listId));
+      allow delete: if request.auth != null && (devList(listId) || listMember(listId));
     }
     // KÖZÖS HÁZTARTÁS (households/{hid}) — egy háztartás tagjai közösen használják
     // a saját ételeiket és receptjeiket. A tagságot az E-MAIL CÍM adja: aki benne van
