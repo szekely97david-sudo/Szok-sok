@@ -1541,6 +1541,19 @@ nav .nav-in .tabbtn svg{width:20px; height:20px;}
 .lst-mid .nt{display:block; font-size:12px; color:var(--muted); margin-top:2px;}
 .lst-mid .sb{display:block; font-size:11px; color:var(--muted-2); margin-top:3px;}
 .lst-cat{flex:none; font-size:15px; opacity:.75;}
+/* Opcionális mezők jelvényei a tételen (határidő, felelős, prioritás). Csak az
+   jelenik meg, amit az adott lista tényleg kérdez — lásd lstFields(). */
+.lst-bd{display:inline-block; font-size:11px; line-height:1.5; padding:1px 8px; border-radius:999px;
+  margin:4px 5px 0 0; background:var(--surface-2); border:1px solid var(--line); color:var(--muted); white-space:nowrap;}
+.lst-bd.soon{background:var(--gold-soft); border-color:var(--gold); color:var(--ink);}
+.lst-bd.late{background:var(--surface-2); border-color:var(--loss); color:var(--loss); font-weight:700;}
+.lst-bd.pr{border-color:var(--loss); color:var(--loss);}
+.lst-sel{flex:none; margin-top:2px;}
+/* Widgetek és gyorsindítók panel */
+.wgt-link{font-family:var(--mono); font-size:11.5px; word-break:break-all; background:var(--surface-2);
+  border:1px solid var(--line); border-radius:var(--r-sm); padding:8px 10px; color:var(--muted); margin:8px 0;}
+.wgt-steps{margin:8px 0 0; padding-left:20px; font-size:12.5px; color:var(--muted); line-height:1.65;}
+.wgt-steps b{color:var(--ink);}
 
 </style>
 <header>
@@ -1729,7 +1742,13 @@ function normUi(u){u=u||{};const ids=MODULES.map(function(m){return m.id;});
   (Array.isArray(u.modOrder)?u.modOrder:[]).forEach(function(id){if(ids.indexOf(id)>=0&&!seen[id]){seen[id]=1;order.push(id);}});
   ids.forEach(function(id){if(!seen[id])order.push(id);});
   const start=(u.start==="last"||ids.indexOf(u.start)>=0)?u.start:"home";
-  return{modOrder:order,start:start};}
+  /* Kezdőlap-widgetek: melyik modul-kártya látszik a Kezdőlapon, és látszik-e az
+     Össz-haladás kártya. Csak a KIKAPCSOLTAKAT tároljuk (hiányzó kulcs = látszik),
+     így egy később érkező modul magától megjelenik, nem kell migrálni. */
+  const hc={};
+  if(u.homeCards&&typeof u.homeCards==="object")
+    ids.forEach(function(id){if(u.homeCards[id]===false)hc[id]=false;});
+  return{modOrder:order,start:start,homeCards:hc,homeMeta:u.homeMeta!==false};}
 
 /* =========================================================================
    EDZÉSNAPLÓ MODUL (2026-07-25)
@@ -11715,6 +11734,16 @@ function bindCycDay(dayKey){
 
 /* --- „Mi újult meg?" (közérthető változásnapló) --- */
 const CHANGELOG=[
+ {v:23,title:"🚀 Gyorsindítók, kezdőlap-widgetek — és testre szabható listák",items:[
+   "<b>Új: Fiók → 🚀 Widgetek és gyorsindítók.</b> Egy helyen minden, ami az app <b>elindításáról</b> és a <b>Kezdőlapról</b> szól. Minden modulhoz tartozik egy saját cím, ami egyenesen oda nyit — a panel a vágólapra teszi, megnyitja a böngészőben, és lépésről lépésre végigvezet, hogyan lesz belőle <b>külön ikon</b> a telefon kezdőképernyőjén. A <b>▶ Kipróbálom</b> gomb pontosan azt teszi, amit a kitett ikon fog, így előre látod, működik-e.",
+   "Kimondjuk, ami eddig nem volt világos: egy weben futó app <b>magától nem tehet ki ikont</b> — az utolsó koppintás mindig a telefon saját menüjében történik. Ezért van a panelben lépésenkénti útmutató Androidra és iPhone-ra külön, és ezért nincs valódi rendszer-widget (az külön Android/iOS alkalmazás lenne).",
+   "<b>Kezdőlap-widgetek:</b> te döntöd el, mi látszódjon a 🏠 Kezdőlapon. Bármelyik modul kártyája elrejthető, és az <b>Össz-haladás</b> kártya is kikapcsolható — a modul ettől nem áll le, csak nem foglal helyet.",
+   "<b>A listák mostantól tudják, milyen listák.</b> Létrehozásnál választhatsz típust: 🛒 Bevásárlás · ✅ Teendők, projekt · 🧳 Pakolás · 📝 Általános. A típus dönti el, mit kérdez a lista — bevásárlásnál mennyiséget és árat, projektnél <b>határidőt, felelőst és prioritást</b>. A kempinglista így nem próbál többé bolti kategóriákba sorolni.",
+   "<b>Mezők ki-be kapcsolása listánként</b> (⋯ → ⚙️ Mit kérdezzen ez a lista?): mennyiség, ár, jegyzet, határidő, felelős, prioritás. Amit kikapcsolsz, eltűnik az űrlapról és a sorokról is — de az adat megmarad, visszakapcsolva előjön. Nincs saját mező-építés: hat jól átgondolt mező, nem egy adatbázis-szerkesztő.",
+   "<b>Felíráskor felismeri, amit odaírsz.</b> A mennyiség mellé most a dátum, a felelős és a sürgősség is: <b>számla holnap</b>, <b>szerelőt hívni hétfőn</b>, <b>festék @Dóra</b>, <b>ajánlat 08. 15.</b>, <b>fogorvos !!!</b> — a tétel szövegéből kivágja és a megfelelő mezőbe teszi (csak ha az a mező be van kapcsolva).",
+   "A határidős listák a nyitott tételeket <b>Lejárt / Ma / A héten / Később</b> blokkokban mutatják, a lejárt határidő pirossal. Új <b>⇅ Nézet</b> menü: rendezés határidő, prioritás, ABC vagy a felírás sorrendje szerint, és egy <b>csak amit én vállaltam</b> szűrő.",
+   "Új sablon: <b>✅ Projekt — teendők</b>, ami rögtön megmutatja, hogy a határidő és a felelős hogyan kerül a tételekre.",
+   "A <b>közös fejlesztési listán</b> egy kör végén nem kell egyesével pipálni: <b>✓✓ Több kipipálása</b> → kijelölöd (vagy <b>Mind</b>), és egy gombbal lezárul az összes elkészült tétel."]},
  {v:22,title:"📝 Új modul: Közös listák — és megjavult a szinkron",items:[
    "<b>A szinkron-hiba oka megvan.</b> Aki felvitt egy saját mértékegységet egy ételhez (pl. „1 adag = 500 g”), annál a <b>teljes felhő-szinkron elhasalt</b>: a Firestore nem fogadja el a tömbben lévő tömböt, és a hibát ráadásul „letöltés”-ként írtuk ki, pedig feltöltés volt. Mostantól kódolva megy fel, és a Szinkronizálás panel gombjai is megmondják, ha valami nem sikerült — eddig némán nem történt semmi.",
    "<b>Új modul: 📝 Közös listák</b> (Fiók → Aktiválható modulok). Közösen szerkesztett listák: <b>amit felírsz, a többiek azonnal látják</b>, és ők is írhatnak bele. Nem csak bevásárlás: pakolás, kemping, költözés, nagytakarítás — négy <b>sablon</b> egy koppintással.",
@@ -12310,7 +12339,7 @@ function askCloudConflict(remote,api){
 /* =========================================================================
    2. RÉTEG — témák, súgó, tutorial, indokok, ünneplés, visszajelzés
    ========================================================================= */
-const APP_VERSION="v36";
+const APP_VERSION="v37";
 
 /* ---- témák ---- */
 const THEMES=[{id:"kert",name:"Üvegház",sw:"#2D6A4F"},{id:"papir",name:"Letisztult",sw:"#1B4332"},{id:"krem",name:"Papír",sw:"#B5852B"},{id:"arany",name:"Arany éj",sw:"#E5A83B"},{id:"erdo",name:"Erdő",sw:"#5FD08A"},{id:"ocean",name:"Óceán",sw:"#4FB0E5"},{id:"naplemente",name:"Naplemente",sw:"#E5744F"},{id:"ejjel",name:"Éjszakai",sw:"#C79A46"},{id:"film",name:"Filmvászon",sw:"#D8D8D8"}];
@@ -12653,6 +12682,10 @@ const NL_MODS=[{k:"habit",e:"🌱",n:"Szokások"},{k:"bible",e:"📖",n:"Biblia"
 function nlModOf(k){for(let i=0;i<NL_MODS.length;i++)if(NL_MODS[i].k===k)return NL_MODS[i];return null;}
 let nlItems=null,nlErr=null,nlUnsub=null,nlKind="bug",nlBusy=false;
 let nlMod=Store.get("nlMod")||"";
+/* Tömeges kipipálás: egy fejlesztési kör végén 8-10 tétel készül el egyszerre.
+   Egyesével kipipálni ugyanannyi koppintás, mint amennyi tétel — ezért van
+   kijelölő mód, és egy gomb zárja le mindet. */
+let nlSelMode=false,nlSel={};
 
 /* A listán csak a keresztnév látszik (nem a teljes Google-név). */
 function nlName(){const n=((cloudUser&&cloudUser.name)||"").trim();return (n.split(/\s+/)[0]||"Névtelen").slice(0,24);}
@@ -12674,7 +12707,7 @@ function nlWhen(ts){if(!ts)return "";
   if(dk(d)===addDaysKey(dk(n),-1))return "tegnap";
   return (d.getMonth()+1)+". "+d.getDate()+".";}
 
-function nlOpenPanel(){nlItems=null;nlErr=null;openModal(nlPanelHtml());nlWire();nlStart();}
+function nlOpenPanel(){nlItems=null;nlErr=null;nlSelMode=false;nlSel={};openModal(nlPanelHtml());nlWire();nlStart();}
 
 function nlPanelHtml(){
   let h='<button class="close-x" id="mClose">✕</button><h3>🗒️ Közös fejlesztési lista</h3>';
@@ -12697,7 +12730,15 @@ function nlBodyHtml(){
   if(nlItems===null)return '<div class="hint">Töltés…</div>';
   const open=nlItems.filter(i=>!i.done).sort((a,b)=>(b.at||0)-(a.at||0));
   const done=nlItems.filter(i=>i.done).sort((a,b)=>(b.upd||0)-(a.upd||0));
-  let h='<div class="section-title" style="margin-top:0">Nyitott ('+open.length+')</div>';
+  let h='';
+  if(nlCanWrite()&&open.length>1){
+    const n=Object.keys(nlSel).filter(k=>nlSel[k]).length;
+    h+='<div class="lst-bar" style="margin:0 2px 8px">'
+     +(nlSelMode?'<span>Kijelölve: <b>'+n+'</b></span>':'<span>Egy kör végén több tétel is elkészül.</span>')
+     +'<button class="lnk" id="nlSelBtn">'+(nlSelMode?"✕ Mégse":"✓✓ Több kipipálása")+'</button></div>';
+    if(nlSelMode)h+='<div class="rub-actions" style="margin:-2px 0 10px"><button class="btn sm" id="nlSelDo"'+(n?'':' disabled')+'>✓ Készre teszem ('+n+')</button>'
+     +'<button class="btn ghost sm" id="nlSelAll">Mind</button></div>';}
+  h+='<div class="section-title" style="margin-top:0">Nyitott ('+open.length+')</div>';
   if(!open.length)h+='<div class="hint">Most nincs nyitott tétel — minden le van zárva. 🎉</div>';
   else{
     /* Modulonként egy blokk (a modul-sorrend szerint), a végén a besorolatlanok. */
@@ -12714,8 +12755,11 @@ function nlBodyHtml(){
   return h;}
 
 function nlRow(i,showMod){const k=nlKindOf(i.kind);const m=showMod?nlModOf(i.mod):null;
+  const sel=nlSelMode&&!i.done;
   return '<div class="card" style="padding:10px 12px;margin-bottom:8px"><div style="display:flex;gap:10px;align-items:flex-start">'
-   +'<button class="todo-box'+(i.done?" on":"")+'" data-nltog="'+escA(i.id)+'" title="'+(i.done?"Visszanyitom":"Kész")+'">'+(i.done?"✓":"")+'</button>'
+   +(sel
+     ?'<button class="todo-box'+(nlSel[i.id]?" on":"")+'" data-nlsel="'+escA(i.id)+'" title="Kijelölés">'+(nlSel[i.id]?"✓":"")+'</button>'
+     :'<button class="todo-box'+(i.done?" on":"")+'" data-nltog="'+escA(i.id)+'" title="'+(i.done?"Visszanyitom":"Kész")+'">'+(i.done?"✓":"")+'</button>')
    +'<div style="flex:1;min-width:0">'
    +'<div'+(i.done?' class="todo-strk"':'')+' style="white-space:pre-wrap;word-break:break-word">'+k.e+' '+esc(i.text||"")
    +(m?' <span class="kc-tag">'+m.e+' '+esc(m.n)+'</span>':'')+'</div>'
@@ -12733,7 +12777,27 @@ function nlWire(){
 function nlWireBody(){
   document.querySelectorAll("[data-nltog]").forEach(b=>{b.onclick=()=>nlToggle(b.dataset.nltog);});
   document.querySelectorAll("[data-nldel]").forEach(b=>{b.onclick=()=>nlDel(b.dataset.nldel);});
+  document.querySelectorAll("[data-nlsel]").forEach(b=>{b.onclick=()=>{
+    const id=b.dataset.nlsel;nlSel[id]=!nlSel[id];nlPaint();};});
+  const sb=document.getElementById("nlSelBtn");
+  if(sb)sb.onclick=()=>{nlSelMode=!nlSelMode;nlSel={};nlPaint();};
+  const sa=document.getElementById("nlSelAll");
+  if(sa)sa.onclick=()=>{(nlItems||[]).filter(i=>!i.done).forEach(i=>{nlSel[i.id]=true;});nlPaint();};
+  const sd=document.getElementById("nlSelDo");if(sd)sd.onclick=nlSelDone;
   const c=document.getElementById("nlCopy");if(c)c.onclick=nlCopy;}
+function nlSelDone(){
+  const ids=Object.keys(nlSel).filter(k=>nlSel[k]);
+  if(!ids.length)return;
+  if(!nlCanWrite()){toast("Ehhez be kell jelentkezned","warn");return;}
+  if(nlBusy)return;nlBusy=true;
+  const now=Date.now(),who=nlName();
+  ids.forEach(id=>{const it=(nlItems||[]).filter(x=>x.id===id)[0];
+    if(it){it.done=true;it.upd=now;it.doneName=who;}});
+  nlSelMode=false;nlSel={};nlPaint();
+  Promise.all(ids.map(id=>window.Cloud.listSet(NL_ID,id,{done:true,upd:now,doneName:who})))
+    .then(()=>toast(ids.length+" tétel készre tettem ✓","win"))
+    .catch(e=>toast("Nem sikerült mindet: "+((e&&(e.code||e.message))||e),"down"))
+    .then(()=>{nlBusy=false;});}
 
 function nlAdd(){
   const el=document.getElementById("nlText");if(!el)return;
@@ -12858,12 +12922,50 @@ function lstGuessCat(txt){
 const LST_TPL=[
  {k:"bev",em:"🛒",name:"Heti bevásárlás",kind:"shop",
   items:["kenyér","tej 2 l","tojás 10 db","vaj","sajt","csirkemell 1 kg","paradicsom","alma","banán","rizs","tészta","mosogatószer"]},
- {k:"uta",em:"🧳",name:"Utazás — pakolás",kind:"todo",
+ {k:"uta",em:"🧳",name:"Utazás — pakolás",kind:"pack",
   items:["útlevél / személyi","töltő + powerbank","gyógyszerek","fogkefe, fogkrém","fehérnemű","zokni","pólók","nadrág","pizsama","cipő","esőkabát","napszemüveg"]},
- {k:"kem",em:"🏕",name:"Kemping",kind:"todo",
+ {k:"kem",em:"🏕",name:"Kemping",kind:"pack",
   items:["sátor","hálózsák","polifoam","fejlámpa + elem","gázfőző","evőeszköz, bogrács","gyufa / öngyújtó","szúnyogriasztó","elsősegély-csomag","szemeteszsák","víz 5 l"]},
  {k:"tak",em:"🧹",name:"Nagytakarítás",kind:"todo",
-  items:["ablakok","szekrény átnézése","hűtő kipakolása","porszívózás, felmosás","fürdő fugák","szellőzők","kidobandó dolgok kupaca","függönymosás"]}];
+  items:["ablakok","szekrény átnézése","hűtő kipakolása","porszívózás, felmosás","fürdő fugák","szellőzők","kidobandó dolgok kupaca","függönymosás"]},
+ {k:"prj",em:"✅",name:"Projekt — teendők",kind:"todo",
+  items:["ajánlatot kérni !!","anyagot megrendelni holnap","festék kiválasztása @Dóra","szerelőt hívni hétfőn","régi bútor elszállítása"]}];
+
+/* ---- LISTA-TÍPUS ÉS MEZŐK ------------------------------------------------
+   „Progresszív komplexitás": egy lista létrehozása 10 másodperc, mert a TÍPUS
+   eldönti, mit kérdez a lista — nem a felhasználónak kell adatbázist tervezni
+   hozzá (ez a Notion csapdája). Aki mégis mást akar, a lista menüjében egyetlen
+   panelen ki-be kapcsolja a mezőket; az űrlap, a tétel-sor és a beíráskori
+   felismerés is ehhez igazodik. Szándékosan NINCS „saját mező" (dinamikus séma):
+   hat előre gondolt mező a valódi használat 95%-át lefedi, és offline is működik. */
+const LST_FIELDS=[
+ {k:"q",    e:"⚖️",n:"Mennyiség", d:"„2 kg”, „10 db” — a beírásból magától felismeri."},
+ {k:"price",e:"💰",n:"Ár",        d:"Forint a tételen, a lista alján összeg."},
+ {k:"note", e:"🗒",n:"Jegyzet",   d:"Egy sor pontosítás: „2,8%-os”, „a felső polcon”."},
+ {k:"due",  e:"📅",n:"Határidő",  d:"Dátum a tételen; a lejártak külön, kiemelve."},
+ {k:"who",  e:"👤",n:"Felelős",   d:"Ki vállalta el. Beírásnál „@Dóra”-val is megy."},
+ {k:"prio", e:"❗",n:"Prioritás", d:"Mennyire sürgős. Beírásnál „!”, „!!”, „!!!”."}];
+const LST_KINDS=[
+ {k:"shop",e:"🛒",n:"Bevásárlás",cats:true, f:{q:1,price:1,note:1},
+  d:"Bolti kategóriák szerint csoportosít, mennyiséggel és árral."},
+ {k:"todo",e:"✅",n:"Teendők, projekt",cats:false,f:{note:1,due:1,who:1,prio:1},
+  d:"Határidő, felelős, prioritás — a nyitottak határidő szerint sorban."},
+ {k:"pack",e:"🧳",n:"Pakolás, csomagolás",cats:false,f:{q:1,note:1},
+  d:"Egyszerű kipipálós lista mennyiséggel, csoportosítás nélkül."},
+ {k:"gen", e:"📝",n:"Általános",cats:false,f:{note:1},
+  d:"Csak a lényeg: mi az, és kész van-e."}];
+function lstKindOf(k){for(let i=0;i<LST_KINDS.length;i++)if(LST_KINDS[i].k===k)return LST_KINDS[i];
+  return LST_KINDS[3];}
+/* A lista tényleges mezői: a típus alapja + amit a felhasználó felülírt (meta.fields). */
+function lstFields(m){
+  const meta=m||lstMeta||{},kd=lstKindOf(meta.kind),f={};
+  LST_FIELDS.forEach(function(x){f[x.k]=!!kd.f[x.k];});
+  if(meta.fields&&typeof meta.fields==="object")
+    LST_FIELDS.forEach(function(x){if(typeof meta.fields[x.k]==="boolean")f[x.k]=meta.fields[x.k];});
+  return f;}
+function lstUseCats(){const m=lstMeta||{};
+  if(typeof m.cats==="boolean")return m.cats;
+  return !!lstKindOf(m.kind).cats;}
 
 let lstOpen=null,lstItems=null,lstMeta=null,lstErr=null,lstUnsub=null,lstUnsubMeta=null;
 let lstBusy=false,lstUndo=null,lstListsErr=null,lstLoading=false;
@@ -12871,6 +12973,8 @@ function lstState(){const s=S.lists=S.lists||{};
   if(!Array.isArray(s.cache))s.cache=[];
   if(!s.freq||typeof s.freq!=="object")s.freq={};
   if(typeof s.group!=="boolean")s.group=true;
+  if(["auto","due","prio","abc","new"].indexOf(s.sort)<0)s.sort="auto";
+  if(typeof s.mine!=="boolean")s.mine=false;
   return s;}
 function lstTouch(){lstState();S.lists.updatedAt=Date.now();save();}
 function lstCan(){return !!(cloudUser&&window.Cloud&&window.Cloud.listCreate);}
@@ -12892,7 +12996,7 @@ function lstRefreshLists(cb){
   window.Cloud.listsFind(lstEmail()).then(function(arr){
     lstLoading=false;lstListsErr=null;
     const s=lstState();
-    s.cache=(arr||[]).map(function(x){return{id:x.id,name:x.name||"Lista",em:x.em||"📝",at:Number(x.at)||0,n:(x.emails||[]).length};})
+    s.cache=(arr||[]).map(function(x){return{id:x.id,name:x.name||"Lista",em:x.em||"📝",at:Number(x.at)||0,n:(x.emails||[]).length,kd:x.kind||""};})
       .sort(function(a,b){return (b.at||0)-(a.at||0);});
     lstTouch();
     if(curTab==="listak")renderListak();
@@ -12921,9 +13025,62 @@ function lstCloseList(){lstStop();lstOpen=null;lstItems=null;lstMeta=null;render
    „2 kg paradicsom", „tej 2 l", „- kenyér" — mind ugyanaz a szándék. Nem AI,
    csak két minta; pont ezért kiszámítható és offline is működik. */
 const LST_UNITS="kg|dkg|g|l|dl|cl|ml|db|cs|csom|csomag|doboz|üveg|tábla|tekercs|szelet|fej|csokor|gerezd|zacskó|karton|rekesz|adag|marék|kanál|evőkanál|kávéskanál";
+/* Napszavak és hónapnevek a határidő-felismeréshez. Nem naptár-motor: ha nem
+   biztos, inkább nem tippel — a tételt akkor is felírja, csak dátum nélkül. */
+const LST_DOW=[["hétfő",1],["hetfo",1],["kedd",2],["szerda",3],["szerdá",3],
+ ["csütörtök",4],["csutortok",4],["péntek",5],["pentek",5],["szombat",6],
+ ["vasárnap",0],["vasarnap",0]];
+const LST_MON=["jan","feb","már","mar","ápr","apr","máj","maj","jún","jun","júl","jul","aug","szep","okt","nov","dec"];
+const LST_MONNO={jan:1,feb:2,"már":3,mar:3,"ápr":4,apr:4,"máj":5,maj:5,"jún":6,jun:6,"júl":7,jul:7,aug:8,szep:9,okt:10,nov:11,dec:12};
+function lstMkKey(y,mo,d){return y+"-"+String(mo).padStart(2,"0")+"-"+String(d).padStart(2,"0");}
+/* Egy dátum-token kivágása a szövegből. Visszaad {t,due} párt (due lehet ""). */
+function lstCutDue(t){
+  let due="";
+  const eat=function(re,fn){
+    if(due)return;
+    const m=t.match(re);if(!m)return;
+    const k=fn(m);if(!k)return;
+    due=k;t=(t.slice(0,m.index)+" "+t.slice(m.index+m[0].length)).replace(/\s+/g," ").trim();};
+  eat(/(^|\s)holnapután(ra)?\b/i,function(){return addDaysKey(TODAY,2);});
+  eat(/(^|\s)holnap(ra)?\b/i,function(){return addDaysKey(TODAY,1);});
+  eat(/(^|\s)(ma|mára)\b/i,function(){return TODAY;});
+  /* A záró pont kötelező („08. 15."), különben az „1.5 l tej" dátumnak nézne ki. */
+  eat(/(^|\s)(\d{1,2})\.\s?(\d{1,2})\.(?=$|\s)/,function(m){
+    const mo=+m[2],d=+m[3];if(mo<1||mo>12||d<1||d>31)return "";
+    const y=+TODAY.slice(0,4),k=lstMkKey(y,mo,d);
+    return k<TODAY?lstMkKey(y+1,mo,d):k;});
+  eat(new RegExp("(^|\\s)("+LST_MON.join("|")+")\\w*\\.?\\s(\\d{1,2})\\.?(?=$|\\s)","i"),function(m){
+    const mo=LST_MONNO[m[2].toLowerCase()],d=+m[3];if(!mo||d<1||d>31)return "";
+    const y=+TODAY.slice(0,4),k=lstMkKey(y,mo,d);
+    return k<TODAY?lstMkKey(y+1,mo,d):k;});
+  eat(/(^|\s)(\d{1,2})[-–](á|é|a|e)n\b/i,function(m){
+    const d=+m[2];if(d<1||d>31)return "";
+    const y=+TODAY.slice(0,4),mo=+TODAY.slice(5,7),k=lstMkKey(y,mo,d);
+    if(k>=TODAY)return k;
+    return mo===12?lstMkKey(y+1,1,d):lstMkKey(y,mo+1,d);});
+  if(!due)for(let i=0;i<LST_DOW.length;i++){
+    const re=new RegExp("(^|\\s)"+LST_DOW[i][0]+"[a-záéíóöőúüű]*\\b","i");
+    const m=t.match(re);if(!m)continue;
+    const want=LST_DOW[i][1],cur=keyToDate(TODAY).getDay();
+    let add=(want-cur+7)%7;if(add===0)add=7;      /* a KÖVETKEZŐ ilyen nap */
+    due=addDaysKey(TODAY,add);
+    t=(t.slice(0,m.index)+" "+t.slice(m.index+m[0].length)).replace(/\s+/g," ").trim();
+    break;}
+  return{t:t,due:due};}
 function lstParseLine(raw){
   let t=String(raw||"").replace(/\s+/g," ").trim();
   t=t.replace(/^[-–—•*·]+\s*/,"").replace(/^\[[ xX]\]\s*/,"");
+  if(!t)return null;
+  /* prioritás: záró felkiáltójelek — „kenyér!!!" */
+  let prio=0;
+  const pm=t.match(/\s*(!{1,3})$/);
+  if(pm){prio=pm[1].length;t=t.slice(0,pm.index).trim();}
+  /* felelős: @Név */
+  let who="";
+  const wm=t.match(/(^|\s)@([\wáéíóöőúüűÁÉÍÓÖŐÚÜŰ.\-]{2,24})/);
+  if(wm){who=wm[2];t=(t.slice(0,wm.index)+" "+t.slice(wm.index+wm[0].length)).replace(/\s+/g," ").trim();}
+  /* határidő */
+  const dd=lstCutDue(t);t=dd.t;
   if(!t)return null;
   let q="";
   let m=t.match(new RegExp("^(\\d+(?:[.,]\\d+)?)\\s*("+LST_UNITS+")?\\s+(.+)$","i"));
@@ -12932,7 +13089,15 @@ function lstParseLine(raw){
     m=t.match(new RegExp("^(.+?)\\s+(\\d+(?:[.,]\\d+)?)\\s*("+LST_UNITS+")$","i"));
     if(m){t=m[1].trim();q=(m[2]+" "+m[3]).trim();}}
   if(!t)return null;
-  return{text:t.slice(0,200),q:q.slice(0,24)};}
+  return{text:t.slice(0,200),q:q.slice(0,24),due:dd.due,who:who,prio:prio};}
+/* Amit a beírásból felismertünk, csak akkor kerül a tételre, ha az adott listán
+   be van kapcsolva a mező — különben rejtett adat lenne, amit senki nem lát. */
+function lstExtraFrom(p,meta){
+  const f=lstFields(meta),ex={};
+  if(f.due&&p.due)ex.due=p.due;
+  if(f.who&&p.who)ex.who=p.who.slice(0,24);
+  if(f.prio&&p.prio)ex.prio=p.prio;
+  return ex;}
 function lstFreqBump(txt){
   const s=lstState(),k=String(txt||"").toLowerCase().trim();
   if(k.length<2)return;
@@ -12958,7 +13123,7 @@ function lstAddMulti(raw){
   if(!lines.length){toast("Írj be legalább egy tételt","warn");return;}
   if(lines.length>40){toast("Egyszerre legfeljebb 40 tétel","warn");return;}
   if(lstBusy)return;lstBusy=true;
-  Promise.all(lines.map(function(x){return lstAddOne(x.text,x.q);}))
+  Promise.all(lines.map(function(x){return lstAddOne(x.text,x.q,null,lstExtraFrom(x));}))
     .then(function(){lstTouch();toast(lines.length===1?"Felírva ✓":(lines.length+" tétel felírva ✓"),"win");})
     .catch(function(e){toast("Nem sikerült: "+lstErrText(e),"down");})
     .then(function(){lstBusy=false;const t=document.getElementById("lstIn");if(t)t.value="";});}
@@ -12973,13 +13138,15 @@ function lstDelete(id){
   const it=(lstItems||[]).filter(function(x){return x.id===id;})[0];if(!it)return;
   if(!lstCan()){toast("Ehhez be kell jelentkezned","warn");return;}
   /* A törlés mindenkinél azonnal eltűnik — ezért kap visszavonást, nem kérdést. */
-  lstUndo={text:it.text,q:it.q||"",cat:it.cat||"",note:it.note||"",price:it.price||0};
+  lstUndo={text:it.text,q:it.q||"",cat:it.cat||"",note:it.note||"",price:it.price||0,
+    due:it.due||"",who:it.who||"",prio:it.prio||0};
   window.Cloud.listDel(lstOpen,id)
     .then(function(){renderListak();})
     .catch(function(e){lstUndo=null;toast("Nem sikerült törölni: "+lstErrText(e),"down");});}
 function lstUndoDel(){
   if(!lstUndo)return;const u=lstUndo;lstUndo=null;
-  lstAddOne(u.text,u.q,u.cat,{note:u.note||"",price:u.price||0})
+  lstAddOne(u.text,u.q,u.cat,{note:u.note||"",price:u.price||0,
+    due:u.due||"",who:u.who||"",prio:u.prio||0})
     .then(function(){toast("Visszahoztam ✓","win");})
     .catch(function(e){toast("Nem sikerült: "+lstErrText(e),"down");});
   renderListak();}
@@ -12994,7 +13161,8 @@ function lstCreate(name,em,kind,items,after){
     if(items&&items.length){
       lstOpen=id;
       return Promise.all(items.slice(0,40).map(function(line){
-        const p=lstParseLine(line);return p?lstAddOne(p.text,p.q):null;}).filter(Boolean))
+        const p=lstParseLine(line);
+        return p?lstAddOne(p.text,p.q,null,lstExtraFrom(p,meta)):null;}).filter(Boolean))
         .then(function(){return id;});}
     return id;
   }).then(function(id){
@@ -13002,21 +13170,73 @@ function lstCreate(name,em,kind,items,after){
     closeScreen();setTimeout(function(){lstOpenList(id);if(after)after(id);},180);
   }).catch(function(e){toast("Nem sikerült: "+lstErrText(e),"down");});}
 function lstNewDlg(tpl){
-  woDlg('<button class="close-x" id="mClose">✕</button><h3>'+(tpl?tpl.em+" "+esc(tpl.name):"📝 Új közös lista")+'</h3>'
+  const kd0=tpl?tpl.kind:"shop";
+  let h='<button class="close-x" id="mClose">✕</button><h3>'+(tpl?tpl.em+" "+esc(tpl.name):"📝 Új közös lista")+'</h3>'
    +'<p class="hint" style="margin:-2px 0 12px">'+(tpl?"A sablon tételeit utána szabadon szerkesztheted, törölheted.":"A lista neve bármi lehet: „Bevásárlás”, „Nyaralás”, „Költözés”.")+'</p>'
    +'<div class="card" style="padding:14px 16px"><label class="wo-lb">Név</label>'
    +'<input class="input" id="lnN" maxlength="60" value="'+escA(tpl?tpl.name:"")+'" placeholder="pl. Heti bevásárlás"/>'
    +'<label class="wo-lb" style="margin-top:10px">Ikon</label>'
    +'<input class="input" id="lnE" maxlength="4" value="'+escA(tpl?tpl.em:"🛒")+'" style="max-width:90px;text-align:center;font-size:20px"/>'
+   +'<label class="wo-lb" style="margin-top:10px">Milyen lista ez?</label>'
+   +'<select class="input" id="lnK">';
+  LST_KINDS.forEach(function(k){h+='<option value="'+k.k+'"'+(k.k===kd0?" selected":"")+'>'+k.e+' '+k.n+'</option>';});
+  h+='</select><div class="hint" id="lnKd" style="margin-top:6px">'+lstKindOf(kd0).d+'</div>'
+   +'<div class="hint" style="margin-top:8px">Ez csak a <b>kezdő beállítás</b>: a mezőket utána egyenként ki-be kapcsolhatod a lista ⋯ menüjében.</div>'
    +'</div>'
    +'<div class="wo-modact"><button class="btn" id="lnOk">Létrehozom</button>'
-   +'<button class="btn ghost" id="lnC">Mégse</button></div>',function(){
+   +'<button class="btn ghost" id="lnC">Mégse</button></div>';
+  woDlg(h,function(){
+    const ks=document.getElementById("lnK"),kdv=document.getElementById("lnKd");
+    if(ks)ks.onchange=function(){kdv.innerHTML=lstKindOf(ks.value).d;};
     document.getElementById("lnC").onclick=function(){closeScreen();};
     document.getElementById("lnOk").onclick=function(){
       const n=(document.getElementById("lnN").value||"").trim();
       const e=(document.getElementById("lnE").value||"📝").trim();
       if(n.length<2){toast("Adj nevet a listának","warn");return;}
-      lstCreate(n,e,tpl?tpl.kind:"shop",tpl?tpl.items:null);};});}
+      lstCreate(n,e,(ks&&ks.value)||kd0,tpl?tpl.items:null);};});}
+/* „Mit kérdezzen ez a lista?" — a testre szabás egyetlen panelen. A típus adja az
+   alapot, a hat kapcsoló pedig bármikor felülírja; a rejtett mezőkben lévő adat
+   nem törlődik, csak nem látszik (visszakapcsolva előjön). */
+function lstFieldsDlg(){
+  if(!lstMeta){toast("A lista adatai még töltődnek","warn");return;}
+  const f=lstFields(),kd=lstKindOf(lstMeta.kind),cats=lstUseCats();
+  let h='<button class="close-x" id="mClose">✕</button><h3>⚙️ Mit kérdezzen ez a lista?</h3>'
+   +'<p class="hint" style="margin:-2px 0 12px">Az egyszerű lista maradjon egyszerű: csak azt kapcsold be, amit tényleg használnál. Amit kikapcsolsz, eltűnik a tétel-űrlapról és a sorokról is — az adat viszont megmarad.</p>'
+   +'<div class="card" style="padding:14px 16px"><label class="wo-lb">Lista típusa</label><select class="input" id="lfK">';
+  LST_KINDS.forEach(function(k){h+='<option value="'+k.k+'"'+(k.k===kd.k?" selected":"")+'>'+k.e+' '+k.n+'</option>';});
+  h+='</select><div class="hint" style="margin-top:6px">A típus váltása <b>visszaállítja</b> a mezőket az ahhoz tartozó alapra.</div></div>';
+  h+='<div class="section-title">Mezők</div><div class="card" style="padding:6px 14px">';
+  LST_FIELDS.forEach(function(x){
+    h+='<div class="mod-row" style="padding:9px 0"><span class="em">'+x.e+'</span>'
+     +'<span style="flex:1;min-width:0"><span class="nm">'+x.n+'</span><span class="ds">'+x.d+'</span></span>'
+     +'<button class="btn ghost sm" data-lff="'+x.k+'" data-on="'+(f[x.k]?1:0)+'">'+(f[x.k]?"Be":"Ki")+'</button></div>';});
+  h+='</div>';
+  h+='<div class="section-title">Csoportosítás</div><div class="card" style="padding:14px 16px">'
+   +'<div class="mod-row" style="padding:0"><span class="em">🛒</span><span style="flex:1;min-width:0">'
+   +'<span class="nm">Bolti kategóriák</span><span class="ds">Zöldség, pékáru, tejtermék… — bevásárláshoz hasznos, teendő-listán zavaró.</span></span>'
+   +'<button class="btn ghost sm" id="lfCats" data-on="'+(cats?1:0)+'">'+(cats?"Be":"Ki")+'</button></div></div>';
+  h+='<div class="wo-modact"><button class="btn" id="lfOk">Mentés</button>'
+   +'<button class="btn ghost" id="lfC">Mégse</button></div>';
+  woDlg(h,function(){
+    const tg=function(b){b.onclick=function(){
+      const on=b.dataset.on==="1";b.dataset.on=on?"0":"1";b.textContent=on?"Ki":"Be";};};
+    document.querySelectorAll("[data-lff]").forEach(tg);
+    const cb=document.getElementById("lfCats");if(cb)tg(cb);
+    const ks=document.getElementById("lfK");
+    /* típusváltás: a kapcsolókat az új típus alapjára állítjuk (látszik is azonnal) */
+    if(ks)ks.onchange=function(){
+      const nf=lstKindOf(ks.value);
+      document.querySelectorAll("[data-lff]").forEach(function(b){
+        const on=!!nf.f[b.dataset.lff];b.dataset.on=on?"1":"0";b.textContent=on?"Be":"Ki";});
+      if(cb){cb.dataset.on=nf.cats?"1":"0";cb.textContent=nf.cats?"Be":"Ki";}};
+    document.getElementById("lfC").onclick=function(){closeScreen();};
+    document.getElementById("lfOk").onclick=function(){
+      const fields={};
+      document.querySelectorAll("[data-lff]").forEach(function(b){fields[b.dataset.lff]=b.dataset.on==="1";});
+      const patch={kind:(ks&&ks.value)||kd.k,fields:fields,cats:!!(cb&&cb.dataset.on==="1")};
+      window.Cloud.listMetaSet(lstOpen,patch)
+        .then(function(){toast("Mentve ✓","win");closeScreen();})
+        .catch(function(e){toast("Nem sikerült: "+lstErrText(e),"down");});};});}
 function lstMembersDlg(){
   if(!lstMeta){toast("A lista adatai még töltődnek","warn");return;}
   const em=Array.isArray(lstMeta.emails)?lstMeta.emails:[];
@@ -13047,6 +13267,7 @@ function lstMembersDlg(){
 function lstListMenu(){
   const items=[];
   items.push({icon:"👥",label:"Tagok (kik látják)",onClick:lstMembersDlg});
+  items.push({icon:"⚙️",label:"Mit kérdezzen ez a lista?",onClick:lstFieldsDlg});
   items.push({icon:"✏️",label:"Átnevezés",onClick:function(){
     woDlg('<button class="close-x" id="mClose">✕</button><h3>✏️ Lista átnevezése</h3>'
      +'<div class="card" style="padding:14px 16px"><input class="input" id="lrN" maxlength="60" value="'+escA((lstMeta&&lstMeta.name)||"")+'"/>'
@@ -13086,18 +13307,33 @@ function lstListMenu(){
 /* ---- tétel-szerkesztő ---------------------------------------------------- */
 function lstItemDlg(id){
   const it=(lstItems||[]).filter(function(x){return x.id===id;})[0];if(!it)return;
+  const f=lstFields(),cats=lstUseCats();
+  const val=function(k){return document.getElementById(k)?document.getElementById(k).value:null;};
   let h='<button class="close-x" id="mClose">✕</button><h3>✏️ Tétel</h3>'
    +'<div class="card" style="padding:14px 16px">'
-   +'<label class="wo-lb">Mi az?</label><input class="input" id="liT" maxlength="200" value="'+escA(it.text||"")+'"/>'
-   +'<div class="kc-grid2" style="margin-top:10px">'
-   +'<div><label class="wo-lb">Mennyiség</label><input class="input" id="liQ" maxlength="24" value="'+escA(it.q||"")+'" placeholder="2 kg"/></div>'
-   +'<div><label class="wo-lb">Ár (Ft, ha tudod)</label><input class="input mono" id="liP" type="number" inputmode="numeric" value="'+(it.price>0?it.price:"")+'" placeholder="—"/></div>'
-   +'</div>'
-   +'<label class="wo-lb" style="margin-top:10px">Kategória</label><select class="input" id="liC">';
-  LST_CATS.forEach(function(c){h+='<option value="'+c.k+'"'+(((it.cat||"egye")===c.k)?" selected":"")+'>'+c.e+' '+c.n+'</option>';});
-  h+='</select>'
-   +'<label class="wo-lb" style="margin-top:10px">Jegyzet</label>'
-   +'<input class="input" id="liN" maxlength="140" value="'+escA(it.note||"")+'" placeholder="pl. 2,8%-os, a felső polcon"/>'
+   +'<label class="wo-lb">Mi az?</label><input class="input" id="liT" maxlength="200" value="'+escA(it.text||"")+'"/>';
+  if(f.q||f.price){
+    h+='<div class="kc-grid2" style="margin-top:10px">';
+    if(f.q)h+='<div><label class="wo-lb">Mennyiség</label><input class="input" id="liQ" maxlength="24" value="'+escA(it.q||"")+'" placeholder="2 kg"/></div>';
+    if(f.price)h+='<div><label class="wo-lb">Ár (Ft, ha tudod)</label><input class="input mono" id="liP" type="number" inputmode="numeric" value="'+(it.price>0?it.price:"")+'" placeholder="—"/></div>';
+    h+='</div>';}
+  if(f.due||f.prio){
+    h+='<div class="kc-grid2" style="margin-top:10px">';
+    if(f.due)h+='<div><label class="wo-lb">Határidő</label><input class="input" id="liDue" type="date" value="'+escA(it.due||"")+'"/></div>';
+    if(f.prio){h+='<div><label class="wo-lb">Prioritás</label><select class="input" id="liPr">';
+      [[0,"— nincs"],[1,"❗ fontos"],[2,"❗❗ sürgős"],[3,"❗❗❗ azonnal"]].forEach(function(p){
+        h+='<option value="'+p[0]+'"'+((Number(it.prio||0)===p[0])?" selected":"")+'>'+p[1]+'</option>';});
+      h+='</select></div>';}
+    h+='</div>';}
+  if(f.who)h+='<label class="wo-lb" style="margin-top:10px">Felelős</label>'
+   +'<input class="input" id="liW" maxlength="24" value="'+escA(it.who||"")+'" placeholder="pl. Dóra"/>';
+  if(cats){
+    h+='<label class="wo-lb" style="margin-top:10px">Kategória</label><select class="input" id="liC">';
+    LST_CATS.forEach(function(c){h+='<option value="'+c.k+'"'+(((it.cat||"egye")===c.k)?" selected":"")+'>'+c.e+' '+c.n+'</option>';});
+    h+='</select>';}
+  if(f.note)h+='<label class="wo-lb" style="margin-top:10px">Jegyzet</label>'
+   +'<input class="input" id="liN" maxlength="140" value="'+escA(it.note||"")+'" placeholder="pl. 2,8%-os, a felső polcon"/>';
+  h+='<div class="hint" style="margin-top:10px">Amit nem kérsz, azt nem kérdezi: a mezőket a lista <b>⋯ → ⚙️ Mit kérdezzen ez a lista?</b> alatt állítod.</div>'
    +'</div>'
    +'<div class="wo-modact"><button class="btn" id="liOk">Mentés</button>'
    +'<button class="btn ghost wo-danger" id="liD">Törlés</button>'
@@ -13108,9 +13344,14 @@ function lstItemDlg(id){
     document.getElementById("liOk").onclick=function(){
       const t=(document.getElementById("liT").value||"").trim();
       if(t.length<1){toast("A tétel nem lehet üres","warn");return;}
-      const patch={text:t.slice(0,200),q:(document.getElementById("liQ").value||"").trim().slice(0,24),
-        cat:document.getElementById("liC").value,note:(document.getElementById("liN").value||"").trim().slice(0,140),
-        price:Math.max(0,Number(document.getElementById("liP").value)||0),upd:Date.now()};
+      const patch={text:t.slice(0,200),upd:Date.now()};
+      if(f.q)patch.q=(val("liQ")||"").trim().slice(0,24);
+      if(f.price)patch.price=Math.max(0,Number(val("liP"))||0);
+      if(f.due)patch.due=(val("liDue")||"").slice(0,10);
+      if(f.prio)patch.prio=Math.max(0,Math.min(3,Number(val("liPr"))||0));
+      if(f.who)patch.who=(val("liW")||"").trim().slice(0,24);
+      if(cats)patch.cat=val("liC");
+      if(f.note)patch.note=(val("liN")||"").trim().slice(0,140);
       window.Cloud.listSet(lstOpen,id,patch)
         .then(function(){toast("Mentve ✓");closeScreen();})
         .catch(function(e){toast("Nem sikerült: "+lstErrText(e),"down");});};});}
@@ -13122,17 +13363,20 @@ function lstLines(){
   return{open:open,done:done};}
 function lstCopyText(){
   const g=lstLines();
-  const line=function(i){return "- "+(i.done?"[x] ":"[ ] ")+String(i.text||"")+(i.q?" ("+i.q+")":"")+(i.note?" — "+i.note:"");};
+  const line=function(i){return "- "+(i.done?"[x] ":"[ ] ")+String(i.text||"")+(i.q?" ("+i.q+")":"")
+    +(i.prio>0?" "+"!".repeat(Math.min(3,i.prio)):"")+(i.due?" ["+i.due+"]":"")+(i.who?" @"+i.who:"")
+    +(i.note?" — "+i.note:"");};
   const txt=((lstMeta&&lstMeta.em)||"📝")+" "+((lstMeta&&lstMeta.name)||"Lista")+" — "+dk(new Date())+"\n\n"
    +g.open.map(line).join("\n")+(g.done.length?("\n\nKÉSZ:\n"+g.done.map(line).join("\n")):"")+"\n";
   if(navigator.clipboard&&navigator.clipboard.writeText)
     navigator.clipboard.writeText(txt).then(function(){toast("A lista a vágólapon ✓","win");}).catch(function(){nlCopyFallback(txt);});
   else nlCopyFallback(txt);}
 function lstCsv(){
-  const rows=[["tetel","mennyiseg","kategoria","ar","kesz","felirta","megvette","jegyzet"]];
+  const rows=[["tetel","mennyiseg","kategoria","ar","hatarido","felelos","prioritas","kesz","felirta","megvette","jegyzet"]];
   (lstItems||[]).forEach(function(i){
     const c=lstCatOf(i.cat);
-    rows.push([i.text||"",i.q||"",c?c.n:"",i.price>0?i.price:"",i.done?"1":"0",i.byName||"",i.doneName||"",i.note||""]);});
+    rows.push([i.text||"",i.q||"",c?c.n:"",i.price>0?i.price:"",i.due||"",i.who||"",i.prio>0?i.prio:"",
+      i.done?"1":"0",i.byName||"",i.doneName||"",i.note||""]);});
   const csv="﻿"+rows.map(function(r){return r.map(function(v){
     const s=String(v==null?"":v);return /[";\n]/.test(s)?('"'+s.replace(/"/g,'""')+'"'):s;}).join(";");}).join("\r\n");
   try{
@@ -13204,7 +13448,7 @@ function lstPickerHtml(){
       h+='<div class="mod-row"><span class="em">'+esc(x.em||"📝")+'</span>'
        +'<button class="home-card" data-lstopen="'+escA(x.id)+'" style="flex:1;min-width:0;text-align:left">'
        +'<span style="min-width:0"><span class="nm">'+esc(x.name||"Lista")+'</span>'
-       +'<span class="ds">'+((x.n||1)>1?(x.n+" tag"):"csak te")+'</span></span><span class="chev">›</span></button></div>';});
+       +'<span class="ds">'+((x.n||1)>1?(x.n+" tag"):"csak te")+(x.kd?' · '+lstKindOf(x.kd).n:'')+'</span></span><span class="chev">›</span></button></div>';});
     h+='</div>';}
   else if(!lstLoading)h+='<div class="empty"><div class="big">Még nincs közös listád</div>Indíts egyet alul — sablonból a leggyorsabb.</div>';
   h+='<div class="rub-actions" style="margin-top:12px"><button class="btn" id="lstNew">＋ Új lista</button>'
@@ -13212,7 +13456,7 @@ function lstPickerHtml(){
   h+='<div class="section-title">Sablonból</div><div class="card">';
   LST_TPL.forEach(function(t){
     h+='<div class="mod-row"><span class="em">'+t.em+'</span><span style="flex:1;min-width:0">'
-     +'<span class="nm">'+esc(t.name)+'</span><span class="ds">'+t.items.length+' tétel, szabadon szerkeszthető</span></span>'
+     +'<span class="nm">'+esc(t.name)+'</span><span class="ds">'+t.items.length+' tétel · '+lstKindOf(t.kind).e+' '+lstKindOf(t.kind).n+'</span></span>'
      +'<button class="btn ghost sm" data-lsttpl="'+t.k+'">Létrehozom</button></div>';});
   h+='</div>';
   h+='<div class="hint" style="margin:14px 4px 0">A <b>Fiók → Közös fejlesztési lista</b> ugyanezen a motoron fut. Ha egy recept hozzávalóit akarod listára tenni: <b>Kalória → Ételek → Receptek</b>, a recept szerkesztőjében a 🛒 gomb.</div>';
@@ -13224,22 +13468,59 @@ function lstWirePicker(){
   const n=document.getElementById("lstNew");if(n)n.onclick=function(){lstNewDlg(null);};
   const r=document.getElementById("lstReload");if(r)r.onclick=function(){lstRefreshLists();toast("Frissítés…");};}
 
+/* Határidő-címke: a hasznos infó nem a dátum, hanem hogy „lejárt"-e vagy „ma". */
+function lstDueLabel(k){
+  if(!k)return null;
+  const d=daysBetween(TODAY,k);
+  if(d<0)return{cls:"late",txt:"⏰ "+(-d)+" napja lejárt"};
+  if(d===0)return{cls:"soon",txt:"📅 ma"};
+  if(d===1)return{cls:"soon",txt:"📅 holnap"};
+  if(d<=7)return{cls:"",txt:"📅 "+d+" nap ("+shortDate(k)+")"};
+  return{cls:"",txt:"📅 "+shortDate(k)};}
 function lstItemRow(i){
-  const c=lstCatOf(i.cat);
+  const f=lstFields(),cats=lstUseCats();
+  const c=cats?lstCatOf(i.cat):null;
   const sub=[];
-  if(i.done&&i.doneName)sub.push("megvette: "+esc(i.doneName));
+  if(i.done&&i.doneName)sub.push((cats?"megvette: ":"kész: ")+esc(i.doneName));
   else if(i.byName)sub.push(esc(i.byName));
   if(i.at)sub.push(nlWhen(i.at));
-  if(i.price>0)sub.push('<b>'+Math.round(i.price)+' Ft</b>');
+  if(f.price&&i.price>0)sub.push('<b>'+Math.round(i.price)+' Ft</b>');
+  let bd="";
+  if(f.prio&&i.prio>0)bd+='<span class="lst-bd pr">'+"❗".repeat(Math.min(3,i.prio))+'</span>';
+  if(f.due&&i.due&&!i.done){const dl=lstDueLabel(i.due);
+    if(dl)bd+='<span class="lst-bd '+dl.cls+'">'+dl.txt+'</span>';}
+  if(f.who&&i.who)bd+='<span class="lst-bd">👤 '+esc(i.who)+'</span>';
   return '<div class="lst-row'+(i.done?" done":"")+'">'
    +'<button class="todo-box'+(i.done?" on":"")+'" data-lsttog="'+escA(i.id)+'">'+(i.done?"✓":"")+'</button>'
    +'<button class="lst-mid" data-lstedit="'+escA(i.id)+'">'
    +'<span class="t'+(i.done?" todo-strk":"")+'">'+esc(i.text||"")
-   +(i.q?' <span class="q">'+esc(i.q)+'</span>':'')+'</span>'
-   +(i.note?'<span class="nt">'+esc(i.note)+'</span>':'')
+   +((f.q&&i.q)?' <span class="q">'+esc(i.q)+'</span>':'')+'</span>'
+   +((f.note&&i.note)?'<span class="nt">'+esc(i.note)+'</span>':'')
+   +(bd?'<span style="display:block">'+bd+'</span>':'')
    +'<span class="sb">'+sub.join(" · ")+'</span></button>'
-   +'<span class="lst-cat" title="'+escA(c?c.n:"")+'">'+(c?c.e:"")+'</span>'
+   +(c?'<span class="lst-cat" title="'+escA(c.n)+'">'+c.e+'</span>':'')
    +'</div>';}
+/* Rendezés. „auto" = ami az adott listánál a leghasznosabb: határidős listán a
+   határidő, bevásárlásnál a felírás sorrendje (a csoportosítás adja a rendet). */
+function lstSortItems(arr){
+  const s=lstState(),f=lstFields();
+  const mode=(s.sort==="auto")?(f.due?"due":(f.prio?"prio":"new")):s.sort;
+  const a=arr.slice();
+  const byNew=function(x,y){return (y.at||0)-(x.at||0);};
+  if(mode==="abc")a.sort(function(x,y){return String(x.text||"").localeCompare(String(y.text||""),"hu");});
+  else if(mode==="prio")a.sort(function(x,y){return (Number(y.prio||0)-Number(x.prio||0))||byNew(x,y);});
+  else if(mode==="due")a.sort(function(x,y){
+    const dx=x.due||"9999-99-99",dy=y.due||"9999-99-99";
+    return (dx<dy?-1:(dx>dy?1:0))||(Number(y.prio||0)-Number(x.prio||0))||byNew(x,y);});
+  else a.sort(byNew);
+  return a;}
+/* Határidő szerinti blokkok — ez a „nézet" a teendő-listákhoz, kategóriák helyett. */
+const LST_DUEG=[{k:"late",n:"⏰ Lejárt"},{k:"today",n:"📅 Ma"},{k:"week",n:"🗓 A héten"},
+ {k:"later",n:"🕓 Később"},{k:"none",n:"— Nincs határidő"}];
+function lstDueBucket(i){
+  if(!i.due)return "none";
+  const d=daysBetween(TODAY,i.due);
+  if(d<0)return "late";if(d===0)return "today";if(d<=7)return "week";return "later";}
 function lstViewHtml(){
   const meta=lstMeta||{},nm=meta.name||"Lista";
   let h='<div class="detail-back"><button data-lstback>‹ Listák</button></div>';
@@ -13251,11 +13532,17 @@ function lstViewHtml(){
   const sh=lstShopOn();
   if(sh&&sh.name)h+='<div class="lst-shop">🛒 <b>'+esc(sh.name)+'</b> épp a boltban van ('+nlWhen(sh.at)+') — most érdemes hozzáírni, amit szeretnél.</div>';
   if(lstUndo)h+='<div class="lst-undo"><span>🗑 Törölve: <b>'+esc(lstUndo.text)+'</b></span><button id="lstUndoGo">↩ Visszavonás</button></div>';
-  /* bevitel */
+  /* bevitel — a helyőrző megtanítja, mit ismer fel ez a lista */
+  const f=lstFields(),cats=lstUseCats(),s=lstState();
+  const tips=[];
+  if(f.q)tips.push("„2 kg paradicsom”");
+  if(f.due)tips.push("„számla holnap”");
+  if(f.who)tips.push("„@Dóra”");
+  if(f.prio)tips.push("„!!!”");
   h+='<div class="card" style="padding:12px">'
-   +'<textarea class="input" id="lstIn" placeholder="Mit írjak fel? Több sor = több tétel (pl. „2 kg paradicsom")" style="min-height:52px"></textarea>'
+   +'<textarea class="input" id="lstIn" placeholder="Mit írjak fel? Több sor = több tétel'+(tips.length?" ("+tips.join(", ")+")":"")+'" style="min-height:52px"></textarea>'
    +'<div class="rub-actions" style="margin-top:8px"><button class="btn sm" id="lstAdd">＋ Felírom</button>'
-   +'<button class="btn ghost sm" id="lstShop">'+(sh&&cloudUser&&sh.by===cloudUser.uid?"🛒 Kész, nem vagyok boltban":"🛒 A boltban vagyok")+'</button></div>';
+   +(cats?'<button class="btn ghost sm" id="lstShop">'+(sh&&cloudUser&&sh.by===cloudUser.uid?"🛒 Kész, nem vagyok boltban":"🛒 A boltban vagyok")+'</button>':'')+'</div>';
   const sug=lstSuggest();
   if(sug.length){
     h+='<div class="lst-sug">';
@@ -13264,22 +13551,50 @@ function lstViewHtml(){
   h+='</div>';
   if(lstItems===null){h+='<div class="hint" style="padding:14px 4px">Tételek betöltése…</div>';return h;}
   const g=lstLines();
+  const me=lstMe().toLowerCase();
+  const mineOn=s.mine&&f.who;
+  const open=lstSortItems(mineOn?g.open.filter(function(i){return String(i.who||"").toLowerCase()===me;}):g.open);
   const price=g.open.concat(g.done).reduce(function(a,i){return a+(Number(i.price)||0);},0);
-  h+='<div class="lst-bar"><span>Nyitott: <b>'+g.open.length+'</b></span>'
-   +(price>0?'<span>Összesen: <b>'+Math.round(price).toLocaleString("hu-HU")+' Ft</b></span>':'')
-   +'<button class="lnk" id="lstGrp">'+(lstState().group?"☰ csoportosítva":"☰ egy listában")+'</button></div>';
+  const groupable=cats||f.due;
+  h+='<div class="lst-bar"><span>Nyitott: <b>'+open.length+'</b>'+(mineOn?' <span class="kc-tag">csak az enyém</span>':'')+'</span>'
+   +((f.price&&price>0)?'<span>Összesen: <b>'+Math.round(price).toLocaleString("hu-HU")+' Ft</b></span>':'')
+   +'<button class="lnk" id="lstView">⇅ Nézet</button>'
+   +(groupable?'<button class="lnk" id="lstGrp" style="margin-left:10px">'+(s.group?"☰ blokkokban":"☰ egyben")+'</button>':'')
+   +'</div>';
   if(!g.open.length&&!g.done.length)h+='<div class="empty"><div class="big">Üres a lista</div>Írd be fent, mi kell — vagy illessz be egy egész listát egyszerre.</div>';
-  else if(lstState().group){
+  else if(!open.length)h+='<div class="empty"><div class="big">Nincs találat</div>'+(mineOn?"Rád most nincs semmi kiosztva — a ⇅ Nézet alatt kapcsold vissza az egész listát.":"Minden nyitott tétel kész.")+'</div>';
+  else if(s.group&&cats){
     LST_CATS.forEach(function(c){
-      const gg=g.open.filter(function(i){return (i.cat||"egye")===c.k;});
+      const gg=open.filter(function(i){return (i.cat||"egye")===c.k;});
       if(!gg.length)return;
       h+='<div class="kc-rgrp" style="margin-top:10px">'+c.e+' '+esc(c.n)+' · '+gg.length+'</div>';
       h+=gg.map(lstItemRow).join("");});}
-  else h+=g.open.map(lstItemRow).join("");
+  else if(s.group&&f.due){
+    LST_DUEG.forEach(function(b){
+      const gg=open.filter(function(i){return lstDueBucket(i)===b.k;});
+      if(!gg.length)return;
+      h+='<div class="kc-rgrp" style="margin-top:10px">'+b.n+' · '+gg.length+'</div>';
+      h+=gg.map(lstItemRow).join("");});}
+  else h+=open.map(lstItemRow).join("");
   if(g.done.length)
     h+='<details style="margin-top:14px"><summary class="section-title" style="cursor:pointer;list-style:revert">Kész ('+g.done.length+')</summary>'
      +g.done.map(lstItemRow).join("")+'</details>';
   return h;}
+/* Nézet-menü: rendezés és „csak az enyém". Egy menü, nem egy beállítás-fül —
+   mobilon a lenyíló lista kevesebb hely és kevesebb koppintás. */
+function lstViewMenu(){
+  const s=lstState(),f=lstFields();
+  const opts=[["auto","Automatikus (amit a lista kér)"],["new","Legutóbb felírt elöl"],
+    ["abc","ABC szerint"]];
+  if(f.due)opts.splice(1,0,["due","Határidő szerint"]);
+  if(f.prio)opts.splice(f.due?2:1,0,["prio","Prioritás szerint"]);
+  const items=opts.map(function(o){
+    return{icon:s.sort===o[0]?"✓":"　",label:o[1],onClick:function(){
+      s.sort=o[0];lstTouch();renderListak();}};});
+  if(f.who)items.push({icon:s.mine?"✓":"　",label:"Csak amit én vállaltam",
+    onClick:function(){s.mine=!s.mine;lstTouch();renderListak();}});
+  items.push({icon:"⚙️",label:"Mit kérdezzen ez a lista?",onClick:lstFieldsDlg});
+  openMenu("Nézet és rendezés",items);}
 function lstWireView(){
   const b=document.querySelector("#tab-listak [data-lstback]");if(b)b.onclick=function(){closeScreen();};
   const mn=document.getElementById("lstMenu");if(mn)mn.onclick=lstListMenu;
@@ -13289,6 +13604,7 @@ function lstWireView(){
   const ug=document.getElementById("lstUndoGo");if(ug)ug.onclick=lstUndoDel;
   const gr=document.getElementById("lstGrp");
   if(gr)gr.onclick=function(){const s=lstState();s.group=!s.group;lstTouch();renderListak();};
+  const vw=document.getElementById("lstView");if(vw)vw.onclick=lstViewMenu;
   document.querySelectorAll("[data-lstsug]").forEach(function(x){x.onclick=function(){
     lstAddOne(x.dataset.lstsug,"").then(function(){lstTouch();toast("Felírva ✓");})
       .catch(function(e){toast("Nem sikerült: "+lstErrText(e),"down");});};});
@@ -13694,6 +14010,7 @@ function renderFiok(){const el=document.getElementById("tab-fiok");
    +'<div class="hint" style="margin-bottom:10px">'+hhStatusLine()+'</div>'
    +'<button class="btn wide" id="openHh">👨‍👩‍👧 Közös háztartás beállítása</button></div>';
   html+='<div class="section-title">Modulok</div><div class="card" style="padding:16px"><div class="hint" style="margin-bottom:10px">A Trellis modulokból áll: a <b>Szokáskövetés</b> mellé bekapcsolhatod a <b>Bibliaolvasást</b>, a <b>Ciklusnaptárt</b> és a később érkező modulokat. A bekapcsoltak a bal alsó <b>☰</b> menüből érhetők el, és te döntöd el a sorrendjüket.</div><button class="btn wide" id="openModules">🧩 Aktiválható modulok</button></div>';
+  html+='<div class="section-title">Widgetek és gyorsindítók</div><div class="card" style="padding:16px"><div class="hint" style="margin-bottom:10px">Tegyél ki a telefon kezdőképernyőjére <b>külön ikont</b> egy-egy modulhoz (Kalória, Edzés, Biblia…), és állítsd be, milyen kártyák látszódjanak a <b>🏠 Kezdőlapon</b>.</div><button class="btn wide" id="openWgt">🚀 Widgetek és gyorsindítók</button></div>';
   html+='<div class="section-title">Jutalmak</div><div class="card" style="padding:16px"><div class="hint" style="margin-bottom:10px">Érmék, jelvények és kihívások a szintlépéseidért — hamarosan.</div><button class="btn wide" id="openJutalmak">🏆 Jutalmak megnyitása</button></div>';
   html+='<div class="section-title">Ajánld ismerősnek</div><div class="card" style="padding:16px"><div class="hint" style="margin-bottom:10px">Tetszik a Trellis? Küldd el egy barátodnak egyetlen koppintással — Messenger, e-mail, bármi.</div><button class="btn wide" id="referBtn">🎁 Ajánld ismerősnek</button></div>';
   html+='<div class="section-title">Újdonságok</div><div class="card" style="padding:16px"><div class="hint" style="margin-bottom:10px">Minden frissítésnél összeszedjük, mi változott — közérthetően, végigolvasható formában. Frissítés után magától is felugrik; itt bármikor visszanézheted az összeset, a legrégebbiig.</div><button class="btn wide" id="whatsNewBtn">✨ Mi újult meg?</button></div>';
@@ -13715,6 +14032,7 @@ function renderFiok(){const el=document.getElementById("tab-fiok");
   const sy=document.getElementById("syncNow");if(sy)sy.onclick=syncPanel;
   const hb=document.getElementById("openHh");if(hb)hb.onclick=hhOpenPanel;
   const om=document.getElementById("openModules");if(om)om.onclick=openModulesPanel;
+  const ow=document.getElementById("openWgt");if(ow)ow.onclick=openWgtPanel;
   const jb=document.getElementById("openJutalmak");if(jb)jb.onclick=showJutalmak;
   const rb=document.getElementById("referBtn");if(rb)rb.onclick=shareApp;
   document.getElementById("openHelpBtn").onclick=()=>openHelp(null);
@@ -13779,14 +14097,20 @@ function homeSummary(m){
 function renderHome(){
   const el=document.getElementById("tab-home");if(!el)return;
   const mp=metaPoints(),g=metaProgFor(mp);
-  let h='<div class="lvlcard" id="homeMeta" style="margin-top:8px;background:linear-gradient(135deg,var(--gold-soft),var(--surface));cursor:pointer">'
+  const ui=S.ui||{},hc=ui.homeCards||{};
+  let h='';
+  if(ui.homeMeta!==false)
+    h+='<div class="lvlcard" id="homeMeta" style="margin-top:8px;background:linear-gradient(135deg,var(--gold-soft),var(--surface));cursor:pointer">'
     +'<div class="lh"><span class="big mono">'+g.L+'</span><span><div class="t">Össz-haladás <span style="color:var(--muted-2);font-family:var(--disp);font-weight:600;font-size:12px">› áttekintés</span></div><div class="p">'+mp+' pont · '+pretty(keyToDate(TODAY))+'</div></span></div>'
     +'<div class="bar"><i style="width:'+(g.pct*100).toFixed(1)+'%"></i></div>'
     +'<div class="barmeta"><span>'+g.into+' / '+g.span+'</span><span>köv. szintig: '+Math.max(0,(g.hi-mp))+'</span></div></div>';
-  h+='<div class="section-title">Mai teendőid</div>';
-  const list=modOrder().filter(function(m){return m.id!=="home"&&modOn(m);});
+  h+='<div class="section-title"'+(ui.homeMeta===false?' style="margin-top:8px"':'')+'>Mai teendőid</div>';
+  const all=modOrder().filter(function(m){return m.id!=="home"&&modOn(m);});
+  const list=all.filter(function(m){return hc[m.id]!==false;});
   list.forEach(function(m){
     h+='<div class="card"><button class="home-card" data-hopen="'+m.id+'"><span class="em">'+m.em+'</span><span style="min-width:0"><span class="nm">'+esc(m.name)+'</span><span class="ds">'+esc(homeSummary(m))+'</span></span><span class="chev">›</span></button></div>';});
+  if(!list.length)h+='<div class="empty"><div class="big">Nincs kártya a Kezdőlapon</div>A <b>Fiók → 🚀 Widgetek és gyorsindítók</b> alatt kapcsolhatod vissza őket.</div>';
+  else if(list.length<all.length)h+='<div class="hint" style="margin:10px 4px 0">'+(all.length-list.length)+' kártya el van rejtve (Fiók → 🚀 Widgetek és gyorsindítók).</div>';
   h+='<div class="hint" style="margin:14px 4px 0">A modulok közt a bal alsó <b>☰</b> gombbal válthatsz (vagy húzd be a képernyő bal széléről) — ide, a Kezdőlapra pedig a jobb alsó <b>🏠</b> gombbal térhetsz vissza bárhonnan. Új modult a <b>Fiók → Aktiválható modulok</b> résznél kapcsolhatsz be.</div>';
   el.innerHTML=h;
   const mc=document.getElementById("homeMeta");if(mc)mc.onclick=showOverview;
@@ -13849,6 +14173,122 @@ function modToggle(id){
   renderNav();modulesPanelRe();
   toast(m.name+(on?" bekapcsolva":" kikapcsolva"));}
 function openModulesPanel(){openModal(modulesPanelHtml());wireModulesPanel();}
+
+/* ============================================================================
+   WIDGETEK ÉS GYORSINDÍTÓK (wgt*)
+   ----------------------------------------------------------------------------
+   Két különböző dolog egy helyen, mert a felhasználó fejében ugyanaz: „legyen
+   kint a Kalória a kezdőképernyőn, és lássam a lényeget egy pillantással".
+
+   1) GYORSINDÍTÓ = külön ikon a telefon kezdőképernyőjén, ami egyenesen egy
+      modult nyit meg. A technikai igazság: egy weben futó app NEM tehet ki
+      magától ikont — nincs rá API, se Androidon, se iOS-en. Amit tehetünk:
+      a) minden modulhoz van egy saját cím (./?m=<modul>), ami rögtön oda nyit;
+      b) a manifest `shortcuts` listája miatt az app ikonját HOSSZAN nyomva
+         megjelenik a modulok listája (telepített appnál);
+      c) ebből a panelból két koppintással eljutsz a böngésző „Hozzáadás a
+         kezdőképernyőhöz" menüpontjáig — a linket a vágólapra tesszük, és
+         megnyitjuk a böngészőben. Az utolsó koppintás a rendszeré, nem a miénk.
+      Ezt ki is írjuk, mert a hamis ígéret rosszabb, mint a plusz egy koppintás.
+   2) KEZDŐLAP-WIDGET = a Kezdőlap kártyái. Ezek valóban a mi kezünkben vannak,
+      ezért itt tudod ki-be kapcsolni, mi látszik és mi nem.
+   ========================================================================== */
+function wgtModules(){return modOrder().filter(function(m){return m.id!=="home"&&m.tabs&&modOn(m);});}
+function wgtUrl(id){
+  const base=location.origin+location.pathname;
+  return base+(id?("?m="+encodeURIComponent(id)):"");}
+function wgtStandalone(){
+  try{return !!(window.matchMedia&&window.matchMedia("(display-mode: standalone)").matches)||navigator.standalone===true;}
+  catch(e){return false;}}
+function wgtIsIOS(){
+  const ua=navigator.userAgent||"";
+  return /iPad|iPhone|iPod/.test(ua)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);}
+function wgtCopy(txt,okMsg){
+  if(navigator.clipboard&&navigator.clipboard.writeText)
+    navigator.clipboard.writeText(txt).then(function(){toast(okMsg||"A vágólapon ✓","win");})
+      .catch(function(){nlCopyFallback(txt);});
+  else nlCopyFallback(txt);}
+function wgtPanelHtml(){
+  const mods=wgtModules(),hc=(S.ui&&S.ui.homeCards)||{};
+  let h='<button class="close-x" id="mClose">✕</button><h3>🚀 Widgetek és gyorsindítók</h3>'
+   +'<p class="hint" style="margin:-4px 0 14px">Két dolog egy helyen: <b>gyorsindító</b> = külön ikon a telefon kezdőképernyőjén, ami egyenesen egy modult nyit meg; <b>kezdőlap-widget</b> = az appon belüli 🏠 Kezdőlap kártyái.</p>';
+  h+='<div class="section-title" style="margin-top:0">Gyorsindítók</div><div class="card">';
+  mods.forEach(function(m){
+    h+='<div class="mod-row"><span class="em">'+m.em+'</span><span style="flex:1;min-width:0">'
+     +'<span class="nm">'+esc(m.name)+'</span><span class="ds">'+esc(wgtUrl(m.id).replace(/^https?:\/\//,""))+'</span>'
+     +'<span class="mod-acts"><button class="btn ghost sm" data-wgtho="'+m.id+'">📌 Kitesz</button>'
+     +'<button class="btn ghost sm" data-wgttry="'+m.id+'">▶ Kipróbálom</button></span></span></div>';});
+  h+='</div>';
+  if(!mods.length)h+='<div class="hint" style="padding:8px 4px">Egy modul sincs bekapcsolva — a <b>🧩 Aktiválható modulok</b> alatt kapcsold be, amit használni szeretnél.</div>';
+  h+='<div class="hint" style="margin:8px 4px 0">A <b>▶ Kipróbálom</b> pont azt teszi, amit a kezdőképernyőre kitett ikon: bezárja ezt a panelt és megnyitja a modult. Ha ez működik, a gyorsindító is működni fog.</div>';
+  h+='<div class="section-title">Az app ikonját hosszan nyomva</div><div class="card" style="padding:14px 16px">'
+   +'<div class="hint">Ha a Trellis <b>telepítve</b> van (nem böngésző-fülön fut), az ikonját hosszan nyomva megjelenik a modulok listája — onnan egy koppintással a Kalóriára, Edzésre, Bibliára, Ciklusra, Listákra vagy a Szokásokra ugorhatsz. Ez a rendszer saját menüje: ha nem látod, az app még nincs telepítve, vagy a launcher nem támogatja.</div>'
+   +'<button class="btn wide sm" id="wgtInst" style="margin-top:10px">📲 Telepítés a kezdőképernyőre</button></div>';
+  h+='<div class="section-title">Kezdőlap-widgetek</div>'
+   +'<p class="hint" style="margin:-2px 2px 10px">Mi látszódjon a 🏠 Kezdőlapon? Amit kikapcsolsz, attól a modul nem áll le — csak nem foglal helyet a Kezdőlapon.</p><div class="card">';
+  h+='<div class="mod-row"><span class="em">📊</span><span style="flex:1;min-width:0">'
+   +'<span class="nm">Össz-haladás kártya</span><span class="ds">A szinted és a pontjaid a Kezdőlap tetején.</span></span>'
+   +'<button class="btn ghost sm" id="wgtMeta">'+((S.ui&&S.ui.homeMeta!==false)?"Be":"Ki")+'</button></div>';
+  mods.forEach(function(m){
+    const on=hc[m.id]!==false;
+    h+='<div class="mod-row"><span class="em">'+m.em+'</span><span style="flex:1;min-width:0">'
+     +'<span class="nm">'+esc(m.name)+'</span><span class="ds">'+esc(homeSummary(m)||"—")+'</span></span>'
+     +'<button class="btn ghost sm" data-wgthc="'+m.id+'">'+(on?"Be":"Ki")+'</button></div>';});
+  h+='</div>';
+  h+='<div class="hint" style="margin:12px 4px 0">Valódi <b>rendszer-widget</b> (a telefon asztalára kitehető élő kártya) egy weben futó appnál nem lehetséges — ahhoz külön Android/iOS alkalmazás kell. A gyorsindító ikon a legközelebbi dolog, ami tényleg működik.</div>';
+  return h;}
+function wgtPanelRe(){const s=document.getElementById("modalSheet");if(!s)return;
+  s.innerHTML=wgtPanelHtml();wgtWire();}
+function wgtWire(){
+  const x=document.getElementById("mClose");if(x)x.onclick=function(){closeScreen();};
+  document.querySelectorAll("[data-wgtho]").forEach(function(b){b.onclick=function(){wgtHowTo(b.dataset.wgtho);};});
+  document.querySelectorAll("[data-wgttry]").forEach(function(b){b.onclick=function(){
+    const id=b.dataset.wgttry;closeScreen();setTimeout(function(){openModule(id);},180);};});
+  document.querySelectorAll("[data-wgthc]").forEach(function(b){b.onclick=function(){
+    const id=b.dataset.wgthc;S.ui=S.ui||{};S.ui.homeCards=S.ui.homeCards||{};
+    if(S.ui.homeCards[id]===false)delete S.ui.homeCards[id];else S.ui.homeCards[id]=false;
+    S.updatedAt=Date.now();save();wgtPanelRe();};});
+  const mt=document.getElementById("wgtMeta");
+  if(mt)mt.onclick=function(){S.ui=S.ui||{};S.ui.homeMeta=(S.ui.homeMeta===false);
+    S.updatedAt=Date.now();save();wgtPanelRe();};
+  const ib=document.getElementById("wgtInst");if(ib)ib.onclick=doInstall;}
+/* A „kitesz" nem egy gomb, hanem egy vezetett folyamat — a rendszer menüje az
+   utolsó lépés. A linket előre a vágólapra tesszük, hogy be lehessen illeszteni. */
+function wgtHowTo(id){
+  const m=modById(id);if(!m)return;
+  const url=wgtUrl(id),ios=wgtIsIOS(),st=wgtStandalone();
+  let steps="";
+  if(ios)steps='<li>Nyisd meg ezt a címet <b>Safariban</b> (alul a „Megnyitom a böngészőben”).</li>'
+    +'<li>Koppints a <b>Megosztás</b> ikonra (a felfelé nyíl a négyzetben).</li>'
+    +'<li>Válaszd a <b>„Főképernyőhöz adás”</b>-t, majd <b>Hozzáadás</b>.</li>'
+    +'<li>Nevezd át, ha akarod — pl. „'+esc(m.short||m.name)+'”.</li>';
+  else steps='<li>Nyisd meg ezt a címet <b>Chrome-ban</b> (alul a „Megnyitom a böngészőben”).</li>'
+    +'<li>Jobbra fent a <b>⋮</b> menü → <b>„Hozzáadás a kezdőképernyőhöz”</b> (vagy „Alkalmazás telepítése”).</li>'
+    +'<li>Nevezd át, ha akarod — pl. „'+esc(m.short||m.name)+'”, majd <b>Hozzáadás</b>.</li>';
+  let h='<button class="close-x" id="mClose">✕</button><h3>'+m.em+' '+esc(m.name)+' — gyorsindító</h3>'
+   +'<p class="hint" style="margin:-2px 0 10px">Ez a cím egyenesen a modulra nyit. A telefon <b>saját</b> menüje teszi ki az ikont — egy weben futó app ezt magától nem tudja megtenni, ezért az utolsó koppintás a tiéd.</p>'
+   +'<div class="wgt-link">'+esc(url)+'</div>'
+   +'<div class="rub-actions"><button class="btn sm" id="wgCopy">📋 Link másolása</button>'
+   +'<button class="btn ghost sm" id="wgOpen">🌐 Megnyitom a böngészőben</button>'
+   +(navigator.share?'<button class="btn ghost sm" id="wgShare">📤 Megosztás</button>':'')
+   +'</div>'
+   +'<div class="section-title">Így lesz belőle ikon</div><div class="card" style="padding:14px 16px">'
+   +'<ol class="wgt-steps">'+steps+'</ol></div>';
+  if(st)h+='<div class="hint" style="margin:10px 4px 0">Most a <b>telepített</b> appban vagy. A „Megnyitom a böngészőben” pont ezért kell: a kezdőképernyőre tevés menüpont csak a böngészőben van meg.</div>';
+  h+='<div class="wo-modact"><button class="btn ghost" id="wgBack">‹ Vissza</button></div>';
+  /* Ugyanabban a panelban maradunk (nem nyitunk új modált), így a „‹ Vissza"
+     tényleg a listához visz, nem az egész panelt csukja be. */
+  const sh=document.getElementById("modalSheet");if(!sh)return;
+  sh.innerHTML=h;
+  const cx=document.getElementById("mClose");if(cx)cx.onclick=function(){closeScreen();};
+  const c=document.getElementById("wgCopy");if(c)c.onclick=function(){wgtCopy(url,"A link a vágólapon ✓");};
+  const o=document.getElementById("wgOpen");if(o)o.onclick=function(){
+    wgtCopy(url,"A link a vágólapon ✓");
+    try{window.open(url,"_blank","noopener");}catch(e){toast("Nem sikerült megnyitni — illeszd be a böngészőbe","warn");}};
+  const sb=document.getElementById("wgShare");
+  if(sb)sb.onclick=function(){try{navigator.share({title:"Trellis — "+m.name,url:url});}catch(e){}};
+  const bk=document.getElementById("wgBack");if(bk)bk.onclick=function(){wgtPanelRe();};}
+function openWgtPanel(){openModal(wgtPanelHtml());wgtWire();}
 function showSoonModal(m){
   openModal('<button class="close-x" id="mClose">✕</button><h3>'+m.em+' '+esc(m.name)+'</h3>'
     +'<p class="hint" style="margin:-2px 0 14px">'+m.desc+'</p>'
