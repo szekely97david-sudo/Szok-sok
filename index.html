@@ -7996,14 +7996,62 @@ function load(){const r=Store.get("szintlepo3");if(r){try{return normalize(JSON.
     try{const o=JSON.parse(raw);const b=normalize(o);b.onboarded=true;return b;}catch(e){}}
   return blank();}
 let _persistWarned=false;
+/* =========================================================================
+   TÖBB-PÉLDÁNY VÉDELEM (2026-07-30) — ez okozta a „berögzített étel eltűnt"-et
+   Az app futhat egyszerre KÉT helyen ugyanazon a telefonon is: a telepített
+   app és egy böngészőfül ugyanazon a címen. Mindkettőnek SAJÁT memóriabeli
+   S-e van. Eddig a save() a mostani időt ütötte az állapotra akkor is, ha az
+   elavult volt, a persist() pedig vakon felülírta a tárat — így egy háttérben
+   felejtett példány visszaírta a régi adatot a friss fölé (lost update).
+   Megoldás: megjegyezzük, melyik állapotot töltöttük be / írtuk ki utoljára
+   (_baseUpdatedAt). Ha íráskor a tárban ettől eltérő van, akkor közben más
+   példány írt: ilyenkor FÉSÜLÜNK (mergeStates), nem írunk felül.
+   ========================================================================= */
+const SATKEY="szintlepo3_at";   /* csak az időbélyeg — így nem kell 800 KB-ot elemezni minden mentésnél */
+let _baseUpdatedAt=0, _mergingLocal=false, _mgFoodTouched=[];
+function _storedState(){const r=Store.get("szintlepo3");if(!r)return null;
+  try{return JSON.parse(r);}catch(e){return null;}}
+function _storedAt(){const v=Store.get(SATKEY);
+  if(v!=null&&v!=="")return Number(v)||0;
+  const o=_storedState();return Number(o&&o.updatedAt)||0;}   /* régi mentés: még nincs jelölő */
+/* Fésülés után a napi összeg-cache elavul — a ténylegesen összefésült napokra
+   újraszámoljuk, különben rossz kalóriaösszeg látszana. */
+function kcResyncMergedTot(){
+  const keys=_mgFoodTouched;_mgFoodTouched=[];
+  if(!keys.length||!S.food||!S.food.days)return;
+  try{keys.forEach(function(k){kcSyncTot(k);});}catch(e){}}
+/* Igaz, ha ütközés volt és S-t befésültük — a hívó ezután már a fésült S-t írja ki. */
+function reconcileBeforeWrite(){
+  if(_mergingLocal)return false;
+  const at=_storedAt();
+  if(!at||at===_baseUpdatedAt)return false;      /* mi írtuk utoljára — nincs ütközés */
+  const other=_storedState();if(!other)return false;
+  _mergingLocal=true;
+  try{
+    /* A saját oldalunk időbélyege a BETÖLTÉSKORI, nem a most rábélyegzett — különben
+       az elavult példány tűnne frissebbnek, és pont a régi adat nyerne. */
+    const mine=Object.assign({},S,{updatedAt:_baseUpdatedAt||0});
+    S=normalize(mergeStates(mine,other));
+    S.updatedAt=Date.now();
+    kcResyncMergedTot();
+  }catch(e){_mergingLocal=false;return false;}
+  _mergingLocal=false;
+  /* Újrarajzolás a következő ütemben: a persist() renderelés közben is hívódhat. */
+  setTimeout(function(){try{renderHeader();switchTab(curTab);}catch(e){}},0);
+  return true;}
+function _persistOk(json){_persistWarned=false;
+  _baseUpdatedAt=Number(S.updatedAt)||0;
+  Store.set(SATKEY,String(_baseUpdatedAt));
+  return true;}
 function persist(){_missCache=null;
+  reconcileBeforeWrite();
   const json=JSON.stringify(S);
-  if(Store.setSafe("szintlepo3",json)){_persistWarned=false;return true;}
+  if(Store.setSafe("szintlepo3",json))return _persistOk(json);
   // Tele az eszköz tára: a VALÓDI adat fontosabb, mint a pillanatképek — dobjuk a
   // legrégebbi biztonsági mentéseket, amíg befér, majd próbáljuk újra.
   let guard=0;
   while(guard++<30){const l=bakList();if(!l.length)break;Store.del(l[l.length-1].key);
-    if(Store.setSafe("szintlepo3",json)){_persistWarned=false;return true;}}
+    if(Store.setSafe("szintlepo3",json))return _persistOk(json);}
   if(!_persistWarned){_persistWarned=true;try{toast("⚠️ Nem sikerült menteni — tele az eszköz tára. Készíts exportot a Fiók fülön!","down");}catch(e){}}
   return false;}
 function save(){S.updatedAt=Date.now();persist();if(window.Cloud&&window.Cloud.push&&cloudUser)window.Cloud.push(cloudCopy());}
@@ -8084,6 +8132,27 @@ function bakDaily(){
 }
 
 let S=load();
+_baseUpdatedAt=Number(S.updatedAt)||0;
+/* A MÁSIK példány írt: azonnal átvesszük, hogy ne dolgozzunk elavult adaton.
+   Szándékosan NEM írunk vissza — az oda-vissza írás végtelen körré válna. A saját,
+   még ki nem írt részünk a következő mentéskor a reconcileBeforeWrite()-on megy át.
+   Ez csak kényelmi réteg: a tényleges adatvédelmet a persist()-beli fésülés adja,
+   mert a storage-esemény nem minden böngészőben jut át app és fül között. */
+window.addEventListener("storage",function(ev){
+  try{
+    if(!ev||ev.key!=="szintlepo3"||!ev.newValue)return;
+    const other=JSON.parse(ev.newValue);
+    const ou=Number(other&&other.updatedAt)||0;
+    if(!ou||ou===_baseUpdatedAt)return;
+    _mergingLocal=true;
+    const mine=Object.assign({},S,{updatedAt:_baseUpdatedAt||0});
+    S=normalize(mergeStates(mine,other));
+    S.updatedAt=ou;_baseUpdatedAt=ou;      /* a tár tartalma a közös alap */
+    kcResyncMergedTot();
+    _mergingLocal=false;
+    renderHeader();switchTab(curTab);
+  }catch(e){_mergingLocal=false;}
+});
 
 /* ---- segédek ---- */
 function cfg(){return S.settings;}
@@ -11734,6 +11803,11 @@ function bindCycDay(dayKey){
 
 /* --- „Mi újult meg?" (közérthető változásnapló) --- */
 const CHANGELOG=[
+ {v:38,title:"🛡️ Megtaláltuk, miért tűntek el bejegyzések — és megjavítottuk",items:[
+   "<b>Ez okozta:</b> az app futhat egyszerre két helyen ugyanazon a telefonon — a kezdőképernyőről indított app <b>és</b> egy böngészőfül ugyanazon a címen. Mindkettőnek saját, külön másolata volt az adataidról. Ha reggel megnyílt az egyik, délután a másikban rögzítettél, majd este visszaváltottál a reggelire, akkor az a <b>régi adatot írta vissza a friss fölé</b>. Nem kellett hozzá második eszköz, és nem kellett szinkronra kattintani.",
+   "<b>A javítás:</b> az app mostantól minden mentés előtt megnézi, írt-e időközben a másik példány. Ha igen, <b>összefésüli</b> a kettőt, nem írja felül. A fésülés soha nem töröl — ütközésnél a frissebb változat nyer.",
+   "<b>Ugyanez a felhőnél is.</b> Eddig ha a felhőben frissebb állapot volt, az teljesen felülírta a telefonon lévőt, és a még fel nem töltött tételek elvesztek. Mostantól itt is fésülés történik.",
+   "<b>Élő átvétel.</b> Ha az app két helyen van nyitva, az egyikben elvégzett módosítás a másikban is azonnal megjelenik — nem dolgozol tovább elavult adaton."]},
  {v:23,title:"🚀 Gyorsindítók, kezdőlap-widgetek — és testre szabható listák",items:[
    "<b>Új: Fiók → 🚀 Widgetek és gyorsindítók.</b> Egy helyen minden, ami az app <b>elindításáról</b> és a <b>Kezdőlapról</b> szól. Minden modulhoz tartozik egy saját cím, ami egyenesen oda nyit — a panel a vágólapra teszi, megnyitja a böngészőben, és lépésről lépésre végigvezet, hogyan lesz belőle <b>külön ikon</b> a telefon kezdőképernyőjén. A <b>▶ Kipróbálom</b> gomb pontosan azt teszi, amit a kitett ikon fog, így előre látod, működik-e.",
    "Kimondjuk, ami eddig nem volt világos: egy weben futó app <b>magától nem tehet ki ikont</b> — az utolsó koppintás mindig a telefon saját menüjében történik. Ezért van a panelben lépésenkénti útmutató Androidra és iPhone-ra külön, és ezért nincs valódi rendszer-widget (az külön Android/iOS alkalmazás lenne).",
@@ -12128,7 +12202,7 @@ window.SL={getState:()=>S,
     // A felülírás előtt a MOSTANI helyi állapotot a felhőbe is elmentjük (időbélyeges
     // pillanatképként), hogy egy esetleg még nem szinkronizált érték se vesszen el.
     if(contentWeight(S)>0&&window.Cloud&&window.Cloud.backupNow)window.Cloud.backupNow(cloudCopy(),"eszkoz-elott");
-    S=normalize(r);persist();renderHeader();switchTab(curTab);toast("Szinkronizálva");
+    S=normalize(r);kcResyncMergedTot();persist();renderHeader();switchTab(curTab);toast("Szinkronizálva");
   }catch(e){/* eddig néma volt: úgy nézett ki, a gomb nem csinál semmit */
     toast("Nem sikerült alkalmazni a felhő verzióját: "+((e&&(e.code||e.message))||e),"down");}},
 
@@ -12146,7 +12220,11 @@ window.SL={getState:()=>S,
     const remoteNewer=(remote.updatedAt||0)>(S.updatedAt||0);
     const winner=remoteNewer?remote:S, loser=remoteNewer?S:remote;
     if(contentWeight(winner)+2 < contentWeight(loser)*0.9){askCloudConflict(remote,api);return;}
-    if(remoteNewer)window.SL.applyRemote(remote);
+    /* Felülírás helyett FÉSÜLÉS (2026-07-30). Eddig itt applyRemote(remote) futott,
+       ami a helyi oldal még fel nem töltött tételeit eldobta. A fenti 10%-os
+       védőkorlát ezt nem fogta meg: egy étel a napi adat töredéke. A mergeStates
+       nem töröl semmit — ütközésnél a frissebb oldal nyer. */
+    if(remoteNewer)window.SL.applyRemote(mergeStates(S,remote));
     else if((S.updatedAt||0)>(remote.updatedAt||0))api.upload();
   },
   onCloudState:(u)=>{cloudUser=u;renderHeader();if(curTab==="fiok")renderFiok();
@@ -12199,8 +12277,33 @@ function mgList(a,b,idKey,newerIsB){  /* azonosító szerinti unió */
   A.forEach(function(x){put(x,false);});
   B.forEach(function(x){put(x,newerIsB);});
   return out;}
+/* Kalória-naplónapok fésülése TÉTEL szinten (2026-07-30).
+   A naplótételeknek nincs azonosítójuk, ezért a napot nem cserélhetjük le egészben:
+   úgy elveszne az, amit közben a MÁSIK példányban vittél fel ugyanarra a napra.
+   Uniót képezünk; a pontosan egyező tételeket (ugyanannak a tételnek a visszhangja
+   mindkét oldalról) egyszer tartjuk meg, és idő szerint rendezünk. */
+function mgFoodDays(a,b,newerIsB){
+  const A=(a&&typeof a==="object")?a:{},B=(b&&typeof b==="object")?b:{};
+  const out={};
+  for(const k in A)out[k]=A[k];
+  for(const k in B){
+    if(!(k in out)){out[k]=B[k];continue;}
+    const da=out[k]||{},db=B[k]||{};
+    const seen={},es=[];
+    const put=function(x){if(!x||typeof x!=="object")return;
+      const sig=JSON.stringify(x);if(seen[sig])return;seen[sig]=1;es.push(x);};
+    (Array.isArray(da.e)?da.e:[]).forEach(put);
+    (Array.isArray(db.e)?db.e:[]).forEach(put);
+    es.sort(function(x,y){return((x&&x.hm!=null)?x.hm:9999)-((y&&y.hm!=null)?y.hm:9999);});
+    const o={e:es};
+    const note=newerIsB?(db.note||da.note):(da.note||db.note);
+    if(note)o.note=note;
+    out[k]=o;
+    _mgFoodTouched.push(k);}
+  return out;}
 function mergeStates(local,remote){
   const bNewer=(Number(remote&&remote.updatedAt)||0)>(Number(local&&local.updatedAt)||0);
+  _mgFoodTouched=[];
   const L=local||{},R=remote||{};
   const top=bNewer?R:L;                 /* skalárok és beállítások a frissebbtől */
   const out=JSON.parse(JSON.stringify(top));
@@ -12242,7 +12345,7 @@ function mergeStates(local,remote){
   const lf=L.food||{},rf=R.food||{};
   out.food=JSON.parse(JSON.stringify((bNewer?rf:lf)||{}));
   out.food.enabled=!!(lf.enabled||rf.enabled);
-  out.food.days=mgObj(lf.days,rf.days,bNewer);
+  out.food.days=mgFoodDays(lf.days,rf.days,bNewer);
   out.food.tot=mgObj(lf.tot,rf.tot,bNewer);
   out.food.w=mgObj(lf.w,rf.w,bNewer);
   out.food.td=mgObj(lf.td,rf.td,bNewer);
@@ -12339,7 +12442,7 @@ function askCloudConflict(remote,api){
 /* =========================================================================
    2. RÉTEG — témák, súgó, tutorial, indokok, ünneplés, visszajelzés
    ========================================================================= */
-const APP_VERSION="v37";
+const APP_VERSION="v38";
 
 /* ---- témák ---- */
 const THEMES=[{id:"kert",name:"Üvegház",sw:"#2D6A4F"},{id:"papir",name:"Letisztult",sw:"#1B4332"},{id:"krem",name:"Papír",sw:"#B5852B"},{id:"arany",name:"Arany éj",sw:"#E5A83B"},{id:"erdo",name:"Erdő",sw:"#5FD08A"},{id:"ocean",name:"Óceán",sw:"#4FB0E5"},{id:"naplemente",name:"Naplemente",sw:"#E5744F"},{id:"ejjel",name:"Éjszakai",sw:"#C79A46"},{id:"film",name:"Filmvászon",sw:"#D8D8D8"}];
